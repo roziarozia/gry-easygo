@@ -27,6 +27,11 @@ export default function Logowanie() {
         sbRef.current.auth.getSession().then(function (r) {
           if (r && r.data && r.data.session) window.location.href = REDIRECT_AFTER;
         });
+        // po powrocie z Google token przychodzi w URL i Supabase zapisuje sesję asynchronicznie —
+        // nasłuchuj zmiany stanu i przekieruj gdy sesja się pojawi (SIGNED_IN)
+        sbRef.current.auth.onAuthStateChange(function (event, session) {
+          if (session) { window.location.href = REDIRECT_AFTER; }
+        });
       }
     }
     if (window.supabase) { init(); }
@@ -92,7 +97,9 @@ export default function Logowanie() {
     if (!sb) return;
     setMsg({ text: '', type: '' });
     try {
-      const { error } = await sb.auth.signInWithOAuth({ provider: 'google', options: { redirectTo: REDIRECT_AFTER } });
+      // Google musi wrócić na /logowanie (tu jest klient Supabase, który przechwyci token z URL
+      // i zapisze sesję pod gry.easygo); stąd useEffect przekieruje dalej na stronę główną.
+      const { error } = await sb.auth.signInWithOAuth({ provider: 'google', options: { redirectTo: 'https://gry.easygo-english.pl/logowanie' } });
       if (error) throw error;
     } catch (err) {
       setMsg({ text: 'Logowanie Google nie jest jeszcze skonfigurowane.', type: 'err' });
