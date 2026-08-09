@@ -61,7 +61,7 @@ export default async function CwiczeniePage({ params }) {
           )}
           {game.is_premium
             ? <span className="eg-tag eg-tag-premium">Dla subskrybentów</span>
-            : <span className="eg-tag eg-tag-free">Darmowe</span>}
+            : <Link href="/?kategoria=darmowe" className="eg-tag eg-tag-free eg-tag-link">Darmowe</Link>}
         </div>
 
         <h1 style={{ fontFamily: "'Quicksand',sans-serif", fontSize: 23, fontWeight: 700, color: 'var(--eg-ink)', margin: '0 0 10px', lineHeight: 1.25 }}>
