@@ -1,4 +1,5 @@
 import './globals.css';
+import Script from 'next/script';
 import ConsentPixel from './ConsentPixel';
 export const metadata = {
   metadataBase: new URL('https://gry.easygo-english.pl'),
@@ -27,6 +28,20 @@ export default function RootLayout({ children }) {
       <body>
         {children}
         <ConsentPixel />
+
+        {/* Google Analytics (GA4) — mierzy ruch na gry.easygo-english.pl */}
+        <Script
+          src="https://www.googletagmanager.com/gtag/js?id=G-KWQVZY8YED"
+          strategy="afterInteractive"
+        />
+        <Script id="google-analytics" strategy="afterInteractive">
+          {`
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments);}
+            gtag('js', new Date());
+            gtag('config', 'G-KWQVZY8YED');
+          `}
+        </Script>
       </body>
     </html>
   );
