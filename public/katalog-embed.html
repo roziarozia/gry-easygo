@@ -1548,12 +1548,21 @@
 
   /* kliknięcie ĆWICZ (link /cwiczenie/...) w osadzonym katalogu → nawiguj w oknie głównym */
   document.addEventListener('click',function(ev){
-    var a=ev.target.closest && ev.target.closest('a.eg-play');
-    if(a && a.getAttribute('href') && a.getAttribute('href').indexOf('/cwiczenie/')===0){
-      if(window.parent&&window.parent!==window){
-        ev.preventDefault();
-        window.parent.postMessage({egNavigate:a.getAttribute('href')},'*');
-      }
+    var a=ev.target.closest && ev.target.closest('a');
+    if(!a) return;
+    var href=a.getAttribute('href') || '';
+    if(!href) return;
+    var inIframe = window.parent && window.parent !== window;
+    // 1) linki do ćwiczeń → rodzic nawiguje w tej samej karcie
+    if(href.indexOf('/cwiczenie/')===0){
+      if(inIframe){ ev.preventDefault(); window.parent.postMessage({egNavigate:href},'*'); }
+      return;
+    }
+    // 2) linki zewnętrzne (http...) i mailto z wnętrza iframe → otwórz w OKNIE GŁÓWNYM,
+    //    inaczej próbują nawigować samą ramkę i klik "nie działa"
+    if(inIframe && (/^https?:\/\//i.test(href) || /^mailto:/i.test(href))){
+      ev.preventDefault();
+      window.parent.postMessage({egNavigate:href, egExternal:true},'*');
     }
   });
 })();
