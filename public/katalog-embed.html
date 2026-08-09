@@ -1381,12 +1381,18 @@
     fbq('track', 'PageView');
   }
 
+  // Wyślij do strony-rodzica (gry.easygo) informację, czy użytkownik jest zalogowany —
+  // ConsentPixel NIE śledzi zalogowanych uczniów (prywatność).
+  function egTellParentLogin(loggedIn){
+    try{ if(window.parent && window.parent!==window){ window.parent.postMessage({egLoggedIn: !!loggedIn}, '*'); } }catch(e){}
+  }
   function loadHomework(){
-    if(!_sb){ egLoadPixelForGuest(); renderAccount(null, null); applyLoginUI(false, false); return; }
+    if(!_sb){ egTellParentLogin(false); egLoadPixelForGuest(); renderAccount(null, null); applyLoginUI(false, false); return; }
     _sb.auth.getSession().then(function(res){
       var session = res && res.data ? res.data.session : null;
-      if(!session){ egLoadPixelForGuest(); renderAccount(null, null); applyLoginUI(false, false); return; }
+      if(!session){ egTellParentLogin(false); egLoadPixelForGuest(); renderAccount(null, null); applyLoginUI(false, false); return; }
       currentStudentId = session.user.id;
+      egTellParentLogin(true);
       // pobierz profil (rola, dostęp, źródło, Speaking) do paska konta i filtrowania
       _sb.from('profiles').select('role,email,access,access_source,speaking_enabled').eq('id', session.user.id).single()
         .then(function(pr){
