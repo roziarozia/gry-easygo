@@ -21,6 +21,10 @@ export default function CatalogEmbed() {
           window.location.href = e.data.egNavigate;
         }
       }
+      // zmiana strony w katalogu: przewiń okno główne na górę katalogu
+      if (e.data && e.data.egScrollTop && ref.current) {
+        ref.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
     }
     window.addEventListener('message', onMsg);
     return () => window.removeEventListener('message', onMsg);
