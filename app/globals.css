@@ -659,3 +659,29 @@
   @media (prefers-reduced-motion: reduce){
     .eg-card,.eg-play,.eg-filters button{transition:none;}
   }
+
+/* ===== TAGI POD ĆWICZENIEM (poziom / kategoria / status) ===== */
+.eg-games .eg-tag{
+  display:inline-block;
+  font-family:'Quicksand',sans-serif;
+  font-weight:700;
+  font-size:12.5px;
+  line-height:1;
+  padding:6px 12px;
+  border-radius:999px;
+  background:#f1eef7;
+  color:var(--eg-ink);
+  border:1.5px solid #e3ddf0;
+  text-decoration:none;
+  white-space:nowrap;
+}
+.eg-games .eg-tag-level{ background:#efe8f7; border-color:#ddd0ef; color:#6d4b9c; }
+.eg-games .eg-tag-free{ background:#e3f3ea; border-color:#c4e6d2; color:#1e7e50; }
+.eg-games .eg-tag-premium{ background:#fce4ef; border-color:#f4c4dd; color:var(--eg-magenta); }
+/* klikalne tagi (poziom, kategoria) — subtelny hover */
+.eg-games .eg-tag-link{ cursor:pointer; transition:transform .12s ease, box-shadow .12s ease, filter .12s ease; }
+.eg-games .eg-tag-link:hover{ transform:translateY(-1px); box-shadow:0 3px 10px rgba(46,42,51,.12); filter:brightness(.98); }
+html.eg-dark .eg-games .eg-tag{ background:#2f2b40; border-color:#443d5c; color:#e8e6ef; }
+html.eg-dark .eg-games .eg-tag-level{ background:#372f4d; border-color:#544b74; color:#c9b8e6; }
+html.eg-dark .eg-games .eg-tag-free{ background:#20372a; border-color:#2f5540; color:#7fd6a0; }
+html.eg-dark .eg-games .eg-tag-premium{ background:#3a2434; border-color:#5a3a4f; color:#f4a8d0; }
