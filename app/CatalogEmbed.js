@@ -12,9 +12,14 @@ export default function CatalogEmbed() {
       if (e.data && typeof e.data.egCatalogHeight === 'number' && ref.current) {
         ref.current.style.height = Math.max(600, e.data.egCatalogHeight) + 'px';
       }
-      // przejście z kafelka: katalog prosi rodzica o nawigację
+      // przejście z kafelka lub linku: katalog prosi rodzica o nawigację
       if (e.data && e.data.egNavigate) {
-        window.location.href = e.data.egNavigate;
+        if (e.data.egExternal) {
+          // link zewnętrzny (Kontakt, mailto) — nowa karta, żeby uczeń nie tracił ćwiczeń
+          window.open(e.data.egNavigate, '_blank', 'noopener');
+        } else {
+          window.location.href = e.data.egNavigate;
+        }
       }
     }
     window.addEventListener('message', onMsg);
