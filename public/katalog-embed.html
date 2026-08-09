@@ -745,7 +745,7 @@
     <div class="eg-state" id="egState">Wczytywanie gier…</div>
     <div class="eg-promo" id="egPromo" style="display:none">
       <div class="eg-promo-text"><strong>To ćwiczenia dla subskrybentów.</strong> Spodobały Ci się? Wykup dostęp i odblokuj wszystkie — bez ograniczeń.</div>
-      <a class="eg-promo-btn" href="https://easygo-english.pl/oferta.html">Wykup dostęp</a>
+      <a class="eg-promo-btn" target="_top" href="https://easygo-english.pl/oferta.html">Wykup dostęp</a>
     </div>
     <div class="eg-progress" id="egProgress" style="display:none">
       <div class="eg-progress-top">
@@ -1124,7 +1124,7 @@
         : (g.category === 'reading' || g.template === 'reading') ? 'CZYTAJ'
         : 'ĆWICZ';
       var playBtn = locked
-        ? '<a class="eg-play eg-play-locked" href="' + ACCESS_URL + '">' +
+        ? '<a class="eg-play eg-play-locked" target="_top" href="' + ACCESS_URL + '">' +
             '<svg viewBox="0 0 24 24" width="15" height="15" style="vertical-align:-2px;margin-right:6px"><path d="M12 2a5 5 0 0 0-5 5v3H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8a2 2 0 0 0-2-2h-1V7a5 5 0 0 0-5-5zm-3 5a3 3 0 0 1 6 0v3H9V7z" fill="currentColor"/></svg>Wykup dostęp</a>'
         : '<a class="eg-play" href="/cwiczenie/' + encodeURIComponent(g.slug) + '">' + playLabel + '</a>';
       // ikona domku dla pracy domowej (gdy lektor przypisał to ćwiczenie zalogowanemu uczniowi)
@@ -1450,16 +1450,16 @@
     var el = document.getElementById('egAccount');
     if(!el) return;
     if(!session){
-      el.innerHTML = '<a class="eg-login-link" href="' + LOGIN_LINK + '">Zaloguj się</a>';
+      el.innerHTML = '<a class="eg-login-link" target="_top" href="' + LOGIN_LINK + '">Zaloguj się</a>';
       return;
     }
     var email = (profile && profile.email) || session.user.email || '';
     var html = '<span class="eg-hi">' + email + '</span>';
     if(profile && profile.role === 'teacher'){
-      html += '<a class="eg-panel-link" href="https://easygo-english.pl/panel-lektora.html">Panel lektora</a>';
+      html += '<a class="eg-panel-link" target="_top" href="https://easygo-english.pl/panel-lektora.html">Panel lektora</a>';
     }
     // każdy zalogowany ma dostęp do ustawień konta (hasło, usunięcie, subskrypcja jeśli własna)
-    html += '<a class="eg-panel-link" href="https://easygo-english.pl/konto.html">Moje konto</a>';
+    html += '<a class="eg-panel-link" target="_top" href="https://easygo-english.pl/konto.html">Moje konto</a>';
     html += '<a href="#" id="egLogout">Wyloguj</a>';
     el.innerHTML = html;
     var lo = document.getElementById('egLogout');
