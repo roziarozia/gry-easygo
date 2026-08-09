@@ -555,6 +555,21 @@
   .eg-grid.cols-3{ grid-template-columns:repeat(3,1fr); }
   .eg-grid.cols-4{ grid-template-columns:repeat(4,1fr); }
   .eg-grid.cols-5{ grid-template-columns:repeat(5,1fr); }
+  /* pasek stron */
+  .eg-pager{ display:flex; justify-content:center; align-items:center; gap:6px; flex-wrap:wrap; margin:28px auto 8px; }
+  .eg-pager button{
+    font-family:'Quicksand',sans-serif; font-weight:700; font-size:14px;
+    min-width:38px; height:38px; padding:0 10px;
+    border:1.5px solid var(--eg-line); border-radius:12px;
+    background:var(--eg-card); color:var(--eg-ink); cursor:pointer;
+    transition:background .12s, border-color .12s, transform .12s;
+  }
+  .eg-pager button:hover:not(:disabled){ border-color:var(--eg-magenta); color:var(--eg-magenta); transform:translateY(-1px); }
+  .eg-pager button.eg-active{ background:var(--eg-magenta); border-color:var(--eg-magenta); color:#fff; }
+  .eg-pager button:disabled{ opacity:.4; cursor:default; }
+  .eg-page-arrow{ font-size:20px; line-height:1; }
+  .eg-page-dots{ color:#a8a2b3; padding:0 2px; user-select:none; }
+  html.eg-dark .eg-pager button{ background:var(--eg-card); border-color:#3f3a58; }
   /* tablet: maksymalnie 3 w rzędzie, żeby kafelki nie były za wąskie */
   @media (max-width:1024px){
     .eg-grid, .eg-grid.cols-4, .eg-grid.cols-5{ grid-template-columns:repeat(3,1fr); }
@@ -810,6 +825,7 @@
     </div>
     <button type="button" class="eg-progress-show" id="egProgressShow" style="display:none">Pokaż pasek postępu</button>
     <div class="eg-grid" id="egGrid"></div>
+    <nav class="eg-pager" id="egPager" style="display:none" aria-label="Strony ćwiczeń"></nav>
   </main>
 
   <section class="eg-about">
@@ -858,6 +874,13 @@
   var levels = document.getElementById('egLevels');
   var allGames = [];
   var curSort = 'default';
+  var curPage = 1;            // aktualna strona (paginacja)
+  var curCols = 4;            // liczba kolumn (ustawiana przez setCols)
+  // ile zadań na stronę: 5 rzędów × kolumny (desktop); telefon = stałe 10
+  function pageSize(){
+    if(window.matchMedia && window.matchMedia('(max-width:560px)').matches) return 10;
+    return curCols * 5;
+  }
   var LEVEL_ORDER = { 'A1':0, 'A2':1, 'B1':2, 'B2':3, 'C1':4, 'C2':5 };
 
   var curType = 'wszystkie';    // rodzaj: gramatyka/slownictwo/speaking/reading
@@ -1102,7 +1125,17 @@
         return 0;
       });
     }
-    var html = list.map(function(g){
+    // ---- PAGINACJA: potnij do bieżącej strony (na pełnej, przefiltrowanej liście) ----
+    var perPage = pageSize();
+    var totalPages = Math.max(1, Math.ceil(list.length / perPage));
+    if(curPage > totalPages) curPage = totalPages;
+    if(curPage < 1) curPage = 1;
+    var pageStart = (curPage - 1) * perPage;
+    var fullCount = list.length;                       // ile realnych zadań w tym filtrze
+    var pageList = list.slice(pageStart, pageStart + perPage);
+    var isLastPage = (curPage >= totalPages);
+
+    var html = pageList.map(function(g){
       var catLabel = (g.category === 'gramatyka') ? 'gramatyka'
         : (g.category === 'speaking' || g.template === 'speaking') ? 'speaking'
         : (g.category === 'reading' || g.template === 'reading') ? 'reading'
@@ -1188,9 +1221,9 @@
         '</div></article>';
     }).join('');
 
-    // dopełnij kafelkami "wkrótce" tylko gdy nie ma żadnego filtra
-    if(curType === 'wszystkie' && curStatus === 'wszystkie' && curLvl === 'wszystkie' && !curSearch && !curSeries){
-      var missing = Math.max(0, MIN_TILES - list.length);
+    // dopełnij kafelkami "wkrótce" tylko gdy nie ma żadnego filtra — i tylko na OSTATNIEJ stronie
+    if(curType === 'wszystkie' && curStatus === 'wszystkie' && curLvl === 'wszystkie' && !curSearch && !curSeries && isLastPage){
+      var missing = Math.max(0, MIN_TILES - fullCount);
       for(var i=0;i<missing;i++) html += soonCard();
     }
     // baner serii
@@ -1205,6 +1238,7 @@
       if(sortWrap) sortWrap.style.display = 'flex';
     }
     grid.innerHTML = html;
+    renderPagination(totalPages);
     // baner zachęty przy filtrze "Dla subskrybentów" — tylko dla osób bez dostępu
     var promo = document.getElementById('egPromo');
     if(promo) promo.style.display = (curStatus === 'platne' && list.length && !userHasAccess) ? 'flex' : 'none';
@@ -1219,6 +1253,50 @@
       else if(curStatus === 'niezrobione') state.textContent = 'Świetnie! Ukończyłeś już wszystkie dostępne ćwiczenia w tych filtrach.';
       else state.textContent = 'Brak gier dla wybranych filtrów.';
     }
+  }
+
+  // Pasek stron pod siatką: ‹ 1 2 3 … › — tylko gdy > 1 strona
+  function renderPagination(totalPages){
+    var pager = document.getElementById('egPager');
+    if(!pager) return;
+    if(totalPages <= 1){ pager.innerHTML = ''; pager.style.display = 'none'; return; }
+    pager.style.display = 'flex';
+    var html = '';
+    // strzałka wstecz
+    html += '<button class="eg-page-arrow" data-page="' + (curPage-1) + '"' + (curPage===1?' disabled':'') + ' aria-label="Poprzednia strona">‹</button>';
+    // numery stron z wielokropkami (max ~7 przycisków)
+    var pages = [];
+    if(totalPages <= 7){
+      for(var i=1;i<=totalPages;i++) pages.push(i);
+    } else {
+      pages.push(1);
+      var s = Math.max(2, curPage-1), e = Math.min(totalPages-1, curPage+1);
+      if(s > 2) pages.push('...');
+      for(var j=s;j<=e;j++) pages.push(j);
+      if(e < totalPages-1) pages.push('...');
+      pages.push(totalPages);
+    }
+    pages.forEach(function(p){
+      if(p === '...'){ html += '<span class="eg-page-dots">…</span>'; }
+      else html += '<button class="eg-page-num' + (p===curPage?' eg-active':'') + '" data-page="' + p + '">' + p + '</button>';
+    });
+    // strzałka dalej
+    html += '<button class="eg-page-arrow" data-page="' + (curPage+1) + '"' + (curPage===totalPages?' disabled':'') + ' aria-label="Następna strona">›</button>';
+    pager.innerHTML = html;
+  }
+
+  // kliknięcie w numer strony / strzałkę
+  function goToPage(p){
+    curPage = p;
+    render();
+    // przewiń na górę katalogu, żeby nie trzeba było scrollować w górę ręcznie
+    try{
+      if(window.parent && window.parent !== window){
+        window.parent.postMessage({ egScrollTop: true }, '*');
+      } else {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }
+    }catch(e){}
   }
 
   // klik w "zobacz całą serię" (delegacja na siatce)
@@ -1238,6 +1316,7 @@
     curSeries = link.getAttribute('data-series');
     curType = 'wszystkie'; curStatus = 'wszystkie'; curLvl = 'wszystkie';
     curSearch = ''; 
+    curPage = 1;
     var si = document.getElementById('egSearch'); if(si) si.value = '';
     var sc = document.getElementById('egSearchClear'); if(sc) sc.style.display = 'none';
     filters.querySelectorAll('button').forEach(function(b){ b.classList.remove('eg-active'); });
@@ -1269,6 +1348,7 @@
                (c === 'wszystkie' && curType === 'wszystkie' && curStatus === 'wszystkie');
       b.classList.toggle('eg-active', on);
     });
+    curPage = 1;
     render();
   });
   levels.addEventListener('click', function(e){
@@ -1277,11 +1357,13 @@
     levels.querySelectorAll('button').forEach(function(b){ b.classList.remove('eg-active'); });
     btn.classList.add('eg-active');
     curLvl = btn.getAttribute('data-lvl');
+    curPage = 1;
     render();
   });
 
   document.getElementById('egSeriesBack').addEventListener('click', function(){
     curSeries = '';
+    curPage = 1;
     render();
   });
 
@@ -1294,6 +1376,7 @@
     sortSelect.addEventListener('change', function(){
       curSort = sortSelect.value;
       updateSortColor();
+      curPage = 1;
       render();
     });
   }
@@ -1302,6 +1385,7 @@
   var colsWrap = document.getElementById('egCols');
   if(colsWrap){
     function setCols(n){
+      curCols = parseInt(n, 10) || 4;
       grid.classList.remove('cols-3','cols-4','cols-5');
       grid.classList.add('cols-' + n);
       var btns = colsWrap.querySelectorAll('button');
@@ -1314,7 +1398,27 @@
       var btn = e.target.closest('button[data-cols]');
       if(!btn) return;
       setCols(btn.getAttribute('data-cols'));
+      curPage = 1;     // zmiana liczby kolumn zmienia rozmiar strony → wróć na 1
+      render();
     });
+  }
+
+  // klik w pasek stron
+  var pagerEl = document.getElementById('egPager');
+  if(pagerEl){
+    pagerEl.addEventListener('click', function(e){
+      var b = e.target.closest('button[data-page]');
+      if(!b || b.disabled) return;
+      var p = parseInt(b.getAttribute('data-page'), 10);
+      if(!isNaN(p)) goToPage(p);
+    });
+  }
+  // gdy telefon↔desktop zmienia próg (obrót/zmiana szer.) — rozmiar strony inny, przerysuj
+  if(window.matchMedia){
+    var mqPhone = window.matchMedia('(max-width:560px)');
+    var onMq = function(){ curPage = 1; render(); };
+    if(mqPhone.addEventListener) mqPhone.addEventListener('change', onMq);
+    else if(mqPhone.addListener) mqPhone.addListener(onMq);
   }
 
   // Odczytuje ?poziom= i ?kategoria= z adresu (np. z tagów pod ćwiczeniem)
@@ -1341,12 +1445,14 @@
   searchInput.addEventListener('input', function(){
     curSearch = searchInput.value;
     searchClear.style.display = curSearch ? 'flex' : 'none';
+    curPage = 1;
     render();
   });
   searchClear.addEventListener('click', function(){
     searchInput.value = '';
     curSearch = '';
     searchClear.style.display = 'none';
+    curPage = 1;
     render();
     searchInput.focus();
   });
