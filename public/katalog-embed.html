@@ -156,13 +156,16 @@
     display:inline-block;
     color:var(--eg-ink) !important;
   }
-  /* złoty pyłek / drobne gwiazdki wokół nazwy */
-  .eg-sparkles{ position:absolute; inset:-55px -90px; pointer-events:none; z-index:0; }
-  .eg-sparkles canvas{ width:100%; height:100%; display:block; }
-  @media (max-width:560px){
-    .eg-sparkles{ inset:-30px -20px; }
-  }
   .eg-wonderland .eg-underline{ position:relative; z-index:1; }
+  /* logo EasyWonders zamiast napisu */
+  .eg-hero-title .eg-logo{
+    display:block; width:min(520px,84vw); height:auto;
+    margin:0 auto; position:relative; z-index:1;
+  }
+  .eg-hero-title .eg-logo-dark{ display:none; }
+  html.eg-dark .eg-hero-title .eg-logo-light{ display:none; }
+  html.eg-dark .eg-hero-title .eg-logo-dark{ display:block; }
+  @media (max-width:560px){ .eg-hero-title .eg-logo{ width:min(330px,88vw); } }
   .eg-hero h1 .eg-accent{ color:var(--eg-magenta) !important; }
   .eg-hero h1 .eg-underline{
     background-image:linear-gradient(rgba(244,201,76,.55),rgba(244,201,76,.55));
@@ -692,13 +695,14 @@
       <span class="eg-theme-ico eg-theme-moon">☾</span>
     </button>
     <h1 class="eg-hero-title">
-      <span class="eg-brand-top">EasyGo</span>
       <span class="eg-wonderland">
-        <span class="eg-underline">Angielski Wonderland</span>
-        <span class="eg-sparkles" aria-hidden="true"><canvas id="egDustCanvas"></canvas></span>
+        <img class="eg-logo eg-logo-light" src="/easywonders.png" width="1200" height="669"
+             alt="EasyWonders — angielski przez zabawę">
+        <img class="eg-logo eg-logo-dark" src="/easywonders-dark.png" width="1200" height="669"
+             alt="" aria-hidden="true">
       </span>
     </h1>
-    <p>Ucz się angielskiego przez zabawę!<br>Wybierz ćwiczenie i zaczynajmy 💗</p>
+    <p>Miejsce, które otwiera drzwi.<br>To co, zaczynamy przygodę z językiem angielskim? 🩷</p>
     <div class="eg-search-wrap">
       <svg class="eg-search-icon" width="17" height="17" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="11" cy="11" r="7" stroke="#5a5568" stroke-width="2"/><line x1="16.5" y1="16.5" x2="21" y2="21" stroke="#5a5568" stroke-width="2" stroke-linecap="round"/></svg>
       <input type="text" id="egSearch" class="eg-search" placeholder="Wyszukaj zadanie po nazwie" autocomplete="off">
@@ -1481,92 +1485,7 @@
 })();
 </script>
 
-<script>
-/* ===== MAGICZNY PYŁEK wokół "Angielski Wonderland" (canvas) ===== */
-(function(){
-  var canvas = document.getElementById('egDustCanvas');
-  if(!canvas) return;
-  var ctx = canvas.getContext('2d');
-  var dpr = Math.min(window.devicePixelRatio || 1, 2);
-  var particles = [];
-  var W = 0, H = 0;
-  var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-  function resize(){
-    var r = canvas.getBoundingClientRect();
-    W = Math.max(1, r.width);
-    H = Math.max(1, r.height);
-    canvas.width = W * dpr;
-    canvas.height = H * dpr;
-    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-    build();
-  }
-
-  function rand(a, b){ return a + Math.random() * (b - a); }
-
-  function build(){
-    // gęstość zależna od powierzchni — dużo drobinek, ale nie za dużo na telefonie
-    var count = Math.min(150, Math.max(50, Math.round(W * H / 1400)));
-    particles = [];
-    for(var i = 0; i < count; i++){
-      particles.push(makeParticle(true));
-    }
-  }
-
-  function makeParticle(anywhere){
-    return {
-      x: rand(0, W),
-      y: anywhere ? rand(0, H) : H + rand(0, 30),
-      r: rand(0.6, 2.6),                 // promień drobinki
-      vy: rand(-0.25, -0.9),             // unosi się delikatnie w górę
-      vx: rand(-0.25, 0.25),             // lekki dryf w bok
-      life: rand(0, 1),                  // faza migotania
-      speed: rand(0.006, 0.02),          // tempo migotania
-      hue: Math.random() < 0.25 ? '#fff2c2' : '#f4c94c'  // część jaśniejsza, jak iskry
-    };
-  }
-
-  function frame(){
-    ctx.clearRect(0, 0, W, H);
-    for(var i = 0; i < particles.length; i++){
-      var p = particles[i];
-      p.life += p.speed;
-      // migotanie: sinusoidalna jasność
-      var tw = 0.35 + 0.65 * (0.5 + 0.5 * Math.sin(p.life * Math.PI * 2));
-      if(!reduce){
-        p.y += p.vy;
-        p.x += p.vx;
-      }
-      // reset gdy wypłynie za górę
-      if(p.y < -6){ particles[i] = makeParticle(false); continue; }
-
-      var grad = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, p.r * 3);
-      grad.addColorStop(0, p.hue);
-      grad.addColorStop(0.5, 'rgba(244,201,76,' + (0.55 * tw).toFixed(3) + ')');
-      grad.addColorStop(1, 'rgba(244,201,76,0)');
-      ctx.globalAlpha = tw;
-      ctx.fillStyle = grad;
-      ctx.beginPath();
-      ctx.arc(p.x, p.y, p.r * 3, 0, Math.PI * 2);
-      ctx.fill();
-
-      // jasny rdzeń drobinki
-      ctx.globalAlpha = tw;
-      ctx.fillStyle = p.hue;
-      ctx.beginPath();
-      ctx.arc(p.x, p.y, p.r * 0.6, 0, Math.PI * 2);
-      ctx.fill();
-    }
-    ctx.globalAlpha = 1;
-    if(!reduce) requestAnimationFrame(frame);
-  }
-
-  resize();
-  window.addEventListener('resize', resize);
-  if(reduce){ frame(); }        // narysuj raz statycznie
-  else requestAnimationFrame(frame);
-})();
-</script>
 
 <script>
 /* Osadzenie w gry.easygo-english.pl: raportuj wysokość i nawiguj w oknie nadrzędnym */
