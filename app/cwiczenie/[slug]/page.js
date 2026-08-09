@@ -46,27 +46,35 @@ export default async function CwiczeniePage({ params }) {
       {/* GÓRA: gra osadzona w formie i wielkości jak teraz (okładka + granie po kliknięciu) */}
       <GameEmbed slug={game.slug} />
 
-      {/* DÓŁ: opis czytelny dla Google/AI — Twój tekst z bazy, widoczny po zescrollowaniu */}
-      <section style={{ maxWidth: 780, margin: '0 auto', padding: '10px 20px 60px' }}>
-        <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap', marginBottom: 16 }}>
-          {game.level && <span className="eg-tag eg-tag-level">{game.level}</span>}
-          {catLabel && <span className="eg-tag">{catLabel}</span>}
+      {/* DÓŁ: opis czytelny dla Google/AI — Twój tekst z bazy, wyśrodkowany, zwięzły */}
+      <section style={{ maxWidth: 680, margin: '0 auto', padding: '6px 20px 40px', textAlign: 'center' }}>
+        <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', justifyContent: 'center', marginBottom: 12 }}>
+          {game.level && (
+            <Link href={`/?poziom=${encodeURIComponent(game.level)}`} className="eg-tag eg-tag-level eg-tag-link">
+              {game.level}
+            </Link>
+          )}
+          {catLabel && (
+            <Link href={`/?kategoria=${encodeURIComponent(game.category)}`} className="eg-tag eg-tag-link">
+              {catLabel}
+            </Link>
+          )}
           {game.is_premium
             ? <span className="eg-tag eg-tag-premium">Dla subskrybentów</span>
             : <span className="eg-tag eg-tag-free">Darmowe</span>}
         </div>
 
-        <h1 style={{ fontFamily: "'Quicksand',sans-serif", fontSize: 30, fontWeight: 700, color: 'var(--eg-ink)', margin: '0 0 16px', lineHeight: 1.25 }}>
+        <h1 style={{ fontFamily: "'Quicksand',sans-serif", fontSize: 23, fontWeight: 700, color: 'var(--eg-ink)', margin: '0 0 10px', lineHeight: 1.25 }}>
           {game.title}
         </h1>
 
         {game.description && (
-          <p style={{ fontSize: 17, lineHeight: 1.7, color: 'var(--eg-ink)', margin: '0 0 24px' }}>
+          <p style={{ fontSize: 15, lineHeight: 1.6, color: 'var(--eg-ink)', margin: '0 0 18px' }}>
             {game.description}
           </p>
         )}
 
-        <Link href="/" style={{ color: 'var(--eg-magenta)', fontWeight: 700, textDecoration: 'none' }}>
+        <Link href="/" style={{ color: 'var(--eg-magenta)', fontWeight: 700, textDecoration: 'none', fontSize: 15 }}>
           ← Zobacz wszystkie ćwiczenia
         </Link>
       </section>
