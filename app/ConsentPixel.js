@@ -1,14 +1,17 @@
 'use client';
 import { useEffect, useState } from 'react';
 
-// Baner zgody RODO + Meta Pixel, który uruchamia się DOPIERO po kliknięciu "Akceptuję".
-// Wybór zapamiętywany w localStorage (easygo_zgoda_cookies). Marka EasyGo (róż #ca4490).
+// Baner zgody RODO + Meta Pixel.
+// Pixel uruchamia się DOPIERO po "Akceptuję" ORAZ tylko dla NIEZALOGOWANYCH gości.
+// Osadzony katalog (w ramce) wysyła postMessage {egLoggedIn:true}; gdy zalogowany,
+// Pixel NIE jest ładowany (prywatność uczniów). Wybór zgody zapamiętywany w localStorage.
 const PIXEL_ID = '1747890483017414';
+let egKnownLoggedIn = false;
 
 function loadPixel() {
   if (window.__egPixelLoaded) return;
+  if (egKnownLoggedIn) return; // zalogowany → nie śledzimy
   window.__egPixelLoaded = true;
-  /* standardowy fragment Meta Pixel */
   !function(f,b,e,v,n,t,s){
     if(f.fbq)return;n=f.fbq=function(){n.callMethod?n.callMethod.apply(n,arguments):n.queue.push(arguments)};
     if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];
@@ -19,28 +22,35 @@ function loadPixel() {
 }
 
 export default function ConsentPixel() {
-  const [decision, setDecision] = useState(null); // null = jeszcze nie wybrano
+  const [decision, setDecision] = useState(null);
 
   useEffect(() => {
+    function onMsg(e) {
+      if (e.data && e.data.egLoggedIn === true) {
+        egKnownLoggedIn = true; // zalogowany uczeń → nie śledzimy
+      }
+    }
+    window.addEventListener('message', onMsg);
+
     let saved = null;
     try { saved = localStorage.getItem('easygo_zgoda_cookies'); } catch (e) {}
     setDecision(saved);
-    if (saved === 'accepted') loadPixel(); // zgoda z wcześniejszej wizyty → ładuj Pixel
+    // poczekaj chwilę na sygnał z ramki, zanim załadujesz Pixel (żeby nie złapać zalogowanego)
+    if (saved === 'accepted') setTimeout(function(){ loadPixel(); }, 1200);
+    return () => window.removeEventListener('message', onMsg);
   }, []);
 
   function accept() {
     try { localStorage.setItem('easygo_zgoda_cookies', 'accepted'); } catch (e) {}
     setDecision('accepted');
-    loadPixel();
+    setTimeout(function(){ loadPixel(); }, 400);
   }
   function reject() {
     try { localStorage.setItem('easygo_zgoda_cookies', 'rejected'); } catch (e) {}
     setDecision('rejected');
   }
 
-  // decyzja już podjęta (w tej lub poprzedniej wizycie) → nie pokazuj banera
   if (decision === 'accepted' || decision === 'rejected') return null;
-  // jeszcze nie wiemy (pierwsze renderowanie na serwerze) → nic nie pokazuj do czasu sprawdzenia
   if (decision === null && typeof window === 'undefined') return null;
 
   return (
