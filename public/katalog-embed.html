@@ -1,0 +1,1592 @@
+<!-- ============================================================
+     EASYGO — STRONA GRY! (katalog dynamiczny)
+     Wklej CAŁOŚĆ do widgetu "HTML" w Elementorze na stronie /gry/.
+     Kafelki budują się automatycznie z bazy — nowa opublikowana
+     gra pojawia się tu sama, bez edycji tego kodu.
+     ============================================================ -->
+
+<script>
+  // ustaw tryb ciemny OD RAZU (przed renderowaniem), wspólny dla całego serwisu przez localStorage
+  (function(){
+    try{
+      if(localStorage.getItem('easygo_tryb') === 'dark'){
+        document.documentElement.classList.add('eg-dark');
+      }
+    }catch(e){}
+  })();
+</script>
+
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700&family=Quicksand:wght@500;600;700&display=swap" rel="stylesheet">
+
+<style>
+  .eg-games{
+    --eg-magenta:#ca4490;
+    --eg-violet:#6885db;
+    --eg-gold:#f4c94c;
+    --eg-ink:#2e2a33;
+    --eg-muted:#7d7788;
+    --eg-bg:#ffffff;
+    --eg-card:#ffffff;
+    --eg-card-soft:#faf7fb;
+    --eg-line:#eceaf2;
+    font-family:'Nunito',sans-serif;
+    color:var(--eg-ink);
+    background:var(--eg-bg);
+    overflow-x:clip;
+    max-width:100%;
+  }
+  /* TRYB CIEMNY — łagodny grafit/granat, przygaszone akcenty.
+     Zmienne muszą celować w .eg-games (tam są zdefiniowane), inaczej lokalna definicja wygrywa. */
+  html.eg-dark .eg-games{
+    --eg-ink:#e8e6ef;
+    --eg-muted:#a29caf;
+    --eg-bg:#1a1b26;
+    --eg-card:#24263a;
+    --eg-card-soft:#2b2d42;
+    --eg-line:#363850;
+  }
+  /* ściemnij też tło całej strony WordPressa (poza widgetem), żeby nie było białej otoczki */
+  html.eg-dark, html.eg-dark body, html.eg-dark #page, html.eg-dark .site,
+  html.eg-dark .site-content, html.eg-dark .elementor, html.eg-dark main{
+    background:#1a1b26 !important;
+  }
+  /* przyciemnienie jasnych powierzchni (nie kolorowych akcentów marki) w trybie ciemnym */
+  html.eg-dark .eg-progress-bar{ background:#3a2c36; }
+  html.eg-dark .eg-search input,
+  html.eg-dark #egFilters button{ background:var(--eg-card); color:var(--eg-ink); }
+  html.eg-dark #egFilters button.eg-active{ background:#3a3550; border-color:#544b74; color:#e8e6ef; }
+  html.eg-dark #egFilters button[data-cat="wszystkie"].eg-active,
+  html.eg-dark #egFilters button[data-cat="gramatyka"].eg-active,
+  html.eg-dark #egFilters button[data-cat="slownictwo"].eg-active,
+  html.eg-dark #egFilters button[data-cat="speaking"].eg-active,
+  html.eg-dark #egFilters button[data-cat="reading"].eg-active,
+  html.eg-dark #egFilters button[data-cat="domowa"].eg-active,
+  html.eg-dark #egFilters button[data-cat="zrobione"].eg-active,
+  html.eg-dark #egFilters button[data-cat="niezrobione"].eg-active{ background:#3a3550 !important; border-color:#544b74 !important; color:#e8e6ef !important; }
+  /* darmowe/płatne/ulubione zachowują kolor marki, ale przyciemniony i z czytelnym tekstem */
+  html.eg-dark #egFilters button[data-cat="darmowe"]{ background:#3a3320; border-color:#5a4d28; color:#f4c94c; }
+  html.eg-dark #egFilters button[data-cat="darmowe"].eg-active{ background:#f4c94c !important; border-color:#e6b833 !important; color:#2e2a33 !important; }
+  html.eg-dark #egFilters button[data-cat="platne"]{ background:#3a2434; border-color:#5a3a4f; color:#e88fc0; }
+  html.eg-dark #egFilters button[data-cat="platne"].eg-active{ background:#6d3a5c !important; border-color:#8a4f75 !important; color:#fce4ef !important; }
+  html.eg-dark #egFilters button[data-cat="ulubione"].eg-active{ background:#4a2740 !important; border-color:#6d3a5c !important; color:#f4a8d0 !important; }
+  html.eg-dark #egLevels button.eg-active{ background:#3a3550 !important; border-color:#544b74 !important; color:#e8e6ef !important; }
+  html.eg-dark .eg-cols button.eg-active{ background:#3a3550; border-color:#544b74; color:#e8e6ef; }
+  html.eg-dark .eg-fav-filter.eg-active{ background:#4a2740 !important; border-color:#6d3a5c !important; }
+  html.eg-dark .eg-sort-wrap select{ background:#2f3147; color:var(--eg-ink); border-color:#3f4468; }
+  html.eg-dark .eg-sort-wrap select option{ background:#2f3147; color:#e8e6ef; }
+  html.eg-dark .eg-search input{ color:var(--eg-ink); }
+  html.eg-dark .eg-search input::placeholder{ color:#8a84a0; }
+  html.eg-dark .eg-progress-panel{ background:transparent; }
+  html.eg-dark .eg-pp-reset{ background:#2b2d42; }
+  html.eg-dark .eg-card-soon{ background:#20222f; }
+  html.eg-dark .eg-card-soon .eg-thumb,
+  html.eg-dark .eg-thumb{ background:#2b2d42; }
+  html.eg-dark .eg-about,
+  html.eg-dark .eg-footer{ background:transparent; }
+  html.eg-dark .eg-progress-adjust{ background:#2b2d42; border-color:#3f4468; }
+  .eg-games *{margin:0;padding:0;box-sizing:border-box;}
+
+  .eg-account{
+    display:flex;
+    justify-content:flex-end;
+    align-items:center;
+    gap:14px;
+    flex-wrap:wrap;
+    margin-bottom:18px;
+    min-height:24px;
+    font-size:13.5px;
+  }
+  .eg-account .eg-hi{ color:var(--eg-muted); font-weight:600; }
+  .eg-account a{
+    text-decoration:none;
+    font-weight:700;
+    color:var(--eg-muted);
+    transition:color .15s;
+  }
+  .eg-account a:hover{ color:var(--eg-magenta); }
+  .eg-account .eg-panel-link{
+    background:var(--eg-magenta);
+    color:#fff;
+    padding:8px 16px;
+    border-radius:10px;
+  }
+  .eg-account .eg-panel-link:hover{ color:#fff; filter:brightness(1.06); }
+  .eg-account .eg-login-link{
+    background:var(--eg-card);
+    color:var(--eg-magenta);
+    border:1.5px solid var(--eg-magenta);
+    padding:8px 16px;
+    border-radius:10px;
+  }
+  .eg-account .eg-login-link:hover{ color:var(--eg-magenta); }
+  /* przełącznik trybu jasny/ciemny */
+  .eg-theme-toggle{ position:absolute; top:18px; right:20px; display:inline-flex; align-items:center; gap:6px; background:none; border:none; cursor:pointer; padding:4px; z-index:5; }
+  .eg-theme-track{ position:relative; width:44px; height:24px; background:var(--eg-line); border-radius:999px; transition:background .25s; display:inline-block; }
+  .eg-theme-thumb{ position:absolute; top:3px; left:3px; width:18px; height:18px; border-radius:50%; background:var(--eg-gold); transition:transform .25s, background .25s; }
+  html.eg-dark .eg-theme-thumb{ transform:translateX(20px); background:#6885db; }
+  .eg-theme-ico{ font-size:13px; line-height:1; }
+  .eg-theme-sun{ color:var(--eg-gold); }
+  .eg-theme-moon{ color:var(--eg-muted); }
+  html.eg-dark .eg-theme-sun{ color:var(--eg-muted); }
+  html.eg-dark .eg-theme-moon{ color:#6885db; }
+  .eg-hero{
+    max-width:1180px;
+    margin:0 auto;
+    padding:76px 24px 40px;
+    text-align:center;
+  }
+  .eg-hero h1{
+    font-family:'Quicksand',sans-serif !important;
+    font-weight:700 !important;
+    font-size:clamp(40px,6vw,58px) !important;
+    letter-spacing:-1px;
+    line-height:1.1 !important;
+    color:var(--eg-ink) !important;
+  }
+  /* Nowy nagłówek: EasyGo (różowy) + Angielski Wonderland (czarny, złote podkreślenie) */
+  .eg-hero-title{ display:flex; flex-direction:column; align-items:center; gap:4px; }
+  .eg-hero-title .eg-brand-top{
+    color:var(--eg-magenta) !important;
+    font-size:.62em;
+    line-height:1;
+    letter-spacing:-.5px;
+  }
+  .eg-hero-title .eg-wonderland{
+    position:relative;
+    display:inline-block;
+    color:var(--eg-ink) !important;
+  }
+  /* złoty pyłek / drobne gwiazdki wokół nazwy */
+  .eg-sparkles{ position:absolute; inset:-55px -90px; pointer-events:none; z-index:0; }
+  .eg-sparkles canvas{ width:100%; height:100%; display:block; }
+  @media (max-width:560px){
+    .eg-sparkles{ inset:-30px -20px; }
+  }
+  .eg-wonderland .eg-underline{ position:relative; z-index:1; }
+  .eg-hero h1 .eg-accent{ color:var(--eg-magenta) !important; }
+  .eg-hero h1 .eg-underline{
+    background-image:linear-gradient(rgba(244,201,76,.55),rgba(244,201,76,.55));
+    background-size:100% .22em;
+    background-position:0 88%;
+    background-repeat:no-repeat;
+    -webkit-box-decoration-break:clone;
+    box-decoration-break:clone;
+  }
+  .eg-hero p{
+    font-size:18px;
+    color:var(--eg-muted);
+    margin-top:16px;
+    line-height:1.6;
+  }
+
+  .eg-fav{
+    position:absolute;
+    top:10px;
+    left:10px;
+    z-index:3;
+    width:38px;height:38px;
+    border:none;
+    border-radius:50%;
+    background:rgba(255,255,255,.9);
+    box-shadow:0 2px 8px rgba(46,42,51,.15);
+    cursor:pointer;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding:0;
+    transition:transform .12s;
+  }
+  .eg-fav:hover{ transform:scale(1.12); }
+  .eg-fav svg{ fill:none; stroke:#b9b2c4; stroke-width:1.8; transition:fill .15s, stroke .15s; }
+  .eg-fav-on svg{ fill:var(--eg-magenta); stroke:var(--eg-magenta); }
+  /* zablokowana okładka: delikatna nakładka + kłódka na środku (poziom nadal widoczny) */
+  .eg-lock-overlay{
+    position:absolute;
+    inset:0;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    background:rgba(46,42,51,.28);
+    z-index:2;
+    pointer-events:none;
+  }
+  .eg-lock-circle{
+    width:58px;
+    height:58px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    background:rgba(255,255,255,.92);
+    color:var(--eg-magenta);
+    border-radius:50%;
+    box-shadow:0 4px 16px rgba(46,42,51,.25);
+  }
+  /* przycisk "Wykup dostęp" — różowy z kłódką, zawsze czytelny */
+  .eg-play-locked{
+    background:var(--eg-magenta) !important;
+    color:#fff !important;
+    border:1.5px solid var(--eg-magenta) !important;
+  }
+  .eg-play-locked svg{ fill:#fff; }
+  .eg-play-locked:hover{
+    filter:brightness(1.06);
+  }
+  .eg-hw{
+    position:absolute;
+    top:56px;
+    left:10px;
+    width:34px;
+    height:34px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    background:rgba(255,255,255,.92);
+    color:#2e9e6a;
+    border-radius:50%;
+    box-shadow:0 2px 8px rgba(46,42,51,.15);
+    z-index:3;
+  }
+  .eg-hw-card{
+    border-color:#cde9d8;
+    box-shadow:0 4px 18px rgba(46,158,106,.12);
+  }
+  .eg-done{
+    display:block;
+    width:100%;
+    margin-top:8px;
+    font-family:inherit;
+    font-weight:700;
+    font-size:13.5px;
+    padding:10px;
+    border-radius:10px;
+    cursor:pointer;
+    transition:all .15s;
+  }
+  .eg-done-no{
+    background:var(--eg-card);
+    color:#1e7e50;
+    border:1.5px solid #cde9d8;
+  }
+  .eg-done-no:hover{ background:#f3faf5; }
+  .eg-done-yes{
+    background:#eaf7f0;
+    color:#1e7e50;
+    border:1.5px solid #2e9e6a;
+  }
+  .eg-done-yes:hover{ background:#dff2e8; }
+  .eg-hw-done .eg-thumb{ opacity:.82; }
+  .eg-fav-filter{ color:var(--eg-magenta) !important; }
+  .eg-fav-filter.eg-active{ background:#fce4ef !important; border-color:#f4c4dd !important; color:var(--eg-magenta) !important; }
+  .eg-series{
+    font-family:inherit;
+    font-size:12.5px;
+    font-weight:600;
+    color:var(--eg-muted);
+    margin-bottom:2px;
+  }
+  .eg-series-num{
+    color:var(--eg-violet);
+    font-weight:700;
+  }
+  .eg-series-sep{
+    color:var(--eg-muted);
+    font-weight:600;
+  }
+  .eg-series-link{
+    color:var(--eg-magenta);
+    font-weight:700;
+    text-decoration:none;
+    border-bottom:1px solid transparent;
+  }
+  .eg-series-link:hover{ border-bottom-color:var(--eg-magenta); }
+  .eg-series-banner{
+    max-width:1180px;
+    margin:0 auto 20px;
+    padding:12px 20px;
+    background:#faf3f8;
+    border:1.5px solid #f0d8e8;
+    border-radius:14px;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:12px;
+    flex-wrap:wrap;
+  }
+  .eg-series-name{
+    font-family:inherit;
+    font-weight:700;
+    font-size:16px;
+    color:var(--eg-ink);
+  }
+  .eg-series-back{
+    border:none;
+    background:var(--eg-magenta);
+    color:#fff;
+    font-family:inherit;
+    font-weight:600;
+    font-size:13px;
+    padding:8px 16px;
+    border-radius:999px;
+    cursor:pointer;
+  }
+  .eg-series-back:hover{ opacity:.9; }
+  .eg-exno{
+    font-family:inherit;
+    font-size:12px;
+    font-weight:700;
+    color:var(--eg-violet);
+    letter-spacing:.3px;
+    margin-bottom:2px;
+  }
+  .eg-sort-wrap{
+    max-width:1180px;
+    margin:22px auto 0;
+    padding:0 8px;
+    display:flex;
+    justify-content:center;
+    font-family:inherit;
+  }
+  .eg-sort-wrap select{
+    width:auto;
+    min-width:0;
+    max-width:200px;
+    font-family:inherit;
+    font-size:13px;
+    line-height:1.2;
+    color:#a9a3b8;
+    background-color:#fff;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='11' height='11' viewBox='0 0 24 24' fill='none' stroke='%23a9a3b8' stroke-width='2.5' stroke-linecap='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+    background-repeat:no-repeat;
+    background-position:right 14px center;
+    border:1.5px solid #e6e2f0;
+    border-radius:999px;
+    padding:8px 34px 8px 16px;
+    cursor:pointer;
+    outline:none;
+    height:auto;
+    -webkit-appearance:none;
+    -moz-appearance:none;
+    appearance:none;
+    transition:border-color .15s;
+  }
+  .eg-sort-wrap select:hover{ border-color:var(--eg-magenta); }
+  .eg-sort-wrap select:focus{ border-color:var(--eg-magenta); }
+  .eg-cols{
+    display:inline-flex;
+    align-items:center;
+    gap:5px;
+    margin-left:14px;
+    vertical-align:middle;
+  }
+  .eg-cols-label{
+    font-size:13px;
+    color:var(--eg-muted);
+    font-weight:600;
+    margin-right:2px;
+  }
+  .eg-cols button{
+    width:34px;
+    height:34px;
+    border:1px solid var(--eg-line);
+    background:var(--eg-card);
+    border-radius:9px;
+    font-size:14px;
+    font-weight:700;
+    color:var(--eg-muted);
+    cursor:pointer;
+    transition:border-color .15s, color .15s, background .15s;
+  }
+  .eg-cols button:hover{ border-color:var(--eg-magenta); color:var(--eg-magenta); }
+  .eg-cols button.eg-active{
+    background:#fce4ef;
+    border-color:#f4c4dd;
+    color:var(--eg-magenta);
+  }
+  /* na telefonie i tak 1 kolumna, więc chowamy przełącznik */
+  @media (max-width:820px){
+    .eg-cols{ display:none; }
+  }
+  .eg-search-wrap{
+    position:relative;
+    max-width:440px;
+    margin:30px auto 0;
+  }
+  .eg-search{
+    width:100%;
+    font-family:inherit;
+    font-size:15px;
+    color:var(--eg-ink);
+    background:var(--eg-card);
+    border:1.5px solid #e6e2f0;
+    border-radius:999px;
+    padding:12px 42px 12px 44px;
+    outline:none;
+    transition:border-color .15s;
+  }
+  .eg-search:hover{ border-color:var(--eg-magenta); }
+  .eg-search:focus{ border-color:var(--eg-magenta); }
+  .eg-search::placeholder{ color:#a9a3b8; }
+  .eg-search-icon{
+    position:absolute;
+    left:16px;
+    top:50%;
+    transform:translateY(-50%);
+    display:block;
+    pointer-events:none;
+  }
+  .eg-search-clear{
+    position:absolute;
+    right:8px;
+    top:50%;
+    transform:translateY(-50%);
+    border:none;
+    background:#f0edf6;
+    color:#8a8398;
+    width:26px;height:26px;
+    border-radius:50%;
+    cursor:pointer;
+    font-size:13px;
+    display:none;
+    align-items:center;
+    justify-content:center;
+    line-height:1;
+  }
+  .eg-search-clear:hover{ background:#e3def0; }
+  .eg-filters{
+    display:flex;
+    flex-direction:column;
+    gap:8px;
+    align-items:center;
+    margin:22px auto 0;
+  }
+  .eg-filter-row{
+    display:flex;
+    gap:8px;
+    justify-content:center;
+    flex-wrap:wrap;
+  }
+  .eg-levels{ margin-top:12px; flex-direction:row; flex-wrap:wrap; justify-content:center; }
+  .eg-levels button{ font-size:13px; padding:7px 16px; }
+  .eg-filters button{
+    font-family:'Quicksand',sans-serif;
+    font-weight:600;
+    font-size:14px;
+    border:1px solid var(--eg-line);
+    color:var(--eg-muted);
+    background:var(--eg-card);
+    border-radius:999px;
+    padding:9px 20px;
+    cursor:pointer;
+    transition:all .18s;
+  }
+  .eg-filters button:hover{ border-color:var(--eg-magenta); color:var(--eg-magenta); }
+  /* aktywne kategorie — pastelowe kolory zamiast ciemnego */
+  .eg-filters button.eg-active{ color:var(--eg-ink); font-weight:700; }
+  #egFilters button[data-cat="wszystkie"].eg-active{ background:#f3e2ef; border-color:#e6c4dd; }
+  #egFilters button[data-cat="gramatyka"].eg-active{ background:#e2ecf7; border-color:#c4d8ee; }
+  #egFilters button[data-cat="slownictwo"].eg-active{ background:#e3f3ea; border-color:#c4e6d2; }
+  #egFilters button[data-cat="speaking"].eg-active{ background:#efe6f7; border-color:#d8c4ee; }
+  #egFilters button[data-cat="reading"].eg-active{ background:#e6f0f7; border-color:#c4dcee; }
+  #egFilters button[data-cat="ulubione"].eg-active{ background:#fce4ef; border-color:#f4c4dd; color:var(--eg-magenta); }
+  #egFilters button[data-cat="domowa"].eg-active{ background:#e3f3ea; border-color:#c4e6d2; color:#1e7e50; }
+  #egFilters button[data-cat="zrobione"]{ color:#1e7e50; }
+  #egFilters button[data-cat="zrobione"].eg-active{ background:#d8f0e2; border-color:#a8ddc0; color:#186642; }
+  #egFilters button[data-cat="niezrobione"]{ color:#6885db; }
+  #egFilters button[data-cat="niezrobione"].eg-active{ background:#e2ebfa; border-color:#c2d4f0; color:#4a63c0; }
+  #egFilters button[data-cat="darmowe"]{ color:var(--eg-ink); font-weight:700; background:#fdf4dc; border-color:#f0d99a; }
+  #egFilters button[data-cat="darmowe"]:hover{ border-color:#e0b840; color:#2e2a33; }
+  #egFilters button[data-cat="darmowe"].eg-active{ background:#f4c94c; border-color:#e6b833; color:#2e2a33; }
+  #egFilters button[data-cat="platne"]{ color:var(--eg-magenta); font-weight:700; background:#fbeaf3; border-color:#f0c4dd; }
+  #egFilters button[data-cat="platne"]:hover{ border-color:var(--eg-magenta); color:#a72e77; }
+  #egFilters button[data-cat="platne"].eg-active{ background:#f6c9e0; border-color:#e89ec5; color:#8f2064; }
+  .eg-promo{ display:flex; align-items:center; justify-content:space-between; gap:16px; flex-wrap:wrap; background:linear-gradient(135deg,#fbeaf3,#f6e0ee); border:1.5px solid #f0c4dd; border-radius:16px; padding:16px 22px; max-width:820px; margin:0 auto 22px; }
+  .eg-promo-text{ font-size:14.5px; color:var(--eg-ink); line-height:1.5; }
+  .eg-promo-text strong{ color:var(--eg-magenta); }
+  .eg-promo-btn{ font-family:'Quicksand',sans-serif; font-weight:700; font-size:15px; background:var(--eg-magenta); color:#fff; text-decoration:none; padding:11px 24px; border-radius:11px; white-space:nowrap; transition:filter .15s; }
+  .eg-promo-btn:hover{ filter:brightness(1.06); }
+  /* poziomy — jeden wspólny pastel gdy aktywny */
+  #egLevels button.eg-active{ background:#efe8f7; border-color:#d8c8ec; color:var(--eg-ink); }
+
+  .eg-wrap{
+    max-width:1180px;
+    margin:0 auto;
+    padding:44px 24px 90px;
+  }
+  .eg-grid{
+    display:grid;
+    grid-template-columns:repeat(4,1fr);
+    gap:24px;
+  }
+  .eg-about{ max-width:760px; margin:56px auto 0; padding:0 20px; }
+  .eg-about h2{ font-family:'Quicksand',sans-serif; font-weight:700; font-size:20px; color:var(--eg-magenta); margin:28px 0 10px; }
+  .eg-about h2:first-child{ margin-top:0; }
+  .eg-about p{ font-size:15px; line-height:1.7; color:#5a5563; margin:0 0 14px; }
+  .eg-about-fiszki a{ color:var(--eg-magenta); font-weight:700; text-decoration:none; }
+  .eg-about-fiszki a:hover{ text-decoration:underline; }
+  .eg-footer{ text-align:center; margin:48px auto 20px; padding-top:24px; border-top:1px solid var(--eg-line); max-width:400px; }
+  .eg-footer-home{ display:inline-block; font-family:'Quicksand',sans-serif; font-weight:700; font-size:14px; color:var(--eg-magenta); text-decoration:none; margin-bottom:8px; }
+  .eg-footer-home:hover{ text-decoration:underline; }
+  .eg-footer-links{ font-size:12.5px; color:#a8a2b3; }
+  .eg-footer-links a{ color:#a8a2b3; text-decoration:none; }
+  .eg-footer-links a:hover{ color:var(--eg-magenta); }
+  .eg-footer-links span{ margin:0 6px; }
+  .eg-grid.cols-3{ grid-template-columns:repeat(3,1fr); }
+  .eg-grid.cols-4{ grid-template-columns:repeat(4,1fr); }
+  .eg-grid.cols-5{ grid-template-columns:repeat(5,1fr); }
+  /* tablet: maksymalnie 3 w rzędzie, żeby kafelki nie były za wąskie */
+  @media (max-width:1024px){
+    .eg-grid, .eg-grid.cols-4, .eg-grid.cols-5{ grid-template-columns:repeat(3,1fr); }
+    .eg-grid.cols-3{ grid-template-columns:repeat(3,1fr); }
+  }
+  /* mniejszy tablet: 2 w rzędzie */
+  @media (max-width:820px){
+    .eg-grid, .eg-grid.cols-3, .eg-grid.cols-4, .eg-grid.cols-5{ grid-template-columns:repeat(2,1fr); }
+  }
+  /* telefon: zawsze 1 kolumna (lista do scrollowania), niezależnie od wyboru */
+  @media (max-width:560px){
+    .eg-grid, .eg-grid.cols-3, .eg-grid.cols-4, .eg-grid.cols-5{ grid-template-columns:1fr; }
+  }
+  .eg-card{
+    background:var(--eg-card);
+    border:1px solid var(--eg-line);
+    border-radius:20px;
+    overflow:hidden;
+    display:flex;
+    flex-direction:column;
+    transition:transform .2s, box-shadow .2s, border-color .2s;
+  }
+  .eg-card:hover{
+    transform:translateY(-4px);
+    border-color:transparent;
+    box-shadow:0 14px 40px rgba(46,42,51,.12);
+  }
+  .eg-thumb{
+    position:relative;
+    aspect-ratio:3 / 2;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    background:#f4f2f7;
+    overflow:hidden;
+  }
+  .eg-thumb-bg{
+    position:absolute;
+    inset:-20px;
+    background-size:cover;
+    background-position:center;
+    filter:blur(16px) brightness(.97);
+    transform:scale(1.1);
+  }
+  .eg-thumb-img{
+    position:absolute;
+    inset:0;
+    background-size:contain;
+    background-position:center;
+    background-repeat:no-repeat;
+  }
+  .eg-body{
+    padding:20px 22px 22px;
+    display:flex;
+    flex-direction:column;
+    gap:8px;
+    flex:1;
+  }
+  .eg-body h3{
+    font-family:'Quicksand',sans-serif !important;
+    font-weight:700 !important;
+    font-size:19px !important;
+    color:var(--eg-ink) !important;
+    margin:0 !important;
+  }
+  .eg-body p{ font-size:15px; color:var(--eg-muted); line-height:1.55; flex:1; }
+  .eg-meta{ font-size:13px; color:#a8a2b3; }
+  .eg-premium-open{ display:inline-flex; align-items:center; margin-left:6px; color:#b8b2c0; }
+  /* znacznik ukończenia na kafelku */
+  .eg-done-badge{ position:absolute; bottom:8px; left:50%; transform:translateX(-50%); z-index:3; display:inline-flex; align-items:center; gap:3px; background:#1e7e50; color:#fff; font-family:'Quicksand',sans-serif; font-weight:700; font-size:10.5px; padding:3px 8px 3px 6px; border-radius:999px; box-shadow:0 2px 8px rgba(30,126,80,.3); }
+  .eg-done-badge.eg-done-teacher{ background:#6885db; box-shadow:0 2px 8px rgba(104,133,219,.3); }
+  .eg-card.eg-completed .eg-thumb{ }
+  /* pasek postępu nad katalogiem */
+  .eg-progress{ max-width:820px; margin:0 auto 22px; background:var(--eg-card); border:1.5px solid var(--eg-line); border-radius:14px; padding:16px 20px; }
+  .eg-progress-top{ display:flex; justify-content:space-between; align-items:baseline; margin-bottom:10px; }
+  .eg-progress-label{ font-family:'Quicksand',sans-serif; font-weight:700; font-size:15px; color:var(--eg-ink); }
+  .eg-progress-count{ font-size:13.5px; color:var(--eg-muted); }
+  .eg-progress-count strong{ color:#ca4490; font-family:'Quicksand',sans-serif; }
+  .eg-progress-bar{ height:22px; background:#f5eef2; border-radius:999px; overflow:hidden; }
+  .eg-progress-fill{ height:100%; background:linear-gradient(90deg,#e879b0,#ca4490); border-radius:999px; transition:width .5s cubic-bezier(.4,0,.2,1); display:flex; align-items:center; justify-content:flex-end; min-width:fit-content; }
+  .eg-progress-pct{ color:#fff; font-family:'Quicksand',sans-serif; font-weight:700; font-size:12px; padding-right:12px; white-space:nowrap; }
+  .eg-progress-hide{ font-family:'Quicksand',sans-serif; font-weight:700; font-size:13px; color:var(--eg-muted); background:transparent; border:1.5px solid var(--eg-line); border-radius:9px; padding:6px 13px; cursor:pointer; }
+  .eg-progress-hide:hover{ background:#f5eef2; color:#ca4490; border-color:#e6c6d8; }
+  .eg-progress-show{ display:block; margin:0 auto 22px; font-family:'Quicksand',sans-serif; font-weight:700; font-size:13.5px; color:#ca4490; background:#faf3f8; border:1.5px solid #f0d9e8; border-radius:999px; padding:8px 20px; cursor:pointer; }
+  .eg-progress-show:hover{ background:#f5e6ef; }
+  html.eg-dark .eg-progress-hide:hover{ background:#3a2c36; }
+  html.eg-dark .eg-progress-show{ background:#2b2436; border-color:#4a3a44; color:#e88bb8; }
+  .eg-progress-right{ display:flex; align-items:center; gap:12px; }
+  .eg-progress-adjust{ font-family:'Quicksand',sans-serif; font-weight:700; font-size:13px; color:#6885db; background:#eaf0fb; border:1.5px solid #c9d8f2; border-radius:9px; padding:6px 13px; cursor:pointer; }
+  .eg-progress-adjust:hover{ background:#dbe6f8; }
+  .eg-progress-adjust.on{ background:#6885db; color:#fff; border-color:#6885db; }
+  /* telefon: pasek postępu układa się czytelnie, nie ściska się */
+  @media (max-width:560px){
+    .eg-progress{ padding:14px 16px; }
+    .eg-progress-top{ flex-direction:column; align-items:flex-start; gap:8px; }
+    .eg-progress-right{ width:100%; justify-content:space-between; }
+  }
+  .eg-progress-scope{ font-size:12.5px; color:var(--eg-muted); margin-top:8px; }
+  .eg-progress-scope strong{ color:#6885db; font-family:'Quicksand',sans-serif; }
+  .eg-progress-panel{ margin-top:14px; padding-top:14px; border-top:1px solid var(--eg-line); display:flex; flex-wrap:wrap; gap:20px; }
+  .eg-pp-group{ flex:1; min-width:180px; }
+  .eg-pp-title{ font-family:'Quicksand',sans-serif; font-weight:700; font-size:13px; color:var(--eg-muted); margin-bottom:8px; }
+  .eg-pp-opts{ display:flex; flex-wrap:wrap; gap:8px 14px; }
+  .eg-pp-opts label{ display:inline-flex; align-items:center; gap:5px; font-size:14px; color:var(--eg-ink); cursor:pointer; }
+  .eg-pp-opts input{ accent-color:#6885db; cursor:pointer; }
+  .eg-pp-actions{ width:100%; display:flex; justify-content:flex-end; gap:10px; margin-top:4px; }
+  .eg-pp-reset{ font-family:'Quicksand',sans-serif; font-weight:700; font-size:13.5px; color:var(--eg-muted); background:#f0eef2; border:none; border-radius:9px; padding:8px 16px; cursor:pointer; }
+  .eg-pp-done{ font-family:'Quicksand',sans-serif; font-weight:700; font-size:13.5px; color:#fff; background:#6885db; border:none; border-radius:9px; padding:8px 18px; cursor:pointer; }
+  .eg-pp-done:hover{ filter:brightness(1.08); }
+  .eg-play{
+    margin-top:14px;
+    font-family:'Quicksand',sans-serif;
+    font-weight:700;
+    font-size:15px;
+    letter-spacing:.4px;
+    text-align:center;
+    text-decoration:none;
+    color:#fff !important;
+    background:var(--eg-magenta);
+    border-radius:12px;
+    padding:13px 0;
+    transition:background .18s;
+  }
+  .eg-play:hover{ background:#a72e77; color:#fff !important; }
+
+  .eg-card-soon{ background:#fcfbfd; }
+  .eg-card-soon:hover{ transform:none; box-shadow:none; border-color:var(--eg-line); }
+  .eg-card-soon .eg-thumb{ background:#f4f2f7; }
+  .eg-soon-label{
+    font-family:'Quicksand',sans-serif;
+    font-weight:600;
+    font-size:14px;
+    letter-spacing:1.5px;
+    text-transform:uppercase;
+    color:#b6b0c0;
+    border:1px dashed #d8d3e0;
+    border-radius:999px;
+    padding:8px 22px;
+  }
+  .eg-card-soon h3{ color:#b6b0c0 !important; }
+  .eg-card-soon p{ color:#c5c0ce; }
+
+  .eg-state{ text-align:center; color:var(--eg-muted); font-size:15px; padding:30px 0; }
+
+  @media (prefers-reduced-motion: reduce){
+    .eg-card,.eg-play,.eg-filters button{transition:none;}
+  }
+</style>
+
+<div class="eg-games">
+
+  <section class="eg-hero">
+    <div class="eg-account" id="egAccount"></div>
+    <button type="button" class="eg-theme-toggle" id="egThemeToggle" title="Tryb jasny / ciemny" aria-label="Przełącz tryb jasny lub ciemny">
+      <span class="eg-theme-track"><span class="eg-theme-thumb"></span></span>
+      <span class="eg-theme-ico eg-theme-sun">☀</span>
+      <span class="eg-theme-ico eg-theme-moon">☾</span>
+    </button>
+    <h1 class="eg-hero-title">
+      <span class="eg-brand-top">EasyGo</span>
+      <span class="eg-wonderland">
+        <span class="eg-underline">Angielski Wonderland</span>
+        <span class="eg-sparkles" aria-hidden="true"><canvas id="egDustCanvas"></canvas></span>
+      </span>
+    </h1>
+    <p>Ucz się angielskiego przez zabawę!<br>Wybierz ćwiczenie i zaczynajmy 💗</p>
+    <div class="eg-search-wrap">
+      <svg class="eg-search-icon" width="17" height="17" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="11" cy="11" r="7" stroke="#5a5568" stroke-width="2"/><line x1="16.5" y1="16.5" x2="21" y2="21" stroke="#5a5568" stroke-width="2" stroke-linecap="round"/></svg>
+      <input type="text" id="egSearch" class="eg-search" placeholder="Wyszukaj zadanie po nazwie" autocomplete="off">
+      <button type="button" id="egSearchClear" class="eg-search-clear" aria-label="Wyczyść">✕</button>
+    </div>
+    <div class="eg-filters" id="egFilters">
+      <div class="eg-filter-row">
+        <button class="eg-active" data-cat="wszystkie">Wszystkie</button>
+        <button data-cat="gramatyka">Gramatyka</button>
+        <button data-cat="slownictwo">Słownictwo</button>
+        <button data-cat="speaking">Speaking</button>
+        <button data-cat="reading">Reading</button>
+      </div>
+      <div class="eg-filter-row">
+        <button data-cat="darmowe" class="eg-free-filter"><svg viewBox="0 0 24 24" width="13" height="13" style="vertical-align:-1px;margin-right:5px"><path d="M9 21h6v-1H9v1zm3-19C8.14 2 5 5.14 5 9c0 2.38 1.19 4.47 3 5.74V17c0 .55.45 1 1 1h6c.55 0 1-.45 1-1v-2.26c1.81-1.27 3-3.36 3-5.74 0-3.86-3.14-7-7-7z" fill="currentColor"/></svg>Darmowe</button>
+        <button data-cat="platne" class="eg-premium-filter"><svg viewBox="0 0 24 24" width="13" height="13" style="vertical-align:-1px;margin-right:5px"><path d="M12 1a5 5 0 00-5 5v3H6a2 2 0 00-2 2v9a2 2 0 002 2h12a2 2 0 002-2v-9a2 2 0 00-2-2h-1V6a5 5 0 00-5-5zm3 8H9V6a3 3 0 016 0v3z" fill="currentColor"/></svg>Dla subskrybentów</button>
+        <button data-cat="ulubione" class="eg-fav-filter"><svg viewBox="0 0 24 24" width="13" height="13" style="vertical-align:-1px;margin-right:5px"><path d="M12 20.3l-1.45-1.32C5.4 14.24 2 11.16 2 7.4 2 4.42 4.42 2 7.4 2c1.68 0 3.3.78 4.6 2.09C13.3 2.78 14.92 2 16.6 2 19.58 2 22 4.42 22 7.4c0 3.76-3.4 6.84-8.55 11.58L12 20.3z" fill="currentColor"/></svg>Ulubione</button>
+        <button data-cat="domowa" class="eg-hw-filter" style="display:none"><svg viewBox="0 0 24 24" width="13" height="13" style="vertical-align:-1px;margin-right:5px"><path d="M12 3l9 8h-2.5v9h-5v-6h-3v6h-5v-9H3l9-8z" fill="currentColor"/></svg>Praca domowa</button>
+        <button data-cat="zrobione" class="eg-done-filter" style="display:none"><svg viewBox="0 0 24 24" width="13" height="13" style="vertical-align:-1px;margin-right:5px"><path d="M9 16.2l-3.5-3.5L4 14.2l5 5 11-11-1.4-1.4z" fill="currentColor"/></svg>Zrobione</button>
+        <button data-cat="niezrobione" class="eg-todo-filter" style="display:none"><svg viewBox="0 0 24 24" width="13" height="13" style="vertical-align:-1px;margin-right:5px"><circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="2"/></svg>Do zrobienia</button>
+      </div>
+    </div>
+    <div class="eg-filters eg-levels" id="egLevels"></div>
+    <div class="eg-sort-wrap">
+      <select id="egSort">
+        <option value="default" disabled hidden selected>Sortuj według…</option>
+        <option value="level">Poziom (A1 → C2)</option>
+        <option value="newest">Od najnowszych</option>
+      </select>
+      <div class="eg-cols" id="egCols" role="group" aria-label="Liczba kolumn">
+        <span class="eg-cols-label">Widok:</span>
+        <button type="button" data-cols="3">3</button>
+        <button type="button" data-cols="4" class="eg-active">4</button>
+        <button type="button" data-cols="5">5</button>
+      </div>
+    </div>
+  </section>
+
+  <main class="eg-wrap">
+    <div class="eg-series-banner" id="egSeriesBanner" style="display:none">
+      <span class="eg-series-name"></span>
+      <button type="button" id="egSeriesBack" class="eg-series-back">✕ pokaż wszystkie zadania</button>
+    </div>
+    <div class="eg-state" id="egState">Wczytywanie gier…</div>
+    <div class="eg-promo" id="egPromo" style="display:none">
+      <div class="eg-promo-text"><strong>To ćwiczenia dla subskrybentów.</strong> Spodobały Ci się? Wykup dostęp i odblokuj wszystkie — bez ograniczeń.</div>
+      <a class="eg-promo-btn" href="https://easygo-english.pl/oferta.html">Wykup dostęp</a>
+    </div>
+    <div class="eg-progress" id="egProgress" style="display:none">
+      <div class="eg-progress-top">
+        <span class="eg-progress-label">Twoje postępy</span>
+        <div class="eg-progress-right">
+          <span class="eg-progress-count" id="egProgressCount"></span>
+          <button type="button" class="eg-progress-adjust" id="egProgressAdjust">Dostosuj</button>
+          <button type="button" class="eg-progress-hide" id="egProgressHide" title="Ukryj pasek postępu">Ukryj</button>
+        </div>
+      </div>
+      <div class="eg-progress-bar"><div class="eg-progress-fill" id="egProgressFill" style="width:0%"></div></div>
+      <div class="eg-progress-scope" id="egProgressScope"></div>
+      <div class="eg-progress-panel" id="egProgressPanel" style="display:none">
+        <div class="eg-pp-group">
+          <div class="eg-pp-title">Poziom</div>
+          <div class="eg-pp-opts" id="egPpLevels">
+            <label><input type="checkbox" value="A1"> A1</label>
+            <label><input type="checkbox" value="A2"> A2</label>
+            <label><input type="checkbox" value="B1"> B1</label>
+            <label><input type="checkbox" value="B2"> B2</label>
+            <label><input type="checkbox" value="C1"> C1</label>
+            <label><input type="checkbox" value="C2"> C2</label>
+          </div>
+        </div>
+        <div class="eg-pp-group">
+          <div class="eg-pp-title">Typ zadań</div>
+          <div class="eg-pp-opts" id="egPpCats">
+            <label><input type="checkbox" value="gramatyka"> Gramatyka</label>
+            <label><input type="checkbox" value="slownictwo"> Słownictwo</label>
+            <label><input type="checkbox" value="speaking"> Speaking</label>
+            <label><input type="checkbox" value="reading"> Reading</label>
+          </div>
+        </div>
+        <div class="eg-pp-actions">
+          <button type="button" class="eg-pp-reset" id="egPpReset">Wyczyść</button>
+          <button type="button" class="eg-pp-done" id="egPpDone">Gotowe</button>
+        </div>
+      </div>
+    </div>
+    <button type="button" class="eg-progress-show" id="egProgressShow" style="display:none">Pokaż pasek postępu</button>
+    <div class="eg-grid" id="egGrid"></div>
+  </main>
+
+  <section class="eg-about">
+    <h2>Angielski przez zabawę, czyli jak to działa</h2>
+    <p>Każde zadanie na tej stronie powstaje z myślą o tym, żeby nauka angielskiego była lekka i przyjemna. Znajdziesz tu ćwiczenia ze słownictwa - What is it?, w których nazywasz przedmioty na obrazkach, oraz quizy i uzupełnianie luk, gdzie wybierasz poprawną formę i od razu dowiadujesz się, dlaczego właśnie ta jest właściwa. Do każdego słówka możesz odsłuchać wymowę, a przy części haseł znajdziesz też wariant brytyjski i amerykański. Zadania typu QUIZ i GAP-FILL (uzupełnianie luk) mają również dodane wyjaśnienia poprawnych odpowiedzi. Dzięki wyjaśnieniom lektor może przypisać dane zadanie uczniowi w ramach pracy domowej, a uczeń będzie miał doskonałą powtórkę przerabianego materiału.</p>
+
+    <h2>Dla kogo są te gry?</h2>
+    <p>Dla wszystkich, którzy uczą się angielskiego samodzielnie i chcą poćwiczyć między lekcjami. Zadania są podzielone na poziomy, więc bez trudu wybierzesz coś dla siebie, niezależnie od tego, czy dopiero zaczynasz, czy szlifujesz to, co już umiesz. Nauczyciele znajdą tu gotowe materiały do wykorzystania na lekcjach. Po wykupieniu subskrypcji lektor otrzymuje dostęp do Panelu Lektora, gdzie może dodawać swoich uczniów do konta - przypisując im w ten sposób dostęp do wszystkich zadań na platformie. Lektor może również w Panelu Lektora przypisać uczniowi pracę domową. Liczba uczniów, których Lektor może dodać w Panelu zależy od ilości miejsc, które wybiera przy zakupie Subskrypcji.</p>
+
+    <h2>Ucz się kiedy chcesz, bez zakładania konta</h2>
+    <p>Część ćwiczeń jest darmowa i są one dostępne od ręki, bez logowania. Nowe zadania dodaję regularnie, więc zapraszam do zaglądania tu częściej. Pełna baza ćwiczeń dostępna jest tylko dla subskrybentów.</p>
+    <p class="eg-about-fiszki">Jeśli chcesz uczyć się słówek systematycznie, zajrzyj też do mojej aplikacji z fiszkami - <a href="http://fiszki.easygo-english.pl/">EasyGo fiszki!</a></p>
+  </section>
+
+  <footer class="eg-footer">
+    <a href="https://easygo-english.pl/" class="eg-footer-home">EasyGo English</a>
+    <div class="eg-footer-links">
+      <a href="https://easygo-english.pl/regulamin-sklepu/">Regulamin</a>
+      <span>·</span>
+      <a href="https://easygo-english.pl/polityka-prywatnosci/">Polityka prywatności</a>
+    </div>
+  </footer>
+
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+(function(){
+  var SUPA_URL = 'https://svjrdyxwqznbzxqeytdn.supabase.co';
+  var SUPA_KEY = 'sb_publishable_TNCq1UAMAvLO0Z5Mt8QOig_OvsxhhyJ';
+  var PLAY_URL = '/graj/';
+  var ACCESS_URL = 'https://easygo-english.pl/oferta.html'; // "Wykup dostęp" → strona oferty
+  var LOGIN_LINK = 'https://easygo-english.pl/logowanie.html'; // "Zaloguj się" → logowanie
+  var MIN_TILES = 3; // ile minimum kafelków (dopełnia "wkrótce")
+  var _sb = window.supabase ? window.supabase.createClient(SUPA_URL, SUPA_KEY) : null;
+  var homeworkSet = {}; // sluggi gier przypisanych zalogowanemu uczniowi jako praca domowa
+  var completedSet = {}; // sluggi ćwiczeń, które uczeń już ukończył (postępy)
+
+  var grid = document.getElementById('egGrid');
+  var state = document.getElementById('egState');
+  var filters = document.getElementById('egFilters');
+  var levels = document.getElementById('egLevels');
+  var allGames = [];
+  var curSort = 'default';
+  var LEVEL_ORDER = { 'A1':0, 'A2':1, 'B1':2, 'B2':3, 'C1':4, 'C2':5 };
+
+  var curType = 'wszystkie';    // rodzaj: gramatyka/slownictwo/speaking/reading
+  var curStatus = 'wszystkie';  // status: darmowe/platne/ulubione/domowa/zrobione/niezrobione
+  var curLvl = 'wszystkie';
+  var curSearch = '';
+  var curSeries = '';   // gdy ustawione, pokazuje tylko zadania z tej serii
+
+  function norm(s){
+    return (s || '').toString().toLowerCase()
+      .replace(/ą/g,'a').replace(/ć/g,'c').replace(/ę/g,'e').replace(/ł/g,'l')
+      .replace(/ń/g,'n').replace(/ó/g,'o').replace(/ś/g,'s').replace(/ź/g,'z').replace(/ż/g,'z')
+      .trim();
+  }
+
+  function esc(t){ var d = document.createElement('div'); d.textContent = t == null ? '' : t; return d.innerHTML; }
+
+  // ===== ULUBIONE (zapisywane w przeglądarce) =====
+  var FAV_KEY = 'easygo_ulubione';
+  function getFavs(){
+    try { return JSON.parse(localStorage.getItem(FAV_KEY) || '[]'); }
+    catch(e){ return []; }
+  }
+  function isFav(slug){ return getFavs().indexOf(slug) !== -1; }
+  function toggleFav(slug){
+    var favs = getFavs();
+    var i = favs.indexOf(slug);
+    if(i === -1) favs.push(slug); else favs.splice(i, 1);
+    try { localStorage.setItem(FAV_KEY, JSON.stringify(favs)); } catch(e){}
+    return favs.indexOf(slug) !== -1;
+  }
+
+  function soonCard(){
+    return '<article class="eg-card eg-card-soon" data-cat="wkrotce">' +
+      '<div class="eg-thumb"><span class="eg-soon-label">wkrótce</span></div>' +
+      '<div class="eg-body"><h3>Nowa gra w przygotowaniu</h3>' +
+      '<p>Pracuję nad kolejnym zadaniem — zajrzyj tu niedługo!</p></div></article>';
+  }
+
+  function buildLevelFilters(){
+    var found = {};
+    allGames.forEach(function(g){ if(g.level) found[g.level] = true; });
+    var order = ['A1','A2','B1','B2','C1','C2'];
+    var present = order.filter(function(l){ return found[l]; });
+    var html = '<button class="eg-active" data-lvl="wszystkie">Wszystkie poziomy</button>';
+    present.forEach(function(l){ html += '<button data-lvl="' + l + '">' + l + '</button>'; });
+    levels.innerHTML = html;
+  }
+
+  // pasek postępu — ukończone spośród wszystkich dostępnych ćwiczeń
+  var PROG_KEY = 'easygo_postep_zakres';
+  function loadProgScope(){
+    try { return JSON.parse(localStorage.getItem(PROG_KEY) || '{}'); }
+    catch(e){ return {}; }
+  }
+  function saveProgScope(){
+    try { localStorage.setItem(PROG_KEY, JSON.stringify({ levels: progressLevels, cats: progressCats })); } catch(e){}
+  }
+  var _savedScope = loadProgScope();
+  var progressLevels = Array.isArray(_savedScope.levels) ? _savedScope.levels : []; // wybrane poziomy (puste = wszystkie)
+  var progressCats = Array.isArray(_savedScope.cats) ? _savedScope.cats : [];   // wybrane typy (puste = wszystkie)
+
+  // czy ćwiczenie wchodzi w wybrany zakres postępu
+  function inProgressScope(g){
+    if(progressLevels.length && progressLevels.indexOf(g.level) === -1) return false;
+    if(progressCats.length){
+      var cat = (g.category === 'speaking' || g.template === 'speaking') ? 'speaking'
+              : (g.category === 'reading' || g.template === 'reading') ? 'reading'
+              : g.category;
+      if(progressCats.indexOf(cat) === -1) return false;
+    }
+    return true;
+  }
+
+  // czy uczeń zwinął pasek postępu (zapamiętane w przeglądarce)
+  function isProgressHidden(){ try{ return localStorage.getItem('easygo_postep_ukryty') === '1'; }catch(e){ return false; } }
+  function applyProgressVisibility(){
+    var box = document.getElementById('egProgress');
+    var show = document.getElementById('egProgressShow');
+    if(!box || !show) return;
+    if(isProgressHidden()){
+      box.style.display = 'none';
+      show.style.display = 'block';
+    } else {
+      box.style.display = 'block';
+      show.style.display = 'none';
+    }
+  }
+
+  function updateProgress(){
+    var box = document.getElementById('egProgress');
+    if(!box) return;
+    // pasek postępu tylko dla zalogowanych
+    if(!currentStudentId){ box.style.display = 'none'; var sh=document.getElementById('egProgressShow'); if(sh) sh.style.display = 'none'; return; }
+    // zbiór ćwiczeń dostępnych dla ucznia, zawężony do wybranego zakresu
+    var scoped = allGames.filter(function(g){
+      if(hideSpeaking && (g.category === 'speaking' || g.template === 'speaking') && !homeworkSet[g.slug] && completedSet[g.slug] !== 'teacher') return false;
+      if(!(userHasAccess || !g.is_premium)) return false;
+      return inProgressScope(g);
+    });
+    var available = scoped.length;
+    var doneCount = scoped.filter(function(g){ return completedSet[g.slug]; }).length;
+    var totalDone = Object.keys(completedSet).length;
+
+    // pokazuj pasek tylko zalogowanym, którzy coś już ukończyli
+    if(!totalDone){ box.style.display = 'none'; document.getElementById('egProgressShow').style.display = 'none'; return; }
+    // uczeń mógł zwinąć pasek — wtedy pokazujemy tylko napis „Pokaż pasek postępu"
+    applyProgressVisibility();
+
+    if(!available){
+      document.getElementById('egProgressCount').innerHTML = 'Brak ćwiczeń w wybranym zakresie';
+      document.getElementById('egProgressFill').style.width = '0%';
+      document.getElementById('egProgressFill').innerHTML = '';
+    } else {
+      var pct = Math.min(100, Math.round(doneCount / available * 100));
+      document.getElementById('egProgressCount').innerHTML = 'Ukończono <strong>' + doneCount + '</strong> z ' + available + ' ćwiczeń';
+      var fill = document.getElementById('egProgressFill');
+      fill.style.width = pct + '%';
+      fill.innerHTML = pct >= 12 ? '<span class="eg-progress-pct">' + pct + '%</span>' : '';
+    }
+
+    // podpis zakresu
+    var scopeEl = document.getElementById('egProgressScope');
+    if(progressLevels.length || progressCats.length){
+      var parts = [];
+      if(progressLevels.length) parts.push(progressLevels.join(', '));
+      if(progressCats.length){
+        var catNames = { gramatyka:'Gramatyka', slownictwo:'Słownictwo', speaking:'Speaking', reading:'Reading' };
+        parts.push(progressCats.map(function(c){ return catNames[c] || c; }).join(', '));
+      }
+      scopeEl.innerHTML = 'Liczone dla: <strong>' + parts.join(' · ') + '</strong>';
+    } else {
+      scopeEl.innerHTML = 'Liczone dla: <strong>wszystkich Twoich ćwiczeń</strong>';
+    }
+  }
+
+  // panel "Dostosuj"
+  (function initProgressPanel(){
+    var adjustBtn = document.getElementById('egProgressAdjust');
+    var panel = document.getElementById('egProgressPanel');
+    if(!adjustBtn || !panel) return;
+    // przywróć zapamiętany wybór na checkboxach
+    document.querySelectorAll('#egPpLevels input').forEach(function(i){ i.checked = progressLevels.indexOf(i.value) !== -1; });
+    document.querySelectorAll('#egPpCats input').forEach(function(i){ i.checked = progressCats.indexOf(i.value) !== -1; });
+    adjustBtn.addEventListener('click', function(){
+      var open = panel.style.display !== 'none';
+      panel.style.display = open ? 'none' : 'flex';
+      adjustBtn.classList.toggle('on', !open);
+    });
+    // Ukryj / Pokaż pasek postępu (zapamiętane w przeglądarce)
+    var hideBtn = document.getElementById('egProgressHide');
+    var showBtn = document.getElementById('egProgressShow');
+    if(hideBtn){ hideBtn.addEventListener('click', function(){
+      try{ localStorage.setItem('easygo_postep_ukryty','1'); }catch(e){}
+      applyProgressVisibility();
+    }); }
+    if(showBtn){ showBtn.addEventListener('click', function(){
+      try{ localStorage.setItem('easygo_postep_ukryty','0'); }catch(e){}
+      applyProgressVisibility();
+    }); }
+    document.getElementById('egPpDone').addEventListener('click', function(){
+      panel.style.display = 'none';
+      adjustBtn.classList.remove('on');
+    });
+    function readScope(){
+      progressLevels = Array.prototype.slice.call(document.querySelectorAll('#egPpLevels input:checked')).map(function(i){ return i.value; });
+      progressCats = Array.prototype.slice.call(document.querySelectorAll('#egPpCats input:checked')).map(function(i){ return i.value; });
+      saveProgScope();
+      updateProgress();
+    }
+    document.querySelectorAll('#egPpLevels input, #egPpCats input').forEach(function(i){
+      i.addEventListener('change', readScope);
+    });
+    document.getElementById('egPpReset').addEventListener('click', function(){
+      document.querySelectorAll('#egPpLevels input, #egPpCats input').forEach(function(i){ i.checked = false; });
+      progressLevels = []; progressCats = [];
+      saveProgScope();
+      updateProgress();
+    });
+  })();
+
+  function render(){
+    var q = norm(curSearch);
+    var list = allGames.filter(function(g){
+      // ukryj Speaking dla ucznia podpiętego pod lektora, który nie ma go włączonego —
+      // ALE jeśli lektor przypisał to ćwiczenie jako pracę domową LUB zaliczył je uczniowi, uczeń MUSI móc je zobaczyć
+      if(hideSpeaking && (g.category === 'speaking' || g.template === 'speaking') && !homeworkSet[g.slug] && completedSet[g.slug] !== 'teacher') return false;
+      // OŚ 1 — rodzaj ćwiczenia (gramatyka/slownictwo/speaking/reading)
+      var okType = (curType === 'wszystkie')
+        || (g.category === curType)
+        || (curType === 'reading' && g.template === 'reading')
+        || (curType === 'speaking' && g.template === 'speaking');
+      // OŚ 2 — status/dostęp (darmowe/platne/ulubione/domowa/zrobione/niezrobione) — niezależnie od rodzaju
+      var okStatus = true;
+      if(curStatus === 'darmowe') okStatus = !g.is_premium;
+      else if(curStatus === 'platne') okStatus = !!g.is_premium;
+      else if(curStatus === 'ulubione') okStatus = isFav(g.slug);
+      else if(curStatus === 'domowa') okStatus = !!homeworkSet[g.slug];
+      else if(curStatus === 'zrobione') okStatus = !!completedSet[g.slug];
+      else if(curStatus === 'niezrobione') okStatus = (!completedSet[g.slug] && (userHasAccess || !g.is_premium));
+      var okLvl = (curLvl === 'wszystkie') || (g.level === curLvl);
+      var okSeries = !curSeries || (norm(g.series) === norm(curSeries));
+      var okSearch = true;
+      if(q){
+        var haystack = norm(g.title) + ' ' + norm(g.description) + ' ' + norm(g.keywords) + ' ' + norm(g.series);
+        okSearch = haystack.indexOf(q) !== -1;
+      }
+      return okType && okStatus && okLvl && okSeries && okSearch;
+    });
+    // w widoku serii: najpierw po poziomie (A1→C2), potem po numerze ćwiczenia
+    if(curSeries){
+      list.sort(function(a,b){
+        var la = LEVEL_ORDER[a.level] != null ? LEVEL_ORDER[a.level] : 99;
+        var lb = LEVEL_ORDER[b.level] != null ? LEVEL_ORDER[b.level] : 99;
+        if(la !== lb) return la - lb;
+        var na = a.exercise_no || 9999, nb = b.exercise_no || 9999;
+        return na - nb;
+      });
+    } else if(q){
+      // przy wyszukiwaniu (lupka): grupuj po serii, w obrębie serii po numerze ćwiczenia,
+      // żeby ćwiczenia z jednej serii wyszły po kolei (nr 1, 2, 3...)
+      list.sort(function(a,b){
+        var sa = norm(a.series || ''), sb = norm(b.series || '');
+        if(sa !== sb) return sa < sb ? -1 : 1;
+        var na = a.exercise_no || 9999, nb = b.exercise_no || 9999;
+        if(na !== nb) return na - nb;
+        var la = LEVEL_ORDER[a.level] != null ? LEVEL_ORDER[a.level] : 99;
+        var lb = LEVEL_ORDER[b.level] != null ? LEVEL_ORDER[b.level] : 99;
+        return la - lb;
+      });
+    } else if(curSort !== 'default'){
+      list.sort(function(a,b){
+        if(curSort === 'level'){
+          var la = LEVEL_ORDER[a.level] != null ? LEVEL_ORDER[a.level] : 99;
+          var lb = LEVEL_ORDER[b.level] != null ? LEVEL_ORDER[b.level] : 99;
+          if(la !== lb) return la - lb;
+          return (a.title||'').localeCompare(b.title||'', 'pl');
+        }
+        if(curSort === 'newest'){
+          return (b.created_at||'').localeCompare(a.created_at||'');
+        }
+        return 0;
+      });
+    }
+    var html = list.map(function(g){
+      var catLabel = (g.category === 'gramatyka') ? 'gramatyka'
+        : (g.category === 'speaking' || g.template === 'speaking') ? 'speaking'
+        : (g.category === 'reading' || g.template === 'reading') ? 'reading'
+        : 'słownictwo';
+      var count = g.slide_count_label || '';
+      var lvl = g.level ? esc(g.level) : '';
+      var metaParts = [catLabel];
+      if(lvl) metaParts.push(lvl);
+      if(count) metaParts.push(esc(count));
+      // premium + użytkownik ma dostęp → mała szara OTWARTA kłódeczka (świadomość, że to materiał premium)
+      var premiumBadge = (g.is_premium && userHasAccess)
+        ? '<span class="eg-premium-open" title="Ćwiczenie dla subskrybentów — masz do niego dostęp"><svg viewBox="0 0 24 24" width="12" height="12" style="vertical-align:-1px"><path d="M12 2a5 5 0 0 0-5 5h2a3 3 0 0 1 6 0v3H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8a2 2 0 0 0-2-2h-1V7a5 5 0 0 0-5-5z" fill="currentColor"/></svg></span>'
+        : '';
+      var thumb = g.cover_url
+        ? '<div class="eg-thumb-bg" style="background-image:url(\'' + esc(g.cover_url) + '\')"></div><div class="eg-thumb-img" style="background-image:url(\'' + esc(g.cover_url) + '\')"></div>'
+        : '';
+      // etykieta serii:
+      // - w widoku serii: "Ćwiczenie nr N" (bez linku, bo już w serii)
+      // - w normalnym katalogu: numer ćwiczenia (niebieski) + link "zobacz całą serię" (różowy)
+      var seriesLine = '';
+      if(curSeries){
+        if(g.exercise_no){
+          var lvlPart = g.level ? esc(g.level) + ' · ' : '';
+          seriesLine = '<div class="eg-series eg-series-num">' + lvlPart + 'ćwiczenie nr ' + esc(String(g.exercise_no)) + '</div>';
+        }
+      } else if(g.series){
+        var numPart = g.exercise_no
+          ? '<span class="eg-series-num">ćwiczenie nr ' + esc(String(g.exercise_no)) + '</span><span class="eg-series-sep"> · </span>'
+          : '';
+        seriesLine = '<div class="eg-series">' + numPart +
+          '<a href="#" class="eg-series-link" data-series="' + esc(g.series) + '">zobacz całą serię</a></div>';
+      }
+      var fav = isFav(g.slug);
+      var heart = '<button type="button" class="eg-fav' + (fav ? ' eg-fav-on' : '') + '" data-slug="' + esc(g.slug) + '" aria-label="Dodaj do ulubionych" title="Zapisz na później">' +
+        '<svg viewBox="0 0 24 24" width="20" height="20"><path d="M12 20.3l-1.45-1.32C5.4 14.24 2 11.16 2 7.4 2 4.42 4.42 2 7.4 2c1.68 0 3.3.78 4.6 2.09C13.3 2.78 14.92 2 16.6 2 19.58 2 22 4.42 22 7.4c0 3.76-3.4 6.84-8.55 11.58L12 20.3z"/></svg>' +
+        '</button>';
+      // zablokowane TYLKO gdy płatne I użytkownik nie ma pełnego dostępu
+      var locked = g.is_premium && !userHasAccess;
+      // zablokowane ćwiczenie: delikatna nakładka na okładce + kłódka na środku (poziom nadal widoczny)
+      var lockOverlay = locked
+        ? '<div class="eg-lock-overlay" title="Dostęp tylko dla subskrybentów">' +
+            '<span class="eg-lock-circle"><svg viewBox="0 0 24 24" width="26" height="26"><path d="M12 2a5 5 0 0 0-5 5v3H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8a2 2 0 0 0-2-2h-1V7a5 5 0 0 0-5-5zm-3 5a3 3 0 0 1 6 0v3H9V7z" fill="currentColor"/></svg></span>' +
+          '</div>'
+        : '';
+      var playLabel = (g.category === 'speaking' || g.template === 'speaking') ? "LET'S TALK"
+        : (g.category === 'reading' || g.template === 'reading') ? 'CZYTAJ'
+        : 'ĆWICZ';
+      var playBtn = locked
+        ? '<a class="eg-play eg-play-locked" href="' + ACCESS_URL + '">' +
+            '<svg viewBox="0 0 24 24" width="15" height="15" style="vertical-align:-2px;margin-right:6px"><path d="M12 2a5 5 0 0 0-5 5v3H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8a2 2 0 0 0-2-2h-1V7a5 5 0 0 0-5-5zm-3 5a3 3 0 0 1 6 0v3H9V7z" fill="currentColor"/></svg>Wykup dostęp</a>'
+        : '<a class="eg-play" href="/cwiczenie/' + encodeURIComponent(g.slug) + '">' + playLabel + '</a>';
+      // ikona domku dla pracy domowej (gdy lektor przypisał to ćwiczenie zalogowanemu uczniowi)
+      var homework = homeworkSet[g.slug]
+        ? '<span class="eg-hw" title="Praca domowa od lektora"><svg viewBox="0 0 24 24" width="17" height="17"><path d="M12 3l9 8h-2.5v9h-5v-6h-3v6h-5v-9H3l9-8z" fill="currentColor"/></svg></span>'
+        : '';
+      // przycisk "Zrobione" z datą — TYLKO w widoku "Praca domowa"
+      var doneBtn = '';
+      if(curStatus === 'domowa' && homeworkSet[g.slug]){
+        if(homeworkDone[g.slug]){
+          var d = new Date(homeworkDone[g.slug]);
+          var dstr = d.toLocaleDateString('pl-PL', {day:'2-digit', month:'2-digit', year:'2-digit'});
+          doneBtn = '<button class="eg-done eg-done-yes" onclick="egToggleDone(\'' + g.slug + '\', false)">' +
+            '<svg viewBox="0 0 24 24" width="14" height="14" style="vertical-align:-2px;margin-right:5px"><path d="M9 16.17l-3.88-3.88L3.7 13.7 9 19l12-12-1.41-1.42z" fill="currentColor"/></svg>Zrobione ' + dstr + '</button>';
+        } else {
+          doneBtn = '<button class="eg-done eg-done-no" onclick="egToggleDone(\'' + g.slug + '\', true)">Oznacz jako zrobione</button>';
+        }
+      }
+      // znacznik ukończenia (Wariant B) — mały zielony haczyk na miniaturce
+      var doneBadge = completedSet[g.slug]
+        ? (completedSet[g.slug] === 'teacher'
+            ? '<span class="eg-done-badge eg-done-teacher" title="Zaliczone przez lektora"><svg viewBox="0 0 24 24" width="12" height="12"><path d="M9 16.2l-3.5-3.5L4 14.2l5 5 11-11-1.4-1.4z" fill="currentColor"/></svg>Zaliczone przez lektora</span>'
+            : '<span class="eg-done-badge" title="Ćwiczenie ukończone"><svg viewBox="0 0 24 24" width="12" height="12"><path d="M9 16.2l-3.5-3.5L4 14.2l5 5 11-11-1.4-1.4z" fill="currentColor"/></svg>Zrobione!</span>')
+        : '';
+      return '<article class="eg-card' + (g.is_premium ? ' eg-premium' : '') + (homeworkSet[g.slug] ? ' eg-hw-card' : '') + (homeworkDone[g.slug] ? ' eg-hw-done' : '') + (completedSet[g.slug] ? ' eg-completed' : '') + '">' +
+        '<div class="eg-thumb">' + thumb + heart + lockOverlay + homework + doneBadge + '</div>' +
+        '<div class="eg-body">' +
+          '<h3>' + esc(g.title) + '</h3>' +
+          '<p>' + esc(g.description || '') + '</p>' +
+          '<span class="eg-meta">' + metaParts.join(' · ') + premiumBadge + '</span>' +
+          seriesLine +
+          playBtn +
+          doneBtn +
+        '</div></article>';
+    }).join('');
+
+    // dopełnij kafelkami "wkrótce" tylko gdy nie ma żadnego filtra
+    if(curType === 'wszystkie' && curStatus === 'wszystkie' && curLvl === 'wszystkie' && !curSearch && !curSeries){
+      var missing = Math.max(0, MIN_TILES - list.length);
+      for(var i=0;i<missing;i++) html += soonCard();
+    }
+    // baner serii
+    var banner = document.getElementById('egSeriesBanner');
+    var sortWrap = document.querySelector('.eg-sort-wrap');
+    if(curSeries){
+      banner.style.display = 'flex';
+      banner.querySelector('.eg-series-name').textContent = 'Seria: ' + curSeries;
+      if(sortWrap) sortWrap.style.display = 'none';
+    } else {
+      banner.style.display = 'none';
+      if(sortWrap) sortWrap.style.display = 'flex';
+    }
+    grid.innerHTML = html;
+    // baner zachęty przy filtrze "Dla subskrybentów" — tylko dla osób bez dostępu
+    var promo = document.getElementById('egPromo');
+    if(promo) promo.style.display = (curStatus === 'platne' && list.length && !userHasAccess) ? 'flex' : 'none';
+    updateProgress();
+    state.style.display = list.length ? 'none' : 'block';
+    if(!list.length){
+      if(curStatus === 'ulubione') state.textContent = 'Nie masz jeszcze ulubionych zadań. Kliknij serduszko na zadaniu, żeby zapisać je na później.';
+      else if(curStatus === 'domowa') state.textContent = 'Nie masz zadanej pracy domowej. Gdy lektor przypisze Ci zadania, pojawią się tutaj.';
+      else if(curStatus === 'darmowe') state.textContent = 'Brak darmowych ćwiczeń dla wybranych filtrów.';
+      else if(curStatus === 'platne') state.textContent = 'Brak ćwiczeń dla subskrybentów w tych filtrach.';
+      else if(curStatus === 'zrobione') state.textContent = 'Nie masz jeszcze ukończonych ćwiczeń. Rozwiąż dowolne zadanie do końca, a pojawi się tutaj.';
+      else if(curStatus === 'niezrobione') state.textContent = 'Świetnie! Ukończyłeś już wszystkie dostępne ćwiczenia w tych filtrach.';
+      else state.textContent = 'Brak gier dla wybranych filtrów.';
+    }
+  }
+
+  // klik w "zobacz całą serię" (delegacja na siatce)
+  grid.addEventListener('click', function(e){
+    var heart = e.target.closest('.eg-fav');
+    if(heart){
+      e.preventDefault();
+      var on = toggleFav(heart.getAttribute('data-slug'));
+      heart.classList.toggle('eg-fav-on', on);
+      // jeśli jesteśmy w widoku ulubionych i coś odznaczono, odśwież
+      if(curStatus === 'ulubione' && !on) render();
+      return;
+    }
+    var link = e.target.closest('.eg-series-link');
+    if(!link) return;
+    e.preventDefault();
+    curSeries = link.getAttribute('data-series');
+    curType = 'wszystkie'; curStatus = 'wszystkie'; curLvl = 'wszystkie';
+    curSearch = ''; 
+    var si = document.getElementById('egSearch'); if(si) si.value = '';
+    var sc = document.getElementById('egSearchClear'); if(sc) sc.style.display = 'none';
+    filters.querySelectorAll('button').forEach(function(b){ b.classList.remove('eg-active'); });
+    var allBtn = filters.querySelector('[data-cat="wszystkie"]'); if(allBtn) allBtn.classList.add('eg-active');
+    render();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  });
+
+  var TYPE_CATS = ['gramatyka','slownictwo','speaking','reading'];
+  var STATUS_CATS = ['darmowe','platne','ulubione','domowa','zrobione','niezrobione'];
+  filters.addEventListener('click', function(e){
+    var btn = e.target.closest('button');
+    if(!btn) return;
+    var cat = btn.getAttribute('data-cat');
+    if(cat === 'wszystkie'){
+      // reset obu osi
+      curType = 'wszystkie'; curStatus = 'wszystkie';
+    } else if(TYPE_CATS.indexOf(cat) !== -1){
+      // klik w rodzaj: przełącz (drugi klik = wyłącz), status zostaje
+      curType = (curType === cat) ? 'wszystkie' : cat;
+    } else if(STATUS_CATS.indexOf(cat) !== -1){
+      // klik w status: przełącz (drugi klik = wyłącz), rodzaj zostaje
+      curStatus = (curStatus === cat) ? 'wszystkie' : cat;
+    }
+    // odśwież podświetlenia: aktywne są bieżący rodzaj i status; "Wszystkie" aktywne gdy obie osie puste
+    filters.querySelectorAll('button').forEach(function(b){
+      var c = b.getAttribute('data-cat');
+      var on = (c === curType) || (c === curStatus) ||
+               (c === 'wszystkie' && curType === 'wszystkie' && curStatus === 'wszystkie');
+      b.classList.toggle('eg-active', on);
+    });
+    render();
+  });
+  levels.addEventListener('click', function(e){
+    var btn = e.target.closest('button');
+    if(!btn) return;
+    levels.querySelectorAll('button').forEach(function(b){ b.classList.remove('eg-active'); });
+    btn.classList.add('eg-active');
+    curLvl = btn.getAttribute('data-lvl');
+    render();
+  });
+
+  document.getElementById('egSeriesBack').addEventListener('click', function(){
+    curSeries = '';
+    render();
+  });
+
+  var sortSelect = document.getElementById('egSort');
+  if(sortSelect){
+    function updateSortColor(){
+      sortSelect.style.color = (sortSelect.value === 'default') ? '#a9a3b8' : 'var(--eg-ink)';
+    }
+    updateSortColor();
+    sortSelect.addEventListener('change', function(){
+      curSort = sortSelect.value;
+      updateSortColor();
+      render();
+    });
+  }
+
+  // przełącznik liczby kolumn (desktop/tablet; na telefonie i tak 1 kolumna przez CSS)
+  var colsWrap = document.getElementById('egCols');
+  if(colsWrap){
+    function setCols(n){
+      grid.classList.remove('cols-3','cols-4','cols-5');
+      grid.classList.add('cols-' + n);
+      var btns = colsWrap.querySelectorAll('button');
+      for(var i=0;i<btns.length;i++){
+        btns[i].classList.toggle('eg-active', btns[i].getAttribute('data-cols') === String(n));
+      }
+    }
+    setCols(4); // domyślnie 4 kolumny
+    colsWrap.addEventListener('click', function(e){
+      var btn = e.target.closest('button[data-cols]');
+      if(!btn) return;
+      setCols(btn.getAttribute('data-cols'));
+    });
+  }
+
+  var searchInput = document.getElementById('egSearch');
+  var searchClear = document.getElementById('egSearchClear');
+  searchInput.addEventListener('input', function(){
+    curSearch = searchInput.value;
+    searchClear.style.display = curSearch ? 'flex' : 'none';
+    render();
+  });
+  searchClear.addEventListener('click', function(){
+    searchInput.value = '';
+    curSearch = '';
+    searchClear.style.display = 'none';
+    render();
+    searchInput.focus();
+  });
+
+  fetch(SUPA_URL + '/rest/v1/games?published=eq.true&select=slug,title,description,category,level,cover_url,slide_count_label,sort_order,exercise_no,keywords,series,is_premium,created_at&order=sort_order.asc',
+    { headers: { apikey: SUPA_KEY, Authorization: 'Bearer ' + SUPA_KEY } })
+  .then(function(r){ return r.json(); })
+  .then(function(rows){
+    allGames = Array.isArray(rows) ? rows : [];
+    buildLevelFilters();
+    render();
+    // jeśli uczeń zalogowany — dociągnij jego pracę domową i pokaż domki
+    loadHomework();
+  })
+  .catch(function(){
+    state.textContent = 'Nie udało się wczytać gier. Odśwież stronę.';
+  });
+
+  // praca domowa: pobierz przypisania zalogowanego ucznia, dodaj domki
+  var homeworkDone = {}; // slug -> data ukończenia (jeśli zrobione)
+  var currentStudentId = null;
+  var hideSpeaking = false; // uczeń podpięty pod lektora bez włączonego Speaking
+  var userHasAccess = false; // czy zalogowany użytkownik ma pełny dostęp (bez kłódek)
+
+  // pokaż/ukryj filtry wymagające konta.
+  // loggedIn: zrobione/do zrobienia/pasek postępu (każdy zalogowany)
+  // isTeacherStudent: praca domowa (tylko uczeń przypisany do lektora)
+  function applyLoginUI(loggedIn, isTeacherStudent){
+    // filtry dla każdego zalogowanego
+    ['zrobione','niezrobione'].forEach(function(cat){
+      var btn = document.querySelector('#egFilters button[data-cat="' + cat + '"]');
+      if(btn) btn.style.display = loggedIn ? '' : 'none';
+    });
+    // praca domowa TYLKO dla ucznia lektora
+    var hwBtn = document.querySelector('#egFilters button[data-cat="domowa"]');
+    if(hwBtn) hwBtn.style.display = (loggedIn && isTeacherStudent) ? '' : 'none';
+
+    // które filtry są teraz niedostępne dla tego użytkownika?
+    var hidden = [];
+    if(!loggedIn){ hidden = ['domowa','zrobione','niezrobione']; }
+    else if(!isTeacherStudent){ hidden = ['domowa']; }
+    // jeśli aktywny status jest teraz niedostępny — wróć na "wszystkie" (oś statusu)
+    if(hidden.indexOf(curStatus) !== -1){
+      curStatus = 'wszystkie';
+    }
+    // odśwież podświetlenia obu osi
+    document.querySelectorAll('#egFilters button[data-cat]').forEach(function(b){
+      var c = b.getAttribute('data-cat');
+      var on = (c === curType) || (c === curStatus) ||
+               (c === 'wszystkie' && curType === 'wszystkie' && curStatus === 'wszystkie');
+      b.classList.toggle('eg-active', on);
+    });
+    if(!loggedIn){
+      var prog = document.getElementById('egProgress');
+      if(prog) prog.style.display = 'none';
+      var progShow = document.getElementById('egProgressShow');
+      if(progShow) progShow.style.display = 'none';
+    }
+  }
+
+  // === META PIXEL — tylko dla NIEzalogowanych gości na /gry/ ===
+  // Odpala się wyłącznie, gdy nie ma aktywnej sesji (patrz loadHomework poniżej).
+  // Zalogowani uczniowie/lektorzy NIE są śledzeni.
+  var _egPixelDone = false;
+  function egLoadPixelForGuest(){
+    if(_egPixelDone) return;          // odpal tylko raz
+    if(window.fbq) { _egPixelDone = true; return; } // gdyby już był (np. z nagłówka) — nie dubluj
+    _egPixelDone = true;
+    !function(f,b,e,v,n,t,s)
+    {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+    n.callMethod.apply(n,arguments):n.queue.push(arguments)};
+    if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
+    n.queue=[];t=b.createElement(e);t.async=!0;
+    t.src=v;s=b.getElementsByTagName(e)[0];
+    s.parentNode.insertBefore(t,s)}(window, document,'script',
+    'https://connect.facebook.net/en_US/fbevents.js');
+    fbq('init', '1747890483017414');
+    fbq('track', 'PageView');
+  }
+
+  function loadHomework(){
+    if(!_sb){ egLoadPixelForGuest(); renderAccount(null, null); applyLoginUI(false, false); return; }
+    _sb.auth.getSession().then(function(res){
+      var session = res && res.data ? res.data.session : null;
+      if(!session){ egLoadPixelForGuest(); renderAccount(null, null); applyLoginUI(false, false); return; }
+      currentStudentId = session.user.id;
+      // pobierz profil (rola, dostęp, źródło, Speaking) do paska konta i filtrowania
+      _sb.from('profiles').select('role,email,access,access_source,speaking_enabled').eq('id', session.user.id).single()
+        .then(function(pr){
+          var p = pr && pr.data ? pr.data : null;
+          // czy użytkownik ma pełny dostęp (własna subskrypcja, przez lektora, lub komplementarny)?
+          userHasAccess = !!(p && p.access === 'full');
+          // praca domowa tylko dla ucznia przypisanego do lektora
+          var isTeacherStudent = !!(p && p.access_source === 'teacher');
+          applyLoginUI(true, isTeacherStudent);
+          // uczeń podpięty pod lektora (access_source='teacher') widzi Speaking tylko gdy lektor włączył
+          if(p && p.access_source === 'teacher' && !p.speaking_enabled){
+            hideSpeaking = true;
+          }
+          render();
+          renderAccount(session, p);
+        });
+      // pobierz pracę domową ucznia (ze stanem ukończenia)
+      _sb.from('homework').select('game_slug,completed_at').eq('student_id', session.user.id)
+        .then(function(r){
+          if(r.error || !r.data) return;
+          homeworkSet = {};
+          homeworkDone = {};
+          r.data.forEach(function(h){
+            homeworkSet[h.game_slug] = true;
+            if(h.completed_at) homeworkDone[h.game_slug] = h.completed_at;
+          });
+          if(Object.keys(homeworkSet).length) render();
+        });
+      // pobierz ukończone ćwiczenia (postępy — Wariant B); source='teacher' = zaliczone przez lektora
+      _sb.from('game_completions').select('game_slug, source').eq('user_id', session.user.id)
+        .then(function(r){
+          if(r.error || !r.data) return;
+          completedSet = {};
+          r.data.forEach(function(c){ completedSet[c.game_slug] = c.source || 'self'; });
+          render();
+        });
+    });
+  }
+
+  // uczeń oznacza pracę domową jako zrobioną / cofa
+  window.egToggleDone = function(slug, done){
+    if(!currentStudentId) return;
+    var val = done ? new Date().toISOString() : null;
+    _sb.from('homework').update({ completed_at: val })
+      .eq('student_id', currentStudentId).eq('game_slug', slug)
+      .then(function(r){
+        if(r.error){ alert('Nie udało się zapisać. Spróbuj ponownie.'); return; }
+        if(done) homeworkDone[slug] = val; else delete homeworkDone[slug];
+        render();
+      });
+  };
+
+  // pasek konta w nagłówku
+  function renderAccount(session, profile){
+    var el = document.getElementById('egAccount');
+    if(!el) return;
+    if(!session){
+      el.innerHTML = '<a class="eg-login-link" href="' + LOGIN_LINK + '">Zaloguj się</a>';
+      return;
+    }
+    var email = (profile && profile.email) || session.user.email || '';
+    var html = '<span class="eg-hi">' + email + '</span>';
+    if(profile && profile.role === 'teacher'){
+      html += '<a class="eg-panel-link" href="https://easygo-english.pl/panel-lektora.html">Panel lektora</a>';
+    }
+    // każdy zalogowany ma dostęp do ustawień konta (hasło, usunięcie, subskrypcja jeśli własna)
+    html += '<a class="eg-panel-link" href="https://easygo-english.pl/konto.html">Moje konto</a>';
+    html += '<a href="#" id="egLogout">Wyloguj</a>';
+    el.innerHTML = html;
+    var lo = document.getElementById('egLogout');
+    if(lo) lo.addEventListener('click', function(e){
+      e.preventDefault();
+      _sb.auth.signOut().then(function(){ location.reload(); });
+    });
+  }
+
+  // przełącznik trybu jasny/ciemny — zapis do localStorage (wspólny dla katalogu, gracza, paneli)
+  (function initTheme(){
+    var btn = document.getElementById('egThemeToggle');
+    if(!btn) return;
+    btn.addEventListener('click', function(){
+      var dark = document.documentElement.classList.toggle('eg-dark');
+      try{ localStorage.setItem('easygo_tryb', dark ? 'dark' : 'light'); }catch(e){}
+    });
+  })();
+})();
+</script>
+
+<script>
+/* ===== MAGICZNY PYŁEK wokół "Angielski Wonderland" (canvas) ===== */
+(function(){
+  var canvas = document.getElementById('egDustCanvas');
+  if(!canvas) return;
+  var ctx = canvas.getContext('2d');
+  var dpr = Math.min(window.devicePixelRatio || 1, 2);
+  var particles = [];
+  var W = 0, H = 0;
+  var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  function resize(){
+    var r = canvas.getBoundingClientRect();
+    W = Math.max(1, r.width);
+    H = Math.max(1, r.height);
+    canvas.width = W * dpr;
+    canvas.height = H * dpr;
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    build();
+  }
+
+  function rand(a, b){ return a + Math.random() * (b - a); }
+
+  function build(){
+    // gęstość zależna od powierzchni — dużo drobinek, ale nie za dużo na telefonie
+    var count = Math.min(150, Math.max(50, Math.round(W * H / 1400)));
+    particles = [];
+    for(var i = 0; i < count; i++){
+      particles.push(makeParticle(true));
+    }
+  }
+
+  function makeParticle(anywhere){
+    return {
+      x: rand(0, W),
+      y: anywhere ? rand(0, H) : H + rand(0, 30),
+      r: rand(0.6, 2.6),                 // promień drobinki
+      vy: rand(-0.25, -0.9),             // unosi się delikatnie w górę
+      vx: rand(-0.25, 0.25),             // lekki dryf w bok
+      life: rand(0, 1),                  // faza migotania
+      speed: rand(0.006, 0.02),          // tempo migotania
+      hue: Math.random() < 0.25 ? '#fff2c2' : '#f4c94c'  // część jaśniejsza, jak iskry
+    };
+  }
+
+  function frame(){
+    ctx.clearRect(0, 0, W, H);
+    for(var i = 0; i < particles.length; i++){
+      var p = particles[i];
+      p.life += p.speed;
+      // migotanie: sinusoidalna jasność
+      var tw = 0.35 + 0.65 * (0.5 + 0.5 * Math.sin(p.life * Math.PI * 2));
+      if(!reduce){
+        p.y += p.vy;
+        p.x += p.vx;
+      }
+      // reset gdy wypłynie za górę
+      if(p.y < -6){ particles[i] = makeParticle(false); continue; }
+
+      var grad = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, p.r * 3);
+      grad.addColorStop(0, p.hue);
+      grad.addColorStop(0.5, 'rgba(244,201,76,' + (0.55 * tw).toFixed(3) + ')');
+      grad.addColorStop(1, 'rgba(244,201,76,0)');
+      ctx.globalAlpha = tw;
+      ctx.fillStyle = grad;
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, p.r * 3, 0, Math.PI * 2);
+      ctx.fill();
+
+      // jasny rdzeń drobinki
+      ctx.globalAlpha = tw;
+      ctx.fillStyle = p.hue;
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, p.r * 0.6, 0, Math.PI * 2);
+      ctx.fill();
+    }
+    ctx.globalAlpha = 1;
+    if(!reduce) requestAnimationFrame(frame);
+  }
+
+  resize();
+  window.addEventListener('resize', resize);
+  if(reduce){ frame(); }        // narysuj raz statycznie
+  else requestAnimationFrame(frame);
+})();
+</script>
+
+<script>
+/* Osadzenie w gry.easygo-english.pl: raportuj wysokość i nawiguj w oknie nadrzędnym */
+(function(){
+  function reportH(){
+    try{
+      var el=document.querySelector('.eg-games')||document.body;
+      var hh=Math.max(el.scrollHeight, document.body.scrollHeight);
+      if(window.parent&&window.parent!==window) window.parent.postMessage({egCatalogHeight:hh},'*');
+    }catch(e){}
+  }
+  window.addEventListener('load',reportH);
+  window.addEventListener('resize',reportH);
+  var mo=new MutationObserver(reportH); 
+  try{ mo.observe(document.body,{subtree:true,childList:true,attributes:true}); }catch(e){}
+  setInterval(reportH,700);
+
+  /* kliknięcie ĆWICZ (link /cwiczenie/...) w osadzonym katalogu → nawiguj w oknie głównym */
+  document.addEventListener('click',function(ev){
+    var a=ev.target.closest && ev.target.closest('a.eg-play');
+    if(a && a.getAttribute('href') && a.getAttribute('href').indexOf('/cwiczenie/')===0){
+      if(window.parent&&window.parent!==window){
+        ev.preventDefault();
+        window.parent.postMessage({egNavigate:a.getAttribute('href')},'*');
+      }
+    }
+  });
+})();
+</script>
