@@ -1,4 +1,5 @@
 import './globals.css';
+import ConsentPixel from './ConsentPixel';
 export const metadata = {
   metadataBase: new URL('https://gry.easygo-english.pl'),
   title: {
@@ -23,7 +24,10 @@ export default function RootLayout({ children }) {
           rel="stylesheet"
         />
       </head>
-      <body>{children}</body>
+      <body>
+        {children}
+        <ConsentPixel />
+      </body>
     </html>
   );
 }
