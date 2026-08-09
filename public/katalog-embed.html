@@ -533,6 +533,25 @@
   .eg-footer-links a{ color:#a8a2b3; text-decoration:none; }
   .eg-footer-links a:hover{ color:var(--eg-magenta); }
   .eg-footer-links span{ margin:0 6px; }
+  .eg-footer-contact{ margin:4px 0 16px; }
+  .eg-contact-btn{
+    display:inline-block;
+    font-family:'Quicksand',sans-serif;
+    font-weight:700;
+    font-size:14px;
+    color:#fff;
+    background:var(--eg-magenta);
+    text-decoration:none;
+    padding:9px 26px;
+    border-radius:999px;
+    transition:transform .12s ease, box-shadow .12s ease;
+  }
+  .eg-contact-btn:hover{ transform:translateY(-1px); box-shadow:0 4px 14px rgba(202,68,144,.32); }
+  .eg-footer-report{ font-size:12px; color:#a8a2b3; margin:12px 0 0; }
+  .eg-footer-report a{ color:#a8a2b3; text-decoration:underline; }
+  .eg-footer-report a:hover{ color:var(--eg-magenta); }
+  html.eg-dark .eg-footer-report{ color:#8a83a0; }
+  html.eg-dark .eg-footer-report a{ color:#8a83a0; }
   .eg-grid.cols-3{ grid-template-columns:repeat(3,1fr); }
   .eg-grid.cols-4{ grid-template-columns:repeat(4,1fr); }
   .eg-grid.cols-5{ grid-template-columns:repeat(5,1fr); }
@@ -807,6 +826,10 @@
 
   <footer class="eg-footer">
     <a href="https://easygo-english.pl/" class="eg-footer-home">EasyGo English</a>
+    <div class="eg-footer-contact">
+      <a href="https://easygo-english.pl/kontakt/" class="eg-contact-btn">Kontakt</a>
+      <p class="eg-footer-report">Coś nie działa? Zgłoś problem na <a href="mailto:info@easygo-english.pl">info@easygo-english.pl</a></p>
+    </div>
     <div class="eg-footer-links">
       <a href="https://easygo-english.pl/regulamin-sklepu/">Regulamin</a>
       <span>·</span>
@@ -1294,6 +1317,25 @@
     });
   }
 
+  // Odczytuje ?poziom= i ?kategoria= z adresu (np. z tagów pod ćwiczeniem)
+  // i ustawia odpowiedni filtr, "klikając" właściwe przyciski — dzięki temu
+  // działa cała istniejąca logika (podświetlenia, render).
+  function applyUrlFilters(){
+    try{
+      var params = new URLSearchParams(window.location.search);
+      var poziom = params.get('poziom');
+      var kategoria = params.get('kategoria');
+      if(poziom){
+        var lvlBtn = levels.querySelector('[data-lvl="' + poziom + '"]');
+        if(lvlBtn) lvlBtn.click();
+      }
+      if(kategoria){
+        var catBtn = filters.querySelector('[data-cat="' + kategoria + '"]');
+        if(catBtn) catBtn.click();
+      }
+    }catch(e){}
+  }
+
   var searchInput = document.getElementById('egSearch');
   var searchClear = document.getElementById('egSearchClear');
   searchInput.addEventListener('input', function(){
@@ -1315,6 +1357,7 @@
   .then(function(rows){
     allGames = Array.isArray(rows) ? rows : [];
     buildLevelFilters();
+    applyUrlFilters();   // odczytaj ?poziom= / ?kategoria= z adresu i ustaw filtr
     render();
     // jeśli uczeń zalogowany — dociągnij jego pracę domową i pokaż domki
     loadHomework();
