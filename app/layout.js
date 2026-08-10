@@ -24,6 +24,13 @@ export default function RootLayout({ children }) {
           href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700&family=Quicksand:wght@500;600;700&display=swap"
           rel="stylesheet"
         />
+        {/* Tryb ciemny wspólny dla całej witryny — ustaw klasę na <html> zanim strona się wyrenderuje (bez mignięcia). Wspólny klucz z odtwarzaczem i katalogiem: localStorage 'easygo_tryb'. */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html:
+              "try{if(localStorage.getItem('easygo_tryb')==='dark'){document.documentElement.classList.add('eg-dark');}}catch(e){}",
+          }}
+        />
       </head>
       <body>
         {children}
