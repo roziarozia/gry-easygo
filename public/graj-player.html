@@ -199,6 +199,24 @@
     gap:12px;
     flex-wrap:wrap;
   }
+  .locked-box{
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    gap:14px;
+  }
+  .locked-ic{ color:var(--magenta); }
+  .locked-text{
+    font-family:'Quicksand',sans-serif;
+    font-weight:600;
+    font-size:16px;
+    color:var(--ink);
+    max-width:320px;
+    line-height:1.4;
+  }
+  /* na okładce z obrazkiem tekst kłódki musi być czytelny na ciemnym tle */
+  #cover.has-image .locked-text{ color:#fff; text-shadow:0 1px 4px rgba(0,0,0,.4); }
+  #cover.has-image .locked-ic{ color:#fff; }
 
   /* Okładka z własnym obrazkiem (images/cover.jpg) */
   #coverImgWrap{position:absolute;inset:0;display:none;overflow:hidden;}
@@ -963,6 +981,13 @@
         <div id="coverSpeak" class="hidden">
           <button class="btn" id="startSpeakBtn">Let's talk</button>
         </div>
+        <div id="coverLocked" class="hidden">
+          <div class="locked-box">
+            <svg class="locked-ic" viewBox="0 0 24 24" width="30" height="30" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="11" width="16" height="9" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>
+            <span class="locked-text">To zadanie jest dostępne po zalogowaniu.</span>
+            <a class="btn" id="lockedLoginBtn" href="https://gry.easygo-english.pl/logowanie" target="_top">Zaloguj się</a>
+          </div>
+        </div>
       </div>
       <span class="brand">easygo-english.pl</span>
     </section>
@@ -1201,6 +1226,27 @@ async function markCompleted(){
     document.getElementById('cSub').textContent = GAME.description || '';
     document.getElementById('wordCount').textContent = SLIDES.length;
 
+    // Ile treści faktycznie wróciło (wg typu zadania). Dla gościa bez dostępu
+    // do zadania premium RLS zwraca 0 elementów treści — mimo że metadane gry są publiczne.
+    const contentCount =
+      GAME.template === 'quiz'     ? QUESTIONS.length :
+      GAME.template === 'gap-fill' ? GAPS.length :
+      GAME.template === 'speaking' ? SPEAKS.length :
+      GAME.template === 'reading'  ? READING.length :
+                                     SLIDES.length;
+    // Zablokowane: zadanie premium, a treść pusta = brak dostępu (niezalogowany
+    // gość albo zalogowany bez subskrypcji). Opublikowane premium zawsze ma treść,
+    // więc puste = paywall. Zamiast „Rozpocznij" pokazujemy kłódkę.
+    const isLocked = !!GAME.is_premium && contentCount === 0;
+
+    if(isLocked){
+      // ukryj wszystkie normalne przyciski startu, pokaż kłódkę
+      document.getElementById('coverModes').classList.add('hidden');
+      document.getElementById('coverQuiz').classList.add('hidden');
+      document.getElementById('coverGap').classList.add('hidden');
+      document.getElementById('coverSpeak').classList.add('hidden');
+      document.getElementById('coverLocked').classList.remove('hidden');
+    }else{
     // Quiz ma inny wybór trybu na okładce
     if(GAME.template === 'quiz'){
       document.getElementById('coverModes').classList.add('hidden');
@@ -1221,6 +1267,7 @@ async function markCompleted(){
       document.getElementById('coverModes').classList.add('hidden');
       document.getElementById('coverSpeak').classList.remove('hidden');
       document.getElementById('startSpeakBtn').textContent = 'Czytaj';
+    }
     }
 
     const loadingEl = document.getElementById('loading');
