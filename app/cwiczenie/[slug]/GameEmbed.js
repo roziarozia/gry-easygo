@@ -11,6 +11,15 @@ export default function GameEmbed({ slug }) {
       if (e.data && typeof e.data.egPlayerHeight === 'number') {
         setHeight(Math.max(520, e.data.egPlayerHeight));
       }
+      // odtwarzacz (w iframe) przełączył tryb → przełącz całą stronę na żywo
+      if (e.data && e.data.egTheme) {
+        try {
+          const html = document.documentElement;
+          if (e.data.egTheme === 'dark') html.classList.add('eg-dark');
+          else html.classList.remove('eg-dark');
+          localStorage.setItem('easygo_tryb', e.data.egTheme);
+        } catch (err) {}
+      }
     }
     window.addEventListener('message', onMsg);
     return () => window.removeEventListener('message', onMsg);
