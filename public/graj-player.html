@@ -73,6 +73,7 @@
   html.eg-dark #gapInput{ background:#2f3147; color:var(--ink); border-color:#3f4468; }
   html.eg-dark #gapInput::placeholder{ color:#8a84a0; }
   html.eg-dark .q-explain{ background:#20222f; color:var(--ink); }
+  html.eg-dark .feedback.bad{ background:#3d2226 !important; color:#fff !important; }
   /* wszystkie białe „pigułki"/etykiety na kolorowych tłach — przyciemnione, żeby tekst był widoczny */
   html.eg-dark .btn-secondary,
   html.eg-dark .pl-hint,
@@ -941,6 +942,8 @@
       var dark = document.documentElement.classList.toggle('eg-dark');
       try{ localStorage.setItem('easygo_tryb', dark ? 'dark' : 'light'); }catch(e){}
       sync();
+      // powiadom stronę nadrzędną (gdy odtwarzacz jest w iframe na /cwiczenie/…), żeby całą stronę przełączyła na żywo
+      try{ if(window.parent && window.parent !== window){ window.parent.postMessage({ egTheme: dark ? 'dark' : 'light' }, '*'); } }catch(e){}
     });
   })();
 </script>
