@@ -1,8 +1,11 @@
 import './globals.css';
 import Script from 'next/script';
 import ConsentPixel from './ConsentPixel';
+// Adres serwisu. Zmiana domeny = jedna zmienna NEXT_PUBLIC_SITE_URL w Vercel.
+const SITE = process.env.NEXT_PUBLIC_SITE_URL || 'https://gry.easygo-english.pl';
+
 export const metadata = {
-  metadataBase: new URL('https://gry.easygo-english.pl'),
+  metadataBase: new URL(SITE),
   title: {
     default: 'Gry i ćwiczenia interaktywne do angielskiego | EasyGo English',
     template: '%s | EasyGo English',
@@ -36,7 +39,7 @@ export default function RootLayout({ children }) {
         {children}
         <ConsentPixel />
 
-        {/* Google Analytics (GA4) — mierzy ruch na gry.easygo-english.pl */}
+        {/* Google Analytics (GA4) — mierzy ruch na stronie */}
         <Script
           src="https://www.googletagmanager.com/gtag/js?id=G-KWQVZY8YED"
           strategy="afterInteractive"
