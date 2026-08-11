@@ -799,7 +799,7 @@
     <div class="eg-state" id="egState">Wczytywanie gier…</div>
     <div class="eg-promo" id="egPromo" style="display:none">
       <div class="eg-promo-text"><strong>To ćwiczenia dla subskrybentów.</strong> Spodobały Ci się? Wykup dostęp i odblokuj wszystkie — bez ograniczeń.</div>
-      <a class="eg-promo-btn" href="https://easygo-english.pl/oferta.html">Wykup dostęp</a>
+      <a class="eg-promo-btn" href="/oferta">Wykup dostęp</a>
     </div>
     <div class="eg-progress" id="egProgress" style="display:none">
       <div class="eg-progress-top">
@@ -1711,7 +1711,7 @@
       if(inIframe){ ev.preventDefault(); window.parent.postMessage({egNavigate:href},'*'); }
       return;
     }
-    // 3) linki NAPRAWDĘ zewnętrzne (easygo-english.pl/kontakt, oferta, mailto) → nowa karta,
+    // 3) linki NAPRAWDĘ zewnętrzne (easygo-english.pl/kontakt, mailto) → nowa karta,
     //    żeby uczeń nie tracił katalogu
     if(inIframe && (/^https?:\/\//i.test(href) || /^mailto:/i.test(href))){
       ev.preventDefault();
