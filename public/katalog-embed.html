@@ -1155,6 +1155,16 @@
         return 0;
       });
     }
+    // W widoku "Praca domowa": zrobione zadania zjeżdżają na DÓŁ listy (żeby nie zaśmiecały),
+    // niezrobione zostają u góry. Stabilne — zachowuje dotychczasową kolejność w obrębie grupy.
+    if(curStatus === 'domowa'){
+      list = list.map(function(g,i){ return {g:g,i:i}; }).sort(function(x,y){
+        var dx = homeworkDone[x.g.slug] ? 1 : 0;
+        var dy = homeworkDone[y.g.slug] ? 1 : 0;
+        if(dx !== dy) return dx - dy;   // niezrobione (0) przed zrobionymi (1)
+        return x.i - y.i;               // w obrębie grupy: bez zmian
+      }).map(function(o){ return o.g; });
+    }
     // ---- PAGINACJA: potnij do bieżącej strony (na pełnej, przefiltrowanej liście) ----
     var perPage = pageSize();
     var totalPages = Math.max(1, Math.ceil(list.length / perPage));
