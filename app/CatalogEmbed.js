@@ -11,6 +11,35 @@ export default function CatalogEmbed() {
   // żeby katalog w środce mógł je odczytać (window.location.search iframe'a
   // jest inny niż rodzica). Tag "A1"/"Gramatyka" pod ćwiczeniem prowadzi na
   // gry.easygo-english.pl/?poziom=A1 — te parametry muszą trafić do src iframe.
+  // Po potwierdzeniu maila Supabase wraca na stronę główną z tokenem sesji w adresie
+  // (#access_token=…&type=signup). Iframe z katalogiem ma własny URL, więc sam tego tokenu
+  // nie zobaczy — to RODZIC musi go przetworzyć: tworzymy klienta Supabase, który przy starcie
+  // wykrywa token w URL i zapisuje sesję do localStorage (współdzielonego z iframe na tej samej
+  // domenie), po czym czyścimy adres. Nasłuch onAuthStateChange w katalogu podchwyci zapisaną sesję.
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    if (!window.location.hash || window.location.hash.indexOf('access_token') === -1) return;
+    const SUPA_URL = 'https://svjrdyxwqznbzxqeytdn.supabase.co';
+    const SUPA_KEY = 'sb_publishable_TNCq1UAMAvLO0Z5Mt8QOig_OvsxhhyJ';
+    function processToken() {
+      try {
+        const sb = window.supabase.createClient(SUPA_URL, SUPA_KEY);
+        // getSession() wymusza przetworzenie tokenu z URL i zapis sesji do localStorage
+        sb.auth.getSession().finally(function () {
+          try { history.replaceState(null, '', window.location.pathname + window.location.search); } catch (e) {}
+        });
+      } catch (e) {}
+    }
+    if (window.supabase) {
+      processToken();
+    } else {
+      const s = document.createElement('script');
+      s.src = 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2';
+      s.onload = processToken;
+      document.head.appendChild(s);
+    }
+  }, []);
+
   const [src, setSrc] = useState('/katalog-embed.html');
   useEffect(() => {
     try {
