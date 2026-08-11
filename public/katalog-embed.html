@@ -878,7 +878,7 @@
   var SUPA_KEY = 'sb_publishable_TNCq1UAMAvLO0Z5Mt8QOig_OvsxhhyJ';
   var PLAY_URL = '/graj/';
   var ACCESS_URL = 'https://easygo-english.pl/oferta.html'; // "Wykup dostęp" → strona oferty
-  var LOGIN_LINK = 'https://gry.easygo-english.pl/logowanie'; // "Zaloguj się" → logowanie NA gry.easygo (ta sama domena, sesja widoczna dla katalogu)
+  var LOGIN_LINK = '/logowanie'; // ścieżka względna — działa na każdej domenie, sesja zostaje na tej samej
   var MIN_TILES = 3; // ile minimum kafelków (dopełnia "wkrótce")
   var _sb = window.supabase ? window.supabase.createClient(SUPA_URL, SUPA_KEY) : null;
   // Po potwierdzeniu maila (link z Supabase) token sesji wraca w adresie jako #access_token=…
@@ -1665,10 +1665,10 @@
     var email = (profile && profile.email) || session.user.email || '';
     var html = '<span class="eg-hi">' + email + '</span>';
     if(profile && profile.role === 'teacher'){
-      html += '<a class="eg-panel-link" href="https://gry.easygo-english.pl/panel-lektora">Panel lektora</a>';
+      html += '<a class="eg-panel-link" href="/panel-lektora">Panel lektora</a>';
     }
     // każdy zalogowany ma dostęp do ustawień konta (hasło, usunięcie, subskrypcja jeśli własna)
-    html += '<a class="eg-panel-link" href="https://gry.easygo-english.pl/konto">Moje konto</a>';
+    html += '<a class="eg-panel-link" href="/konto">Moje konto</a>';
     html += '<a href="#" id="egLogout">Wyloguj</a>';
     el.innerHTML = html;
     var lo = document.getElementById('egLogout');
@@ -1693,7 +1693,7 @@
 
 
 <script>
-/* Osadzenie w gry.easygo-english.pl: raportuj wysokość i nawiguj w oknie nadrzędnym */
+/* Osadzenie w stronie nadrzednej: raportuj wysokość i nawiguj w oknie nadrzędnym */
 (function(){
   function reportH(){
     try{
@@ -1715,16 +1715,14 @@
     var href=a.getAttribute('href') || '';
     if(!href) return;
     var inIframe = window.parent && window.parent !== window;
-    // 1) linki do ćwiczeń → rodzic nawiguje w tej samej karcie
-    if(href.indexOf('/cwiczenie/')===0){
+    // 1) linki WEWNĘTRZNE — ścieżki względne (/cwiczenie/, /logowanie, /panel-lektora,
+    //    /konto) oraz pełne adresy na TEJ SAMEJ domenie → nawigacja w TEJ SAMEJ karcie
+    //    okna głównego. Ścieżki względne działają pod każdym adresem serwisu, więc
+    //    zmiana domeny ich nie psuje; regexp niżej łapie stare linki bezwzględne.
+    var relPath = href.charAt(0)==='/' && href.charAt(1)!=='/';
+    var sameOrigin = href.indexOf(window.location.origin)===0;
+    if(relPath || sameOrigin || /^https?:\/\/(gry\.easygo-english\.pl|(www\.)?easywonders\.pl)/i.test(href)){
       if(inIframe){ ev.preventDefault(); window.parent.postMessage({egNavigate:href},'*'); }
-      return;
-    }
-    // 2) linki WEWNĘTRZNE (na gry.easygo-english.pl: logowanie, panel-lektora, konto) →
-    //    nawiguj w TEJ SAMEJ karcie w oknie głównym (nie nowa karta!)
-    if(inIframe && /^https?:\/\/gry\.easygo-english\.pl/i.test(href)){
-      ev.preventDefault();
-      window.parent.postMessage({egNavigate:href},'*');
       return;
     }
     // 3) linki NAPRAWDĘ zewnętrzne (easygo-english.pl/kontakt, oferta, mailto) → nowa karta,
