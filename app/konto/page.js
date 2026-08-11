@@ -145,7 +145,9 @@ export default function Konto() {
       $('delBtn').addEventListener('click', async function(){
         if(!confirm('Czy na pewno chcesz usunąć konto? Tej operacji nie można cofnąć.')) return;
         var typed = prompt('Aby potwierdzić, wpisz: USUŃ');
-        if(typed !== 'USUŃ'){ msg($('delMsg'), 'Anulowano — konto nie zostało usunięte.', 'err'); return; }
+        // akceptuj różne formy: z ń i bez, z małej i dużej litery, z ewentualnymi spacjami
+        var norm = (typed || '').trim().toLowerCase().replace(/ń/g, 'n');
+        if(norm !== 'usun'){ msg($('delMsg'), 'Anulowano — konto nie zostało usunięte.', 'err'); return; }
         $('delBtn').disabled = true;
         var emailToNotify = me && me.email ? me.email : null;
         if(emailToNotify){ try{ await sb.functions.invoke('notify-account-deleted', { body: { user_email: emailToNotify } }); }catch(e){} }
