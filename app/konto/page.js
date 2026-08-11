@@ -1,7 +1,7 @@
 'use client';
 import { useEffect } from 'react';
 
-// Konto NA gry.easygo-english.pl — ta sama domena co logowanie i katalog,
+// Konto na TEJ SAMEJ domenie co logowanie, oferta i katalog —
 // więc sesja jest widoczna. Cała logika (status subskrypcji, Stripe portal,
 // reset/zmiana hasła, usuwanie konta, wylogowanie) przeniesiona 1:1.
 export default function Konto() {
@@ -106,7 +106,7 @@ export default function Konto() {
           cls = 'status-none';
           html += '<p class="status-title">Brak aktywnego dostępu</p>';
           html += '<p class="status-line">Wykup subskrypcję, aby odblokować wszystkie ćwiczenia.</p>';
-          html += '<a class="status-cta" href="https://easygo-english.pl/oferta.html">Zobacz ofertę</a>';
+          html += '<a class="status-cta" href="/oferta">Zobacz ofertę</a>';
         }
         body.innerHTML = html;
         card.className = 'card ' + cls;
@@ -125,7 +125,7 @@ export default function Konto() {
         $('newPass').value = '';
         if(isReset){
           msg($('passMsg'), 'Hasło zostało zmienione. Za chwilę przeniesiemy Cię do logowania…', 'ok');
-          setTimeout(function(){ window.location.href = 'https://gry.easygo-english.pl/logowanie'; }, 2200);
+          setTimeout(function(){ window.location.href = '/logowanie'; }, 2200);
           return;
         }
         msg($('passMsg'), 'Hasło zostało zmienione.', 'ok');
@@ -155,12 +155,12 @@ export default function Konto() {
         if(r.error || (r.data && String(r.data).startsWith('error'))){ $('delBtn').disabled = false; msg($('delMsg'), 'Nie udało się usunąć konta. Spróbuj ponownie.', 'err'); return; }
         await sb.auth.signOut();
         alert('Twoje konto zostało usunięte.');
-        window.location.href = 'https://gry.easygo-english.pl/';
+        window.location.href = '/';
       });
 
       $('logoutLink').addEventListener('click', function(e){
         e.preventDefault();
-        sb.auth.signOut().then(function(){ window.location.href = 'https://gry.easygo-english.pl/'; });
+        sb.auth.signOut().then(function(){ window.location.href = '/'; });
       });
 
       // przełącznik trybu
@@ -197,7 +197,7 @@ export default function Konto() {
 
         <div id="notLogged" className="card hidden" style={{ textAlign: 'center' }}>
           <p className="desc" style={{ marginBottom: 16 }}>Aby zarządzać kontem, zaloguj się.</p>
-          <a className="btn" href="https://gry.easygo-english.pl/logowanie" style={{ textDecoration: 'none' }}>Zaloguj się</a>
+          <a className="btn" href="/logowanie" style={{ textDecoration: 'none' }}>Zaloguj się</a>
         </div>
 
         <div id="account" className="hidden">
@@ -245,7 +245,7 @@ export default function Konto() {
           </div>
 
           <div className="top-actions">
-            <a href="https://gry.easygo-english.pl/">← Wróć do ćwiczeń</a>
+            <a href="/">← Wróć do ćwiczeń</a>
             &nbsp;·&nbsp;
             <a href="#" id="logoutLink">Wyloguj</a>
           </div>
