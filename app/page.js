@@ -8,13 +8,14 @@ const CAT_LABEL = { gramatyka: 'Gramatyka', slownictwo: 'Słownictwo', speaking:
 export default async function HomePage() {
   const games = await getPublishedGames();
 
+  const SITE = process.env.NEXT_PUBLIC_SITE_URL || 'https://gry.easygo-english.pl';
   const jsonLd = {
     '@context': 'https://schema.org', '@type': 'ItemList',
     name: 'Ćwiczenia interaktywne do angielskiego – EasyGo English',
     numberOfItems: games.length,
     itemListElement: games.slice(0, 60).map((g, i) => ({
       '@type': 'ListItem', position: i + 1,
-      url: `https://gry.easygo-english.pl/cwiczenie/${g.slug}`, name: g.title,
+      url: `${SITE}/cwiczenie/${g.slug}`, name: g.title,
     })),
   };
 
