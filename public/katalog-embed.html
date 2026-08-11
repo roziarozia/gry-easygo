@@ -1570,25 +1570,11 @@
     }
   }
 
-  // === META PIXEL — tylko dla NIEzalogowanych gości na /gry/ ===
-  // Odpala się wyłącznie, gdy nie ma aktywnej sesji (patrz loadHomework poniżej).
-  // Zalogowani uczniowie/lektorzy NIE są śledzeni.
-  var _egPixelDone = false;
-  function egLoadPixelForGuest(){
-    if(_egPixelDone) return;          // odpal tylko raz
-    if(window.fbq) { _egPixelDone = true; return; } // gdyby już był (np. z nagłówka) — nie dubluj
-    _egPixelDone = true;
-    !function(f,b,e,v,n,t,s)
-    {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
-    n.callMethod.apply(n,arguments):n.queue.push(arguments)};
-    if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
-    n.queue=[];t=b.createElement(e);t.async=!0;
-    t.src=v;s=b.getElementsByTagName(e)[0];
-    s.parentNode.insertBefore(t,s)}(window, document,'script',
-    'https://connect.facebook.net/en_US/fbevents.js');
-    fbq('init', '1747890483017414');
-    fbq('track', 'PageView');
-  }
+  // === META PIXEL ===
+  // Pikselem zarządza WYŁĄCZNIE strona nadrzędna (app/ConsentPixel.js), która czeka
+  // na zgodę z bannera RODO i pomija zalogowanych. Ta ramka NIE ładuje piksela sama —
+  // wcześniej robiła to od razu dla każdego gościa, czyli PRZED wyrażeniem zgody.
+  function egLoadPixelForGuest(){ /* celowo puste — patrz komentarz wyżej */ }
 
   // Wyślij do strony-rodzica (gry.easygo) informację, czy użytkownik jest zalogowany —
   // ConsentPixel NIE śledzi zalogowanych uczniów (prywatność).
