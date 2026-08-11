@@ -1,11 +1,11 @@
 'use client';
 import { useEffect, useRef, useState } from 'react';
 
-// Logowanie NA gry.easygo-english.pl — sesja zapisuje się pod tą domeną,
+// Logowanie na TEJ domenie — sesja zapisuje się pod nią,
 // dzięki czemu katalog (na tej samej domenie) widzi zalogowanego użytkownika.
 const SUPABASE_URL = 'https://svjrdyxwqznbzxqeytdn.supabase.co';
 const SUPABASE_KEY = 'sb_publishable_TNCq1UAMAvLO0Z5Mt8QOig_OvsxhhyJ';
-const REDIRECT_AFTER = 'https://gry.easygo-english.pl/';
+const REDIRECT_AFTER = '/';   // ścieżka względna — działa pod każdą domeną
 
 export default function Logowanie() {
   const [mode, setMode] = useState('login');       // 'login' | 'signup'
@@ -58,7 +58,7 @@ export default function Logowanie() {
 
   function backTarget() {
     const params = new URLSearchParams(window.location.search || '');
-    return params.get('powrot') === 'oferta' ? 'https://easygo-english.pl/oferta.html' : REDIRECT_AFTER;
+    return params.get('powrot') === 'oferta' ? '/oferta' : REDIRECT_AFTER;
   }
 
   async function submit() {
@@ -99,7 +99,7 @@ export default function Logowanie() {
     try {
       // Google musi wrócić na /logowanie (tu jest klient Supabase, który przechwyci token z URL
       // i zapisze sesję pod gry.easygo); stąd useEffect przekieruje dalej na stronę główną.
-      const { error } = await sb.auth.signInWithOAuth({ provider: 'google', options: { redirectTo: 'https://gry.easygo-english.pl/logowanie' } });
+      const { error } = await sb.auth.signInWithOAuth({ provider: 'google', options: { redirectTo: window.location.origin + '/logowanie' } });
       if (error) throw error;
     } catch (err) {
       setMsg({ text: 'Logowanie Google nie jest jeszcze skonfigurowane.', type: 'err' });
@@ -112,7 +112,7 @@ export default function Logowanie() {
     if (!sb) return;
     const email = (emailRef.current.value || '').trim();
     if (!email) { setMsg({ text: 'Wpisz najpierw swój adres e-mail powyżej, a wyślemy link do zmiany hasła.', type: 'err' }); emailRef.current.focus(); return; }
-    const r = await sb.auth.resetPasswordForEmail(email, { redirectTo: 'https://gry.easygo-english.pl/konto?reset=1' });
+    const r = await sb.auth.resetPasswordForEmail(email, { redirectTo: window.location.origin + '/konto?reset=1' });
     if (r.error) { setMsg({ text: 'Nie udało się wysłać linku: ' + r.error.message, type: 'err' }); return; }
     setMsg({ text: 'Wysłaliśmy link do zmiany hasła na ' + email + '. Sprawdź skrzynkę (także spam).', type: 'ok' });
   }
