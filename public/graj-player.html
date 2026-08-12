@@ -498,7 +498,9 @@
     font-family:'Quicksand',sans-serif;
     font-weight:600;
     font-size:17px;
-    color:var(--ink);
+    /* tło jest ZAWSZE białe, więc kolor liter musi być stały — var(--ink)
+       przełączał się w trybie ciemnym na jasny i wpisywane słowo znikało */
+    color:#2e2a33;
     background:rgba(255,255,255,.95);
     border:none;
     border-radius:12px;
@@ -508,6 +510,7 @@
     box-shadow:0 8px 22px rgba(0,0,0,.28);
     outline:none;
   }
+  .type-box input::placeholder{ color:#8a84a0; }
   .type-box input:focus{
     box-shadow:0 8px 22px rgba(0,0,0,.28), 0 0 0 3px var(--gold);
   }
