@@ -924,7 +924,9 @@
 
   var curType = 'wszystkie';    // rodzaj: gramatyka/slownictwo/speaking/reading
   var curStatus = 'wszystkie';  // status: darmowe/platne/ulubione/domowa/zrobione/niezrobione
-  var curLvl = 'wszystkie';
+  // WIELOKROTNY WYBÓR POZIOMÓW: pusta lista = wszystkie poziomy.
+  // (wcześniej był jeden curLvl='wszystkie', więc dało się zaznaczyć tylko jeden)
+  var curLvls = [];
   var curSearch = '';
   var curSeries = '';   // gdy ustawione, pokazuje tylko zadania z tej serii
 
@@ -1120,7 +1122,7 @@
       else if(curStatus === 'domowa') okStatus = !!homeworkSet[g.slug];
       else if(curStatus === 'zrobione') okStatus = !!completedSet[g.slug];
       else if(curStatus === 'niezrobione') okStatus = (!completedSet[g.slug] && (userHasAccess || !g.is_premium));
-      var okLvl = (curLvl === 'wszystkie') || (g.level === curLvl);
+      var okLvl = (curLvls.length === 0) || (curLvls.indexOf(g.level) !== -1);
       var okSeries = !curSeries || (norm(g.series) === norm(curSeries));
       var okSearch = true;
       if(q){
@@ -1287,7 +1289,7 @@
     }).join('');
 
     // dopełnij kafelkami "wkrótce" tylko gdy nie ma żadnego filtra — i tylko na OSTATNIEJ stronie
-    if(curType === 'wszystkie' && curStatus === 'wszystkie' && curLvl === 'wszystkie' && !curSearch && !curSeries && isLastPage){
+    if(curType === 'wszystkie' && curStatus === 'wszystkie' && curLvls.length === 0 && !curSearch && !curSeries && isLastPage){
       var missing = Math.max(0, MIN_TILES - fullCount);
       for(var i=0;i<missing;i++) html += soonCard();
     }
@@ -1379,7 +1381,10 @@
     if(!link) return;
     e.preventDefault();
     curSeries = link.getAttribute('data-series');
-    curType = 'wszystkie'; curStatus = 'wszystkie'; curLvl = 'wszystkie';
+    curType = 'wszystkie'; curStatus = 'wszystkie'; curLvls = [];
+    levels.querySelectorAll('button').forEach(function(b){
+      b.classList.toggle('eg-active', b.getAttribute('data-lvl') === 'wszystkie');
+    });
     curSearch = ''; 
     curPage = 1;
     var si = document.getElementById('egSearch'); if(si) si.value = '';
@@ -1425,9 +1430,20 @@
   levels.addEventListener('click', function(e){
     var btn = e.target.closest('button');
     if(!btn) return;
-    levels.querySelectorAll('button').forEach(function(b){ b.classList.remove('eg-active'); });
-    btn.classList.add('eg-active');
-    curLvl = btn.getAttribute('data-lvl');
+    var lvl = btn.getAttribute('data-lvl');
+    if(lvl === 'wszystkie'){
+      curLvls = [];                       // "Wszystkie poziomy" czyści wybór
+    } else {
+      var i = curLvls.indexOf(lvl);
+      if(i === -1) curLvls.push(lvl);     // dokładamy poziom
+      else curLvls.splice(i, 1);          // drugi klik = zdejmujemy
+    }
+    // podświetlenia: "Wszystkie poziomy" świeci tylko przy pustym wyborze
+    levels.querySelectorAll('button').forEach(function(b){
+      var l = b.getAttribute('data-lvl');
+      var on = (l === 'wszystkie') ? (curLvls.length === 0) : (curLvls.indexOf(l) !== -1);
+      b.classList.toggle('eg-active', on);
+    });
     curPage = 1;
     render();
   });
@@ -1501,8 +1517,11 @@
       var poziom = params.get('poziom');
       var kategoria = params.get('kategoria');
       if(poziom){
-        var lvlBtn = levels.querySelector('[data-lvl="' + poziom + '"]');
-        if(lvlBtn) lvlBtn.click();
+        // dopuszczamy kilka poziomów po przecinku, np. ?poziom=B1,B2
+        poziom.split(',').forEach(function(p){
+          var lvlBtn = levels.querySelector('[data-lvl="' + p.trim() + '"]');
+          if(lvlBtn) lvlBtn.click();
+        });
       }
       if(kategoria){
         var catBtn = filters.querySelector('[data-cat="' + kategoria + '"]');
