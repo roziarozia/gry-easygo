@@ -1671,6 +1671,10 @@
     btn.addEventListener('click', function(){
       var dark = document.documentElement.classList.toggle('eg-dark');
       try{ localStorage.setItem('easygo_tryb', dark ? 'dark' : 'light'); }catch(e){}
+      // powiadom stronę nadrzędną — katalog siedzi w iframe, więc sam przyciemnia
+      // tylko SIEBIE; bez tego tło strony dookoła zostawało jasne (tak jak robi to
+      // od dawna odtwarzacz w graj-player.html)
+      try{ if(window.parent && window.parent !== window){ window.parent.postMessage({ egTheme: dark ? 'dark' : 'light' }, '*'); } }catch(e){}
     });
   })();
 })();
