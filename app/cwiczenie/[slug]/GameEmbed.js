@@ -7,6 +7,17 @@ export default function GameEmbed({ slug }) {
   const [height, setHeight] = useState(780);
 
   useEffect(() => {
+    // Przywróć zapisany tryb przy każdym wejściu na stronę. Skrypt w <head>
+    // (layout.js) działa tylko przy pełnym przeładowaniu; przy nawigacji
+    // po stronie klienta (Next.js) już się nie wykonuje, więc bez tego
+    // strona potrafiła zostać jasna mimo wybranego trybu ciemnego.
+    try {
+      const zapisany = localStorage.getItem('easygo_tryb');
+      const html = document.documentElement;
+      if (zapisany === 'dark') html.classList.add('eg-dark');
+      else if (zapisany === 'light') html.classList.remove('eg-dark');
+    } catch (err) {}
+
     function onMsg(e) {
       if (e.data && typeof e.data.egPlayerHeight === 'number') {
         setHeight(Math.max(520, e.data.egPlayerHeight));
