@@ -55,11 +55,31 @@ export default function CatalogEmbed() {
   }, []);
 
   useEffect(() => {
+    // Przywróć zapisany tryb przy każdym wejściu na stronę. Skrypt w <head>
+    // (layout.js) działa tylko przy pełnym przeładowaniu; przy nawigacji
+    // po stronie klienta (Next.js) już się nie wykonuje, więc bez tego
+    // strona potrafiła zostać jasna mimo wybranego trybu ciemnego.
+    try {
+      const zapisany = localStorage.getItem('easygo_tryb');
+      const html = document.documentElement;
+      if (zapisany === 'dark') html.classList.add('eg-dark');
+      else if (zapisany === 'light') html.classList.remove('eg-dark');
+    } catch (err) {}
+
     function onMsg(e) {
       if (e.data && typeof e.data.egCatalogHeight === 'number' && ref.current) {
         ref.current.style.height = Math.max(600, e.data.egCatalogHeight) + 'px';
       }
       // przejście z kafelka lub linku: katalog prosi rodzica o nawigację
+      // katalog (w iframe) przełączył tryb → przełącz całą stronę
+      if (e.data && e.data.egTheme) {
+        try {
+          const html = document.documentElement;
+          if (e.data.egTheme === 'dark') html.classList.add('eg-dark');
+          else html.classList.remove('eg-dark');
+          localStorage.setItem('easygo_tryb', e.data.egTheme);
+        } catch (err) {}
+      }
       if (e.data && e.data.egNavigate) {
         if (e.data.egExternal) {
           // link zewnętrzny (Kontakt, mailto) — nowa karta, żeby uczeń nie tracił ćwiczeń
