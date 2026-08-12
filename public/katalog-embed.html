@@ -484,11 +484,10 @@
   }
   .eg-filters button:hover{ border-color:var(--eg-magenta); color:var(--eg-magenta); }
   /* aktywne kategorie — pastelowe kolory zamiast ciemnego */
-  /* WYRAŹNY PIERŚCIEŃ zaznaczenia: pastelowe tło samo w sobie było ledwie widoczne,
-     więc dokładamy różową obwódkę box-shadow (nie zmienia rozmiaru przycisku, więc
-     nic nie skacze). Różowy, nie złoty — złoty zlałby się z aktywną pastylką
-     „Darmowe”, która sama jest złota. Działa w obu trybach, bo reguły trybu ciemnego
-     nadpisują tło i border, ale nie box-shadow. */
+  /* WYRAŹNY PIERŚCIEŃ zaznaczenia: samo pastelowe tło było ledwie widoczne.
+     Różowy, nie złoty — złoty zlałby się z aktywną pastylką „Darmowe”, która sama
+     jest złota. box-shadow nie zmienia rozmiaru przycisku, więc nic nie skacze.
+     Działa w obu trybach: reguły ciemne nadpisują tło i border, ale nie cień. */
   .eg-filters button.eg-active{
     color:var(--eg-ink);
     font-weight:700;
@@ -1410,8 +1409,14 @@
     // odśwież podświetlenia: aktywne są bieżący rodzaj i status; "Wszystkie" aktywne gdy obie osie puste
     filters.querySelectorAll('button').forEach(function(b){
       var c = b.getAttribute('data-cat');
-      var on = (c === curType) || (c === curStatus) ||
-               (c === 'wszystkie' && curType === 'wszystkie' && curStatus === 'wszystkie');
+      // UWAGA: pusty rodzaj i pusty status mają wartość 'wszystkie' — taką samą jak
+      // nazwa przycisku "Wszystkie". Dlatego traktujemy go OSOBNO: świeci wyłącznie
+      // wtedy, gdy obie osie są puste. Wcześniej zapalał się przy każdym wyborze
+      // rodzaju (bo status był wtedy równy 'wszystkie') i dwie pastylki wyglądały
+      // na zaznaczone naraz.
+      var on = (c === 'wszystkie')
+        ? (curType === 'wszystkie' && curStatus === 'wszystkie')
+        : (c === curType || c === curStatus);
       b.classList.toggle('eg-active', on);
     });
     curPage = 1;
