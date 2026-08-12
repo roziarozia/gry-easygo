@@ -464,7 +464,7 @@
   }
   .eg-filter-row{
     display:flex;
-    gap:8px;
+    gap:10px;
     justify-content:center;
     flex-wrap:wrap;
   }
@@ -484,7 +484,17 @@
   }
   .eg-filters button:hover{ border-color:var(--eg-magenta); color:var(--eg-magenta); }
   /* aktywne kategorie — pastelowe kolory zamiast ciemnego */
-  .eg-filters button.eg-active{ color:var(--eg-ink); font-weight:700; }
+  /* WYRAŹNY PIERŚCIEŃ zaznaczenia: pastelowe tło samo w sobie było ledwie widoczne,
+     więc dokładamy różową obwódkę box-shadow (nie zmienia rozmiaru przycisku, więc
+     nic nie skacze). Różowy, nie złoty — złoty zlałby się z aktywną pastylką
+     „Darmowe”, która sama jest złota. Działa w obu trybach, bo reguły trybu ciemnego
+     nadpisują tło i border, ale nie box-shadow. */
+  .eg-filters button.eg-active{
+    color:var(--eg-ink);
+    font-weight:700;
+    box-shadow:0 0 0 2.5px var(--eg-magenta);
+  }
+  .eg-filters button.eg-active:hover{ box-shadow:0 0 0 2.5px var(--eg-magenta); }
   #egFilters button[data-cat="wszystkie"].eg-active{ background:#f3e2ef; border-color:#e6c4dd; }
   #egFilters button[data-cat="gramatyka"].eg-active{ background:#e2ecf7; border-color:#c4d8ee; }
   #egFilters button[data-cat="slownictwo"].eg-active{ background:#e3f3ea; border-color:#c4e6d2; }
