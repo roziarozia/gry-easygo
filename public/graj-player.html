@@ -1257,13 +1257,14 @@ async function markCompleted(){
     if(session){
       const { data } = await _db
         .from('games')
-        .select('*, slides(*), questions(*), gaps(*), speaking_prompts(*), reading_slides(*)')
+        .select('*, slides(*), questions(*), gaps(*), speaking_prompts(*), reading_slides(*), listening_lines(*)')
         .eq('slug', slug)
         .order('position', { foreignTable: 'slides' })
         .order('position', { foreignTable: 'questions' })
         .order('position', { foreignTable: 'gaps' })
         .order('position', { foreignTable: 'speaking_prompts' })
         .order('position', { foreignTable: 'reading_slides' })
+        .order('position', { foreignTable: 'listening_lines' })
         .limit(1);
       rows = data;
     }else{
@@ -1761,7 +1762,13 @@ function startListening(){
   frame.classList.add('frame-listening');
   document.getElementById('lsTitle').textContent = GAME.title || '';
   const audio = document.getElementById('lsAudio');
-  audio.src = GAME.audio_url || '';
+  if(GAME.audio_url){
+    audio.src = GAME.audio_url;
+    audio.classList.remove('hidden');
+  }else{
+    audio.classList.add('hidden');
+    document.getElementById('lsErr').textContent = 'Nagranie nie jest jeszcze gotowe.';
+  }
   document.getElementById('lsScript').classList.add('hidden');
   document.getElementById('lsEnd').classList.add('hidden');
   document.getElementById('lsActions').classList.remove('hidden');
@@ -1832,7 +1839,9 @@ function sprawdzListening(){
   document.getElementById('lsEn').textContent = komplet ? 'Nailed it!' : 'Practice makes perfect';
   document.getElementById('lsSub').textContent =
     'Twój wynik: ' + punkty + ' / ' + QUESTIONS.length;
+  document.getElementById('lsScriptBtn').style.display = LISTENING.length ? '' : 'none';
   document.getElementById('lsEnd').classList.remove('hidden');
+  document.getElementById('lsEnd').scrollIntoView({ behavior:'smooth', block:'nearest' });
   markCompleted();
 }
 
