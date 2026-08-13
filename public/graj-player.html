@@ -596,6 +596,11 @@
     line-height:1.35;
     color:var(--ink);
     max-width:760px;
+    /* pre-line: zachowuje zlamania wiersza wpisane w tresc zadania.
+       Potrzebne w zadaniach typu TRIOS, gdzie jedno slowo pasuje do trzech
+       osobnych zdan i kazde musi stac w swojej linii. Zwykle jednolinijkowe
+       polecenia wygladaja bez zmian. */
+    white-space:pre-line;
   }
   .q-prompt u{ text-decoration:none; border-bottom:3px solid var(--gold); padding:0 3px; }
   .speak-row{
