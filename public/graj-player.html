@@ -1754,6 +1754,23 @@ function finishQuiz(){
 }
 
 /* ===== SŁUCHANKA (nagranie + pytania na jednym ekranie) ===== */
+async function podajNagranie(){
+  try{
+    if(_db){
+      const { data } = await _db.functions.invoke('listening-audio', { body: { game_id: GAME.id } });
+      if(data && data.ok) return data.url;
+      return null;
+    }
+    const res = await fetch(SUPA_URL + '/functions/v1/listening-audio', {
+      method: 'POST',
+      headers: { apikey: SUPA_KEY, Authorization: 'Bearer ' + SUPA_KEY, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ game_id: GAME.id })
+    });
+    const data = await res.json();
+    return (data && data.ok) ? data.url : null;
+  }catch(e){ return null; }
+}
+
 let lsWybor = {};
 
 function startListening(){
@@ -1761,12 +1778,22 @@ function startListening(){
   show(listeningSec);
   frame.classList.add('frame-listening');
   document.getElementById('lsTitle').textContent = GAME.title || '';
+  // Nagranie lezy w PRYWATNYM schowku. Prosimy serwer o czasowy podpis - sprawdza on,
+  // czy cwiczenie jest darmowe albo czy sluchacz ma dostep. Bez tego adres jest bezuzyteczny.
   const audio = document.getElementById('lsAudio');
-  if(GAME.audio_url){
-    audio.src = GAME.audio_url;
-    audio.classList.remove('hidden');
+  audio.classList.add('hidden');
+  if(GAME.audio_path){
+    document.getElementById('lsErr').textContent = 'Wczytuję nagranie…';
+    podajNagranie().then(function(url){
+      if(url){
+        audio.src = url;
+        audio.classList.remove('hidden');
+        document.getElementById('lsErr').textContent = '';
+      }else{
+        document.getElementById('lsErr').textContent = 'Nie udało się wczytać nagrania. Odśwież stronę.';
+      }
+    });
   }else{
-    audio.classList.add('hidden');
     document.getElementById('lsErr').textContent = 'Nagranie nie jest jeszcze gotowe.';
   }
   document.getElementById('lsScript').classList.add('hidden');
