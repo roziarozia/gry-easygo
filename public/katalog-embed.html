@@ -1303,6 +1303,7 @@
         : '';
       var playLabel = (g.category === 'speaking' || g.template === 'speaking') ? "LET'S TALK"
         : (g.category === 'reading' || g.template === 'reading') ? 'CZYTAJ'
+        : (g.category === 'listening' || g.template === 'listening') ? 'SŁUCHAJ'
         : 'ĆWICZ';
       var playBtn = locked
         ? '<a class="eg-play eg-play-locked" href="' + ACCESS_URL + '">' +

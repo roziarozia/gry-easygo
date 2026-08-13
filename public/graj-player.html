@@ -131,7 +131,14 @@
   .ls-explain{ font-size:13.5px; color:var(--muted); line-height:1.6; margin:8px 0 0; padding-left:10px; border-left:3px solid var(--gold); }
   .ls-actions{ text-align:center; margin:22px 0 0; }
   .ls-err{ font-size:13px; color:#c0392b; min-height:18px; margin:8px 0 0; text-align:center; }
-  .ls-script{ margin:22px 0 0; padding:16px 0 0; border-top:1px solid var(--line); }
+  /* ZAKONCZENIE sluchanki - wynik + wyjscie, tak jak w pozostalych cwiczeniach */
+  .ls-end{ margin:26px 0 0; padding:22px 0 4px; border-top:1px solid var(--line); text-align:center; }
+  .ls-score{ font-family:'Quicksand',sans-serif; font-weight:700; font-size:clamp(20px,2.6vw,26px); color:var(--ink); margin:0 0 6px; }
+  .ls-score u{ text-decoration:none; border-bottom:4px solid var(--gold); padding:0 4px; }
+  .ls-sub{ font-size:14.5px; color:var(--muted); margin:0 0 18px; }
+  .ls-end-nav{ display:flex; gap:10px; justify-content:center; flex-wrap:wrap; }
+  .ls-end-nav .btn{ text-decoration:none; }
+  .ls-script{ margin:22px 0 0; padding:16px 0 0; border-top:1px solid var(--line); text-align:left; }
   .ls-script-h{ font-size:12px; color:var(--muted); text-transform:uppercase; letter-spacing:.06em; margin:0 0 10px; }
   .ls-line{ font-size:15px; line-height:1.75; color:var(--ink); }
   .ls-who{ color:var(--magenta); font-weight:700; }
@@ -1135,8 +1142,17 @@
       <p class="ls-hint">sugerowana liczba odsłuchań: 2</p>
       <div id="lsQuestions"></div>
       <div class="ls-err" id="lsErr"></div>
-      <div class="ls-actions">
+      <div class="ls-actions" id="lsActions">
         <button class="btn" id="lsCheckBtn">Sprawdź odpowiedzi</button>
+      </div>
+      <div class="ls-end hidden" id="lsEnd">
+        <p class="ls-score" id="lsScore"></p>
+        <p class="ls-sub" id="lsSub"></p>
+        <div class="ls-end-nav">
+          <button class="btn btn-secondary" id="lsScriptBtn">Zobacz transkrypcję</button>
+          <button class="btn btn-secondary" id="lsAgainBtn">Jeszcze raz</button>
+          <a class="btn" href="/" target="_top">Powrót do ćwiczeń</a>
+        </div>
       </div>
       <div class="ls-script hidden" id="lsScript"></div>
     </section>
@@ -1745,6 +1761,9 @@ function startListening(){
   const audio = document.getElementById('lsAudio');
   audio.src = GAME.audio_url || '';
   document.getElementById('lsScript').classList.add('hidden');
+  document.getElementById('lsEnd').classList.add('hidden');
+  document.getElementById('lsActions').classList.remove('hidden');
+  document.getElementById('lsScriptBtn').textContent = 'Zobacz transkrypcję';
   document.getElementById('lsErr').textContent = '';
   const btn = document.getElementById('lsCheckBtn');
   btn.textContent = 'Sprawdź odpowiedzi';
@@ -1795,22 +1814,39 @@ function sprawdzListening(){
     }
   });
 
-  // transkrypcja dopiero teraz - zeby nie bylo sciagi w trakcie sluchania
+  // transkrypcje przygotowujemy, ale odslaniamy dopiero na zyczenie (przycisk)
   if(LISTENING.length){
-    const sc = document.getElementById('lsScript');
-    sc.innerHTML = '<p class="ls-script-h">Transkrypcja</p>' + LISTENING.map(function(l){
-      return '<div class="ls-line"><span class="ls-who">' + escapeHtml(l.speaker) + ':</span> ' + escapeHtml(l.text) + '</div>';
-    }).join('');
-    sc.classList.remove('hidden');
+    document.getElementById('lsScript').innerHTML =
+      '<p class="ls-script-h">Transkrypcja</p>' + LISTENING.map(function(l){
+        return '<div class="ls-line"><span class="ls-who">' + escapeHtml(l.speaker) + ':</span> ' + escapeHtml(l.text) + '</div>';
+      }).join('');
   }
 
-  const btn = document.getElementById('lsCheckBtn');
-  btn.disabled = true;
-  btn.textContent = 'Twój wynik: ' + punkty + ' / ' + QUESTIONS.length;
+  // chowamy przycisk sprawdzania, pokazujemy porzadne zakonczenie z wyjsciem
+  document.getElementById('lsActions').classList.add('hidden');
+  const komplet = (punkty === QUESTIONS.length);
+  document.getElementById('lsScore').innerHTML =
+    '<u>' + (komplet ? 'Perfekcyjnie!' : 'Dobra robota!') + '</u>';
+  document.getElementById('lsSub').textContent =
+    'Twój wynik: ' + punkty + ' / ' + QUESTIONS.length +
+    (komplet ? ' — wszystkie odpowiedzi poprawne.' : ' — posłuchaj jeszcze raz i sprawdź, czego nie dosłyszałaś.');
+  document.getElementById('lsEnd').classList.remove('hidden');
   markCompleted();
 }
 
 document.getElementById('lsCheckBtn').addEventListener('click', sprawdzListening);
+
+document.getElementById('lsScriptBtn').addEventListener('click', function(){
+  const sc = document.getElementById('lsScript');
+  const ukryta = sc.classList.toggle('hidden');
+  this.textContent = ukryta ? 'Zobacz transkrypcję' : 'Ukryj transkrypcję';
+  if(!ukryta) sc.scrollIntoView({ behavior:'smooth', block:'start' });
+});
+
+document.getElementById('lsAgainBtn').addEventListener('click', function(){
+  startListening();
+  frame.scrollTop = 0;
+});
 
 /* ===== GAP-FILL (wpisywanie w lukę) ===== */
 const gPrompt = document.getElementById('gPrompt');
