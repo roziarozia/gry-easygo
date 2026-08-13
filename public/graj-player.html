@@ -1260,10 +1260,32 @@ async function markCompleted(){
       document.getElementById('coverModes').classList.add('hidden');
       document.getElementById('coverQuiz').classList.remove('hidden');
     }
-    // Gap-fill: własny wybór trybu (z tłumaczeniem / z bezokolicznikiem)
+    // Gap-fill: pokazujemy TYLKO te tryby, dla których zestaw ma podpowiedzi.
+    // Zestawy typu przyimki nie mają ani tłumaczenia, ani bezokolicznika - uczeń ma
+    // zobaczyć samo zdanie. Wtedy zamiast wyboru trybu daje jeden przycisk „Rozpocznij".
     if(GAME.template === 'gap-fill'){
       document.getElementById('coverModes').classList.add('hidden');
       document.getElementById('coverGap').classList.remove('hidden');
+
+      var maPl   = GAPS.some(function(g){ return g.pl   && g.pl.trim(); });
+      var maBase = GAPS.some(function(g){ return g.base && g.base.trim(); });
+      var btnPl   = document.getElementById('startGapPlBtn');
+      var btnBase = document.getElementById('startGapBaseBtn');
+      var etykieta = document.querySelector('#coverGap .mode-label');
+
+      btnPl.style.display   = maPl   ? '' : 'none';
+      btnBase.style.display = maBase ? '' : 'none';
+
+      if(!maPl && !maBase){
+        // brak jakichkolwiek podpowiedzi - jeden przycisk startu
+        btnPl.style.display = '';
+        btnPl.textContent = 'Rozpocznij';
+        btnPl.classList.add('btn-violet');
+        if(etykieta) etykieta.style.display = 'none';
+      } else if(maPl !== maBase){
+        // dostępny tylko jeden tryb - nie ma z czego wybierać
+        if(etykieta) etykieta.style.display = 'none';
+      }
     }
     // Speaking: jeden przycisk „Rozpocznij"
     if(GAME.template === 'speaking'){
