@@ -60,6 +60,7 @@
   html.eg-dark #egFilters button[data-cat="slownictwo"].eg-active,
   html.eg-dark #egFilters button[data-cat="speaking"].eg-active,
   html.eg-dark #egFilters button[data-cat="reading"].eg-active,
+  html.eg-dark #egFilters button[data-cat="listening"].eg-active,
   html.eg-dark #egFilters button[data-cat="domowa"].eg-active,
   html.eg-dark #egFilters button[data-cat="zrobione"].eg-active,
   html.eg-dark #egFilters button[data-cat="niezrobione"].eg-active{ background:#3a3550 !important; border-color:#544b74 !important; color:#e8e6ef !important; }
@@ -521,6 +522,7 @@
   #egFilters button[data-cat="wszystkie"].eg-active{ background:#f3e2ef; border-color:#e6c4dd; }
   #egFilters button[data-cat="gramatyka"].eg-active{ background:#e2ecf7; border-color:#c4d8ee; }
   #egFilters button[data-cat="slownictwo"].eg-active{ background:#e3f3ea; border-color:#c4e6d2; }
+  #egFilters button[data-cat="listening"].eg-active{ background:#fdeee2; border-color:#f5d3b8; }
   #egFilters button[data-cat="speaking"].eg-active{ background:#efe6f7; border-color:#d8c4ee; }
   #egFilters button[data-cat="reading"].eg-active{ background:#e6f0f7; border-color:#c4dcee; }
   #egFilters button[data-cat="ulubione"].eg-active{ background:#fce4ef; border-color:#f4c4dd; color:var(--eg-magenta); }
@@ -682,10 +684,12 @@
   .eg-type-reading{ background:#e6f0f9; color:#1f6099; }
   .eg-type-gramatyka{ background:#e2ecf7; color:#1f5aa0; }
   .eg-type-slownictwo{ background:#e3f3ea; color:#1e7e50; }
+  .eg-type-listening{ background:#fdeee2; color:#a35b1c; }
   html.eg-dark .eg-type-speaking{ background:#3a2d4f; color:#cbb8e6; }
   html.eg-dark .eg-type-reading{ background:#22384f; color:#a9cdec; }
   html.eg-dark .eg-type-gramatyka{ background:#25344a; color:#a9c6ec; }
   html.eg-dark .eg-type-slownictwo{ background:#1f3d30; color:#8fd9b3; }
+  html.eg-dark .eg-type-listening{ background:#43301f; color:#e8b183; }
   .eg-premium-open{ display:inline-flex; align-items:center; margin-left:6px; color:#b8b2c0; }
   /* znacznik ukończenia na kafelku */
   .eg-done-badge{ position:absolute; bottom:8px; left:50%; transform:translateX(-50%); z-index:3; display:inline-flex; align-items:center; gap:3px; background:#1e7e50; color:#fff; font-family:'Quicksand',sans-serif; font-weight:700; font-size:10.5px; padding:3px 8px 3px 6px; border-radius:999px; box-shadow:0 2px 8px rgba(30,126,80,.3); }
@@ -820,6 +824,7 @@
         <button data-cat="slownictwo">Słownictwo</button>
         <button data-cat="speaking">Speaking</button>
         <button data-cat="reading">Reading</button>
+        <button data-cat="listening">Listening</button>
       </div>
       <div class="eg-filter-row">
         <button data-cat="darmowe" class="eg-free-filter"><svg viewBox="0 0 24 24" width="13" height="13" style="vertical-align:-1px;margin-right:5px"><path d="M9 21h6v-1H9v1zm3-19C8.14 2 5 5.14 5 9c0 2.38 1.19 4.47 3 5.74V17c0 .55.45 1 1 1h6c.55 0 1-.45 1-1v-2.26c1.81-1.27 3-3.36 3-5.74 0-3.86-3.14-7-7-7z" fill="currentColor"/></svg>Darmowe</button>
@@ -884,6 +889,7 @@
           <div class="eg-pp-opts" id="egPpCats">
             <label><input type="checkbox" value="gramatyka"> Gramatyka</label>
             <label><input type="checkbox" value="slownictwo"> Słownictwo</label>
+            <label><input type="checkbox" value="listening"> Listening</label>
             <label><input type="checkbox" value="speaking"> Speaking</label>
             <label><input type="checkbox" value="reading"> Reading</label>
           </div>
@@ -1159,7 +1165,8 @@
       var okType = (curType === 'wszystkie')
         || (g.category === curType)
         || (curType === 'reading' && g.template === 'reading')
-        || (curType === 'speaking' && g.template === 'speaking');
+        || (curType === 'speaking' && g.template === 'speaking')
+        || (curType === 'listening' && g.template === 'listening');
       // OŚ 2 — status/dostęp (darmowe/platne/ulubione/domowa/zrobione/niezrobione) — niezależnie od rodzaju
       var okStatus = true;
       if(curStatus === 'darmowe') okStatus = !g.is_premium;
@@ -1244,13 +1251,15 @@
         speaking: '<svg viewBox="0 0 24 24" width="12" height="12" style="vertical-align:-2px;margin-right:4px"><path d="M12 14a3 3 0 0 0 3-3V6a3 3 0 0 0-6 0v5a3 3 0 0 0 3 3zm5-3a5 5 0 0 1-10 0H5a7 7 0 0 0 6 6.92V21h2v-3.08A7 7 0 0 0 19 11h-2z" fill="currentColor"/></svg>',
         reading: '<svg viewBox="0 0 24 24" width="12" height="12" style="vertical-align:-2px;margin-right:4px"><path d="M12 6.5C10.5 5.5 8.5 5 6 5c-1.5 0-3 .2-4 .6v13c1-.4 2.5-.6 4-.6 2.5 0 4.5.5 6 1.5 1.5-1 3.5-1.5 6-1.5 1.5 0 3 .2 4 .6v-13c-1-.4-2.5-.6-4-.6-2.5 0-4.5.5-6 1.5zm0 2v9.3" fill="none" stroke="currentColor" stroke-width="1.6"/></svg>',
         gramatyka: '<svg viewBox="0 0 24 24" width="12" height="12" style="vertical-align:-2px;margin-right:4px"><path d="M5 4h14v2H5zM5 9h14v2H5zM5 14h9v2H5zM5 19h9v2H5z" fill="currentColor"/></svg>',
-        slownictwo: '<svg viewBox="0 0 24 24" width="12" height="12" style="vertical-align:-2px;margin-right:4px"><path d="M4 6a2 2 0 0 1 2-2h5v16H6a2 2 0 0 0-2 2V6zm16 0a2 2 0 0 0-2-2h-5v16h5a2 2 0 0 1 2 2V6z" fill="currentColor"/></svg>'
+        slownictwo: '<svg viewBox="0 0 24 24" width="12" height="12" style="vertical-align:-2px;margin-right:4px"><path d="M4 6a2 2 0 0 1 2-2h5v16H6a2 2 0 0 0-2 2V6zm16 0a2 2 0 0 0-2-2h-5v16h5a2 2 0 0 1 2 2V6z" fill="currentColor"/></svg>',
+        listening: '<svg viewBox="0 0 24 24" width="12" height="12" style="vertical-align:-2px;margin-right:4px"><path d="M12 3a7 7 0 0 0-7 7v5a3 3 0 0 0 3 3h1v-6H7v-2a5 5 0 0 1 10 0v2h-2v6h1a3 3 0 0 0 3-3v-5a7 7 0 0 0-7-7z" fill="currentColor"/></svg>'
       };
-      var typeLabels = { speaking:'Speaking', reading:'Reading', gramatyka:'Gramatyka', slownictwo:'Słownictwo' };
+      var typeLabels = { speaking:'Speaking', reading:'Reading', gramatyka:'Gramatyka', slownictwo:'Słownictwo', listening:'Listening' };
       // klucz typu bez ogonków (catLabel bywa 'słownictwo' z ł) — spójny z CSS i mapami
       var typeKey = (catLabel === 'słownictwo' || catLabel === 'slownictwo') ? 'slownictwo'
         : (catLabel === 'speaking') ? 'speaking'
         : (catLabel === 'reading') ? 'reading'
+        : (catLabel === 'listening') ? 'listening'
         : (catLabel === 'gramatyka') ? 'gramatyka'
         : 'slownictwo';
       var typeBadge = '<span class="eg-type eg-type-' + typeKey + '">' + (typeIcons[typeKey]||'') + typeLabels[typeKey] + '</span>';

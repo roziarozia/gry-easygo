@@ -98,6 +98,39 @@
     justify-content:center;
     padding:24px;
   }
+  /* SLUCHANKA: wszystko na jednym ekranie, wiec ramka nie moze byc sztywna.
+     Zdejmujemy proporcje 3:2, poszerzamy i pozwalamy przewijac w pionie. */
+  .frame.frame-listening{
+    aspect-ratio:auto;
+    width:min(980px,100%);
+    max-height:86vh;
+    overflow-y:auto;
+    text-align:left;
+    padding:32px 34px 40px;
+  }
+  .ls-head{ text-align:center; margin-bottom:6px; }
+  .ls-title{ font-family:'Quicksand',sans-serif; font-weight:700; font-size:clamp(20px,2.6vw,26px); color:var(--ink); margin:0 0 4px; }
+  .ls-hint{ font-size:11.5px; color:var(--muted); margin:0 0 18px; text-align:center; }
+  .ls-audio{ width:100%; margin:0 0 6px; border-radius:12px; }
+  /* natywny odtwarzacz jest jasny — w trybie ciemnym przyciemniamy go filtrem,
+     zeby nie swiecil biala plama na granatowej karcie */
+  html.eg-dark .ls-audio{ filter:invert(.92) hue-rotate(180deg); }
+  .ls-q{ border-top:1px solid var(--line); padding:16px 0 4px; }
+  .ls-q-prompt{ font-family:'Quicksand',sans-serif; font-weight:700; font-size:16.5px; color:var(--ink); margin:0 0 10px; line-height:1.4; }
+  .ls-opt{ display:flex; gap:9px; align-items:flex-start; font-size:15px; line-height:1.5; padding:7px 10px; border-radius:10px; cursor:pointer; border:1.5px solid transparent; }
+  .ls-opt:hover{ background:rgba(202,68,144,.06); }
+  .ls-opt input{ margin-top:3px; flex:none; accent-color:var(--magenta); }
+  .ls-opt.ok{ background:#e8f6ee; border-color:#7fc9a3; }
+  .ls-opt.bad{ background:#fdeaea; border-color:#e79a9a; }
+  .ls-explain{ font-size:13.5px; color:var(--muted); line-height:1.6; margin:8px 0 0; padding-left:10px; border-left:3px solid var(--gold); }
+  .ls-actions{ text-align:center; margin:22px 0 0; }
+  .ls-err{ font-size:13px; color:#c0392b; min-height:18px; margin:8px 0 0; text-align:center; }
+  .ls-script{ margin:22px 0 0; padding:16px 0 0; border-top:1px solid var(--line); }
+  .ls-script-h{ font-size:12px; color:var(--muted); text-transform:uppercase; letter-spacing:.06em; margin:0 0 10px; }
+  .ls-line{ font-size:15px; line-height:1.75; color:var(--ink); }
+  .ls-who{ color:var(--magenta); font-weight:700; }
+  html.eg-dark .ls-opt.ok{ background:#1e3b2c; border-color:#2f6b4c; }
+  html.eg-dark .ls-opt.bad{ background:#3b1e1e; border-color:#6b2f2f; }
   .frame{
     background:var(--card);
     width:min(880px,100%);
@@ -1087,6 +1120,21 @@
       </div>
     </section>
 
+    <!-- SLUCHANKA -->
+    <section id="listening" class="hidden">
+      <div class="ls-head">
+        <h2 class="ls-title" id="lsTitle"></h2>
+      </div>
+      <audio class="ls-audio" id="lsAudio" controls preload="metadata"></audio>
+      <p class="ls-hint">sugerowana liczba odsłuchań: 2</p>
+      <div id="lsQuestions"></div>
+      <div class="ls-err" id="lsErr"></div>
+      <div class="ls-actions">
+        <button class="btn" id="lsCheckBtn">Sprawdź odpowiedzi</button>
+      </div>
+      <div class="ls-script hidden" id="lsScript"></div>
+    </section>
+
     <!-- KONIEC -->
     <section id="end" class="hidden">
       <h2 class="end-title"><span class="underline">Great job!</span></h2>
@@ -1117,12 +1165,14 @@ let QUESTIONS = [];
 let GAPS = [];
 let SPEAKS = [];
 let READING = [];
+let LISTENING = [];
 let GAME = null;
 const _db = window.supabase ? window.supabase.createClient(SUPA_URL, SUPA_KEY) : null;
 
 const frame = document.getElementById('frame');
 const cover = document.getElementById('cover');
 const slide = document.getElementById('slide');
+const listeningSec = document.getElementById('listening');
 const end = document.getElementById('end');
 const imgWrap = document.getElementById('imgWrap');
 const promptEl = document.getElementById('prompt');
@@ -1195,7 +1245,7 @@ async function markCompleted(){
     }else{
       const res = await fetch(
         SUPA_URL + '/rest/v1/games?slug=eq.' + encodeURIComponent(slug) +
-        '&select=*,slides(*),questions(*),gaps(*),speaking_prompts(*),reading_slides(*)&slides.order=position.asc&questions.order=position.asc&gaps.order=position.asc&speaking_prompts.order=position.asc&reading_slides.order=position.asc',
+        '&select=*,slides(*),questions(*),gaps(*),speaking_prompts(*),reading_slides(*),listening_lines(*)&listening_lines.order=position.asc&slides.order=position.asc&questions.order=position.asc&gaps.order=position.asc&speaking_prompts.order=position.asc&reading_slides.order=position.asc',
         { headers: { apikey: SUPA_KEY, Authorization: 'Bearer ' + SUPA_KEY } }
       );
       rows = await res.json();
@@ -1228,12 +1278,16 @@ async function markCompleted(){
       body: r.body || '',
       glossary: Array.isArray(r.glossary) ? r.glossary : []
     }));
+    LISTENING = (GAME.listening_lines || []).slice().sort((a,b)=>a.position-b.position).map(l => ({
+      speaker: l.speaker || '', text: l.text || ''
+    }));
     document.title = GAME.title + ' | EasyGo English';
     document.getElementById('cLevel').textContent = GAME.level || '';
     document.getElementById('cCat').textContent =
       (GAME.category === 'gramatyka' ? 'Gramatyka'
        : GAME.category === 'speaking' ? 'Speaking'
        : GAME.category === 'reading' ? 'Reading'
+       : GAME.category === 'listening' ? 'Listening'
        : 'Słownictwo');
     document.getElementById('cTitle').textContent = GAME.title;
     document.getElementById('cSub').textContent = GAME.description || '';
@@ -1246,6 +1300,7 @@ async function markCompleted(){
       GAME.template === 'gap-fill' ? GAPS.length :
       GAME.template === 'speaking' ? SPEAKS.length :
       GAME.template === 'reading'  ? READING.length :
+      GAME.template === 'listening'? QUESTIONS.length :
                                      SLIDES.length;
     // Zablokowane: zadanie premium, a treść pusta = brak dostępu (niezalogowany
     // gość albo zalogowany bez subskrypcji). Opublikowane premium zawsze ma treść,
@@ -1297,6 +1352,12 @@ async function markCompleted(){
       document.getElementById('coverModes').classList.add('hidden');
       document.getElementById('coverSpeak').classList.remove('hidden');
     }
+    // Sluchanka: jeden przycisk „Słuchaj"
+    if(GAME.template === 'listening'){
+      document.getElementById('coverModes').classList.add('hidden');
+      document.getElementById('coverSpeak').classList.remove('hidden');
+      document.getElementById('startSpeakBtn').textContent = 'Słuchaj';
+    }
     // Reading: jeden przycisk „Czytaj"
     if(GAME.template === 'reading'){
       document.getElementById('coverModes').classList.add('hidden');
@@ -1343,6 +1404,7 @@ const speakSec = document.getElementById('speak');
 const readingSec = document.getElementById('reading');
 
 function show(section){
+  if(section !== listeningSec) frame.classList.remove('frame-listening');
   document.getElementById('loading').classList.add('hidden');
   cover.classList.add('hidden');
   slide.classList.add('hidden');
@@ -1350,6 +1412,7 @@ function show(section){
   gapSec.classList.add('hidden');
   speakSec.classList.add('hidden');
   readingSec.classList.add('hidden');
+  listeningSec.classList.add('hidden');
   end.classList.add('hidden');
   section.classList.remove('hidden');
   frame.classList.toggle('slide-mode',
@@ -1665,6 +1728,84 @@ function finishQuiz(){
     : 'Zagraj jeszcze raz i popraw swój wynik.';
 }
 
+/* ===== SŁUCHANKA (nagranie + pytania na jednym ekranie) ===== */
+let lsWybor = {};
+
+function startListening(){
+  lsWybor = {};
+  show(listeningSec);
+  frame.classList.add('frame-listening');
+  document.getElementById('lsTitle').textContent = GAME.title || '';
+  const audio = document.getElementById('lsAudio');
+  audio.src = GAME.audio_url || '';
+  document.getElementById('lsScript').classList.add('hidden');
+  document.getElementById('lsErr').textContent = '';
+  const btn = document.getElementById('lsCheckBtn');
+  btn.textContent = 'Sprawdź odpowiedzi';
+  btn.disabled = false;
+
+  const box = document.getElementById('lsQuestions');
+  box.innerHTML = QUESTIONS.map(function(q, i){
+    const opts = (Array.isArray(q.options) ? q.options : []).map(function(o, j){
+      return '<label class="ls-opt" data-q="' + i + '" data-o="' + j + '">'
+           + '<input type="radio" name="lsq' + i + '" value="' + j + '">'
+           + '<span>' + escapeHtml(o) + '</span></label>';
+    }).join('');
+    return '<div class="ls-q"><p class="ls-q-prompt">' + (i+1) + '. ' + escapeHtml(q.prompt || '') + '</p>'
+         + opts + '<p class="ls-explain hidden" id="lsExp' + i + '"></p></div>';
+  }).join('');
+
+  box.onchange = function(e){
+    if(e.target && e.target.name && e.target.name.indexOf('lsq') === 0){
+      lsWybor[e.target.name] = parseInt(e.target.value, 10);
+      document.getElementById('lsErr').textContent = '';
+    }
+  };
+}
+
+function sprawdzListening(){
+  const err = document.getElementById('lsErr');
+  if(Object.keys(lsWybor).length < QUESTIONS.length){
+    err.textContent = 'Odpowiedz na wszystkie pytania.';
+    return;
+  }
+  err.textContent = '';
+  let punkty = 0;
+  QUESTIONS.forEach(function(q, i){
+    const moja = lsWybor['lsq' + i];
+    const dobra = q.correct;
+    if(moja === dobra) punkty++;
+    document.querySelectorAll('.ls-opt[data-q="' + i + '"]').forEach(function(el){
+      const j = parseInt(el.getAttribute('data-o'), 10);
+      const inp = el.querySelector('input');
+      if(inp) inp.disabled = true;
+      if(j === dobra) el.classList.add('ok');
+      else if(j === moja) el.classList.add('bad');
+    });
+    if(q.explanation){
+      const exp = document.getElementById('lsExp' + i);
+      exp.textContent = q.explanation;
+      exp.classList.remove('hidden');
+    }
+  });
+
+  // transkrypcja dopiero teraz - zeby nie bylo sciagi w trakcie sluchania
+  if(LISTENING.length){
+    const sc = document.getElementById('lsScript');
+    sc.innerHTML = '<p class="ls-script-h">Transkrypcja</p>' + LISTENING.map(function(l){
+      return '<div class="ls-line"><span class="ls-who">' + escapeHtml(l.speaker) + ':</span> ' + escapeHtml(l.text) + '</div>';
+    }).join('');
+    sc.classList.remove('hidden');
+  }
+
+  const btn = document.getElementById('lsCheckBtn');
+  btn.disabled = true;
+  btn.textContent = 'Twój wynik: ' + punkty + ' / ' + QUESTIONS.length;
+  markCompleted();
+}
+
+document.getElementById('lsCheckBtn').addEventListener('click', sprawdzListening);
+
 /* ===== GAP-FILL (wpisywanie w lukę) ===== */
 const gPrompt = document.getElementById('gPrompt');
 const gExplain = document.getElementById('gExplain');
@@ -1962,7 +2103,8 @@ function stopReadingVoice(){
 document.getElementById('rNext').addEventListener('click', function(){ stopReadingVoice(); nextReading(); });
 document.getElementById('rPrev').addEventListener('click', function(){ stopReadingVoice(); prevReading(); });
 document.getElementById('startSpeakBtn').addEventListener('click', function(){
-  if(GAME && GAME.template === 'reading') startReading();
+  if(GAME && GAME.template === 'listening') startListening();
+  else if(GAME && GAME.template === 'reading') startReading();
   else startSpeak();
 });
 document.getElementById('sNext').addEventListener('click', nextSpeak);
@@ -1972,7 +2114,8 @@ document.getElementById('startShowBtn').addEventListener('click', () => start('s
 document.getElementById('startTypeBtn').addEventListener('click', () => start('type'));
 document.getElementById('startQuizBtn').addEventListener('click', startQuiz);
 document.getElementById('againBtn').addEventListener('click', () => {
-  if(GAME && GAME.template === 'quiz') startQuiz();
+  if(GAME && GAME.template === 'listening') startListening();
+  else if(GAME && GAME.template === 'quiz') startQuiz();
   else if(GAME && GAME.template === 'gap-fill') startGap(gapMode);
   else if(GAME && GAME.template === 'speaking') startSpeak();
   else if(GAME && GAME.template === 'reading') startReading();
