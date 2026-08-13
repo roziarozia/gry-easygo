@@ -135,6 +135,7 @@
   .ls-end{ margin:26px 0 0; padding:22px 0 4px; border-top:1px solid var(--line); text-align:center; }
   .ls-score{ font-family:'Quicksand',sans-serif; font-weight:700; font-size:clamp(20px,2.6vw,26px); color:var(--ink); margin:0 0 6px; }
   .ls-score u{ text-decoration:none; border-bottom:4px solid var(--gold); padding:0 4px; }
+  .ls-en{ font-size:15px; color:var(--muted); font-style:italic; margin:2px 0 12px; }
   .ls-sub{ font-size:14.5px; color:var(--muted); margin:0 0 18px; }
   .ls-end-nav{ display:flex; gap:10px; justify-content:center; flex-wrap:wrap; }
   .ls-end-nav .btn{ text-decoration:none; }
@@ -1147,6 +1148,7 @@
       </div>
       <div class="ls-end hidden" id="lsEnd">
         <p class="ls-score" id="lsScore"></p>
+        <p class="ls-en" id="lsEn"></p>
         <p class="ls-sub" id="lsSub"></p>
         <div class="ls-end-nav">
           <button class="btn btn-secondary" id="lsScriptBtn">Zobacz transkrypcję</button>
@@ -1826,10 +1828,10 @@ function sprawdzListening(){
   document.getElementById('lsActions').classList.add('hidden');
   const komplet = (punkty === QUESTIONS.length);
   document.getElementById('lsScore').innerHTML =
-    '<u>' + (komplet ? 'Perfekcyjnie!' : 'Dobra robota!') + '</u>';
+    '<u>' + (komplet ? 'Perfekcyjnie!' : 'Trening czyni mistrza!') + '</u>';
+  document.getElementById('lsEn').textContent = komplet ? 'Nailed it!' : 'Practice makes perfect';
   document.getElementById('lsSub').textContent =
-    'Twój wynik: ' + punkty + ' / ' + QUESTIONS.length +
-    (komplet ? ' — wszystkie odpowiedzi poprawne.' : ' — posłuchaj jeszcze raz i sprawdź, czego nie dosłyszałaś.');
+    'Twój wynik: ' + punkty + ' / ' + QUESTIONS.length;
   document.getElementById('lsEnd').classList.remove('hidden');
   markCompleted();
 }

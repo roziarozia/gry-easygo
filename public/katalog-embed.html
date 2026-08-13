@@ -1101,7 +1101,7 @@
       var parts = [];
       if(progressLevels.length) parts.push(progressLevels.join(', '));
       if(progressCats.length){
-        var catNames = { gramatyka:'Gramatyka', slownictwo:'Słownictwo', speaking:'Speaking', reading:'Reading' };
+        var catNames = { gramatyka:'Gramatyka', slownictwo:'Słownictwo', speaking:'Speaking', reading:'Reading', listening:'Listening' };
         parts.push(progressCats.map(function(c){ return catNames[c] || c; }).join(', '));
       }
       scopeEl.innerHTML = 'Liczone dla: <strong>' + parts.join(' · ') + '</strong>';
@@ -1243,6 +1243,7 @@
       var catLabel = (g.category === 'gramatyka') ? 'gramatyka'
         : (g.category === 'speaking' || g.template === 'speaking') ? 'speaking'
         : (g.category === 'reading' || g.template === 'reading') ? 'reading'
+        : (g.category === 'listening' || g.template === 'listening') ? 'listening'
         : 'słownictwo';
       var count = g.slide_count_label || '';
       var lvl = g.level ? esc(g.level) : '';
