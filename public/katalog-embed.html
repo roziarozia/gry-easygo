@@ -272,7 +272,7 @@
   .eg-theme-track{ position:relative; width:44px; height:24px; background:var(--eg-line); border-radius:999px; transition:background .25s; display:inline-block; }
   .eg-theme-thumb{ position:absolute; top:3px; left:3px; width:18px; height:18px; border-radius:50%; background:var(--eg-gold); transition:transform .25s, background .25s; }
   html.eg-dark .eg-theme-thumb{ transform:translateX(20px); background:#6885db; }
-  .eg-theme-ico{ font-size:13px; line-height:1; }
+  .eg-theme-ico{ display:inline-flex; align-items:center; line-height:1; }
   .eg-theme-sun{ color:var(--eg-gold); }
   .eg-theme-moon{ color:var(--eg-muted); }
   html.eg-dark .eg-theme-sun{ color:var(--eg-muted); }
@@ -919,8 +919,8 @@
       <div class="eg-account" id="egAccount"></div>
       <button type="button" class="eg-theme-toggle" id="egThemeToggle" title="Tryb jasny / ciemny" aria-label="Przełącz tryb jasny lub ciemny">
         <span class="eg-theme-track"><span class="eg-theme-thumb"></span></span>
-        <span class="eg-theme-ico eg-theme-sun">☀</span>
-        <span class="eg-theme-ico eg-theme-moon">☾</span>
+        <span class="eg-theme-ico eg-theme-sun" aria-hidden="true"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="4.2"/><path d="M12 2v2.5M12 19.5V22M4.5 4.5l1.8 1.8M17.7 17.7l1.8 1.8M2 12h2.5M19.5 12H22M4.5 19.5l1.8-1.8M17.7 6.3l1.8-1.8"/></svg></span>
+        <span class="eg-theme-ico eg-theme-moon" aria-hidden="true"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 14.5A8 8 0 019.5 4a6.5 6.5 0 108.9 8.9c.5.2 1.05.35 1.6.6z"/></svg></span>
       </button>
     </div>
   </div>
