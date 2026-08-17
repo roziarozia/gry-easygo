@@ -985,20 +985,26 @@
        górę i dół BEZ możliwości przewinięcia — ucinało pytanie i chował przycisk
        "Dalej". W trybie quizu ramka rośnie z treścią i całość może się przewijać,
        a zawartość układa się od góry (nie centruje na siłę). */
-    .frame.quiz-mode{height:auto;max-height:none;aspect-ratio:auto;overflow:visible;padding:56px 18px 32px;}
+    .frame.quiz-mode{height:auto;max-height:none;aspect-ratio:auto;overflow:visible;padding:18px 18px 32px;}
     /* gdy ramka quizu jest wyższa niż ekran, stage musi wyrównać ją do GÓRY
        (nie centrować, bo centrowanie wypycha treść poza ekran) i pozwolić
        całej stronie się przewinąć. */
     body:has(.frame.quiz-mode){height:auto;min-height:100%;}
     .stage:has(.frame.quiz-mode){align-items:flex-start;}
-    #quiz{position:relative;inset:auto;justify-content:flex-start;padding:8px 2px 12px;gap:16px;min-height:0;}
+    #quiz{position:relative;inset:auto;justify-content:flex-start;padding:0 2px 12px;gap:16px;min-height:0;}
     .q-prompt{font-size:20px;}
     .q-opt{font-size:15px;padding:13px 15px;}
-    /* licznik slajdów (2/10) miał top/right w rogu — na wąskim ekranie długie
-       pytanie zawijało się POD niego z prawej i nachodził na słowa. Na telefonie
-       daję mu WŁASNY PAS na całej szerokości u góry (wyśrodkowany), więc żaden
-       tekst nie stoi na jego wysokości. */
-    .q-progress{position:absolute;top:14px;left:50%;right:auto;transform:translateX(-50%);}
+    /* KLUCZOWE: na telefonie licznik NIE jest już pozycjonowany absolutnie
+       (nie "pływa" nad tekstem) — staje się zwykłym elementem w przepływie,
+       wyśrodkowanym, który FIZYCZNIE zajmuje własny wiersz i spycha pytanie
+       w dół. Dzięki temu nie ma JAK nachodzić na żadną literę. */
+    .frame.quiz-mode .q-progress{
+      position:static;transform:none;
+      display:block;width:max-content;margin:0 auto 14px;
+      order:-1;
+    }
+    /* pasek postępu (kreska na górze) zostaje absolutny u samej góry ramki */
+    .frame.quiz-mode .q-bar-track{top:0;left:0;right:0;}
   }
 </style>
 </head>
