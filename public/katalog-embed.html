@@ -85,6 +85,11 @@
   html.eg-dark .eg-about,
   html.eg-dark .eg-footer{ background:transparent; }
   html.eg-dark .eg-progress-adjust{ background:#2b2d42; border-color:#3f4468; }
+  /* pasek serii ("pokaż całą serię") miał na stałe jasnoróżowe tło #faf3f8,
+     a nazwa serii używa var(--eg-ink) — w trybie ciemnym to jasny tekst na
+     jasnym tle = nieczytelne. Ciemne tło + jasny tekst jak inne panele. */
+  html.eg-dark .eg-series-banner{ background:#2b2436; border-color:#4a3a44; }
+  html.eg-dark .eg-series-name{ color:var(--eg-ink); }
   .eg-games *{margin:0;padding:0;box-sizing:border-box;}
 
   .eg-account{

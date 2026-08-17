@@ -980,6 +980,15 @@
     #cover.has-image .mode-label{margin-bottom:14px;}
     /* pełny ekran nie działa sensownie na telefonie */
     #fullBtn{display:none;}
+    /* QUIZ na telefonie: dłuższe zadania (3 pełne zdania + wyjaśnienie) są
+       wyższe niż sztywna ramka, a justify-content:center wypychał treść poza
+       górę i dół BEZ możliwości przewinięcia — ucinało pytanie i chował przycisk
+       "Dalej". W trybie quizu ramka rośnie z treścią i całość może się przewijać,
+       a zawartość układa się od góry (nie centruje na siłę). */
+    .frame.quiz-mode{height:auto;max-height:none;padding:52px 18px 32px;}
+    #quiz{position:relative;inset:auto;justify-content:flex-start;padding:8px 2px 12px;gap:16px;min-height:0;}
+    .q-prompt{font-size:20px;}
+    .q-opt{font-size:15px;padding:13px 15px;}
   }
 </style>
 </head>
@@ -1443,6 +1452,7 @@ function show(section){
   frame.classList.toggle('slide-mode',
     section === slide || (section === cover && coverHasImage));
   frame.classList.toggle('reading-mode', section === readingSec);
+  frame.classList.toggle('quiz-mode', section === quizSec || section === gapSec);
   if(section !== quizSec && section !== gapSec) frame.className = frame.className.replace(/\bbg-\S+/g,'').trim();
 }
 
