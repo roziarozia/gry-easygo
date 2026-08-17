@@ -255,6 +255,13 @@
     align-items:center;
     gap:14px;
   }
+  .locked-btns{
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    gap:10px;
+    width:100%;
+  }
   .locked-ic{ color:var(--magenta); }
   .locked-text{
     font-family:'Quicksand',sans-serif;
@@ -1069,8 +1076,11 @@
         <div id="coverLocked" class="hidden">
           <div class="locked-box">
             <svg class="locked-ic" viewBox="0 0 24 24" width="30" height="30" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="11" width="16" height="9" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>
-            <span class="locked-text">To zadanie jest dostępne po zalogowaniu.</span>
-            <a class="btn" id="lockedLoginBtn" href="/logowanie" target="_top">Zaloguj się</a>
+            <span class="locked-text">To zadanie jest dla subskrybentów. Wykup dostęp, aby odblokować wszystkie ćwiczenia, albo zaloguj się, jeśli masz już subskrypcję.</span>
+            <div class="locked-btns">
+              <a class="btn" id="lockedOfferBtn" href="/oferta" target="_top">Wykup dostęp</a>
+              <a class="btn btn-secondary" id="lockedLoginBtn" href="/logowanie" target="_top">Zaloguj się</a>
+            </div>
           </div>
         </div>
       </div>
