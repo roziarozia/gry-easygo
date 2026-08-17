@@ -195,6 +195,76 @@
       white-space:nowrap;
     }
     .eg-account #egLogout{ flex-basis:100%; text-align:center; }
+
+    /* ===== TELEFON: 3 pastylki zamiast ściany filtrów ===== */
+    /* chowamy oryginalne rzędy filtrów i poziomów, pokazujemy pastylki */
+    #egFilters, #egLevels{ display:none !important; }
+    .eg-mobfilters{ display:block; }
+    .eg-sort-wrap{ margin-top:14px; }
+  }
+  /* pastylki są ukryte na desktopie, pokazywane tylko w media ≤620 powyżej */
+  .eg-mobfilters{ display:none; margin:18px auto 0; }
+  .eg-mobrow{ display:flex; gap:9px; justify-content:center; flex-wrap:wrap; }
+  .eg-mobpill-wrap{ position:relative; }
+  .eg-mobpill{
+    display:inline-flex; align-items:center; gap:7px;
+    font-family:'Quicksand',sans-serif; font-weight:700; font-size:14px;
+    color:var(--eg-ink); background:var(--eg-card);
+    border:1.5px solid var(--eg-line); border-radius:999px;
+    padding:10px 18px; cursor:pointer; transition:border-color .15s;
+  }
+  .eg-mobpill:hover, .eg-mobpill.eg-open{ border-color:var(--eg-magenta); }
+  .eg-mobpill.eg-has-active{ border-color:var(--eg-magenta); background:#f3e2ef; }
+  .eg-mobcaret{ font-size:11px; color:var(--eg-muted); transition:transform .18s; }
+  .eg-mobpill.eg-open .eg-mobcaret{ transform:rotate(180deg); }
+  .eg-mobcount{
+    display:none; min-width:18px; height:18px; padding:0 5px;
+    align-items:center; justify-content:center;
+    font-size:11px; font-weight:800; color:#fff; background:var(--eg-magenta);
+    border-radius:999px;
+  }
+  .eg-mobcount.eg-show{ display:inline-flex; }
+  .eg-mobpanel{
+    display:none; position:absolute; z-index:40; top:calc(100% + 8px); left:0;
+    min-width:220px; max-width:min(86vw,340px);
+    background:var(--eg-card); border:1.5px solid var(--eg-line);
+    border-radius:16px; box-shadow:0 12px 34px rgba(44,37,64,.16);
+    padding:8px; flex-direction:column; gap:2px;
+  }
+  .eg-mobpanel.eg-open{ display:flex; }
+  /* panel wyśrodkowany, żeby nie wychodził poza ekran przy skrajnych pastylkach */
+  .eg-mobpill-wrap:last-child .eg-mobpanel{ left:auto; right:0; }
+  .eg-mobopt{
+    display:flex; align-items:center; gap:10px; width:100%;
+    font-family:'Quicksand',sans-serif; font-weight:600; font-size:14.5px;
+    color:var(--eg-ink); background:none; border:none; text-align:left;
+    padding:10px 12px; border-radius:10px; cursor:pointer; transition:background .13s;
+  }
+  .eg-mobopt:hover{ background:rgba(202,68,144,.07); }
+  .eg-mobopt .eg-mobcheck{
+    margin-left:auto; color:var(--eg-magenta); font-weight:800; font-size:15px;
+    opacity:0; transition:opacity .12s;
+  }
+  .eg-mobopt.eg-sel{ background:#f3e2ef; }
+  .eg-mobopt.eg-sel .eg-mobcheck{ opacity:1; }
+  .eg-mobopt.eg-sel{ font-weight:700; }
+  .eg-mobsep{ height:1px; background:var(--eg-line); margin:5px 4px; }
+  /* TRYB CIEMNY: jasnoróżowe tła (#f3e2ef) znikają z jasnym tekstem — nadpisujemy */
+  html.eg-dark .eg-mobpill{ background:#2b2436; border-color:#3f3550; color:var(--eg-ink); }
+  html.eg-dark .eg-mobpill:hover, html.eg-dark .eg-mobpill.eg-open{ border-color:var(--eg-magenta); }
+  html.eg-dark .eg-mobpill.eg-has-active{ background:#4a2740; border-color:#6d3a5c; }
+  html.eg-dark .eg-mobpanel{ background:#241f30; border-color:#3f3550; }
+  html.eg-dark .eg-mobopt{ color:var(--eg-ink); }
+  html.eg-dark .eg-mobopt:hover{ background:rgba(202,68,144,.16); }
+  html.eg-dark .eg-mobopt.eg-sel{ background:#4a2740; }
+  /* backdrop do zamykania panelu klikiem obok */
+  .eg-mobback{
+    display:none; position:fixed; inset:0; z-index:35; background:transparent;
+  }
+  .eg-mobback.eg-open{ display:block; }
+  @media (max-width:620px){
+    /* na telefonie pastylki wygrywają nad desktopowym display:none */
+    .eg-mobfilters{ display:block; }
   }
   .eg-theme-toggle{ display:inline-flex; align-items:center; gap:6px; background:none; border:none; cursor:pointer; padding:4px; }
   .eg-theme-track{ position:relative; width:44px; height:24px; background:var(--eg-line); border-radius:999px; transition:background .25s; display:inline-block; }
@@ -868,6 +938,26 @@
       <input type="text" id="egSearch" class="eg-search" placeholder="Wyszukaj zadanie po nazwie" autocomplete="off">
       <button type="button" id="egSearchClear" class="eg-search-clear" aria-label="Wyczyść">✕</button>
     </div>
+    <!-- TELEFON: 3 rozwijane pastylki zastępujące ścianę filtrów.
+         Widoczne tylko ≤620px (CSS). Kliknięcie opcji w panelu "przekazuje" klik
+         do oryginalnego, ukrytego przycisku filtra — więc logika filtrowania jest
+         nietknięta, to tylko ładniejszy interfejs na telefonie. -->
+    <div class="eg-mobfilters" id="egMobFilters" aria-hidden="true">
+      <div class="eg-mobrow">
+        <div class="eg-mobpill-wrap">
+          <button type="button" class="eg-mobpill" data-panel="lvl">Poziom<span class="eg-mobcount" id="egMobCountLvl"></span><span class="eg-mobcaret">▾</span></button>
+          <div class="eg-mobpanel" id="egMobPanelLvl"></div>
+        </div>
+        <div class="eg-mobpill-wrap">
+          <button type="button" class="eg-mobpill" data-panel="cat">Kategoria<span class="eg-mobcount" id="egMobCountCat"></span><span class="eg-mobcaret">▾</span></button>
+          <div class="eg-mobpanel" id="egMobPanelCat"></div>
+        </div>
+        <div class="eg-mobpill-wrap">
+          <button type="button" class="eg-mobpill" data-panel="more">Więcej<span class="eg-mobcount" id="egMobCountMore"></span><span class="eg-mobcaret">▾</span></button>
+          <div class="eg-mobpanel" id="egMobPanelMore"></div>
+        </div>
+      </div>
+    </div>
     <div class="eg-filters" id="egFilters">
       <div class="eg-filter-row">
         <button class="eg-active" data-cat="wszystkie">Wszystkie</button>
@@ -1534,6 +1624,7 @@
     });
     curPage = 1;
     render();
+    if(window._egSyncMob) window._egSyncMob();
   });
   levels.addEventListener('click', function(e){
     var btn = e.target.closest('button');
@@ -1554,7 +1645,144 @@
     });
     curPage = 1;
     render();
+    syncMobFilters();
   });
+
+  /* ===== TELEFON: 3 pastylki (Poziom / Kategoria / Więcej) =====
+     Budują się jako LUSTRO oryginalnych, ukrytych przycisków. Klik opcji woła
+     .click() na oryginale → cała logika (curType/curStatus/curLvls/render)
+     działa bez zmian. Tu tylko rysujemy ładny interfejs i odświeżamy zaznaczenia. */
+  var mobWrap = document.getElementById('egMobFilters');
+  if(mobWrap){
+    var panelLvl  = document.getElementById('egMobPanelLvl');
+    var panelCat  = document.getElementById('egMobPanelCat');
+    var panelMore = document.getElementById('egMobPanelMore');
+    // backdrop do zamykania klikiem obok
+    var mobBack = document.createElement('div');
+    mobBack.className = 'eg-mobback';
+    document.body.appendChild(mobBack);
+
+    function optHTML(label, kind, val){
+      return '<button type="button" class="eg-mobopt" data-kind="' + kind + '" data-val="' + val + '">' +
+        '<span>' + label + '</span><span class="eg-mobcheck">&#10003;</span></button>';
+    }
+
+    function buildMobPanels(){
+      // POZIOM — lustro #egLevels (Wszystkie poziomy + obecne A1..C2)
+      var lvlBtns = levels.querySelectorAll('button');
+      var h = '';
+      lvlBtns.forEach(function(b){
+        var v = b.getAttribute('data-lvl');
+        var lab = (v === 'wszystkie') ? 'Wszystkie poziomy' : v;
+        h += optHTML(lab, 'lvl', v);
+      });
+      panelLvl.innerHTML = h;
+
+      // KATEGORIA — tylko rodzaje (wszystkie + gramatyka/slownictwo/speaking/reading/listening)
+      var catDefs = [['wszystkie','Wszystkie'],['gramatyka','Gramatyka'],['slownictwo','Słownictwo'],
+                     ['speaking','Speaking'],['reading','Reading'],['listening','Listening']];
+      h = '';
+      catDefs.forEach(function(d){
+        // pokaż tylko te, które istnieją jako widoczny przycisk
+        var orig = filters.querySelector('button[data-cat="' + d[0] + '"]');
+        if(orig) h += optHTML(d[1], 'cat', d[0]);
+      });
+      panelCat.innerHTML = h;
+
+      // WIĘCEJ — statusy: darmowe, płatne, ulubione, (domowa), zrobione, niezrobione
+      // tylko te, których oryginalny przycisk jest widoczny (nie display:none)
+      var moreDefs = [['darmowe','💡 Darmowe'],['platne','🔒 Dla subskrybentów'],
+                      ['ulubione','♥ Ulubione'],['domowa','🏠 Praca domowa'],
+                      ['zrobione','✓ Zrobione'],['niezrobione','○ Do zrobienia']];
+      h = '';
+      moreDefs.forEach(function(d){
+        var orig = filters.querySelector('button[data-cat="' + d[0] + '"]');
+        if(orig && orig.offsetParent !== null || (orig && getComputedStyle(orig).display !== 'none')){
+          h += optHTML(d[1], 'cat', d[0]);
+        }
+      });
+      panelMore.innerHTML = h;
+
+      wireOpts(panelLvl);
+      wireOpts(panelCat);
+      wireOpts(panelMore);
+      syncMobFilters();
+    }
+
+    function wireOpts(panel){
+      panel.querySelectorAll('.eg-mobopt').forEach(function(opt){
+        opt.addEventListener('click', function(){
+          var kind = opt.getAttribute('data-kind');
+          var val = opt.getAttribute('data-val');
+          // znajdź oryginalny ukryty przycisk i kliknij go — logika zadziała sama
+          var sel = (kind === 'lvl') ? 'button[data-lvl="' + val + '"]' : 'button[data-cat="' + val + '"]';
+          var root = (kind === 'lvl') ? levels : filters;
+          var orig = root.querySelector(sel);
+          if(orig) orig.click();
+          syncMobFilters();
+          // panel zostaje otwarty, żeby dało się zaznaczyć kilka (np. poziomy)
+        });
+      });
+    }
+
+    // odśwież zaznaczenia w panelach + liczniki + tekst pastylek na podstawie stanu
+    function syncMobFilters(){
+      // POZIOM
+      panelLvl.querySelectorAll('.eg-mobopt').forEach(function(o){
+        var v = o.getAttribute('data-val');
+        var on = (v === 'wszystkie') ? (curLvls.length === 0) : (curLvls.indexOf(v) !== -1);
+        o.classList.toggle('eg-sel', on);
+      });
+      setCount('egMobCountLvl', curLvls.length);
+      // KATEGORIA (rodzaj)
+      panelCat.querySelectorAll('.eg-mobopt').forEach(function(o){
+        var v = o.getAttribute('data-val');
+        var on = (v === 'wszystkie') ? (curType === 'wszystkie') : (v === curType);
+        o.classList.toggle('eg-sel', on);
+      });
+      setCount('egMobCountCat', (curType !== 'wszystkie') ? 1 : 0);
+      // WIĘCEJ (status)
+      panelMore.querySelectorAll('.eg-mobopt').forEach(function(o){
+        var v = o.getAttribute('data-val');
+        o.classList.toggle('eg-sel', v === curStatus && curStatus !== 'wszystkie');
+      });
+      setCount('egMobCountMore', (curStatus !== 'wszystkie') ? 1 : 0);
+    }
+
+    function setCount(id, n){
+      var el = document.getElementById(id);
+      if(!el) return;
+      var pill = el.closest('.eg-mobpill');
+      if(n > 0){ el.textContent = n; el.classList.add('eg-show'); if(pill) pill.classList.add('eg-has-active'); }
+      else { el.textContent = ''; el.classList.remove('eg-show'); if(pill) pill.classList.remove('eg-has-active'); }
+    }
+
+    function closeAllPanels(){
+      [panelLvl,panelCat,panelMore].forEach(function(p){ p.classList.remove('eg-open'); });
+      mobWrap.querySelectorAll('.eg-mobpill').forEach(function(b){ b.classList.remove('eg-open'); });
+      mobBack.classList.remove('eg-open');
+    }
+
+    mobWrap.querySelectorAll('.eg-mobpill').forEach(function(pill){
+      pill.addEventListener('click', function(e){
+        e.stopPropagation();
+        var which = pill.getAttribute('data-panel');
+        var panel = which === 'lvl' ? panelLvl : which === 'cat' ? panelCat : panelMore;
+        var isOpen = panel.classList.contains('eg-open');
+        closeAllPanels();
+        if(!isOpen){
+          panel.classList.add('eg-open');
+          pill.classList.add('eg-open');
+          mobBack.classList.add('eg-open');
+        }
+      });
+    });
+    mobBack.addEventListener('click', closeAllPanels);
+
+    // udostępnij buildMobPanels na zewnątrz — wołane po zbudowaniu poziomów i po renderze
+    window._egBuildMob = buildMobPanels;
+    window._egSyncMob = syncMobFilters;
+  }
 
   document.getElementById('egSeriesBack').addEventListener('click', function(){
     curSeries = '';
@@ -1663,6 +1891,7 @@
     buildLevelFilters();
     applyUrlFilters();   // odczytaj ?poziom= / ?kategoria= z adresu i ustaw filtr
     render();
+    if(window._egBuildMob) window._egBuildMob();  // zbuduj pastylki telefonu (lustro filtrów)
     // jeśli uczeń zalogowany — dociągnij jego pracę domową i pokaż domki
     loadHomework();
   })
@@ -1710,6 +1939,8 @@
       var progShow = document.getElementById('egProgressShow');
       if(progShow) progShow.style.display = 'none';
     }
+    // przebuduj pastylki telefonu — panel "Więcej" musi odzwierciedlać dostępne statusy
+    if(window._egBuildMob) window._egBuildMob();
   }
 
   // === META PIXEL ===
