@@ -149,6 +149,28 @@
     .eg-topbar-left a span{ display:none; }
     .eg-topbar-left a{ font-size:0; }
     .eg-topbar-sep{ display:none; }
+    /* pasek konta na telefonie: e-mail w swoim rzędzie na całą szerokość,
+       a przyciski (Panel lektora / Moje konto) obok siebie w jednym rzędzie,
+       zamiast dwóch dużych różowych bloków jeden pod drugim. */
+    .eg-account{
+      justify-content:center;
+      gap:8px 10px;
+      font-size:13px;
+    }
+    .eg-account .eg-hi{
+      flex-basis:100%;
+      text-align:center;
+      font-size:12.5px;
+      word-break:break-all;
+    }
+    .eg-account .eg-panel-link{
+      flex:1 1 0;
+      max-width:170px;
+      text-align:center;
+      padding:9px 10px;
+      white-space:nowrap;
+    }
+    .eg-account #egLogout{ flex-basis:100%; text-align:center; }
   }
   .eg-theme-toggle{ display:inline-flex; align-items:center; gap:6px; background:none; border:none; cursor:pointer; padding:4px; }
   .eg-theme-track{ position:relative; width:44px; height:24px; background:var(--eg-line); border-radius:999px; transition:background .25s; display:inline-block; }
