@@ -127,11 +127,18 @@
   /* GORNY PASEK: linki do reszty swiata EasyGo po lewej, social + konto po prawej.
      Zajmuje puste 76px nad logo. Logo i haslo zostaja nietkniete. */
   .eg-topbar{
-    display:flex; align-items:center; justify-content:space-between; gap:16px;
+    display:flex; align-items:center; gap:16px;
     max-width:1180px; margin:0 auto; padding:10px 24px;
     border-bottom:1px solid var(--eg-line);
   }
-  .eg-topbar-left{ display:flex; align-items:center; gap:20px; }
+  .eg-topbar-left{ display:flex; align-items:center; gap:20px; order:1; }
+  /* po zmianie HTML (social i przełącznik przeniesione dla telefonu) — na
+     DESKTOPIE order przywraca układ: Blog/fiszki po lewej, reszta zgrupowana
+     po prawej (social | konto | przełącznik). margin-left:auto na social
+     spycha całą prawą grupę do prawej krawędzi. */
+  .eg-social{ order:2; margin-left:auto; }
+  .eg-topbar-right{ order:3; }
+  .eg-theme-toggle{ order:4; }
   .eg-topbar-left a{
     font-size:13.5px; color:var(--eg-magenta); text-decoration:none; font-weight:600;
     display:inline-flex; align-items:center; gap:6px; transition:opacity .18s;
@@ -148,35 +155,32 @@
      w pionie. Teraz: cały pasek to kolumna wyśrodkowanych rzędów, każdy element
      ma podpis, e-mail nigdy się nie łamie (kurczy się z wielokropkiem). */
   @media (max-width:620px){
+    /* topbar poziomy z zawijaniem. Górny rząd: Blog + fiszki! + IG + FB +
+       przełącznik dzień/noc (wszystko w jednej linii). Konto (100% szerokości)
+       zawija się do kolejnych linii: e-mail, potem Panel+Konto, potem Wyloguj. */
     .eg-topbar{
-      flex-direction:column;
-      align-items:stretch;
-      gap:12px;
+      flex-wrap:wrap;
+      justify-content:center;
+      gap:10px 14px;
       padding:12px 14px;
     }
-    /* Blog + fiszki! — Z PODPISAMI (koniec z nagimi ikonkami), wyśrodkowane */
-    .eg-topbar-left{ justify-content:center; gap:22px; }
+    .eg-topbar-left{ order:1; gap:18px; }
     .eg-topbar-left a span{ display:inline; }
     .eg-topbar-left a{ font-size:13.5px; }
-
-    .eg-topbar-right{
-      flex-direction:column;
-      align-items:stretch;
-      gap:12px;
-      width:100%;
-    }
-    /* social + przełącznik dzień/noc w jednym wyśrodkowanym rzędzie */
-    .eg-social{ justify-content:center; gap:18px; order:2; }
-    .eg-theme-toggle{ order:3; align-self:center; }
+    .eg-social{ order:2; margin-left:0; gap:16px; padding-left:14px; border-left:1px solid var(--eg-line); }
+    .eg-theme-toggle{ order:3; padding-left:14px; border-left:1px solid var(--eg-line); }
+    /* eg-topbar-right rozpływa się, żeby konto trafiło do wrap-flexa topbara */
+    .eg-topbar-right{ display:contents; }
     .eg-topbar-sep{ display:none; }
 
-    /* konto: e-mail (jedna linia z wielokropkiem) + przyciski obok siebie */
+    /* konto na własnej linii (100% szerokości wymusza zawinięcie pod górny rząd):
+       e-mail, potem Panel+Konto obok siebie, potem Wyloguj — każde w swoim wierszu */
     .eg-account{
-      order:1;
+      order:4;
+      flex-basis:100%;
       justify-content:center;
       gap:8px 10px;
       font-size:13px;
-      width:100%;
     }
     .eg-account .eg-hi{
       flex-basis:100%;
@@ -185,7 +189,7 @@
       white-space:nowrap;
       overflow:hidden;
       text-overflow:ellipsis;
-      max-width:100%;
+      max-width:calc(100vw - 40px);
     }
     .eg-account .eg-panel-link{
       flex:1 1 0;
@@ -906,22 +910,22 @@
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true"><rect x="3" y="6" width="14" height="12" rx="2" stroke="currentColor" stroke-width="1.7"/><path d="M7 3.5h11A2.5 2.5 0 0120.5 6v11" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg><span>fiszki!</span>
       </a>
     </div>
+    <div class="eg-social">
+      <a href="https://www.instagram.com/easy_wonders" target="_blank" rel="noopener" aria-label="EasyWonders na Instagramie">
+        <svg width="19" height="19" viewBox="0 0 24 24" fill="none" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="5" stroke="currentColor" stroke-width="1.8"/><circle cx="12" cy="12" r="4" stroke="currentColor" stroke-width="1.8"/><circle cx="17.2" cy="6.8" r="1.2" fill="currentColor"/></svg>
+      </a>
+      <a href="https://www.facebook.com/profile.php?id=61592766433216" target="_blank" rel="noopener" aria-label="EasyWonders na Facebooku">
+        <svg width="19" height="19" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M14 8.5V7c0-.8.5-1.2 1.2-1.2H17V3h-2.4C12 3 11 4.6 11 6.7v1.8H9V12h2v9h3v-9h2.3l.5-3.5H14z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></svg>
+      </a>
+    </div>
+    <button type="button" class="eg-theme-toggle" id="egThemeToggle" title="Tryb jasny / ciemny" aria-label="Przełącz tryb jasny lub ciemny">
+      <span class="eg-theme-track"><span class="eg-theme-thumb"></span></span>
+      <span class="eg-theme-ico eg-theme-sun" aria-hidden="true"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="4.2"/><path d="M12 2v2.5M12 19.5V22M4.5 4.5l1.8 1.8M17.7 17.7l1.8 1.8M2 12h2.5M19.5 12H22M4.5 19.5l1.8-1.8M17.7 6.3l1.8-1.8"/></svg></span>
+      <span class="eg-theme-ico eg-theme-moon" aria-hidden="true"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.8A9 9 0 1111.2 3 7 7 0 0021 12.8z"/></svg></span>
+    </button>
     <div class="eg-topbar-right">
-      <div class="eg-social">
-        <a href="https://www.instagram.com/easy_wonders" target="_blank" rel="noopener" aria-label="EasyWonders na Instagramie">
-          <svg width="19" height="19" viewBox="0 0 24 24" fill="none" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="5" stroke="currentColor" stroke-width="1.8"/><circle cx="12" cy="12" r="4" stroke="currentColor" stroke-width="1.8"/><circle cx="17.2" cy="6.8" r="1.2" fill="currentColor"/></svg>
-        </a>
-        <a href="https://www.facebook.com/profile.php?id=61592766433216" target="_blank" rel="noopener" aria-label="EasyWonders na Facebooku">
-          <svg width="19" height="19" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M14 8.5V7c0-.8.5-1.2 1.2-1.2H17V3h-2.4C12 3 11 4.6 11 6.7v1.8H9V12h2v9h3v-9h2.3l.5-3.5H14z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></svg>
-        </a>
-      </div>
       <span class="eg-topbar-sep"></span>
       <div class="eg-account" id="egAccount"></div>
-      <button type="button" class="eg-theme-toggle" id="egThemeToggle" title="Tryb jasny / ciemny" aria-label="Przełącz tryb jasny lub ciemny">
-        <span class="eg-theme-track"><span class="eg-theme-thumb"></span></span>
-        <span class="eg-theme-ico eg-theme-sun" aria-hidden="true"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="4.2"/><path d="M12 2v2.5M12 19.5V22M4.5 4.5l1.8 1.8M17.7 17.7l1.8 1.8M2 12h2.5M19.5 12H22M4.5 19.5l1.8-1.8M17.7 6.3l1.8-1.8"/></svg></span>
-        <span class="eg-theme-ico eg-theme-moon" aria-hidden="true"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 14.5A8 8 0 019.5 4a6.5 6.5 0 108.9 8.9c.5.2 1.05.35 1.6.6z"/></svg></span>
-      </button>
     </div>
   </div>
 
