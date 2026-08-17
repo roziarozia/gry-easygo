@@ -142,32 +142,56 @@
   .eg-social a{ color:var(--eg-magenta); display:inline-flex; transition:transform .18s, opacity .18s; }
   .eg-social a:hover{ transform:scale(1.12); opacity:.85; }
   .eg-topbar-sep{ width:1px; height:18px; background:var(--eg-line); }
-  /* na telefonie zostaja same ikonki - napisy sie chowaja, nic sie nie lamie */
+  /* ===== GÓRNY PASEK NA TELEFONIE (≤620px) — przebudowany na czytelne rzędy =====
+     Problem wcześniej: ikonki Blog/fiszki miały font-size:0 (nagie symbole bez
+     podpisu), e-mail łamał się w środku słowa, przyciski konta rozjeżdżały się
+     w pionie. Teraz: cały pasek to kolumna wyśrodkowanych rzędów, każdy element
+     ma podpis, e-mail nigdy się nie łamie (kurczy się z wielokropkiem). */
   @media (max-width:620px){
-    .eg-topbar{ padding:8px 14px; gap:10px; }
-    .eg-topbar-left{ gap:16px; }
-    .eg-topbar-left a span{ display:none; }
-    .eg-topbar-left a{ font-size:0; }
+    .eg-topbar{
+      flex-direction:column;
+      align-items:stretch;
+      gap:12px;
+      padding:12px 14px;
+    }
+    /* Blog + fiszki! — Z PODPISAMI (koniec z nagimi ikonkami), wyśrodkowane */
+    .eg-topbar-left{ justify-content:center; gap:22px; }
+    .eg-topbar-left a span{ display:inline; }
+    .eg-topbar-left a{ font-size:13.5px; }
+
+    .eg-topbar-right{
+      flex-direction:column;
+      align-items:stretch;
+      gap:12px;
+      width:100%;
+    }
+    /* social + przełącznik dzień/noc w jednym wyśrodkowanym rzędzie */
+    .eg-social{ justify-content:center; gap:18px; order:2; }
+    .eg-theme-toggle{ order:3; align-self:center; }
     .eg-topbar-sep{ display:none; }
-    /* pasek konta na telefonie: e-mail w swoim rzędzie na całą szerokość,
-       a przyciski (Panel lektora / Moje konto) obok siebie w jednym rzędzie,
-       zamiast dwóch dużych różowych bloków jeden pod drugim. */
+
+    /* konto: e-mail (jedna linia z wielokropkiem) + przyciski obok siebie */
     .eg-account{
+      order:1;
       justify-content:center;
       gap:8px 10px;
       font-size:13px;
+      width:100%;
     }
     .eg-account .eg-hi{
       flex-basis:100%;
       text-align:center;
       font-size:12.5px;
-      word-break:break-all;
+      white-space:nowrap;
+      overflow:hidden;
+      text-overflow:ellipsis;
+      max-width:100%;
     }
     .eg-account .eg-panel-link{
       flex:1 1 0;
-      max-width:170px;
+      max-width:180px;
       text-align:center;
-      padding:9px 10px;
+      padding:10px 12px;
       white-space:nowrap;
     }
     .eg-account #egLogout{ flex-basis:100%; text-align:center; }
