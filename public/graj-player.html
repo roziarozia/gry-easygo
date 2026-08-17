@@ -985,10 +985,16 @@
        górę i dół BEZ możliwości przewinięcia — ucinało pytanie i chował przycisk
        "Dalej". W trybie quizu ramka rośnie z treścią i całość może się przewijać,
        a zawartość układa się od góry (nie centruje na siłę). */
-    .frame.quiz-mode{height:auto;max-height:none;padding:52px 18px 32px;}
+    .frame.quiz-mode{height:auto;max-height:none;aspect-ratio:auto;overflow:visible;padding:52px 18px 32px;}
+    /* gdy ramka quizu jest wyższa niż ekran, stage musi wyrównać ją do GÓRY
+       (nie centrować, bo centrowanie wypycha treść poza ekran) i pozwolić
+       całej stronie się przewinąć. */
+    body:has(.frame.quiz-mode){height:auto;min-height:100%;}
+    .stage:has(.frame.quiz-mode){align-items:flex-start;}
     #quiz{position:relative;inset:auto;justify-content:flex-start;padding:8px 2px 12px;gap:16px;min-height:0;}
     .q-prompt{font-size:20px;}
     .q-opt{font-size:15px;padding:13px 15px;}
+    .q-progress{top:10px;right:12px;}
   }
 </style>
 </head>
