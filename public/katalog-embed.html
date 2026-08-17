@@ -245,6 +245,8 @@
     margin-left:auto; color:var(--eg-magenta); font-weight:800; font-size:15px;
     opacity:0; transition:opacity .12s;
   }
+  .eg-mobico{ display:inline-flex; align-items:center; color:var(--eg-magenta); flex-shrink:0; }
+  .eg-mobico svg{ width:15px; height:15px; }
   .eg-mobopt.eg-sel{ background:#f3e2ef; }
   .eg-mobopt.eg-sel .eg-mobcheck{ opacity:1; }
   .eg-mobopt.eg-sel{ font-weight:700; }
@@ -1662,9 +1664,18 @@
     mobBack.className = 'eg-mobback';
     document.body.appendChild(mobBack);
 
-    function optHTML(label, kind, val){
+    function optHTML(label, kind, val, iconSvg){
+      var ico = iconSvg ? '<span class="eg-mobico">' + iconSvg + '</span>' : '';
       return '<button type="button" class="eg-mobopt" data-kind="' + kind + '" data-val="' + val + '">' +
-        '<span>' + label + '</span><span class="eg-mobcheck">&#10003;</span></button>';
+        ico + '<span>' + label + '</span><span class="eg-mobcheck">&#10003;</span></button>';
+    }
+
+    // wyciąga SVG z oryginalnego przycisku filtra (żeby ikony były spójne z desktopem)
+    function iconOf(cat){
+      var orig = filters.querySelector('button[data-cat="' + cat + '"]');
+      if(!orig) return '';
+      var svg = orig.querySelector('svg');
+      return svg ? svg.outerHTML : '';
     }
 
     function buildMobPanels(){
@@ -1689,16 +1700,16 @@
       });
       panelCat.innerHTML = h;
 
-      // WIĘCEJ — statusy: darmowe, płatne, ulubione, (domowa), zrobione, niezrobione
-      // tylko te, których oryginalny przycisk jest widoczny (nie display:none)
-      var moreDefs = [['darmowe','💡 Darmowe'],['platne','🔒 Dla subskrybentów'],
-                      ['ulubione','♥ Ulubione'],['domowa','🏠 Praca domowa'],
-                      ['zrobione','✓ Zrobione'],['niezrobione','○ Do zrobienia']];
+      // WIĘCEJ — statusy: darmowe, płatne, ulubione, (domowa), zrobione, niezrobione.
+      // Ikony to SVG (obrysy) wyciągnięte z oryginalnych przycisków — bez emotek.
+      var moreDefs = [['darmowe','Darmowe'],['platne','Dla subskrybentów'],
+                      ['ulubione','Ulubione'],['domowa','Praca domowa'],
+                      ['zrobione','Zrobione'],['niezrobione','Do zrobienia']];
       h = '';
       moreDefs.forEach(function(d){
         var orig = filters.querySelector('button[data-cat="' + d[0] + '"]');
         if(orig && orig.offsetParent !== null || (orig && getComputedStyle(orig).display !== 'none')){
-          h += optHTML(d[1], 'cat', d[0]);
+          h += optHTML(d[1], 'cat', d[0], iconOf(d[0]));
         }
       });
       panelMore.innerHTML = h;
