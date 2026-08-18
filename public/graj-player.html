@@ -1017,6 +1017,10 @@
 </head>
 <body>
 
+<button type="button" id="grajLang" title="Język interfejsu / Interface language" aria-label="Zmień język interfejsu"
+  style="position:fixed;top:14px;right:60px;z-index:50;display:inline-flex;align-items:center;gap:5px;background:var(--card);border:1.5px solid var(--line);border-radius:999px;padding:5px 11px;cursor:pointer;color:var(--ink);font-family:'Nunito',sans-serif;font-size:13px;font-weight:700;box-shadow:0 3px 12px rgba(0,0,0,.12)">
+  <span id="grajLangTxt">EN</span>
+</button>
 <button type="button" id="grajTheme" title="Tryb jasny / ciemny" aria-label="Przełącz tryb jasny lub ciemny"
   style="position:fixed;top:14px;right:14px;z-index:50;display:inline-flex;align-items:center;gap:5px;background:var(--card);border:1.5px solid var(--line);border-radius:999px;padding:5px 10px;cursor:pointer;color:var(--ink);font-family:'Nunito',sans-serif;font-size:13px;font-weight:700;box-shadow:0 3px 12px rgba(0,0,0,.12)">
   <span id="grajThemeIco">☾</span>
@@ -1037,6 +1041,107 @@
   })();
 </script>
 
+<script>
+  // ===== JĘZYK INTERFEJSU (PL / EN) =====
+  // Przełącza TYLKO teksty interfejsu (przyciski, komunikaty). Treść zadań
+  // (polskie podpowiedzi, tłumaczenia zdań, wyjaśnienia) NIE jest ruszana.
+  // Wybór zapamiętywany w localStorage 'easygo_lang' — jak tryb jasny/ciemny.
+  window.EG_I18N = {
+    // przyciski główne
+    'Rozpocznij': 'Start',
+    'Rozpocznij quiz': 'Start quiz',
+    'Sprawdź': 'Check',
+    'Sprawdź odpowiedzi': 'Check answers',
+    'Dalej': 'Next',
+    'Wstecz': 'Previous',
+    'Jeszcze raz': 'Try again',
+    'Podpowiedź': 'Hint',
+    'Zobacz wynik': 'See result',
+    'Zakończ': 'Finish',
+    'Powrót do ćwiczeń': 'Back to exercises',
+    'Inne ćwiczenia': 'Other exercises',
+    'Pełny ekran': 'Fullscreen',
+    'Wybierz tryb': 'Choose mode',
+    'Z tłumaczeniem': 'With translation',
+    'Z bezokolicznikiem': 'With base form',
+    'Wpisuję słówka': 'I type the words',
+    'Pokazuj odpowiedzi': 'Show answers',
+    'Słuchaj': 'Listen',
+    'Czytaj': 'Read',
+    'Odsłuchaj': 'Play',
+    'Zatrzymaj': 'Pause',
+    'Transkrypcja': 'Transcript',
+    'Zobacz transkrypcję': 'Show transcript',
+    'Ukryj transkrypcję': 'Hide transcript',
+    'Wczytuję nagranie…': 'Loading audio…',
+    'Nagranie nie jest jeszcze gotowe.': 'The audio isn\u2019t ready yet.',
+    'sugerowana liczba odsłuchań: 2': 'Recommended: listen twice',
+    'Twój wynik: ': 'Your score: ',
+    'Świetna robota!': 'Great job!',
+    'Dobrze! ': 'Correct! ',
+    'Dobrze! (z podpowiedzią)': 'Correct! (with a hint)',
+    'Wyjaśnienie: ': 'Explanation: ',
+    'Odpowiedz na wszystkie pytania.': 'Please answer all the questions.',
+    'Znasz już ': 'You now know ',
+    ' nowych słówek.': ' new words.',
+    'Wykup dostęp': 'Get access',
+    'Zaloguj się': 'Log in',
+    'To zadanie jest dla subskrybentów. Wykup dostęp, aby odblokować wszystkie ćwiczenia, albo zaloguj się, jeśli masz już subskrypcję.':
+      'This exercise is for subscribers. Get access to unlock all exercises, or log in if you already have a subscription.',
+    'Błąd wczytywania gry': 'Error loading the exercise',
+    'Nie znaleziono gry': 'Exercise not found',
+    'Sprawdź adres albo wróć do listy gier.': 'Check the address or go back to the exercise list.',
+    'Najedź lub kliknij podkreślone słowo, żeby zobaczyć tłumaczenie':
+      'Hover or tap an underlined word to see the translation'
+  };
+
+  // aktualny język: 'pl' (domyślnie) lub 'en'
+  window.EG_LANG = (function(){ try{ return localStorage.getItem('easygo_lang') === 'en' ? 'en' : 'pl'; }catch(e){ return 'pl'; } })();
+
+  // t(polski) -> zwraca tekst w aktualnym języku. Gdy PL albo brak tłumaczenia: oryginał.
+  window.t = function(pl){
+    if(window.EG_LANG !== 'en') return pl;
+    return (window.EG_I18N[pl] != null) ? window.EG_I18N[pl] : pl;
+  };
+
+  // Przechodzi po wszystkich elementach z [data-i18n] i ustawia tekst wg języka.
+  // data-i18n przechowuje ORYGINALNY polski tekst (klucz słownika).
+  window.applyLang = function(){
+    var els = document.querySelectorAll('[data-i18n]');
+    for(var i=0;i<els.length;i++){
+      var key = els[i].getAttribute('data-i18n');
+      els[i].textContent = window.t(key);
+    }
+    // przycisk pokazuje język, NA KTÓRY przełączy (odwrotność aktualnego)
+    var lt = document.getElementById('grajLangTxt');
+    if(lt) lt.textContent = (window.EG_LANG === 'en') ? 'PL' : 'EN';
+    // atrybut lang na <html> dla poprawności/dostępności
+    try{ document.documentElement.setAttribute('lang', window.EG_LANG); }catch(e){}
+  };
+
+  (function(){
+    var b = document.getElementById('grajLang');
+    if(b){
+      b.addEventListener('click', function(){
+        window.EG_LANG = (window.EG_LANG === 'en') ? 'pl' : 'en';
+        try{ localStorage.setItem('easygo_lang', window.EG_LANG); }catch(e){}
+        // Przeładowanie gwarantuje, że WSZYSTKIE teksty (także te generowane
+        // dynamicznie w trakcie gry) będą spójne w nowym języku. Postęp w grze
+        // i tak zaczyna się od okładki, więc przeładowanie nie gubi nic ważnego.
+        location.reload();
+      });
+    }
+    // zastosuj zapamiętany język na starcie (statyczne [data-i18n]).
+    // DOMContentLoaded, bo elementy z data-i18n są niżej w HTML niż ten skrypt —
+    // w chwili wykonania mogą jeszcze nie istnieć w DOM.
+    if(document.readyState === 'loading'){
+      document.addEventListener('DOMContentLoaded', window.applyLang);
+    } else {
+      window.applyLang();
+    }
+  })();
+</script>
+
 <main class="stage">
   <div class="frame" id="frame">
 
@@ -1054,20 +1159,20 @@
       <p class="cover-sub" id="cSub"></p>
       <div class="cover-actions">
         <div id="coverModes">
-          <span class="mode-label">Wybierz tryb</span>
+          <span class="mode-label" data-i18n="Wybierz tryb">Wybierz tryb</span>
           <div class="mode-buttons">
-            <button class="btn" id="startShowBtn">Pokazuj odpowiedzi</button>
-            <button class="btn btn-violet" id="startTypeBtn">Wpisuję słówka</button>
+            <button class="btn" id="startShowBtn" data-i18n="Pokazuj odpowiedzi">Pokazuj odpowiedzi</button>
+            <button class="btn btn-violet" id="startTypeBtn" data-i18n="Wpisuję słówka">Wpisuję słówka</button>
           </div>
         </div>
         <div id="coverQuiz" class="hidden">
-          <button class="btn" id="startQuizBtn">Rozpocznij quiz</button>
+          <button class="btn" id="startQuizBtn" data-i18n="Rozpocznij quiz">Rozpocznij quiz</button>
         </div>
         <div id="coverGap" class="hidden">
-          <span class="mode-label">Wybierz tryb</span>
+          <span class="mode-label" data-i18n="Wybierz tryb">Wybierz tryb</span>
           <div class="mode-buttons">
-            <button class="btn" id="startGapPlBtn">Z tłumaczeniem</button>
-            <button class="btn btn-violet" id="startGapBaseBtn">Z bezokolicznikiem</button>
+            <button class="btn" id="startGapPlBtn" data-i18n="Z tłumaczeniem">Z tłumaczeniem</button>
+            <button class="btn btn-violet" id="startGapBaseBtn" data-i18n="Z bezokolicznikiem">Z bezokolicznikiem</button>
           </div>
         </div>
         <div id="coverSpeak" class="hidden">
@@ -1078,8 +1183,8 @@
             <svg class="locked-ic" viewBox="0 0 24 24" width="30" height="30" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="11" width="16" height="9" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>
             <span class="locked-text">To zadanie jest dla subskrybentów. Wykup dostęp, aby odblokować wszystkie ćwiczenia, albo zaloguj się, jeśli masz już subskrypcję.</span>
             <div class="locked-btns">
-              <a class="btn" id="lockedOfferBtn" href="/oferta" target="_top">Wykup dostęp</a>
-              <a class="btn btn-secondary" id="lockedLoginBtn" href="/logowanie" target="_top">Zaloguj się</a>
+              <a class="btn" id="lockedOfferBtn" href="/oferta" target="_top" data-i18n="Wykup dostęp">Wykup dostęp</a>
+              <a class="btn btn-secondary" id="lockedLoginBtn" href="/logowanie" target="_top" data-i18n="Zaloguj się">Zaloguj się</a>
             </div>
           </div>
         </div>
@@ -1100,14 +1205,14 @@
           <input id="answerInput" type="text" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="Wpisz słowo po angielsku">
           <div class="hint-line hidden" id="hintLine"></div>
           <div class="type-buttons">
-            <button class="btn btn-hint" id="hintBtn">Podpowiedź</button>
-            <button class="btn" id="checkBtn">Sprawdź</button>
+            <button class="btn btn-hint" id="hintBtn" data-i18n="Podpowiedź">Podpowiedź</button>
+            <button class="btn" id="checkBtn" data-i18n="Sprawdź">Sprawdź</button>
           </div>
           <button class="type-back hidden" id="typeBackBtn">‹ poprzednie</button>
         </div>
         <div class="nav" id="navBox">
-          <button class="btn btn-secondary" id="prevBtn">Wstecz</button>
-          <button class="btn" id="nextBtn">Dalej</button>
+          <button class="btn btn-secondary" id="prevBtn" data-i18n="Wstecz">Wstecz</button>
+          <button class="btn" id="nextBtn" data-i18n="Dalej">Dalej</button>
         </div>
       </div>
     </section>
@@ -1120,8 +1225,8 @@
       <div class="q-options" id="qOptions"></div>
       <div class="q-explain hidden" id="qExplain"></div>
       <div class="nav" id="qNav">
-        <button class="btn btn-secondary q-next hidden" id="qPrev">Wstecz</button>
-        <button class="btn q-next hidden" id="qNext">Dalej</button>
+        <button class="btn btn-secondary q-next hidden" id="qPrev" data-i18n="Wstecz">Wstecz</button>
+        <button class="btn q-next hidden" id="qNext" data-i18n="Dalej">Dalej</button>
       </div>
     </section>
 
@@ -1131,11 +1236,11 @@
       <div class="q-prompt" id="gPrompt"></div>
       <div class="gap-input-row">
         <input id="gapInput" type="text" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="Wpisz brakujące słowo">
-        <button class="btn" id="gCheckBtn">Sprawdź</button>
+        <button class="btn" id="gCheckBtn" data-i18n="Sprawdź">Sprawdź</button>
       </div>
       <div class="q-explain hidden" id="gExplain"></div>
       <div class="nav" id="gNav">
-        <button class="btn q-next hidden" id="gNext">Dalej</button>
+        <button class="btn q-next hidden" id="gNext" data-i18n="Dalej">Dalej</button>
       </div>
       <button class="gap-back hidden" id="gPrev">‹ poprzednie</button>
     </section>
@@ -1149,8 +1254,8 @@
         <div class="speak-text" id="speakText"></div>
       </div>
       <div class="nav" id="sNav">
-        <button class="btn btn-secondary" id="sPrev">Wstecz</button>
-        <button class="btn" id="sNext">Dalej</button>
+        <button class="btn btn-secondary" id="sPrev" data-i18n="Wstecz">Wstecz</button>
+        <button class="btn" id="sNext" data-i18n="Dalej">Dalej</button>
       </div>
     </section>
 
@@ -1164,8 +1269,8 @@
       <div class="reading-text" id="readingText"></div>
       <div class="reading-hint" id="readingHint">Najedź lub kliknij podkreślone słowo, żeby zobaczyć tłumaczenie</div>
       <div class="nav" id="rNav">
-        <button class="btn btn-secondary" id="rPrev">Wstecz</button>
-        <button class="btn" id="rNext">Dalej</button>
+        <button class="btn btn-secondary" id="rPrev" data-i18n="Wstecz">Wstecz</button>
+        <button class="btn" id="rNext" data-i18n="Dalej">Dalej</button>
       </div>
     </section>
 
@@ -1179,16 +1284,16 @@
       <div id="lsQuestions"></div>
       <div class="ls-err" id="lsErr"></div>
       <div class="ls-actions" id="lsActions">
-        <button class="btn" id="lsCheckBtn">Sprawdź odpowiedzi</button>
+        <button class="btn" id="lsCheckBtn" data-i18n="Sprawdź odpowiedzi">Sprawdź odpowiedzi</button>
       </div>
       <div class="ls-end hidden" id="lsEnd">
         <p class="ls-score" id="lsScore"></p>
         <p class="ls-en" id="lsEn"></p>
         <p class="ls-sub" id="lsSub"></p>
         <div class="ls-end-nav">
-          <button class="btn btn-secondary" id="lsScriptBtn">Zobacz transkrypcję</button>
-          <button class="btn btn-secondary" id="lsAgainBtn">Jeszcze raz</button>
-          <a class="btn" href="/" target="_top">Powrót do ćwiczeń</a>
+          <button class="btn btn-secondary" id="lsScriptBtn" data-i18n="Zobacz transkrypcję">Zobacz transkrypcję</button>
+          <button class="btn btn-secondary" id="lsAgainBtn" data-i18n="Jeszcze raz">Jeszcze raz</button>
+          <a class="btn" href="/" target="_top" data-i18n="Powrót do ćwiczeń">Powrót do ćwiczeń</a>
         </div>
       </div>
       <div class="ls-script hidden" id="lsScript"></div>
@@ -1200,8 +1305,8 @@
       <div class="score hidden" id="score"></div>
       <p class="end-sub" id="endSub">Znasz już <span id="wordCount">0</span> nowych słówek.</p>
       <div class="nav">
-        <button class="btn btn-secondary" id="againBtn">Jeszcze raz</button>
-        <a class="btn" href="/" target="_top" style="text-decoration:none;display:inline-flex;align-items:center;justify-content:center;">Inne ćwiczenia</a>
+        <button class="btn btn-secondary" id="againBtn" data-i18n="Jeszcze raz">Jeszcze raz</button>
+        <a class="btn" href="/" target="_top" style="text-decoration:none;display:inline-flex;align-items:center;justify-content:center;" data-i18n="Inne ćwiczenia">Inne ćwiczenia</a>
       </div>
       <span class="brand">easygo-english.pl</span>
     </section>
@@ -1209,8 +1314,8 @@
 </main>
 
 <nav class="bottom-bar">
-  <a href="/" target="_top">Powrót do ćwiczeń</a>
-  <button id="fullBtn">Pełny ekran</button>
+  <a href="/" target="_top" data-i18n="Powrót do ćwiczeń">Powrót do ćwiczeń</a>
+  <button id="fullBtn" data-i18n="Pełny ekran">Pełny ekran</button>
 </nav>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -1279,7 +1384,7 @@ async function markCompleted(){
   if(!slug){
     document.getElementById('loading').classList.add('hidden');
     cover.classList.remove('hidden');
-    document.getElementById('cTitle').textContent = 'Nie znaleziono gry';
+    document.getElementById('cTitle').textContent = t('Nie znaleziono gry');
     return;
   }
   try{
@@ -1313,8 +1418,8 @@ async function markCompleted(){
     if(!rows || !rows.length){
       document.getElementById('loading').classList.add('hidden');
       cover.classList.remove('hidden');
-      document.getElementById('cTitle').textContent = 'Nie znaleziono gry';
-      document.getElementById('cSub').textContent = 'Sprawdź adres albo wróć do listy gier.';
+      document.getElementById('cTitle').textContent = t('Nie znaleziono gry');
+      document.getElementById('cSub').textContent = t('Sprawdź adres albo wróć do listy gier.');
       return;
     }
     GAME = rows[0];
@@ -1399,7 +1504,7 @@ async function markCompleted(){
       if(!maPl && !maBase){
         // brak jakichkolwiek podpowiedzi - jeden przycisk startu
         btnPl.style.display = '';
-        btnPl.textContent = 'Rozpocznij';
+        btnPl.textContent = t('Rozpocznij');
         btnPl.classList.add('btn-violet');
         if(etykieta) etykieta.style.display = 'none';
       } else if(maPl !== maBase){
@@ -1407,7 +1512,7 @@ async function markCompleted(){
         // Widoczny przycisk (ten z danymi) dostaje napis „Rozpocznij" —
         // nazwa trybu nie ma sensu, skoro wyboru nie ma (Word Builder = sam pl_hint).
         var jedyny = maPl ? btnPl : btnBase;
-        jedyny.textContent = 'Rozpocznij';
+        jedyny.textContent = t('Rozpocznij');
         jedyny.classList.add('btn-violet');
         if(etykieta) etykieta.style.display = 'none';
       }
@@ -1421,13 +1526,13 @@ async function markCompleted(){
     if(GAME.template === 'listening'){
       document.getElementById('coverModes').classList.add('hidden');
       document.getElementById('coverSpeak').classList.remove('hidden');
-      document.getElementById('startSpeakBtn').textContent = 'Słuchaj';
+      document.getElementById('startSpeakBtn').textContent = t('Słuchaj');
     }
     // Reading: jeden przycisk „Czytaj"
     if(GAME.template === 'reading'){
       document.getElementById('coverModes').classList.add('hidden');
       document.getElementById('coverSpeak').classList.remove('hidden');
-      document.getElementById('startSpeakBtn').textContent = 'Czytaj';
+      document.getElementById('startSpeakBtn').textContent = t('Czytaj');
     }
     }
 
@@ -1459,7 +1564,7 @@ async function markCompleted(){
   }catch(err){
     document.getElementById('loading').classList.add('hidden');
     cover.classList.remove('hidden');
-    document.getElementById('cTitle').textContent = 'Błąd wczytywania gry';
+    document.getElementById('cTitle').textContent = t('Błąd wczytywania gry');
   }
 })();
 
@@ -1621,7 +1726,7 @@ function checkAnswer(){
 
   revealed = true;
   renderSlide();
-  if(ok && hintUsed) feedback.textContent = 'Dobrze! (z podpowiedzią)';
+  if(ok && hintUsed) feedback.textContent = t('Dobrze! (z podpowiedzią)');
   else feedback.textContent = ok ? 'Dobrze!' : 'Zapamiętaj:';
   feedback.classList.remove('hidden','good','bad');
   feedback.classList.add(ok ? 'good' : 'bad');
@@ -1667,14 +1772,14 @@ function finish(){
   progressBar.style.width = '100%';
   markCompleted();
   if(mode === 'type'){
-    scoreEl.textContent = 'Twój wynik: ' + scoreCount + ' / ' + SLIDES.length;
+    scoreEl.textContent = t('Twój wynik: ') + scoreCount + ' / ' + SLIDES.length;
     scoreEl.classList.remove('hidden');
     endSub.textContent = scoreCount === SLIDES.length
       ? 'Perfekcyjnie! Wszystkie słówka poprawnie.'
       : 'Zagraj jeszcze raz i popraw swój wynik.';
   }else{
     scoreEl.classList.add('hidden');
-    endSub.textContent = 'Znasz już ' + SLIDES.length + ' nowych słówek.';
+    endSub.textContent = t('Znasz już ') + SLIDES.length + t(' nowych słówek.');
   }
 }
 
@@ -1746,7 +1851,7 @@ function showAnswered(picked){
     if(i === picked && picked !== q.correct) b.classList.add('wrong');
   });
   if(q.explanation){
-    qExplain.innerHTML = '<b>' + (picked === q.correct ? 'Dobrze! ' : 'Poprawnie: ' + escapeHtml(q.options[q.correct]) + '. ') + '</b>' + escapeHtml(q.explanation);
+    qExplain.innerHTML = '<b>' + (picked === q.correct ? t('Dobrze! ') : 'Poprawnie: ' + escapeHtml(q.options[q.correct]) + '. ') + '</b>' + escapeHtml(q.explanation);
     qExplain.classList.remove('hidden');
   }
   qBar.style.width = ((qIndex + 1) / QUESTIONS.length * 100) + '%';
@@ -1785,7 +1890,7 @@ function finishQuiz(){
   frame.className = frame.className.replace(/\bbg-\S+/g,'').trim();
   show(end);
   markCompleted();
-  scoreEl.textContent = 'Twój wynik: ' + qScore + ' / ' + QUESTIONS.length;
+  scoreEl.textContent = t('Twój wynik: ') + qScore + ' / ' + QUESTIONS.length;
   scoreEl.classList.remove('hidden');
   document.querySelector('#end .end-title .underline').textContent =
     (qScore === QUESTIONS.length) ? 'Perfekcyjnie!' : 'Dobra robota!';
@@ -1824,7 +1929,7 @@ function startListening(){
   const audio = document.getElementById('lsAudio');
   audio.classList.add('hidden');
   if(GAME.audio_path){
-    document.getElementById('lsErr').textContent = 'Wczytuję nagranie…';
+    document.getElementById('lsErr').textContent = t('Wczytuję nagranie…');
     podajNagranie().then(function(url){
       if(url){
         audio.src = url;
@@ -1835,7 +1940,7 @@ function startListening(){
       }
     });
   }else{
-    document.getElementById('lsErr').textContent = 'Nagranie nie jest jeszcze gotowe.';
+    document.getElementById('lsErr').textContent = t('Nagranie nie jest jeszcze gotowe.');
   }
   document.getElementById('lsScript').classList.add('hidden');
   document.getElementById('lsEnd').classList.add('hidden');
@@ -1868,7 +1973,7 @@ function startListening(){
 function sprawdzListening(){
   const err = document.getElementById('lsErr');
   if(Object.keys(lsWybor).length < QUESTIONS.length){
-    err.textContent = 'Odpowiedz na wszystkie pytania.';
+    err.textContent = t('Odpowiedz na wszystkie pytania.');
     return;
   }
   err.textContent = '';
@@ -1894,7 +1999,7 @@ function sprawdzListening(){
   // transkrypcje przygotowujemy, ale odslaniamy dopiero na zyczenie (przycisk)
   if(LISTENING.length){
     document.getElementById('lsScript').innerHTML =
-      '<p class="ls-script-h">Transkrypcja</p>' + LISTENING.map(function(l){
+      '<p class="ls-script-h" data-i18n="Transkrypcja">Transkrypcja</p>' + LISTENING.map(function(l){
         return '<div class="ls-line"><span class="ls-who">' + escapeHtml(l.speaker) + ':</span> ' + escapeHtml(l.text) + '</div>';
       }).join('');
   }
@@ -1906,7 +2011,7 @@ function sprawdzListening(){
     '<u>' + (komplet ? 'Perfekcyjnie!' : 'Trening czyni mistrza!') + '</u>';
   document.getElementById('lsEn').textContent = komplet ? 'Nailed it!' : 'Practice makes perfect';
   document.getElementById('lsSub').textContent =
-    'Twój wynik: ' + punkty + ' / ' + QUESTIONS.length;
+    t('Twój wynik: ') + punkty + ' / ' + QUESTIONS.length;
   document.getElementById('lsScriptBtn').style.display = LISTENING.length ? '' : 'none';
   document.getElementById('lsEnd').classList.remove('hidden');
   document.getElementById('lsEnd').scrollIntoView({ behavior:'smooth', block:'nearest' });
@@ -2006,7 +2111,7 @@ function showGapAnswered(typed){
   gPrompt.innerHTML = html;
   // wyjaśnienie odpowiedzi (jak w quizie)
   if(item.explanation){
-    gExplain.innerHTML = '<b>' + (ok ? 'Dobrze! ' : 'Wyjaśnienie: ') + '</b>' + escapeHtml(item.explanation);
+    gExplain.innerHTML = '<b>' + (ok ? t('Dobrze! ') : t('Wyjaśnienie: ')) + '</b>' + escapeHtml(item.explanation);
     gExplain.classList.remove('hidden');
   } else {
     gExplain.classList.add('hidden');
@@ -2043,7 +2148,7 @@ function finishGap(){
   frame.className = frame.className.replace(/\bbg-\S+/g,'').trim();
   show(end);
   markCompleted();
-  scoreEl.textContent = 'Twój wynik: ' + gScore + ' / ' + GAPS.length;
+  scoreEl.textContent = t('Twój wynik: ') + gScore + ' / ' + GAPS.length;
   scoreEl.classList.remove('hidden');
   document.querySelector('#end .end-title .underline').textContent =
     (gScore === GAPS.length) ? 'Perfekcyjnie!' : 'Dobra robota!';
@@ -2086,7 +2191,7 @@ function renderSpeak(){
   document.getElementById('sProgress').textContent = (sIdx + 1) + ' / ' + total;
   document.getElementById('sBar').style.width = total ? (((sIdx + 1) / total) * 100 + '%') : '0%';
   document.getElementById('sPrev').style.visibility = sIdx > 0 ? 'visible' : 'hidden';
-  document.getElementById('sNext').textContent = (sIdx === total - 1) ? 'Zakończ' : 'Dalej';
+  document.getElementById('sNext').textContent = (sIdx === total - 1) ? t('Zakończ') : 'Dalej';
 }
 function nextSpeak(){
   if(sIdx < SPEAKS.length - 1){ sIdx++; renderSpeak(); }
@@ -2177,7 +2282,7 @@ function renderReading(){
   document.getElementById('rProgress').textContent = (rIdx + 1) + ' / ' + total;
   document.getElementById('rBar').style.width = total ? (((rIdx + 1) / total) * 100 + '%') : '0%';
   document.getElementById('rPrev').style.display = rIdx > 0 ? '' : 'none';
-  document.getElementById('rNext').textContent = (rIdx === total - 1) ? 'Zakończ' : 'Dalej';
+  document.getElementById('rNext').textContent = (rIdx === total - 1) ? t('Zakończ') : 'Dalej';
   document.getElementById('readingHint').style.display =
     (slide.glossary && slide.glossary.length) ? 'block' : 'none';
 }
@@ -2188,7 +2293,7 @@ function nextReading(){
 function prevReading(){ if(rIdx > 0){ rIdx--; renderReading(); } }
 function showReadingEnd(){
   document.getElementById('score').classList.add('hidden');
-  document.querySelector('#end .end-title .underline').textContent = 'Świetna robota!';
+  document.querySelector('#end .end-title .underline').textContent = t('Świetna robota!');
   endSub.innerHTML = 'Zapraszam po więcej czytanek na różnych poziomach <span style="color:#ca4490">&#10084;</span>';
 }
 // głośniczek — czyta cały tekst slajdu (Web Speech API, jak w słówkach)
