@@ -1545,6 +1545,7 @@
     var promo = document.getElementById('egPromo');
     if(promo) promo.style.display = (curStatus === 'platne' && list.length && !userHasAccess) ? 'flex' : 'none';
     updateProgress();
+    saveFilters();   // zapamiętaj wybory, żeby przetrwały odświeżenie / cofnięcie
     state.style.display = list.length ? 'none' : 'block';
     if(!list.length){
       if(curStatus === 'ulubione') state.textContent = 'Nie masz jeszcze ulubionych zadań. Kliknij serduszko na zadaniu, żeby zapisać je na później.';
@@ -1893,6 +1894,50 @@
   // Odczytuje ?poziom= i ?kategoria= z adresu (np. z tagów pod ćwiczeniem)
   // i ustawia odpowiedni filtr, "klikając" właściwe przyciski — dzięki temu
   // działa cała istniejąca logika (podświetlenia, render).
+  // ===== ZAPAMIĘTYWANIE FILTRÓW (przetrwają odświeżenie i cofnięcie) =====
+  var FILTERS_KEY = 'easygo_filtry';
+  function saveFilters(){
+    try{
+      localStorage.setItem(FILTERS_KEY, JSON.stringify({
+        type: curType, status: curStatus, lvls: curLvls,
+        sort: curSort, search: curSearch, page: curPage
+      }));
+    }catch(e){}
+  }
+  function restoreFilters(){
+    var s;
+    try{ s = JSON.parse(localStorage.getItem(FILTERS_KEY) || 'null'); }catch(e){ s = null; }
+    if(!s) return false;
+    // kategoria (klik w odpowiedni przycisk, żeby zadziałała też podświetlenie)
+    if(s.type && s.type !== 'wszystkie'){
+      var catBtn = filters.querySelector('[data-cat="' + s.type + '"]');
+      if(catBtn) catBtn.click();
+    }
+    // status (darmowe/ulubione/zrobione…)
+    if(s.status && s.status !== 'wszystkie'){
+      var stBtn = document.querySelector('[data-cat="' + s.status + '"]');
+      if(stBtn) stBtn.click();
+    }
+    // poziomy (może być kilka)
+    if(Array.isArray(s.lvls) && s.lvls.length){
+      s.lvls.forEach(function(l){
+        var lvlBtn = levels.querySelector('[data-lvl="' + l + '"]');
+        if(lvlBtn) lvlBtn.click();
+      });
+    }
+    // sortowanie
+    if(s.sort && s.sort !== 'default'){
+      var sortSel = document.getElementById('egSort');
+      if(sortSel){ sortSel.value = s.sort; curSort = s.sort; }
+    }
+    // wyszukiwarka
+    if(s.search){
+      var si = document.getElementById('egSearch');
+      if(si){ si.value = s.search; curSearch = s.search; }
+    }
+    return true;
+  }
+
   function applyUrlFilters(){
     try{
       var params = new URLSearchParams(window.location.search);
@@ -1935,7 +1980,15 @@
   .then(function(rows){
     allGames = Array.isArray(rows) ? rows : [];
     buildLevelFilters();
-    applyUrlFilters();   // odczytaj ?poziom= / ?kategoria= z adresu i ustaw filtr
+    // Priorytet: filtry z adresu (?poziom=/?kategoria=) — gdy ktoś wchodzi z linku.
+    // Gdy adres nie ma filtrów, przywróć ostatnie wybory z pamięci (przetrwają
+    // odświeżenie i cofnięcie), żeby użytkownik nie zaczynał od zera.
+    var hasUrlFilters = /[?&](poziom|kategoria)=/.test(window.location.search);
+    if(hasUrlFilters){
+      applyUrlFilters();
+    } else {
+      restoreFilters();
+    }
     render();
     if(window._egBuildMob) window._egBuildMob();  // zbuduj pastylki telefonu (lustro filtrów)
     // jeśli uczeń zalogowany — dociągnij jego pracę domową i pokaż domki
