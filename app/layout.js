@@ -7,14 +7,30 @@ const SITE = process.env.NEXT_PUBLIC_SITE_URL || 'https://gry.easygo-english.pl'
 export const metadata = {
   metadataBase: new URL(SITE),
   title: {
-    default: 'Gry i ćwiczenia interaktywne do angielskiego | EasyGo English',
-    template: '%s | EasyGo English',
+    default: 'EasyWonders — miejsce, które otwiera drzwi',
+    template: '%s | EasyWonders',
   },
-  description: 'Interaktywne ćwiczenia do nauki angielskiego: gramatyka, słownictwo, quizy, uzupełnianie luk i konwersacje. Poziomy od A1 do C2. Ćwicz online za darmo.',
+  description: 'EasyWonders — miejsce, które otwiera drzwi. To co, zaczynamy wspólną przygodę z językiem angielskim? Interaktywne gry i ćwiczenia: gramatyka, słownictwo, quizy, uzupełnianie luk, słuchanie i konwersacje. Poziomy od A1 do C2.',
   openGraph: {
     type: 'website',
     locale: 'pl_PL',
-    siteName: 'EasyGo English',
+    siteName: 'EasyWonders',
+    title: 'EasyWonders — miejsce, które otwiera drzwi',
+    description: 'To co, zaczynamy wspólną przygodę z językiem angielskim? Interaktywne gry i ćwiczenia do nauki angielskiego, poziomy A1–C2.',
+    images: [
+      {
+        url: '/og-easywonders.png',
+        width: 1200,
+        height: 630,
+        alt: 'EasyWonders — miejsce, które otwiera drzwi',
+      },
+    ],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'EasyWonders — miejsce, które otwiera drzwi',
+    description: 'To co, zaczynamy wspólną przygodę z językiem angielskim?',
+    images: ['/og-easywonders.png'],
   },
 };
 
