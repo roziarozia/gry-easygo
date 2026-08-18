@@ -927,6 +927,10 @@
         <svg width="19" height="19" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M14 8.5V7c0-.8.5-1.2 1.2-1.2H17V3h-2.4C12 3 11 4.6 11 6.7v1.8H9V12h2v9h3v-9h2.3l.5-3.5H14z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></svg>
       </a>
     </div>
+    <button type="button" class="eg-lang-toggle" id="egLangToggle" title="Język interfejsu / Interface language" aria-label="Zmień język interfejsu"
+      style="display:inline-flex;align-items:center;justify-content:center;min-width:38px;height:32px;padding:0 10px;background:var(--eg-card);border:1.5px solid var(--eg-line);border-radius:999px;cursor:pointer;color:var(--eg-ink);font-family:'Nunito',sans-serif;font-size:13px;font-weight:700;">
+      <span id="egLangTxt">EN</span>
+    </button>
     <button type="button" class="eg-theme-toggle" id="egThemeToggle" title="Tryb jasny / ciemny" aria-label="Przełącz tryb jasny lub ciemny">
       <span class="eg-theme-track"><span class="eg-theme-thumb"></span></span>
       <span class="eg-theme-ico eg-theme-sun" aria-hidden="true"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="4.2"/><path d="M12 2v2.5M12 19.5V22M4.5 4.5l1.8 1.8M17.7 17.7l1.8 1.8M2 12h2.5M19.5 12H22M4.5 19.5l1.8-1.8M17.7 6.3l1.8-1.8"/></svg></span>
@@ -950,7 +954,7 @@
     <p>Miejsce, które otwiera drzwi.<br>To co, zaczynamy przygodę z językiem angielskim? 🩷</p>
     <div class="eg-search-wrap">
       <svg class="eg-search-icon" width="17" height="17" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="11" cy="11" r="7" stroke="#5a5568" stroke-width="2"/><line x1="16.5" y1="16.5" x2="21" y2="21" stroke="#5a5568" stroke-width="2" stroke-linecap="round"/></svg>
-      <input type="text" id="egSearch" class="eg-search" placeholder="Wyszukaj zadanie po nazwie" autocomplete="off">
+      <input type="text" id="egSearch" class="eg-search" placeholder="Wyszukaj zadanie po nazwie" data-i18n-ph="Wyszukaj zadanie po nazwie" autocomplete="off">
       <button type="button" id="egSearchClear" class="eg-search-clear" aria-label="Wyczyść">✕</button>
     </div>
     <!-- TELEFON: 3 rozwijane pastylki zastępujące ścianę filtrów.
@@ -968,16 +972,16 @@
           <div class="eg-mobpanel" id="egMobPanelCat"></div>
         </div>
         <div class="eg-mobpill-wrap">
-          <button type="button" class="eg-mobpill" data-panel="more">Więcej<span class="eg-mobcount" id="egMobCountMore"></span><span class="eg-mobcaret">▾</span></button>
+          <button type="button" class="eg-mobpill" data-panel="more" data-i18n="Więcej">Więcej<span class="eg-mobcount" id="egMobCountMore"></span><span class="eg-mobcaret">▾</span></button>
           <div class="eg-mobpanel" id="egMobPanelMore"></div>
         </div>
       </div>
     </div>
     <div class="eg-filters" id="egFilters">
       <div class="eg-filter-row">
-        <button class="eg-active" data-cat="wszystkie">Wszystkie</button>
-        <button data-cat="gramatyka">Gramatyka</button>
-        <button data-cat="slownictwo">Słownictwo</button>
+        <button class="eg-active" data-cat="wszystkie" data-i18n="Wszystkie">Wszystkie</button>
+        <button data-cat="gramatyka" data-i18n="Gramatyka">Gramatyka</button>
+        <button data-cat="slownictwo" data-i18n="Słownictwo">Słownictwo</button>
         <button data-cat="speaking">Speaking</button>
         <button data-cat="reading">Reading</button>
         <button data-cat="listening">Listening</button>
@@ -994,12 +998,12 @@
     <div class="eg-filters eg-levels" id="egLevels"></div>
     <div class="eg-sort-wrap">
       <select id="egSort">
-        <option value="default" disabled hidden selected>Sortuj według…</option>
-        <option value="level">Poziom (A1 → C2)</option>
-        <option value="newest">Od najnowszych</option>
+        <option value="default" disabled hidden selected data-i18n="Sortuj według…">Sortuj według…</option>
+        <option value="level" data-i18n="Poziom (A1 → C2)">Poziom (A1 → C2)</option>
+        <option value="newest" data-i18n="Od najnowszych">Od najnowszych</option>
       </select>
       <div class="eg-cols" id="egCols" role="group" aria-label="Liczba kolumn">
-        <span class="eg-cols-label">Widok:</span>
+        <span class="eg-cols-label" data-i18n="Widok:">Widok:</span>
         <button type="button" data-cols="3">3</button>
         <button type="button" data-cols="4" class="eg-active">4</button>
         <button type="button" data-cols="5">5</button>
@@ -1015,22 +1019,22 @@
     <div class="eg-state" id="egState">Wczytywanie gier…</div>
     <div class="eg-promo" id="egPromo" style="display:none">
       <div class="eg-promo-text"><strong>To ćwiczenia dla subskrybentów.</strong> Spodobały Ci się? Wykup dostęp i odblokuj wszystkie — bez ograniczeń.</div>
-      <a class="eg-promo-btn" href="/oferta">Wykup dostęp</a>
+      <a class="eg-promo-btn" href="/oferta" data-i18n="Wykup dostęp">Wykup dostęp</a>
     </div>
     <div class="eg-progress" id="egProgress" style="display:none">
       <div class="eg-progress-top">
-        <span class="eg-progress-label">Twoje postępy</span>
+        <span class="eg-progress-label" data-i18n="Twoje postępy">Twoje postępy</span>
         <div class="eg-progress-right">
           <span class="eg-progress-count" id="egProgressCount"></span>
           <button type="button" class="eg-progress-adjust" id="egProgressAdjust">Dostosuj</button>
-          <button type="button" class="eg-progress-hide" id="egProgressHide" title="Ukryj pasek postępu">Ukryj</button>
+          <button type="button" class="eg-progress-hide" id="egProgressHide" title="Ukryj pasek postępu" data-i18n="Ukryj">Ukryj</button>
         </div>
       </div>
       <div class="eg-progress-bar"><div class="eg-progress-fill" id="egProgressFill" style="width:0%"></div></div>
       <div class="eg-progress-scope" id="egProgressScope"></div>
       <div class="eg-progress-panel" id="egProgressPanel" style="display:none">
         <div class="eg-pp-group">
-          <div class="eg-pp-title">Poziom</div>
+          <div class="eg-pp-title" data-i18n="Poziom">Poziom</div>
           <div class="eg-pp-opts" id="egPpLevels">
             <label><input type="checkbox" value="A1"> A1</label>
             <label><input type="checkbox" value="A2"> A2</label>
@@ -1041,7 +1045,7 @@
           </div>
         </div>
         <div class="eg-pp-group">
-          <div class="eg-pp-title">Typ zadań</div>
+          <div class="eg-pp-title" data-i18n="Typ zadań">Typ zadań</div>
           <div class="eg-pp-opts" id="egPpCats">
             <label><input type="checkbox" value="gramatyka"> Gramatyka</label>
             <label><input type="checkbox" value="slownictwo"> Słownictwo</label>
@@ -1051,12 +1055,12 @@
           </div>
         </div>
         <div class="eg-pp-actions">
-          <button type="button" class="eg-pp-reset" id="egPpReset">Wyczyść</button>
+          <button type="button" class="eg-pp-reset" id="egPpReset" data-i18n="Wyczyść">Wyczyść</button>
           <button type="button" class="eg-pp-done" id="egPpDone">Gotowe</button>
         </div>
       </div>
     </div>
-    <button type="button" class="eg-progress-show" id="egProgressShow" style="display:none">Pokaż pasek postępu</button>
+    <button type="button" class="eg-progress-show" id="egProgressShow" style="display:none" data-i18n="Pokaż pasek postępu">Pokaż pasek postępu</button>
     <div class="eg-grid" id="egGrid"></div>
     <nav class="eg-pager" id="egPager" style="display:none" aria-label="Strony ćwiczeń"></nav>
   </main>
@@ -1164,7 +1168,7 @@
 
   function soonCard(){
     return '<article class="eg-card eg-card-soon" data-cat="wkrotce">' +
-      '<div class="eg-thumb"><span class="eg-soon-label">wkrótce</span></div>' +
+      '<div class="eg-thumb"><span class="eg-soon-label" data-i18n="wkrótce">wkrótce</span></div>' +
       '<div class="eg-body"><h3>Nowa gra w przygotowaniu</h3>' +
       '<p>Pracuję nad kolejnym zadaniem — zajrzyj tu niedługo!</p></div></article>';
   }
@@ -1174,7 +1178,7 @@
     allGames.forEach(function(g){ if(g.level) found[g.level] = true; });
     var order = ['A1','A2','B1','B2','C1','C2'];
     var present = order.filter(function(l){ return found[l]; });
-    var html = '<button class="eg-active" data-lvl="wszystkie">Wszystkie poziomy</button>';
+    var html = '<button class="eg-active" data-lvl="wszystkie" data-i18n="Wszystkie poziomy">Wszystkie poziomy</button>';
     present.forEach(function(l){ html += '<button data-lvl="' + l + '">' + l + '</button>'; });
     levels.innerHTML = html;
   }
@@ -1257,12 +1261,12 @@
       var parts = [];
       if(progressLevels.length) parts.push(progressLevels.join(', '));
       if(progressCats.length){
-        var catNames = { gramatyka:'Gramatyka', slownictwo:'Słownictwo', speaking:'Speaking', reading:'Reading', listening:'Listening' };
+        var catNames = { gramatyka:t('Gramatyka'), slownictwo:t('Słownictwo'), speaking:'Speaking', reading:'Reading', listening:'Listening' };
         parts.push(progressCats.map(function(c){ return catNames[c] || c; }).join(', '));
       }
       scopeEl.innerHTML = 'Liczone dla: <strong>' + parts.join(' · ') + '</strong>';
     } else {
-      scopeEl.innerHTML = 'Liczone dla: <strong>wszystkich Twoich ćwiczeń</strong>';
+      scopeEl.innerHTML = 'Liczone dla: <strong data-i18n="wszystkich Twoich ćwiczeń">wszystkich Twoich ćwiczeń</strong>';
     }
   }
 
@@ -1411,7 +1415,7 @@
         slownictwo: '<svg viewBox="0 0 24 24" width="12" height="12" style="vertical-align:-2px;margin-right:4px"><path d="M4 6a2 2 0 0 1 2-2h5v16H6a2 2 0 0 0-2 2V6zm16 0a2 2 0 0 0-2-2h-5v16h5a2 2 0 0 1 2 2V6z" fill="currentColor"/></svg>',
         listening: '<svg viewBox="0 0 24 24" width="12" height="12" style="vertical-align:-2px;margin-right:4px"><path d="M12 3a7 7 0 0 0-7 7v5a3 3 0 0 0 3 3h1v-6H7v-2a5 5 0 0 1 10 0v2h-2v6h1a3 3 0 0 0 3-3v-5a7 7 0 0 0-7-7z" fill="currentColor"/></svg>'
       };
-      var typeLabels = { speaking:'Speaking', reading:'Reading', gramatyka:'Gramatyka', slownictwo:'Słownictwo', listening:'Listening' };
+      var typeLabels = { speaking:'Speaking', reading:'Reading', gramatyka:t('Gramatyka'), slownictwo:t('Słownictwo'), listening:'Listening' };
       // klucz typu bez ogonków (catLabel bywa 'słownictwo' z ł) — spójny z CSS i mapami
       var typeKey = (catLabel === 'słownictwo' || catLabel === 'slownictwo') ? 'slownictwo'
         : (catLabel === 'speaking') ? 'speaking'
@@ -1444,7 +1448,7 @@
           ? '<span class="eg-series-num">ćwiczenie nr ' + esc(String(g.exercise_no)) + '</span><span class="eg-series-sep"> · </span>'
           : '';
         seriesLine = '<div class="eg-series">' + numPart +
-          '<a href="#" class="eg-series-link" data-series="' + esc(g.series) + '">zobacz całą serię</a></div>';
+          '<a href="#" class="eg-series-link" data-series="' + esc(g.series) + '" data-i18n="zobacz całą serię">zobacz całą serię</a></div>';
       }
       var fav = isFav(g.slug);
       var heart = '<button type="button" class="eg-fav' + (fav ? ' eg-fav-on' : '') + '" data-slug="' + esc(g.slug) + '" aria-label="Dodaj do ulubionych" title="Zapisz na później">' +
@@ -1477,9 +1481,9 @@
           var d = new Date(homeworkDone[g.slug]);
           var dstr = d.toLocaleDateString('pl-PL', {day:'2-digit', month:'2-digit', year:'2-digit'});
           doneBtn = '<button class="eg-done eg-done-yes" onclick="egToggleDone(\'' + g.slug + '\', false)">' +
-            '<svg viewBox="0 0 24 24" width="14" height="14" style="vertical-align:-2px;margin-right:5px"><path d="M9 16.17l-3.88-3.88L3.7 13.7 9 19l12-12-1.41-1.42z" fill="currentColor"/></svg>Zrobione ' + dstr + '</button>';
+            '<svg viewBox="0 0 24 24" width="14" height="14" style="vertical-align:-2px;margin-right:5px"><path d="M9 16.17l-3.88-3.88L3.7 13.7 9 19l12-12-1.41-1.42z" fill="currentColor"/></svg>' + t('Zrobione') + ' ' + dstr + '</button>';
         } else {
-          doneBtn = '<button class="eg-done eg-done-no" onclick="egToggleDone(\'' + g.slug + '\', true)">Oznacz jako zrobione</button>';
+          doneBtn = '<button class="eg-done eg-done-no" onclick="egToggleDone(\'' + g.slug + '\', true)" data-i18n="Oznacz jako zrobione">Oznacz jako zrobione</button>';
         }
       }
       // znacznik ukończenia (Wariant B) — mały zielony haczyk na miniaturce
@@ -1703,7 +1707,7 @@
       panelLvl.innerHTML = h;
 
       // KATEGORIA — tylko rodzaje (wszystkie + gramatyka/slownictwo/speaking/reading/listening)
-      var catDefs = [['wszystkie','Wszystkie'],['gramatyka','Gramatyka'],['slownictwo','Słownictwo'],
+      var catDefs = [['wszystkie',t('Wszystkie')],['gramatyka',t('Gramatyka')],['slownictwo',t('Słownictwo')],
                      ['speaking','Speaking'],['reading','Reading'],['listening','Listening']];
       h = '';
       catDefs.forEach(function(d){
@@ -1715,9 +1719,9 @@
 
       // WIĘCEJ — statusy: darmowe, płatne, ulubione, (domowa), zrobione, niezrobione.
       // Ikony to SVG (obrysy) wyciągnięte z oryginalnych przycisków — bez emotek.
-      var moreDefs = [['darmowe','Darmowe'],['platne','Dla subskrybentów'],
-                      ['ulubione','Ulubione'],['domowa','Praca domowa'],
-                      ['zrobione','Zrobione'],['niezrobione','Do zrobienia']];
+      var moreDefs = [['darmowe',t('Darmowe')],['platne',t('Dla subskrybentów')],
+                      ['ulubione',t('Ulubione')],['domowa','Praca domowa'],
+                      ['zrobione',t('Zrobione')],['niezrobione',t('Do zrobienia')]];
       h = '';
       moreDefs.forEach(function(d){
         var orig = filters.querySelector('button[data-cat="' + d[0] + '"]');
@@ -2042,7 +2046,7 @@
     var el = document.getElementById('egAccount');
     if(!el) return;
     if(!session){
-      el.innerHTML = '<a class="eg-login-link" href="' + LOGIN_LINK + '">Zaloguj się</a>';
+      el.innerHTML = '<a class="eg-login-link" href="' + LOGIN_LINK + '" data-i18n="Zaloguj się">Zaloguj się</a>';
       return;
     }
     var email = (profile && profile.email) || session.user.email || '';
@@ -2073,6 +2077,88 @@
       // od dawna odtwarzacz w graj-player.html)
       try{ if(window.parent && window.parent !== window){ window.parent.postMessage({ egTheme: dark ? 'dark' : 'light' }, '*'); } }catch(e){}
     });
+  })();
+
+  // ===== JĘZYK INTERFEJSU (PL / EN) — wspólny z graczem przez localStorage 'easygo_lang' =====
+  // Tłumaczy TYLKO interfejs (przyciski, filtry, etykiety, kategorie). Opisowe akapity
+  // i treść zadań pozostają po polsku.
+  window.EG_I18N = {
+    // filtry / statusy
+    'Wszystkie': 'All',
+    'Wszystkie poziomy': 'All levels',
+    'Darmowe': 'Free',
+    'Dla subskrybentów': 'For subscribers',
+    'Ulubione': 'Favorites',
+    'Zrobione': 'Done',
+    'Zrobione!': 'Done!',
+    'Do zrobienia': 'To do',
+    // kategorie
+    'Słownictwo': 'Vocabulary',
+    'Gramatyka': 'Grammar',
+    // etykiety / filtry
+    'Kategoria': 'Category',
+    'Poziom': 'Level',
+    'Poziom (A1 → C2)': 'Level (A1 → C2)',
+    'Typ zadań': 'Exercise type',
+    'Sortuj według…': 'Sort by…',
+    'Od najnowszych': 'Newest first',
+    'Widok:': 'View:',
+    // przyciski
+    'Wyczyść': 'Clear',
+    'Więcej': 'More',
+    'Ukryj': 'Hide',
+    'Zaloguj się': 'Log in',
+    'Wykup dostęp': 'Get access',
+    'zobacz całą serię': 'see full series',
+    'wszystkich Twoich ćwiczeń': 'of all your exercises',
+    // postępy
+    'Twoje postępy': 'Your progress',
+    'Pokaż pasek postępu': 'Show progress bar',
+    'Oznacz jako zrobione': 'Mark as done',
+    // inne
+    'wkrótce': 'soon',
+    'Wyszukaj zadanie po nazwie': 'Search exercises by name'
+  };
+
+  window.EG_LANG = (function(){ try{ return localStorage.getItem('easygo_lang') === 'en' ? 'en' : 'pl'; }catch(e){ return 'pl'; } })();
+
+  window.t = function(pl){
+    if(window.EG_LANG !== 'en') return pl;
+    return (window.EG_I18N[pl] != null) ? window.EG_I18N[pl] : pl;
+  };
+
+  window.applyLang = function(){
+    // 1) elementy z [data-i18n] — tekst
+    var els = document.querySelectorAll('[data-i18n]');
+    for(var i=0;i<els.length;i++){
+      els[i].textContent = window.t(els[i].getAttribute('data-i18n'));
+    }
+    // 2) placeholdery z [data-i18n-ph]
+    var phs = document.querySelectorAll('[data-i18n-ph]');
+    for(var j=0;j<phs.length;j++){
+      phs[j].setAttribute('placeholder', window.t(phs[j].getAttribute('data-i18n-ph')));
+    }
+    // przycisk pokazuje język docelowy
+    var lt = document.getElementById('egLangTxt');
+    if(lt) lt.textContent = (window.EG_LANG === 'en') ? 'PL' : 'EN';
+    try{ document.documentElement.setAttribute('lang', window.EG_LANG); }catch(e){}
+  };
+
+  (function initLang(){
+    var b = document.getElementById('egLangToggle');
+    if(b){
+      b.addEventListener('click', function(){
+        window.EG_LANG = (window.EG_LANG === 'en') ? 'pl' : 'en';
+        try{ localStorage.setItem('easygo_lang', window.EG_LANG); }catch(e){}
+        // przeładowanie — spójność wszystkich tekstów, także generowanych w JS (kafelki)
+        location.reload();
+      });
+    }
+    if(document.readyState === 'loading'){
+      document.addEventListener('DOMContentLoaded', window.applyLang);
+    } else {
+      window.applyLang();
+    }
   })();
 })();
 </script>
