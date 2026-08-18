@@ -1403,7 +1403,12 @@ async function markCompleted(){
         btnPl.classList.add('btn-violet');
         if(etykieta) etykieta.style.display = 'none';
       } else if(maPl !== maBase){
-        // dostępny tylko jeden tryb - nie ma z czego wybierać
+        // dostępny tylko jeden tryb - nie ma z czego wybierać.
+        // Widoczny przycisk (ten z danymi) dostaje napis „Rozpocznij" —
+        // nazwa trybu nie ma sensu, skoro wyboru nie ma (Word Builder = sam pl_hint).
+        var jedyny = maPl ? btnPl : btnBase;
+        jedyny.textContent = 'Rozpocznij';
+        jedyny.classList.add('btn-violet');
         if(etykieta) etykieta.style.display = 'none';
       }
     }
