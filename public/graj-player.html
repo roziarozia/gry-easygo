@@ -1061,6 +1061,8 @@
     'Powrót do ćwiczeń': 'Back to exercises',
     'Inne ćwiczenia': 'Other exercises',
     'Pełny ekran': 'Fullscreen',
+    'Gramatyka': 'Grammar',
+    'Słownictwo': 'Vocabulary',
     'Wybierz tryb': 'Choose mode',
     'Z tłumaczeniem': 'With translation',
     'Z bezokolicznikiem': 'With base form',
@@ -1449,11 +1451,11 @@ async function markCompleted(){
     document.title = GAME.title + ' | EasyGo English';
     document.getElementById('cLevel').textContent = GAME.level || '';
     document.getElementById('cCat').textContent =
-      (GAME.category === 'gramatyka' ? 'Gramatyka'
+      (GAME.category === 'gramatyka' ? t('Gramatyka')
        : GAME.category === 'speaking' ? 'Speaking'
        : GAME.category === 'reading' ? 'Reading'
        : GAME.category === 'listening' ? 'Listening'
-       : 'Słownictwo');
+       : t('Słownictwo'));
     document.getElementById('cTitle').textContent = GAME.title;
     document.getElementById('cSub').textContent = GAME.description || '';
     document.getElementById('wordCount').textContent = SLIDES.length;
