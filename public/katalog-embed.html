@@ -952,7 +952,7 @@
              alt="" aria-hidden="true">
       </span>
     </h1>
-    <p>Miejsce, które otwiera drzwi.<br>To co, zaczynamy przygodę z językiem angielskim? 🩷</p>
+    <p><span data-i18n="Miejsce, które otwiera drzwi.">Miejsce, które otwiera drzwi.</span><br><span data-i18n="To co, zaczynamy przygodę z językiem angielskim?">To co, zaczynamy przygodę z językiem angielskim?</span> 🩷</p>
     <div class="eg-search-wrap">
       <svg class="eg-search-icon" width="17" height="17" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="11" cy="11" r="7" stroke="#5a5568" stroke-width="2"/><line x1="16.5" y1="16.5" x2="21" y2="21" stroke="#5a5568" stroke-width="2" stroke-linecap="round"/></svg>
       <input type="text" id="egSearch" class="eg-search" placeholder="Wyszukaj zadanie po nazwie" data-i18n-ph="Wyszukaj zadanie po nazwie" autocomplete="off">
@@ -1081,11 +1081,11 @@
   <footer class="eg-footer">
     <a href="https://easygo-english.pl/" class="eg-footer-home">EasyGo English</a>
     <div class="eg-footer-contact">
-      <a href="https://easygo-english.pl/kontakt/" class="eg-contact-btn">Kontakt</a>
-      <p class="eg-footer-report">Coś nie działa? Zgłoś problem na <a href="mailto:info@easygo-english.pl">info@easygo-english.pl</a></p>
+      <a href="https://easygo-english.pl/kontakt/" class="eg-contact-btn" data-i18n="Kontakt">Kontakt</a>
+      <p class="eg-footer-report"><span data-i18n="Coś nie działa? Zgłoś problem na">Coś nie działa? Zgłoś problem na</span> <a href="mailto:info@easygo-english.pl">info@easygo-english.pl</a></p>
     </div>
     <div class="eg-footer-links">
-      <a href="https://easygo-english.pl/regulamin-sklepu/">Regulamin</a>
+      <a href="https://easygo-english.pl/regulamin-sklepu/" data-i18n="Regulamin">Regulamin</a>
       <span>·</span>
       <a href="https://easygo-english.pl/polityka-prywatnosci/" data-i18n="Polityka prywatności">Polityka prywatności</a>
     </div>
@@ -1406,7 +1406,24 @@
         : (g.category === 'reading' || g.template === 'reading') ? 'reading'
         : (g.category === 'listening' || g.template === 'listening') ? 'listening'
         : 'słownictwo';
-      var count = g.slide_count_label || '';
+      var count = (function(lbl){
+        if(!lbl) return '';
+        if(window.EG_LANG !== 'en') return lbl;
+        // tłumaczenie licznika z bazy w locie: "5 pytań" -> "5 questions"
+        var m = String(lbl).match(/^(\d+)\s*(.+)$/);
+        if(!m) return lbl;
+        var n = m[1], word = m[2].trim();
+        var map = {
+          'pytań': 'questions', 'pytania': 'questions', 'pytanie': 'question',
+          'zdań': 'sentences', 'zdania': 'sentences', 'zdanie': 'sentence',
+          'slajdów': 'slides', 'slajdy': 'slides', 'slajd': 'slide',
+          'zadań': 'exercises', 'zadania': 'exercises', 'zadanie': 'exercise'
+        };
+        var en = map[word];
+        if(!en) return lbl;                 // nieznane słowo — zostaw oryginał
+        if(n === '1') en = en.replace(/s$/, ''); // 1 question, nie questions
+        return n + ' ' + en;
+      })(g.slide_count_label);
       var lvl = g.level ? esc(g.level) : '';
       // typ ćwiczenia jako kolorowa plakietka z ikonką (nie dublujemy go w meta)
       var typeIcons = {
@@ -2124,6 +2141,11 @@
     'CZYTAJ': 'READ',
     'Brak ćwiczeń w wybranym zakresie': 'No exercises in this range',
     'Polityka prywatności': 'Privacy policy',
+    'Kontakt': 'Contact',
+    'Coś nie działa? Zgłoś problem na': 'Something not working? Report it at',
+    'Regulamin': 'Terms & conditions',
+    'Miejsce, które otwiera drzwi.': 'Where doors open.',
+    'To co, zaczynamy przygodę z językiem angielskim?': 'Ready to start your English adventure?',
     'pokaż wszystkie zadania': 'show all exercises',
     'Spodobały Ci się? Wykup dostęp i odblokuj wszystkie — bez ograniczeń.':
       'Like them? Get access and unlock everything — no limits.',
