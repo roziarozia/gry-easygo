@@ -1,3 +1,4 @@
+<meta charset="utf-8">
 <!-- ============================================================
      EASYGO — STRONA GRY! (katalog dynamiczny)
      Wklej CAŁOŚĆ do widgetu "HTML" w Elementorze na stronie /gry/.
@@ -1014,7 +1015,7 @@
   <main class="eg-wrap">
     <div class="eg-series-banner" id="egSeriesBanner" style="display:none">
       <span class="eg-series-name"></span>
-      <button type="button" id="egSeriesBack" class="eg-series-back">✕ pokaż wszystkie zadania</button>
+      <button type="button" id="egSeriesBack" class="eg-series-back" data-i18n-html="showall">✕ pokaż wszystkie zadania</button>
     </div>
     <div class="eg-state" id="egState">Wczytywanie gier…</div>
     <div class="eg-promo" id="egPromo" style="display:none">
@@ -1086,7 +1087,7 @@
     <div class="eg-footer-links">
       <a href="https://easygo-english.pl/regulamin-sklepu/">Regulamin</a>
       <span>·</span>
-      <a href="https://easygo-english.pl/polityka-prywatnosci/">Polityka prywatności</a>
+      <a href="https://easygo-english.pl/polityka-prywatnosci/" data-i18n="Polityka prywatności">Polityka prywatności</a>
     </div>
   </footer>
 
@@ -1244,12 +1245,12 @@
     applyProgressVisibility();
 
     if(!available){
-      document.getElementById('egProgressCount').innerHTML = 'Brak ćwiczeń w wybranym zakresie';
+      document.getElementById('egProgressCount').innerHTML = t('Brak ćwiczeń w wybranym zakresie');
       document.getElementById('egProgressFill').style.width = '0%';
       document.getElementById('egProgressFill').innerHTML = '';
     } else {
       var pct = Math.min(100, Math.round(doneCount / available * 100));
-      document.getElementById('egProgressCount').innerHTML = 'Ukończono <strong>' + doneCount + '</strong> z ' + available + ' ćwiczeń';
+      document.getElementById('egProgressCount').innerHTML = (window.EG_LANG==='en' ? 'Completed <strong>' + doneCount + '</strong> of ' + available + ' exercises' : 'Ukończono <strong>' + doneCount + '</strong> z ' + available + ' ćwiczeń');
       var fill = document.getElementById('egProgressFill');
       fill.style.width = pct + '%';
       fill.innerHTML = pct >= 12 ? '<span class="eg-progress-pct">' + pct + '%</span>' : '';
@@ -1463,12 +1464,12 @@
           '</div>'
         : '';
       var playLabel = (g.category === 'speaking' || g.template === 'speaking') ? "LET'S TALK"
-        : (g.category === 'reading' || g.template === 'reading') ? 'CZYTAJ'
-        : (g.category === 'listening' || g.template === 'listening') ? 'SŁUCHAJ'
-        : 'ĆWICZ';
+        : (g.category === 'reading' || g.template === 'reading') ? t('CZYTAJ')
+        : (g.category === 'listening' || g.template === 'listening') ? t('SŁUCHAJ')
+        : t('ĆWICZ');
       var playBtn = locked
         ? '<a class="eg-play eg-play-locked" href="' + ACCESS_URL + '">' +
-            '<svg viewBox="0 0 24 24" width="15" height="15" style="vertical-align:-2px;margin-right:6px"><path d="M12 2a5 5 0 0 0-5 5v3H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8a2 2 0 0 0-2-2h-1V7a5 5 0 0 0-5-5zm-3 5a3 3 0 0 1 6 0v3H9V7z" fill="currentColor"/></svg>Wykup dostęp</a>'
+            '<svg viewBox="0 0 24 24" width="15" height="15" style="vertical-align:-2px;margin-right:6px"><path d="M12 2a5 5 0 0 0-5 5v3H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8a2 2 0 0 0-2-2h-1V7a5 5 0 0 0-5-5zm-3 5a3 3 0 0 1 6 0v3H9V7z" fill="currentColor"/></svg>' + t('Wykup dostęp') + '</a>'
         : '<a class="eg-play" href="/cwiczenie/' + encodeURIComponent(g.slug) + '">' + playLabel + '</a>';
       // ikona domku dla pracy domowej (gdy lektor przypisał to ćwiczenie zalogowanemu uczniowi)
       var homework = homeworkSet[g.slug]
@@ -1701,7 +1702,7 @@
       var h = '';
       lvlBtns.forEach(function(b){
         var v = b.getAttribute('data-lvl');
-        var lab = (v === 'wszystkie') ? 'Wszystkie poziomy' : v;
+        var lab = (v === 'wszystkie') ? t('Wszystkie poziomy') : v;
         h += optHTML(lab, 'lvl', v);
       });
       panelLvl.innerHTML = h;
@@ -2117,6 +2118,14 @@
     'Oznacz jako zrobione': 'Mark as done',
     // inne
     'wkrótce': 'soon',
+    'ĆWICZ': 'PRACTICE',
+    'SŁUCHAJ': 'LISTEN',
+    'CZYTAJ': 'READ',
+    'Brak ćwiczeń w wybranym zakresie': 'No exercises in this range',
+    'Polityka prywatności': 'Privacy policy',
+    'pokaż wszystkie zadania': 'show all exercises',
+    'Spodobały Ci się? Wykup dostęp i odblokuj wszystkie — bez ograniczeń.':
+      'Like them? Get access and unlock everything — no limits.',
     'Wyszukaj zadanie po nazwie': 'Search exercises by name'
   };
 
@@ -2138,6 +2147,9 @@
     for(var j=0;j<phs.length;j++){
       phs[j].setAttribute('placeholder', window.t(phs[j].getAttribute('data-i18n-ph')));
     }
+    // 3) specjalny: "✕ pokaż wszystkie zadania" (ma znak ✕ + tekst)
+    var showAll = document.querySelector('[data-i18n-html="showall"]');
+    if(showAll){ showAll.textContent = '✕ ' + window.t('pokaż wszystkie zadania'); }
     // przycisk pokazuje język docelowy
     var lt = document.getElementById('egLangTxt');
     if(lt) lt.textContent = (window.EG_LANG === 'en') ? 'PL' : 'EN';
