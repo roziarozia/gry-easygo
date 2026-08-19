@@ -1444,7 +1444,9 @@ async function markCompleted(){
     SPEAKS = (GAME.speaking_prompts || []).slice().sort((a,b)=>a.position-b.position).map(s => s.text || '');
     READING = (GAME.reading_slides || []).slice().sort((a,b)=>a.position-b.position).map(r => ({
       body: r.body || '',
-      glossary: Array.isArray(r.glossary) ? r.glossary : []
+      glossary: Array.isArray(r.glossary) ? r.glossary : [],
+      position: r.position,
+      audio_path: r.audio_path || null
     }));
     LISTENING = (GAME.listening_lines || []).slice().sort((a,b)=>a.position-b.position).map(l => ({
       speaker: l.speaker || '', text: l.text || ''
@@ -2299,35 +2301,90 @@ function showReadingEnd(){
   document.querySelector('#end .end-title .underline').textContent = t('Świetna robota!');
   endSub.innerHTML = 'Zapraszam po więcej czytanek na różnych poziomach <span style="color:#ca4490">&#10084;</span>';
 }
-// głośniczek — czyta cały tekst slajdu (Web Speech API, jak w słówkach)
-document.getElementById('rSay').addEventListener('click', function(){
+// głośniczek — odtwarza ładny głos Google (plik nagrany per slajd).
+// Fallback: gdy slajd nie ma nagrania (stare czytanki), czyta głosem przeglądarki jak dawniej.
+var readingAudio = null;          // aktualny obiekt Audio (plik Google)
+var readingAudioCache = {};       // position -> podpisany URL (żeby nie pytać funkcji co klik)
+
+function resetSayBtn(){
+  var b = document.getElementById('rSay');
+  if(b) b.innerHTML = '<span aria-hidden="true">🔊</span> ' + (window.t ? window.t('Odsłuchaj') : 'Odsłuchaj');
+}
+function setSayBtnStop(){
+  var b = document.getElementById('rSay');
+  if(b) b.innerHTML = '<span aria-hidden="true">⏸</span> ' + (window.t ? window.t('Zatrzymaj') : 'Zatrzymaj');
+}
+
+// pobierz podpisany URL nagrania danego slajdu (z pamięcią podręczną)
+async function readingAudioUrl(slide){
+  if(!slide || !slide.audio_path) return null;
+  if(readingAudioCache[slide.position]) return readingAudioCache[slide.position];
+  try{
+    // zalogowany → przez klienta (dokłada token, płatne czytanki działają); gość → przez REST
+    if(typeof _db !== 'undefined' && _db && _db.functions){
+      var r = await _db.functions.invoke('reading-audio', { body: { game_id: GAME.id, position: slide.position } });
+      if(r && r.data && r.data.ok && r.data.url){ readingAudioCache[slide.position] = r.data.url; return r.data.url; }
+    }
+    var res = await fetch(SUPA_URL + '/functions/v1/reading-audio', {
+      method: 'POST',
+      headers: { apikey: SUPA_KEY, Authorization: 'Bearer ' + SUPA_KEY, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ game_id: GAME.id, position: slide.position })
+    });
+    var data = await res.json();
+    if(data && data.ok && data.url){ readingAudioCache[slide.position] = data.url; return data.url; }
+  }catch(e){}
+  return null;
+}
+
+// czytanie głosem przeglądarki (fallback dla slajdów bez nagrania)
+function readingSpeakFallback(slide, btn){
+  if(!window.speechSynthesis) return;
+  speechSynthesis.cancel();
+  var u = new SpeechSynthesisUtterance((slide.body || '').replace(/\n+/g, ' '));
+  u.lang = 'en-US';
+  var v = (typeof pickVoice === 'function') ? pickVoice('en') : null;
+  if(v) u.voice = v;
+  u.rate = 0.95;
+  u.onend = resetSayBtn;
+  setSayBtnStop();
+  speechSynthesis.speak(u);
+}
+
+document.getElementById('rSay').addEventListener('click', async function(){
   var btn = this;
   try{
-    // drugie kliknięcie w trakcie czytania → zatrzymaj
+    // drugie kliknięcie w trakcie → zatrzymaj (plik albo głos przeglądarki)
+    if(readingAudio && !readingAudio.paused){
+      readingAudio.pause(); readingAudio.currentTime = 0; readingAudio = null;
+      resetSayBtn(); return;
+    }
     if(window.speechSynthesis && speechSynthesis.speaking){
-      speechSynthesis.cancel();
-      btn.innerHTML = '<span aria-hidden="true">🔊</span> Odsłuchaj';
-      return;
+      speechSynthesis.cancel(); resetSayBtn(); return;
     }
     var slide = READING[rIdx];
-    if(!slide || !window.speechSynthesis) return;
-    speechSynthesis.cancel();
-    var u = new SpeechSynthesisUtterance((slide.body || '').replace(/\n+/g, ' '));
-    u.lang = 'en-US';
-    var v = pickVoice('en');   // ten sam ładny (damski) głos co w słówkach
-    if(v) u.voice = v;
-    u.rate = 0.95;
-    // gdy skończy czytać (albo zostanie przerwane) → wróć do napisu „Odsłuchaj"
-    u.onend = function(){ btn.innerHTML = '<span aria-hidden="true">🔊</span> Odsłuchaj'; };
-    btn.innerHTML = '<span aria-hidden="true">⏸</span> Zatrzymaj';
-    speechSynthesis.speak(u);
+    if(!slide) return;
+
+    // spróbuj ładnego głosu Google (plik); jak brak nagrania → głos przeglądarki
+    if(slide.audio_path){
+      btn.innerHTML = '<span aria-hidden="true">⏳</span> …';
+      var url = await readingAudioUrl(slide);
+      if(url){
+        readingAudio = new Audio(url);
+        readingAudio.onended = function(){ readingAudio = null; resetSayBtn(); };
+        readingAudio.onerror = function(){ readingAudio = null; readingSpeakFallback(slide, btn); };
+        setSayBtnStop();
+        readingAudio.play().catch(function(){ readingAudio = null; readingSpeakFallback(slide, btn); });
+        return;
+      }
+    }
+    readingSpeakFallback(slide, btn);
   }catch(e){}
 });
-// przy zmianie slajdu zatrzymaj czytanie i zresetuj przycisk
+// przy zmianie slajdu zatrzymaj odtwarzanie (plik i głos przeglądarki) i zresetuj przycisk
 function stopReadingVoice(){
+  try{ if(readingAudio){ readingAudio.pause(); readingAudio = null; } }catch(e){}
   try{ if(window.speechSynthesis) speechSynthesis.cancel(); }catch(e){}
-  var b = document.getElementById('rSay');
-  if(b) b.innerHTML = '<span aria-hidden="true">🔊</span> Odsłuchaj';
+  resetSayBtn();
 }
 document.getElementById('rNext').addEventListener('click', function(){ stopReadingVoice(); nextReading(); });
 document.getElementById('rPrev').addEventListener('click', function(){ stopReadingVoice(); prevReading(); });
