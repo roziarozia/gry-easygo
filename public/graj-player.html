@@ -1477,7 +1477,7 @@ async function markCompleted(){
        : GAME.category === 'listening' ? 'Listening'
        : t('Słownictwo'));
     document.getElementById('cTitle').textContent = GAME.title;
-    document.getElementById('cSub').textContent = t((GAME.description || '').split('||')[0].trim());
+    document.getElementById('cSub').textContent = t((GAME.description || '').trim());
     document.getElementById('wordCount').textContent = SLIDES.length;
 
     // Ile treści faktycznie wróciło (wg typu zadania). Dla gościa bez dostępu
@@ -1523,7 +1523,7 @@ async function markCompleted(){
       // Ćwiczenia, których opis ma "||" (polecenie na dwa tryby) używają nazwy
       // "Z formą angielską" zamiast domyślnej "Z bezokolicznikiem" — bo tam podpowiedzią
       // bywa przymiotnik (np. comfortable), nie bezokolicznik czasownika.
-      if((GAME.description || '').indexOf('||') !== -1){
+      if((GAME.instruction || '').indexOf('||') !== -1){
         btnBase.textContent = t('Z formą angielską');
       }
 
@@ -2112,11 +2112,14 @@ function renderGap(){
   // ćwiczenia, których opis to hasło z okładki, NIE dostają paska na slajdach.
   var task = document.getElementById('gapTask');
   if(task){
-    var opis = (GAME.description || '').trim();
+    var opis = (GAME.instruction || '').trim();
     if(opis.indexOf('||') !== -1){
       var czesci = opis.split('||');
       opis = (gapMode === 'pl' ? (czesci[1] || czesci[0]) : czesci[0]).trim();
       task.textContent = t(opis);   // t() tłumaczy na EN gdy język = en (polecenie w słowniku)
+      task.classList.remove('hidden');
+    } else if(opis){
+      task.textContent = t(opis);
       task.classList.remove('hidden');
     } else {
       task.classList.add('hidden');
