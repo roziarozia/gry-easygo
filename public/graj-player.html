@@ -1397,7 +1397,7 @@ let coverHasImage = false;
 let currentSlug = null; // slug bieżącego ćwiczenia — do zapisu ukończenia
 
 /* zapisuje ukończenie ćwiczenia (Wariant B) — tylko dla zalogowanego ucznia */
-async function markCompleted(){
+async function markCompleted(score, scoreMax){
   if(!_db || !currentSlug) return;
   try{
     const r = await _db.auth.getSession();
@@ -1405,9 +1405,13 @@ async function markCompleted(){
     if(!session) return; // niezalogowany gość nie zapisuje postępów
     // uczeń faktycznie przeszedł ćwiczenie — zapisz jako 'self' (nadpisuje ewentualne zaliczenie lektora,
     // bo prawdziwe ukończenie przez ucznia ma pierwszeństwo)
+    // wynik (score/scoreMax) zapisujemy tylko dla ćwiczeń punktowanych; ostatnie podejście nadpisuje poprzednie
+    const row = { user_id: session.user.id, game_slug: currentSlug, source: 'self', marked_by: null, completed_at: new Date().toISOString() };
+    if(typeof score === 'number' && typeof scoreMax === 'number' && scoreMax > 0){
+      row.score = score; row.score_max = scoreMax;
+    }
     await _db.from('game_completions')
-      .upsert({ user_id: session.user.id, game_slug: currentSlug, source: 'self', marked_by: null, completed_at: new Date().toISOString() },
-              { onConflict: 'user_id,game_slug' });
+      .upsert(row, { onConflict: 'user_id,game_slug' });
   }catch(e){}
 }
 
@@ -1814,7 +1818,7 @@ function prevType(){
 function finish(){
   show(end);
   progressBar.style.width = '100%';
-  markCompleted();
+  if(mode === 'type'){ markCompleted(scoreCount, SLIDES.length); } else { markCompleted(); }
   if(mode === 'type'){
     scoreEl.textContent = t('Twój wynik: ') + scoreCount + ' / ' + SLIDES.length;
     scoreEl.classList.remove('hidden');
@@ -1933,7 +1937,7 @@ function nextQuestion(){
 function finishQuiz(){
   frame.className = frame.className.replace(/\bbg-\S+/g,'').trim();
   show(end);
-  markCompleted();
+  markCompleted(qScore, QUESTIONS.length);
   scoreEl.textContent = t('Twój wynik: ') + qScore + ' / ' + QUESTIONS.length;
   scoreEl.classList.remove('hidden');
   document.querySelector('#end .end-title .underline').textContent =
@@ -2059,7 +2063,7 @@ function sprawdzListening(){
   document.getElementById('lsScriptBtn').style.display = LISTENING.length ? '' : 'none';
   document.getElementById('lsEnd').classList.remove('hidden');
   document.getElementById('lsEnd').scrollIntoView({ behavior:'smooth', block:'nearest' });
-  markCompleted();
+  markCompleted(punkty, QUESTIONS.length);
 }
 
 document.getElementById('lsCheckBtn').addEventListener('click', sprawdzListening);
