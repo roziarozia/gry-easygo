@@ -84,6 +84,7 @@
   html.eg-dark .q-progress,
   html.eg-dark .word-count,
   html.eg-dark .slide-hint{ background:rgba(45,47,71,.92) !important; color:var(--ink) !important; }
+  html.eg-dark .gap-task{ background:rgba(104,133,219,.20); }
   /* .say (głośniczek) i .dial (AmE/BrE) NIE należą do listy wyżej: siedzą wyłącznie
      na ZŁOTYM pasku odpowiedzi, który w trybie ciemnym się nie zmienia. Przyciemnianie
      ich robiło brzydkie granatowe plamy na złocie — biały tekst na złocie jest czytelny
@@ -642,6 +643,18 @@
     padding:56px 28px 30px;
     text-align:center;
   }
+  .gap-task{
+    font-family:'Nunito',sans-serif;
+    font-weight:700;
+    font-size:clamp(13px,1.8vw,15px);
+    line-height:1.45;
+    color:var(--violet);
+    max-width:620px;
+    margin:0 auto 14px;
+    padding:8px 16px;
+    background:rgba(104,133,219,.10);
+    border-radius:12px;
+  }
   .q-prompt{
     font-family:'Quicksand',sans-serif;
     font-weight:700;
@@ -1067,6 +1080,9 @@
     'Wybierz tryb': 'Choose mode',
     'Z tłumaczeniem': 'With translation',
     'Z bezokolicznikiem': 'With base form',
+    'Z formą angielską': 'With English form',
+    'Utwórz przeciwieństwo słowa z nawiasu, dodając właściwy przedrostek przeczący.': 'Form the opposite of the word in brackets by adding the correct negative prefix.',
+    'Wpisz w lukę angielski odpowiednik słowa z nawiasu.': 'Type the English equivalent of the word in brackets.',
     'Wpisuję słówka': 'Type the words',
     'Pokazuj odpowiedzi': 'Show answers',
     'Słuchaj': 'Listen',
@@ -1236,6 +1252,7 @@
     <section id="gap" class="hidden">
       <div class="q-bar-track"><div class="q-bar" id="gBar"></div></div>
       <span class="q-progress" id="gProgress"></span>
+      <div class="gap-task hidden" id="gapTask"></div>
       <div class="q-prompt" id="gPrompt"></div>
       <div class="gap-input-row">
         <input id="gapInput" type="text" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="Wpisz brakujące słowo">
@@ -1460,7 +1477,7 @@ async function markCompleted(){
        : GAME.category === 'listening' ? 'Listening'
        : t('Słownictwo'));
     document.getElementById('cTitle').textContent = GAME.title;
-    document.getElementById('cSub').textContent = GAME.description || '';
+    document.getElementById('cSub').textContent = t((GAME.description || '').split('||')[0].trim());
     document.getElementById('wordCount').textContent = SLIDES.length;
 
     // Ile treści faktycznie wróciło (wg typu zadania). Dla gościa bez dostępu
@@ -1502,6 +1519,13 @@ async function markCompleted(){
       var btnPl   = document.getElementById('startGapPlBtn');
       var btnBase = document.getElementById('startGapBaseBtn');
       var etykieta = document.querySelector('#coverGap .mode-label');
+
+      // Ćwiczenia, których opis ma "||" (polecenie na dwa tryby) używają nazwy
+      // "Z formą angielską" zamiast domyślnej "Z bezokolicznikiem" — bo tam podpowiedzią
+      // bywa przymiotnik (np. comfortable), nie bezokolicznik czasownika.
+      if((GAME.description || '').indexOf('||') !== -1){
+        btnBase.textContent = t('Z formą angielską');
+      }
 
       btnPl.style.display   = maPl   ? '' : 'none';
       btnBase.style.display = maBase ? '' : 'none';
@@ -2083,6 +2107,21 @@ function startGap(m){
 function renderGap(){
   const item = GAPS[gIndex];
   const given = gGiven[gIndex];
+  // polecenie ćwiczenia — pasek pokazuje się TYLKO gdy opis ma rozdzielnik "||"
+  // (czyli został celowo napisany jako polecenie na dwa tryby). Dzięki temu istniejące
+  // ćwiczenia, których opis to hasło z okładki, NIE dostają paska na slajdach.
+  var task = document.getElementById('gapTask');
+  if(task){
+    var opis = (GAME.description || '').trim();
+    if(opis.indexOf('||') !== -1){
+      var czesci = opis.split('||');
+      opis = (gapMode === 'pl' ? (czesci[1] || czesci[0]) : czesci[0]).trim();
+      task.textContent = t(opis);   // t() tłumaczy na EN gdy język = en (polecenie w słowniku)
+      task.classList.remove('hidden');
+    } else {
+      task.classList.add('hidden');
+    }
+  }
   gAnswered = (given !== null && given !== undefined);
   frame.className = frame.className.replace(/\bbg-\S+/g,'').trim();
   frame.classList.add('bg-' + (GAME.bg || 'mint'));
