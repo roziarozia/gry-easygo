@@ -1080,6 +1080,7 @@
     'Wybierz tryb': 'Choose mode',
     'Z tłumaczeniem': 'With translation',
     'Z bezokolicznikiem': 'With base form',
+    'Wpisz brakujące słowo': 'Type the missing word',
     'Z formą angielską': 'With English form',
     'Utwórz przeciwieństwo słowa z nawiasu, dodając właściwy przedrostek przeczący.': 'Form the opposite of the word in brackets by adding the correct negative prefix.',
     'Wpisz w lukę angielski odpowiednik słowa z nawiasu.': 'Type the English equivalent of the word in brackets.',
@@ -1130,6 +1131,11 @@
     for(var i=0;i<els.length;i++){
       var key = els[i].getAttribute('data-i18n');
       els[i].textContent = window.t(key);
+    }
+    // placeholdery z [data-i18n-ph]
+    var phs = document.querySelectorAll('[data-i18n-ph]');
+    for(var pi=0;pi<phs.length;pi++){
+      phs[pi].setAttribute('placeholder', window.t(phs[pi].getAttribute('data-i18n-ph')));
     }
     // przycisk pokazuje język, NA KTÓRY przełączy (odwrotność aktualnego)
     var lt = document.getElementById('grajLangTxt');
@@ -1255,7 +1261,7 @@
       <div class="gap-task hidden" id="gapTask"></div>
       <div class="q-prompt" id="gPrompt"></div>
       <div class="gap-input-row">
-        <input id="gapInput" type="text" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="Wpisz brakujące słowo">
+        <input id="gapInput" type="text" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="Wpisz brakujące słowo" data-i18n-ph="Wpisz brakujące słowo">
         <button class="btn" id="gCheckBtn" data-i18n="Sprawdź">Sprawdź</button>
       </div>
       <div class="q-explain hidden" id="gExplain"></div>
@@ -2156,9 +2162,14 @@ function showGapAnswered(typed){
     html += '<div style="margin-top:16px;font-size:21px">Poprawnie: <span class="gap-answer">' + escapeHtml(item.answers[0]) + '</span></div>';
   }
   gPrompt.innerHTML = html;
-  // wyjaśnienie odpowiedzi (jak w quizie)
+  // wyjaśnienie odpowiedzi (jak w quizie); może być dwujęzyczne: "polski||English"
   if(item.explanation){
-    gExplain.innerHTML = '<b>' + (ok ? t('Dobrze! ') : t('Wyjaśnienie: ')) + '</b>' + escapeHtml(item.explanation);
+    var wyj = item.explanation;
+    if(wyj.indexOf('||') !== -1){
+      var ww = wyj.split('||');
+      wyj = (window.EG_LANG === 'en' ? (ww[1] || ww[0]) : ww[0]).trim();
+    }
+    gExplain.innerHTML = '<b>' + (ok ? t('Dobrze! ') : t('Wyjaśnienie: ')) + '</b>' + escapeHtml(wyj);
     gExplain.classList.remove('hidden');
   } else {
     gExplain.classList.add('hidden');
