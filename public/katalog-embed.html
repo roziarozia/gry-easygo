@@ -1548,13 +1548,13 @@
     saveFilters();   // zapamiętaj wybory, żeby przetrwały odświeżenie / cofnięcie
     state.style.display = list.length ? 'none' : 'block';
     if(!list.length){
-      if(curStatus === 'ulubione') state.textContent = 'Nie masz jeszcze ulubionych zadań. Kliknij serduszko na zadaniu, żeby zapisać je na później.';
-      else if(curStatus === 'domowa') state.textContent = 'Nie masz zadanej pracy domowej. Gdy lektor przypisze Ci zadania, pojawią się tutaj.';
-      else if(curStatus === 'darmowe') state.textContent = 'Brak darmowych ćwiczeń dla wybranych filtrów.';
-      else if(curStatus === 'platne') state.textContent = 'Brak ćwiczeń dla subskrybentów w tych filtrach.';
-      else if(curStatus === 'zrobione') state.textContent = 'Nie masz jeszcze ukończonych ćwiczeń. Rozwiąż dowolne zadanie do końca, a pojawi się tutaj.';
-      else if(curStatus === 'niezrobione') state.textContent = 'Świetnie! Ukończyłeś już wszystkie dostępne ćwiczenia w tych filtrach.';
-      else state.textContent = 'Brak gier dla wybranych filtrów.';
+      if(curStatus === 'ulubione') state.textContent = t('Nie masz jeszcze ulubionych zadań. Kliknij serduszko na zadaniu, żeby zapisać je na później.');
+      else if(curStatus === 'domowa') state.textContent = t('Nie masz zadanej pracy domowej. Gdy lektor przypisze Ci zadania, pojawią się tutaj.');
+      else if(curStatus === 'darmowe') state.textContent = t('Brak darmowych ćwiczeń dla wybranych filtrów.');
+      else if(curStatus === 'platne') state.textContent = t('Brak ćwiczeń dla subskrybentów w tych filtrach.');
+      else if(curStatus === 'zrobione') state.textContent = t('Nie masz jeszcze ukończonych ćwiczeń. Rozwiąż dowolne zadanie do końca, a pojawi się tutaj.');
+      else if(curStatus === 'niezrobione') state.textContent = t('Świetnie! Ukończyłeś już wszystkie dostępne ćwiczenia w tych filtrach.');
+      else state.textContent = t('Brak gier dla wybranych filtrów.');
     }
   }
 
@@ -1995,7 +1995,7 @@
     loadHomework();
   })
   .catch(function(){
-    state.textContent = 'Nie udało się wczytać gier. Odśwież stronę.';
+    state.textContent = t('Nie udało się wczytać gier. Odśwież stronę.');
   });
 
   // praca domowa: pobierz przypisania zalogowanego ucznia, dodaj domki
@@ -2199,6 +2199,14 @@
     'Zmień język interfejsu': 'Change interface language',
     'Strony ćwiczeń': 'Exercise pages',
     'Pracuję nad kolejnym zadaniem — zajrzyj tu niedługo!': "I'm working on the next exercise — check back soon!",
+    'Nie masz jeszcze ulubionych zadań. Kliknij serduszko na zadaniu, żeby zapisać je na później.': "You don\u2019t have any favorites yet. Tap the heart on an exercise to save it for later.",
+    'Nie masz zadanej pracy domowej. Gdy lektor przypisze Ci zadania, pojawią się tutaj.': "You don\u2019t have any homework. When your teacher assigns exercises, they\u2019ll show up here.",
+    'Brak darmowych ćwiczeń dla wybranych filtrów.': 'No free exercises match the selected filters.',
+    'Brak ćwiczeń dla subskrybentów w tych filtrach.': 'No subscriber exercises match these filters.',
+    'Nie masz jeszcze ukończonych ćwiczeń. Rozwiąż dowolne zadanie do końca, a pojawi się tutaj.': "You haven\u2019t completed any exercises yet. Finish any exercise and it\u2019ll show up here.",
+    'Świetnie! Ukończyłeś już wszystkie dostępne ćwiczenia w tych filtrach.': "Great! You\u2019ve completed all available exercises in these filters.",
+    'Brak gier dla wybranych filtrów.': 'No exercises match the selected filters.',
+    'Nie udało się wczytać gier. Odśwież stronę.': 'Couldn\u2019t load the exercises. Please refresh the page.',
     'Wykup dostęp': 'Get access',
     'zobacz całą serię': 'see full series',
     'wszystkich Twoich ćwiczeń': 'of all your exercises',

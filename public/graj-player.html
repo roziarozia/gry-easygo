@@ -1105,6 +1105,12 @@
     'Znasz już ': 'You now know ',
     ' nowych słówek.': ' new words.',
     'Wykup dostęp': 'Get access',
+    'Perfekcyjnie! Wszystkie słówka poprawnie.': 'Perfect! All words correct.',
+    'Zagraj jeszcze raz i popraw swój wynik.': 'Play again and improve your score.',
+    'Poprawnie: ': 'Correct answer: ',
+    'Zapraszam po więcej czytanek na różnych poziomach ': 'Come back for more readings at every level ',
+    'Nie udało się wczytać nagrania. Odśwież stronę.': 'Couldn\u2019t load the audio. Please refresh the page.',
+    'posłuchaj wymowy': 'listen to the pronunciation',
     'Zaloguj się': 'Log in',
     'To zadanie jest dla subskrybentów. Wykup dostęp, aby odblokować wszystkie ćwiczenia, albo zaloguj się, jeśli masz już subskrypcję.':
       'This exercise is for subscribers. Get access to unlock all exercises, or log in if you already have a subscription.',
@@ -1649,7 +1655,7 @@ function renderImage(item){
 const SAY_ICON = '<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 5 6 9H2v6h4l5 4z"/><path d="M15.5 8.5a5 5 0 0 1 0 7"/><path d="M18.5 5.5a9 9 0 0 1 0 13"/></svg>';
 
 function sayBtn(text, lang){
-  return '<button class="say" data-say="' + text.replace(/"/g,'') + '" data-lang="' + lang + '" title="posłuchaj wymowy" aria-label="posłuchaj wymowy">' + SAY_ICON + '</button>';
+  return '<button class="say" data-say="' + text.replace(/"/g,'') + '" data-lang="' + lang + '" title="' + t('posłuchaj wymowy') + '" aria-label="' + t('posłuchaj wymowy') + '">' + SAY_ICON + '</button>';
 }
 
 function answerHTML(item){
@@ -1813,8 +1819,8 @@ function finish(){
     scoreEl.textContent = t('Twój wynik: ') + scoreCount + ' / ' + SLIDES.length;
     scoreEl.classList.remove('hidden');
     endSub.textContent = scoreCount === SLIDES.length
-      ? 'Perfekcyjnie! Wszystkie słówka poprawnie.'
-      : 'Zagraj jeszcze raz i popraw swój wynik.';
+      ? t('Perfekcyjnie! Wszystkie słówka poprawnie.')
+      : t('Zagraj jeszcze raz i popraw swój wynik.');
   }else{
     scoreEl.classList.add('hidden');
     endSub.textContent = t('Znasz już ') + SLIDES.length + t(' nowych słówek.');
@@ -1889,7 +1895,7 @@ function showAnswered(picked){
     if(i === picked && picked !== q.correct) b.classList.add('wrong');
   });
   if(q.explanation){
-    qExplain.innerHTML = '<b>' + (picked === q.correct ? t('Dobrze! ') : 'Poprawnie: ' + escapeHtml(q.options[q.correct]) + '. ') + '</b>' + escapeHtml(q.explanation);
+    qExplain.innerHTML = '<b>' + (picked === q.correct ? t('Dobrze! ') : t('Poprawnie: ') + escapeHtml(q.options[q.correct]) + '. ') + '</b>' + escapeHtml(q.explanation);
     qExplain.classList.remove('hidden');
   }
   qBar.style.width = ((qIndex + 1) / QUESTIONS.length * 100) + '%';
@@ -1974,7 +1980,7 @@ function startListening(){
         audio.classList.remove('hidden');
         document.getElementById('lsErr').textContent = '';
       }else{
-        document.getElementById('lsErr').textContent = 'Nie udało się wczytać nagrania. Odśwież stronę.';
+        document.getElementById('lsErr').textContent = t('Nie udało się wczytać nagrania. Odśwież stronę.');
       }
     });
   }else{
@@ -1983,10 +1989,10 @@ function startListening(){
   document.getElementById('lsScript').classList.add('hidden');
   document.getElementById('lsEnd').classList.add('hidden');
   document.getElementById('lsActions').classList.remove('hidden');
-  document.getElementById('lsScriptBtn').textContent = 'Zobacz transkrypcję';
+  document.getElementById('lsScriptBtn').textContent = t('Zobacz transkrypcję');
   document.getElementById('lsErr').textContent = '';
   const btn = document.getElementById('lsCheckBtn');
-  btn.textContent = 'Sprawdź odpowiedzi';
+  btn.textContent = t('Sprawdź odpowiedzi');
   btn.disabled = false;
 
   const box = document.getElementById('lsQuestions');
@@ -2355,7 +2361,7 @@ function prevReading(){ if(rIdx > 0){ rIdx--; renderReading(); } }
 function showReadingEnd(){
   document.getElementById('score').classList.add('hidden');
   document.querySelector('#end .end-title .underline').textContent = t('Świetna robota!');
-  endSub.innerHTML = 'Zapraszam po więcej czytanek na różnych poziomach <span style="color:#ca4490">&#10084;</span>';
+  endSub.innerHTML = t('Zapraszam po więcej czytanek na różnych poziomach ') + '<span style="color:#ca4490">&#10084;</span>';
 }
 // głośniczek — odtwarza ładny głos Google (plik nagrany per slajd).
 // Fallback: gdy slajd nie ma nagrania (stare czytanki), czyta głosem przeglądarki jak dawniej.
