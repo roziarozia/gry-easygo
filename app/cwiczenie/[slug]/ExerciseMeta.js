@@ -18,15 +18,17 @@ export default function ExerciseMeta({ slideCountLabel, level, category }) {
   const en = lang === 'en';
 
   // "15 zdań" → "15 sentences", "10 pytań" → "10 questions", "4 slajdy"/"20 slajdów" → "... slides"
+  // Bez \b — granica słowa w JS nie działa poprawnie z polskimi znakami (ń, ó); te słowa
+  // są jednoznaczne, więc prosta zamiana wystarcza.
   function tłumaczLicznik(label) {
     if (!label) return '';
     if (!en) return label;
     return label
-      .replace(/\bzdań\b/g, 'sentences')
-      .replace(/\bpytań\b/g, 'questions')
-      .replace(/\bslajdów\b/g, 'slides')
-      .replace(/\bslajdy\b/g, 'slides')
-      .replace(/\bslajd\b/g, 'slide');
+      .replace(/zdań/g, 'sentences')
+      .replace(/pytań/g, 'questions')
+      .replace(/slajdów/g, 'slides')
+      .replace(/slajdy/g, 'slides')
+      .replace(/slajd/g, 'slide');
   }
 
   const CAT_PL = { gramatyka: 'Gramatyka', slownictwo: 'Słownictwo', speaking: 'Speaking', reading: 'Reading', listening: 'Listening' };
