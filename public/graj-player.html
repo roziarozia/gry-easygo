@@ -1150,6 +1150,9 @@
       b.addEventListener('click', function(){
         window.EG_LANG = (window.EG_LANG === 'en') ? 'pl' : 'en';
         try{ localStorage.setItem('easygo_lang', window.EG_LANG); }catch(e){}
+        // Powiadom stronę-rodzica o zmianie języka (jak przy motywie egTheme),
+        // żeby etykiety renderowane poza iframe (ExerciseMeta) też się przełączyły.
+        try{ if(window.parent && window.parent !== window){ window.parent.postMessage({ egLang: window.EG_LANG }, '*'); } }catch(e){}
         // Przeładowanie gwarantuje, że WSZYSTKIE teksty (także te generowane
         // dynamicznie w trakcie gry) będą spójne w nowym języku. Postęp w grze
         // i tak zaczyna się od okładki, więc przeładowanie nie gubi nic ważnego.
