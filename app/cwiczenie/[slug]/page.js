@@ -2,6 +2,7 @@ import { getGameBySlug, getPublishedGames } from '../../../lib/supabase';
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
 import GameEmbed from './GameEmbed';
+import ExerciseMeta from './ExerciseMeta';
 
 export async function generateStaticParams() {
   const games = await getPublishedGames();
@@ -131,17 +132,15 @@ export default async function CwiczeniePage({ params }) {
                   <strong style={{ color: 'var(--eg-ink)' }}>Czego się nauczysz:</strong> {kwPolskie}.
                 </p>
               )}
-              <p style={{ fontSize: 13.5, color: 'var(--eg-muted)', margin: '0 0 20px', letterSpacing: '.2px' }}>
-                {[game.slide_count_label, game.level ? `poziom ${game.level}` : '', catLabel]
-                  .filter(Boolean).join(' · ')}
-              </p>
             </>
           );
         })()}
 
-        <Link href="/" style={{ color: 'var(--eg-magenta)', fontWeight: 700, textDecoration: 'none', fontSize: 15 }}>
-          ← Zobacz wszystkie ćwiczenia
-        </Link>
+        <ExerciseMeta
+          slideCountLabel={game.slide_count_label}
+          level={game.level}
+          category={game.category}
+        />
       </section>
     </div>
   );
