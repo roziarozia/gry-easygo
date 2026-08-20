@@ -10,9 +10,20 @@ export default function ExerciseMeta({ slideCountLabel, level, category }) {
   const [lang, setLang] = useState('pl');
 
   useEffect(() => {
+    // Język na starcie z localStorage.
     try {
       if (localStorage.getItem('easygo_lang') === 'en') setLang('en');
     } catch (err) {}
+
+    // Gracz (w iframe) po przełączeniu języka wysyła postMessage({egLang}) — przełącz
+    // etykiety na żywo, bo strona-rodzic się nie przeładowuje (jak przy motywie w GameEmbed).
+    function onMsg(e) {
+      if (e.data && (e.data.egLang === 'en' || e.data.egLang === 'pl')) {
+        setLang(e.data.egLang);
+      }
+    }
+    window.addEventListener('message', onMsg);
+    return () => window.removeEventListener('message', onMsg);
   }, []);
 
   const en = lang === 'en';
