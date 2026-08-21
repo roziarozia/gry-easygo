@@ -1924,18 +1924,22 @@
   // Czytany przy starcie przez applyUrlFilters — działa niezależnie od localStorage.
   function saveFiltersToURL(){
     if(_egRestoring) return;
+    var obj = {};
     try{
       var p = new URLSearchParams(window.location.search);
       // wyczyść stare wpisy filtrów, zostaw resztę parametrów (np. utm)
       ['kategoria','status','poziom','sort','szukaj'].forEach(function(k){ p.delete(k); });
-      if(curType && curType !== 'wszystkie') p.set('kategoria', curType);
-      if(curStatus && curStatus !== 'wszystkie') p.set('status', curStatus);
-      if(curLvls && curLvls.length) p.set('poziom', curLvls.join(','));
-      if(curSort && curSort !== 'default') p.set('sort', curSort);
-      if(curSearch) p.set('szukaj', curSearch);
+      if(curType && curType !== 'wszystkie'){ p.set('kategoria', curType); obj.kategoria = curType; }
+      if(curStatus && curStatus !== 'wszystkie'){ p.set('status', curStatus); obj.status = curStatus; }
+      if(curLvls && curLvls.length){ p.set('poziom', curLvls.join(',')); obj.poziom = curLvls.join(','); }
+      if(curSort && curSort !== 'default'){ p.set('sort', curSort); obj.sort = curSort; }
+      if(curSearch){ p.set('szukaj', curSearch); obj.szukaj = curSearch; }
       var qs = p.toString();
       history.replaceState(null, '', window.location.pathname + (qs ? '?' + qs : '') + window.location.hash);
     }catch(e){}
+    // Wyślij filtry do strony nadrzędnej (gdy katalog jest w iframe) — rodzic zapisze je
+    // i po odświeżeniu wstawi z powrotem do src iframe. Bez tego iframe startuje od zera.
+    try{ if(window.parent && window.parent !== window){ window.parent.postMessage({ egFilters: obj }, '*'); } }catch(e){}
   }
   function restoreFilters(){
     var s;
