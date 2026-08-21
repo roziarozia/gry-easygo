@@ -1648,6 +1648,7 @@
   filters.addEventListener('click', function(e){
     var btn = e.target.closest('button');
     if(!btn) return;
+    _egUserInteracted = true;
     var cat = btn.getAttribute('data-cat');
     if(cat === 'wszystkie'){
       // reset obu osi
@@ -1679,6 +1680,7 @@
   levels.addEventListener('click', function(e){
     var btn = e.target.closest('button');
     if(!btn) return;
+    _egUserInteracted = true;
     var lvl = btn.getAttribute('data-lvl');
     if(lvl === 'wszystkie'){
       curLvls = [];                       // "Wszystkie poziomy" czyści wybór
@@ -1857,6 +1859,7 @@
     }
     updateSortColor();
     sortSelect.addEventListener('change', function(){
+      _egUserInteracted = true;
       curSort = sortSelect.value;
       updateSortColor();
       curPage = 1;
@@ -1910,6 +1913,7 @@
   // ===== ZAPAMIĘTYWANIE FILTRÓW (przetrwają odświeżenie i cofnięcie) =====
   var FILTERS_KEY = 'easygo_filtry';
   var _egRestoring = false;   // gdy true, saveFilters NIE zapisuje (żeby przywracanie nie nadpisało się pustym stanem z przedwczesnego render)
+  var _egUserInteracted = false;   // true dopiero po pierwszym realnym kliknięciu filtra — chroni zapamiętany wybór u rodzica przed startowym pustym stanem
   function saveFilters(){
     if(_egRestoring) return;   // nie zapisuj w trakcie przywracania
     try{
@@ -1924,6 +1928,7 @@
   // Czytany przy starcie przez applyUrlFilters — działa niezależnie od localStorage.
   function saveFiltersToURL(){
     if(_egRestoring) return;
+    if(!_egUserInteracted) return;   // nie wysyłaj/nie zapisuj DOPÓKI użytkownik nie kliknął filtra — inaczej startowy pusty stan skasowałby zapamiętany wybór u rodzica
     var obj = {};
     try{
       var p = new URLSearchParams(window.location.search);
@@ -2015,6 +2020,7 @@
   var searchInput = document.getElementById('egSearch');
   var searchClear = document.getElementById('egSearchClear');
   searchInput.addEventListener('input', function(){
+    _egUserInteracted = true;
     curSearch = searchInput.value;
     searchClear.style.display = curSearch ? 'flex' : 'none';
     curPage = 1;
