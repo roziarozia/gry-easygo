@@ -251,6 +251,7 @@
   }
   .eg-mobico{ display:inline-flex; align-items:center; color:var(--eg-magenta); flex-shrink:0; }
   .eg-mobico svg{ width:15px; height:15px; }
+  .eg-mobico img{ width:15px; height:15px; display:block; }
   .eg-mobopt.eg-sel{ background:#f3e2ef; }
   .eg-mobopt.eg-sel .eg-mobcheck{ opacity:1; }
   .eg-mobopt.eg-sel{ font-weight:700; }
@@ -1721,8 +1722,8 @@
     function iconOf(cat){
       var orig = filters.querySelector('button[data-cat="' + cat + '"]');
       if(!orig) return '';
-      var svg = orig.querySelector('svg');
-      return svg ? svg.outerHTML : '';
+      var ic = orig.querySelector('svg, img');   // miś "dla dzieci" to <img>, reszta to <svg>
+      return ic ? ic.outerHTML : '';
     }
 
     function buildMobPanels(){
