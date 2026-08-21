@@ -2003,6 +2003,11 @@
     }
     render();
     if(window._egBuildMob) window._egBuildMob();  // zbuduj pastylki telefonu (lustro filtrów)
+    // Po przywróceniu filtrów wymuś ponowną synchronizację mobilnego menu — inaczej
+    // na wąskim ekranie pastylka "Więcej" nie pokazuje, że przywrócony filtr (np. "Dla dzieci")
+    // jest aktywny (element licznika bywa jeszcze niegotowy w chwili pierwszego sync).
+    setTimeout(function(){ if(window._egSyncMob) window._egSyncMob(); }, 0);
+    setTimeout(function(){ if(window._egBuildMob) window._egBuildMob(); }, 200);
     // jeśli uczeń zalogowany — dociągnij jego pracę domową i pokaż domki
     loadHomework();
   })
