@@ -45,10 +45,24 @@ export default function CatalogEmbed() {
     try {
       const parent = new URLSearchParams(window.location.search);
       const pass = new URLSearchParams();
+      // 1) Filtry z adresu strony (np. wejście z linku ?poziom=A1) mają priorytet.
       const poziom = parent.get('poziom');
       const kategoria = parent.get('kategoria');
       if (poziom) pass.set('poziom', poziom);
       if (kategoria) pass.set('kategoria', kategoria);
+      // 2) Jeśli adres nie niesie filtrów, odtwórz ostatni wybór zapisany przez katalog
+      //    (katalog wysyła go do rodzica przez postMessage — patrz onMsg niżej).
+      //    Rodzic musi je wstawić do src iframe, bo po odświeżeniu iframe startuje od zera.
+      if (!poziom && !kategoria) {
+        try {
+          const saved = JSON.parse(localStorage.getItem('easygo_filtry_url') || 'null');
+          if (saved && typeof saved === 'object') {
+            ['poziom', 'kategoria', 'status', 'sort', 'szukaj'].forEach(function (k) {
+              if (saved[k]) pass.set(k, saved[k]);
+            });
+          }
+        } catch (e) {}
+      }
       const qs = pass.toString();
       setSrc('/katalog-embed.html' + (qs ? '?' + qs : ''));
     } catch (e) {}
@@ -69,6 +83,11 @@ export default function CatalogEmbed() {
     function onMsg(e) {
       if (e.data && typeof e.data.egCatalogHeight === 'number' && ref.current) {
         ref.current.style.height = Math.max(600, e.data.egCatalogHeight) + 'px';
+      }
+      // katalog (iframe) zmienił filtry → zapisz je u rodzica, żeby przetrwały odświeżenie
+      // (iframe po odświeżeniu startuje od zera; rodzic wstawi je z powrotem do src).
+      if (e.data && e.data.egFilters) {
+        try { localStorage.setItem('easygo_filtry_url', JSON.stringify(e.data.egFilters)); } catch (err) {}
       }
       // przejście z kafelka lub linku: katalog prosi rodzica o nawigację
       // katalog (w iframe) przełączył tryb → przełącz całą stronę
