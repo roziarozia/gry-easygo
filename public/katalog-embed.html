@@ -1382,7 +1382,7 @@
           return (a.title||'').localeCompare(b.title||'', 'pl');
         }
         if(curSort === 'newest'){
-          return (b.created_at||'').localeCompare(a.created_at||'');
+          return ((b.published_at||b.created_at)||'').localeCompare((a.published_at||a.created_at)||'');
         }
         return 0;
       });
@@ -2035,7 +2035,7 @@
     searchInput.focus();
   });
 
-  fetch(SUPA_URL + '/rest/v1/games?published=eq.true&select=slug,title,description,category,level,cover_url,slide_count_label,sort_order,exercise_no,keywords,series,is_premium,for_kids,created_at&order=sort_order.asc',
+  fetch(SUPA_URL + '/rest/v1/games?published=eq.true&select=slug,title,description,category,level,cover_url,slide_count_label,sort_order,exercise_no,keywords,series,is_premium,for_kids,created_at,published_at&order=sort_order.asc',
     { headers: { apikey: SUPA_KEY, Authorization: 'Bearer ' + SUPA_KEY } })
   .then(function(r){ return r.json(); })
   .then(function(rows){
