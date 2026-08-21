@@ -1986,7 +1986,7 @@
     searchInput.focus();
   });
 
-  fetch(SUPA_URL + '/rest/v1/games?published=eq.true&select=slug,title,description,category,level,cover_url,slide_count_label,sort_order,exercise_no,keywords,series,is_premium,created_at&order=sort_order.asc',
+  fetch(SUPA_URL + '/rest/v1/games?published=eq.true&select=slug,title,description,category,level,cover_url,slide_count_label,sort_order,exercise_no,keywords,series,is_premium,for_kids,created_at&order=sort_order.asc',
     { headers: { apikey: SUPA_KEY, Authorization: 'Bearer ' + SUPA_KEY } })
   .then(function(r){ return r.json(); })
   .then(function(rows){
