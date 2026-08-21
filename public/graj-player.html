@@ -705,6 +705,22 @@
     .speak-text{ text-align:center; font-size:22px; }
   }
   /* READING — czytanka */
+  .reading-img{
+    width:100%;
+    text-align:center;
+    flex:0 0 auto;      /* obrazek nie rozpycha się — tekst pod nim przewija się sam */
+    margin:0 auto 14px;
+  }
+  .reading-img img{
+    display:block;
+    margin:0 auto;
+    max-width:min(420px,100%);
+    max-height:34vh;    /* ogranicza wysokość, żeby tekst zawsze się zmieścił na slajdzie */
+    width:auto;
+    height:auto;
+    object-fit:contain;
+    border-radius:16px;
+  }
   .reading-text{
     width:100%;
     max-width:720px;
@@ -1301,6 +1317,7 @@
       <div style="text-align:center;width:100%">
         <button class="reading-say" id="rSay" title="Odsłuchaj tekst" aria-label="Odsłuchaj tekst"><span aria-hidden="true">🔊</span> Odsłuchaj</button>
       </div>
+      <div class="reading-img" id="readingImg" style="display:none"><img id="readingImgTag" alt=""></div>
       <div class="reading-text" id="readingText"></div>
       <div class="reading-hint" id="readingHint" data-i18n="Najedź lub kliknij podkreślone słowo, żeby zobaczyć tłumaczenie">Najedź lub kliknij podkreślone słowo, żeby zobaczyć tłumaczenie</div>
       <div class="nav" id="rNav">
@@ -1482,7 +1499,8 @@ async function markCompleted(score, scoreMax){
       body: r.body || '',
       glossary: Array.isArray(r.glossary) ? r.glossary : [],
       position: r.position,
-      audio_path: r.audio_path || null
+      audio_path: r.audio_path || null,
+      image_url: r.image_url || null
     }));
     LISTENING = (GAME.listening_lines || []).slice().sort((a,b)=>a.position-b.position).map(l => ({
       speaker: l.speaker || '', text: l.text || ''
@@ -2319,6 +2337,19 @@ function buildReadingHTML(slide){
 function renderReading(){
   var slide = READING[rIdx] || { body:'', glossary:[] };
   var box = document.getElementById('readingText');
+  // obrazek slajdu (nad tekstem) — pokazujemy tylko gdy slajd ma image_url;
+  // stare czytanki bez obrazka wyglądają jak dotąd
+  var imgWrap = document.getElementById('readingImg');
+  var imgTag = document.getElementById('readingImgTag');
+  if(imgWrap && imgTag){
+    if(slide.image_url){
+      imgTag.src = slide.image_url;
+      imgWrap.style.display = 'block';
+    } else {
+      imgTag.removeAttribute('src');
+      imgWrap.style.display = 'none';
+    }
+  }
   box.innerHTML = buildReadingHTML(slide);
   // wykryj dotyk: telefon/tablet → klikanie; komputer → najeżdżanie (klik też działa)
   var isTouch = ('ontouchstart' in window) || (navigator.maxTouchPoints > 0);
