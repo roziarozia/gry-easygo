@@ -689,6 +689,43 @@
     background-color:#f0eef5;
   }
   .speak-img.empty{ display:none; }
+  /* gdy pytanie ma parę obrazków: chowamy boczny wspólny obrazek, tekst na całą szerokość */
+  .speak-row-textonly{ justify-content:center; }
+  .speak-row-textonly .speak-img{ display:none; }
+  .speak-row-textonly .speak-text{ text-align:center; flex:0 1 auto; }
+  /* para obrazków dla "This or That" — dwie opcje obok siebie */
+  .speak-pair{
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:20px;
+    width:100%;
+    max-width:760px;
+    margin:24px auto 0;
+  }
+  .speak-opt{ flex:1 1 0; max-width:44%; }
+  .speak-opt-img{
+    width:100%;
+    aspect-ratio:1/1;
+    border-radius:20px;
+    background-size:cover;
+    background-position:center;
+    background-repeat:no-repeat;
+    background-color:#f0eef5;
+    box-shadow:0 4px 14px rgba(0,0,0,0.06);
+  }
+  .speak-vs{
+    flex:0 0 auto;
+    font-family:'Quicksand',sans-serif;
+    font-weight:700;
+    font-size:clamp(18px,2.4vw,26px);
+    color:var(--ink);
+    opacity:0.55;
+  }
+  @media(max-width:640px){
+    .speak-pair{ gap:12px; }
+    .speak-opt{ max-width:44%; }
+  }
   .speak-text{
     flex:1;
     font-family:'Quicksand',sans-serif;
@@ -1304,6 +1341,11 @@
         <div class="speak-img" id="speakImg"></div>
         <div class="speak-text" id="speakText"></div>
       </div>
+      <div class="speak-pair" id="speakPair" style="display:none">
+        <div class="speak-opt" id="speakOptA"><div class="speak-opt-img" id="speakImgA"></div></div>
+        <div class="speak-vs">or</div>
+        <div class="speak-opt" id="speakOptB"><div class="speak-opt-img" id="speakImgB"></div></div>
+      </div>
       <div class="nav" id="sNav">
         <button class="btn btn-secondary" id="sPrev" data-i18n="Wstecz">Wstecz</button>
         <button class="btn" id="sNext" data-i18n="Dalej">Dalej</button>
@@ -1494,7 +1536,11 @@ async function markCompleted(score, scoreMax){
       base: g.base_form || '',
       explanation: g.explanation || ''
     }));
-    SPEAKS = (GAME.speaking_prompts || []).slice().sort((a,b)=>a.position-b.position).map(s => s.text || '');
+    SPEAKS = (GAME.speaking_prompts || []).slice().sort((a,b)=>a.position-b.position).map(s => ({
+      text: s.text || '',
+      image_a: s.image_a || null,
+      image_b: s.image_b || null
+    }));
     READING = (GAME.reading_slides || []).slice().sort((a,b)=>a.position-b.position).map(r => ({
       body: r.body || '',
       glossary: Array.isArray(r.glossary) ? r.glossary : [],
@@ -2275,7 +2321,28 @@ function startSpeak(){
   renderSpeak();
 }
 function renderSpeak(){
-  document.getElementById('speakText').textContent = SPEAKS[sIdx] || '';
+  const cur = SPEAKS[sIdx] || { text:'', image_a:null, image_b:null };
+  document.getElementById('speakText').textContent = cur.text || '';
+  // para obrazków opcji (This or That) — pokazujemy tylko gdy pytanie ma oba obrazki
+  const pair = document.getElementById('speakPair');
+  const imgA = document.getElementById('speakImgA');
+  const imgB = document.getElementById('speakImgB');
+  const row = document.querySelector('.speak-row');
+  const hasPair = !!(cur.image_a && cur.image_b);
+  if(pair && imgA && imgB){
+    if(hasPair){
+      imgA.style.backgroundImage = "url('" + cur.image_a + "')";
+      imgB.style.backgroundImage = "url('" + cur.image_b + "')";
+      pair.style.display = 'flex';
+    }else{
+      imgA.style.backgroundImage = '';
+      imgB.style.backgroundImage = '';
+      pair.style.display = 'none';
+    }
+  }
+  // gdy jest para obrazków, tekst pytania idzie na całą szerokość i wyśrodkowany
+  // (żeby nie było pustego kwadratu po wspólnym obrazku zadania); słowa zawsze widoczne
+  if(row) row.classList.toggle('speak-row-textonly', hasPair);
   const total = SPEAKS.length;
   document.getElementById('sProgress').textContent = (sIdx + 1) + ' / ' + total;
   document.getElementById('sBar').style.width = total ? (((sIdx + 1) / total) * 100 + '%') : '0%';
