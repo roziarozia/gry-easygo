@@ -1918,6 +1918,24 @@
         sort: curSort, search: curSearch, page: curPage
       }));
     }catch(e){}
+    saveFiltersToURL();   // dodatkowo zapisz stan w adresie — przetrwa odświeżenie nawet gdy localStorage w iframe zawiedzie
+  }
+  // Zapis stanu filtrów do adresu URL (parametry ?kategoria=&status=&poziom=&sort=&szukaj=).
+  // Czytany przy starcie przez applyUrlFilters — działa niezależnie od localStorage.
+  function saveFiltersToURL(){
+    if(_egRestoring) return;
+    try{
+      var p = new URLSearchParams(window.location.search);
+      // wyczyść stare wpisy filtrów, zostaw resztę parametrów (np. utm)
+      ['kategoria','status','poziom','sort','szukaj'].forEach(function(k){ p.delete(k); });
+      if(curType && curType !== 'wszystkie') p.set('kategoria', curType);
+      if(curStatus && curStatus !== 'wszystkie') p.set('status', curStatus);
+      if(curLvls && curLvls.length) p.set('poziom', curLvls.join(','));
+      if(curSort && curSort !== 'default') p.set('sort', curSort);
+      if(curSearch) p.set('szukaj', curSearch);
+      var qs = p.toString();
+      history.replaceState(null, '', window.location.pathname + (qs ? '?' + qs : '') + window.location.hash);
+    }catch(e){}
   }
   function restoreFilters(){
     var s;
@@ -1961,6 +1979,9 @@
       var params = new URLSearchParams(window.location.search);
       var poziom = params.get('poziom');
       var kategoria = params.get('kategoria');
+      var status = params.get('status');
+      var sort = params.get('sort');
+      var szukaj = params.get('szukaj');
       if(poziom){
         // dopuszczamy kilka poziomów po przecinku, np. ?poziom=B1,B2
         poziom.split(',').forEach(function(p){
@@ -1971,6 +1992,18 @@
       if(kategoria){
         var catBtn = filters.querySelector('[data-cat="' + kategoria + '"]');
         if(catBtn) catBtn.click();
+      }
+      if(status){
+        var stBtn = document.querySelector('[data-cat="' + status + '"]');
+        if(stBtn) stBtn.click();
+      }
+      if(sort){
+        var sortSel = document.getElementById('egSort');
+        if(sortSel){ sortSel.value = sort; curSort = sort; }
+      }
+      if(szukaj){
+        var si = document.getElementById('egSearch');
+        if(si){ si.value = szukaj; curSearch = szukaj; }
       }
     }catch(e){}
   }
@@ -2001,9 +2034,12 @@
     // Priorytet: filtry z adresu (?poziom=/?kategoria=) — gdy ktoś wchodzi z linku.
     // Gdy adres nie ma filtrów, przywróć ostatnie wybory z pamięci (przetrwają
     // odświeżenie i cofnięcie), żeby użytkownik nie zaczynał od zera.
-    var hasUrlFilters = /[?&](poziom|kategoria)=/.test(window.location.search);
+    var hasUrlFilters = /[?&](poziom|kategoria|status|sort|szukaj)=/.test(window.location.search);
     if(hasUrlFilters){
+      _egRestoring = true;              // kliki z URL nie mogą nadpisać stanu w trakcie
       applyUrlFilters();
+      _egRestoring = false;
+      saveFilters();                    // zapisz raz, na czysto (localStorage + URL)
     } else {
       restoreFilters();
     }
