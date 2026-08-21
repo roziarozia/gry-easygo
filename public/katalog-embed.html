@@ -1908,7 +1908,9 @@
   // działa cała istniejąca logika (podświetlenia, render).
   // ===== ZAPAMIĘTYWANIE FILTRÓW (przetrwają odświeżenie i cofnięcie) =====
   var FILTERS_KEY = 'easygo_filtry';
+  var _egRestoring = false;   // gdy true, saveFilters NIE zapisuje (żeby przywracanie nie nadpisało się pustym stanem z przedwczesnego render)
   function saveFilters(){
+    if(_egRestoring) return;   // nie zapisuj w trakcie przywracania
     try{
       localStorage.setItem(FILTERS_KEY, JSON.stringify({
         type: curType, status: curStatus, lvls: curLvls,
@@ -1919,7 +1921,8 @@
   function restoreFilters(){
     var s;
     try{ s = JSON.parse(localStorage.getItem(FILTERS_KEY) || 'null'); }catch(e){ s = null; }
-    if(!s) return false;
+    _egRestoring = true;   // blokuj zapis, żeby kliki przywracające nie nadpisały pamięci częściowym stanem
+    if(!s){ _egRestoring = false; return false; }
     // kategoria (klik w odpowiedni przycisk, żeby zadziałała też podświetlenie)
     if(s.type && s.type !== 'wszystkie'){
       var catBtn = filters.querySelector('[data-cat="' + s.type + '"]');
@@ -1947,6 +1950,8 @@
       var si = document.getElementById('egSearch');
       if(si){ si.value = s.search; curSearch = s.search; }
     }
+    _egRestoring = false;   // przywracanie zakończone — od teraz zapis znów działa
+    saveFilters();          // zapisz przywrócony (pełny) stan raz, na czysto
     return true;
   }
 
