@@ -99,6 +99,14 @@ export default function CatalogEmbed() {
           localStorage.setItem('easygo_tryb', e.data.egTheme);
         } catch (err) {}
       }
+      // katalog (iframe) zgłasza zdarzenie do analityki → przekaż do GA4 (gtag jest u rodzica)
+      if (e.data && e.data.egTrack) {
+        try {
+          if (typeof window.gtag === 'function') {
+            window.gtag('event', e.data.egTrack, { event_category: 'nawigacja' });
+          }
+        } catch (err) {}
+      }
       if (e.data && e.data.egNavigate) {
         if (e.data.egExternal) {
           // link zewnętrzny (Kontakt, mailto) — nowa karta, żeby uczeń nie tracił ćwiczeń
