@@ -925,7 +925,7 @@
 
   <div class="eg-topbar">
     <div class="eg-topbar-left">
-      <a class="eg-nav-oferta" href="/oferta" title="Oferta i cennik EasyWonders">
+      <a class="eg-nav-oferta" id="egOfertaNav" href="/oferta" title="Oferta i cennik EasyWonders">
         <span data-i18n="OFERTA">OFERTA</span>
       </a>
       <a href="https://fiszki.easygo-english.pl/" target="_blank" rel="noopener" title="Aplikacja z fiszkami">
@@ -2409,5 +2409,19 @@
       window.parent.postMessage({egNavigate:href, egExternal:true},'*');
     }
   });
+
+  // Śledzenie kliknięcia w wyróżniony guzik OFERTA — wysyła sygnał do rodzica,
+  // gdzie mieszka gtag (GA4). Dzięki temu w analityce widać, ile osób trafia
+  // do oferty przez ten konkretny guzik (a nie inną drogą).
+  var ofertaBtn = document.getElementById('egOfertaNav');
+  if(ofertaBtn){
+    ofertaBtn.addEventListener('click', function(){
+      try{
+        if(window.parent && window.parent !== window){
+          window.parent.postMessage({ egTrack: 'oferta_nav_click' }, '*');
+        }
+      }catch(e){}
+    });
+  }
 })();
 </script>
