@@ -144,6 +144,13 @@
     display:inline-flex; align-items:center; gap:6px; transition:opacity .18s;
   }
   .eg-topbar-left a:hover{ opacity:.72; }
+  /* Wyróżniony przycisk OFERTA — wypełniony magenta (pigułka), żeby prowadził wzrok do oferty */
+  .eg-nav-oferta{
+    color:#fff !important; background:var(--eg-magenta);
+    padding:5px 15px; border-radius:999px; font-weight:700 !important;
+    letter-spacing:.02em; transition:background .18s, transform .18s;
+  }
+  .eg-nav-oferta:hover{ opacity:1 !important; background:#b33a7e; transform:translateY(-1px); }
   .eg-topbar-right{ display:flex; align-items:center; gap:14px; }
   .eg-social{ display:flex; align-items:center; gap:10px; }
   .eg-social a{ color:var(--eg-magenta); display:inline-flex; transition:transform .18s, opacity .18s; }
@@ -918,8 +925,8 @@
 
   <div class="eg-topbar">
     <div class="eg-topbar-left">
-      <a href="https://easygo-english.pl/blog/" title="Blog EasyGo English">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M4 5.5A1.5 1.5 0 015.5 4H17l3 3v11.5A1.5 1.5 0 0118.5 20h-13A1.5 1.5 0 014 18.5v-13z" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/><path d="M8 9.5h8M8 13h8M8 16.5h5" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg><span>Blog</span>
+      <a class="eg-nav-oferta" href="/oferta" title="Oferta i cennik EasyWonders">
+        <span data-i18n="OFERTA">OFERTA</span>
       </a>
       <a href="https://fiszki.easygo-english.pl/" target="_blank" rel="noopener" title="Aplikacja z fiszkami">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true"><rect x="3" y="6" width="14" height="12" rx="2" stroke="currentColor" stroke-width="1.7"/><path d="M7 3.5h11A2.5 2.5 0 0120.5 6v11" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg><span>fiszki!</span>
@@ -2251,6 +2258,7 @@
     'Wyczyść': 'Clear',
     'Więcej': 'More',
     'Ukryj': 'Hide',
+    'OFERTA': 'PRICING',
     'Zaloguj się': 'Log in',
     'Moje konto': 'My account',
     'Panel lektora': 'Teacher panel',
