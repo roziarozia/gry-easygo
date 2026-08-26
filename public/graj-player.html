@@ -2276,6 +2276,7 @@ let gGiven = [];   // wpisana odpowiedź ucznia dla każdego zdania
 function normGap(s){
   return (s || '').toString().toLowerCase()
     .replace(/[’`]/g, "'")
+    .replace(/[.,!?;:]/g, '')
     .replace(/\s+/g, ' ')
     .trim();
 }
