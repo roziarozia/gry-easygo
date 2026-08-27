@@ -115,6 +115,16 @@
     align-items:stretch;
   }
   #listening{ width:100%; }
+  /* PODGLĄD: ta sama zasada co słuchanka — treść bywa wyższa niż ramka,
+     więc zdejmujemy sztywne proporcje, przewijamy w pionie i wyrównujemy do góry. */
+  .frame.frame-preview{
+    aspect-ratio:auto;
+    max-height:86vh;
+    overflow-y:auto;
+    padding:24px 16px 28px;
+    justify-content:flex-start;
+    align-items:stretch;
+  }
   .ls-head{ text-align:center; margin-bottom:6px; }
   .ls-title{ font-family:'Quicksand',sans-serif; font-weight:700; font-size:clamp(20px,2.6vw,26px); color:var(--ink); margin:0 0 4px; }
   .ls-hint{ font-size:11.5px; color:var(--muted); margin:0 0 18px; text-align:center; }
@@ -347,7 +357,7 @@
   #coverPreview{ margin-top:14px; }
   #coverQuiz, #coverSpeak{ display:flex; justify-content:center; gap:12px; flex-wrap:wrap; }
   /* ===== PODGLĄD DLA LEKTORA ===== */
-  #preview{ border:3px solid #b8a4e8; border-radius:22px; background:rgba(183,164,232,.07); padding:16px 14px 20px; margin:0 auto; max-width:640px; box-sizing:border-box; }
+  #preview{ border:3px solid #b8a4e8; border-radius:22px; background:rgba(183,164,232,.07); padding:16px 14px 20px; margin:0 auto; width:100%; max-width:640px; box-sizing:border-box; }
   .pv-badge{ display:inline-block; background:#a78dd9; color:#fff; font-family:'Quicksand',sans-serif; font-weight:700; font-size:12px; padding:4px 12px; border-radius:999px; margin-bottom:10px; }
   .pv-count{ font-family:'Quicksand',sans-serif; font-weight:700; color:#8b6fc7; font-size:13px; margin-bottom:14px; }
   .pv-body{ min-height:140px; text-align:left; }
@@ -1879,6 +1889,7 @@ const readingSec = document.getElementById('reading');
 
 function show(section){
   if(section !== listeningSec) frame.classList.remove('frame-listening');
+  if(section !== document.getElementById('preview')) frame.classList.remove('frame-preview');
   document.getElementById('loading').classList.add('hidden');
   cover.classList.add('hidden');
   slide.classList.add('hidden');
@@ -2587,6 +2598,8 @@ function openPreview(){
   PV_INDEX = 0;
   frame.className = frame.className.replace(/\bbg-\S+/g,'').trim();
   show(document.getElementById('preview'));
+  frame.classList.add('frame-preview');
+  frame.scrollTop = 0;
   renderPreview();
 }
 document.getElementById('startPreviewBtn').addEventListener('click', openPreview);
