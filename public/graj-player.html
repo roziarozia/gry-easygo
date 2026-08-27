@@ -2507,7 +2507,12 @@ function buildPreviewItems(){
       items.push(html);
     });
   } else if(tpl === 'speaking'){
-    SPEAKS.forEach(s => { items.push('<div class="pv-q">' + pvEsc(s.text) + '</div>'); });
+    SPEAKS.forEach(s => {
+      let html = '<div class="pv-q">' + pvEsc(s.text) + '</div>';
+      if(s.image_a) html += '<img src="' + pvEsc(s.image_a) + '" alt="" style="max-width:200px;border-radius:12px;margin:6px 8px 0 0;">';
+      if(s.image_b) html += '<img src="' + pvEsc(s.image_b) + '" alt="" style="max-width:200px;border-radius:12px;margin:6px 0 0;">';
+      items.push(html);
+    });
   } else if(tpl === 'listening'){
     // słuchanka: skrypt (kwestie) + pytania z odpowiedziami
     let script = '';
@@ -2523,12 +2528,19 @@ function buildPreviewItems(){
       items.push(html);
     });
   } else if(tpl === 'reading'){
-    READING.forEach(r => { items.push('<div class="pv-line">' + pvEsc(r.body) + '</div>'); });
+    READING.forEach(r => {
+      let html = '';
+      if(r.image_url) html += '<img src="' + pvEsc(r.image_url) + '" alt="" style="max-width:100%;border-radius:12px;margin-bottom:12px;">';
+      html += '<div class="pv-line">' + pvEsc(r.body) + '</div>';
+      items.push(html);
+    });
   } else {
-    // słówka (show/type)
+    // słówka (show/type) oraz what-is-it — pokaż obrazek, słowo i tłumaczenie
     SLIDES.forEach(s => {
-      let html = '<div class="pv-q">' + pvEsc(s.word) + '</div>';
-      if(s.pl) html += '<div class="pv-a"><span class="pv-a-label">PL: </span>' + pvEsc(s.pl) + '</div>';
+      let html = '';
+      if(s.img) html += '<img src="' + pvEsc(s.img) + '" alt="" style="max-width:200px;max-height:150px;border-radius:12px;display:block;margin:0 auto 12px;">';
+      html += '<div class="pv-q" style="text-align:center">' + pvEsc(s.word) + '</div>';
+      if(s.pl) html += '<div class="pv-a" style="text-align:center"><span class="pv-a-label">PL: </span>' + pvEsc(s.pl) + '</div>';
       items.push(html);
     });
   }
