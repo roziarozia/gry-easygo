@@ -839,6 +839,9 @@
   /* znacznik ukończenia na kafelku */
   .eg-done-badge{ position:absolute; bottom:8px; left:50%; transform:translateX(-50%); z-index:3; display:inline-flex; align-items:center; gap:3px; background:#1e7e50; color:#fff; font-family:'Quicksand',sans-serif; font-weight:700; font-size:10.5px; padding:3px 8px 3px 6px; border-radius:999px; box-shadow:0 2px 8px rgba(30,126,80,.3); }
   .eg-done-badge.eg-done-teacher{ background:#6885db; box-shadow:0 2px 8px rgba(104,133,219,.3); }
+  .eg-score-line{ display:inline-flex; align-items:center; margin:2px 0 6px; padding:3px 9px; background:#eaf7f0; color:#1e7e50; font-family:'Quicksand',sans-serif; font-weight:600; font-size:12px; border-radius:8px; }
+  .eg-score-line strong{ font-weight:800; }
+  html.eg-dark .eg-score-line{ background:#1e3b2c; color:#7ddba9; }
   .eg-card.eg-completed .eg-thumb{ }
   /* znacznik "dla dzieci" — miś (obrys) w prawym dolnym rogu okładki */
   .eg-kids{ position:absolute; bottom:8px; right:8px; z-index:3; display:inline-flex; align-items:center; justify-content:center; width:30px; height:30px; border-radius:50%; background:rgba(255,255,255,.92); box-shadow:0 2px 8px rgba(0,0,0,.18); }
@@ -1132,6 +1135,7 @@
   }
   var homeworkSet = {}; // sluggi gier przypisanych zalogowanemu uczniowi jako praca domowa
   var completedSet = {}; // sluggi ćwiczeń, które uczeń już ukończył (postępy)
+  var scoreSet = {};     // slug -> { score, max, at } dla ćwiczeń z zapisanym wynikiem
 
   var grid = document.getElementById('egGrid');
   var state = document.getElementById('egState');
@@ -1528,11 +1532,26 @@
             ? '<span class="eg-done-badge eg-done-teacher" title="Zaliczone przez lektora"><svg viewBox="0 0 24 24" width="12" height="12"><path d="M9 16.2l-3.5-3.5L4 14.2l5 5 11-11-1.4-1.4z" fill="currentColor"/></svg>Zaliczone przez lektora</span>'
             : '<span class="eg-done-badge" title="' + t('Ćwiczenie ukończone') + '"><svg viewBox="0 0 24 24" width="12" height="12"><path d="M9 16.2l-3.5-3.5L4 14.2l5 5 11-11-1.4-1.4z" fill="currentColor"/></svg>Zrobione!</span>')
         : '';
+      // pasek z wynikiem ucznia — tylko gdy zadanie ma zapisany wynik (score)
+      var scoreLine = '';
+      if(scoreSet[g.slug]){
+        var _sc = scoreSet[g.slug];
+        var _pct = Math.round(_sc.score / _sc.max * 100);
+        var _dstr = '';
+        if(_sc.at){
+          try{
+            var _d = new Date(_sc.at);
+            _dstr = ' · ' + _d.toLocaleDateString(window.EG_LANG==='en'?'en-GB':'pl-PL', {day:'numeric', month:'short'});
+          }catch(e){ _dstr = ''; }
+        }
+        scoreLine = '<span class="eg-score-line"><svg viewBox="0 0 24 24" width="13" height="13" style="vertical-align:-2px;margin-right:4px"><path d="M12 2l2.4 7.4H22l-6 4.6 2.3 7.4-6.3-4.6L5.7 21.4 8 14 2 9.4h7.6z" fill="currentColor"/></svg>' + t('Twój wynik') + ': <strong>' + _sc.score + '/' + _sc.max + '</strong> · ' + _pct + '%' + _dstr + '</span>';
+      }
       return '<article class="eg-card' + (g.is_premium ? ' eg-premium' : '') + (homeworkSet[g.slug] ? ' eg-hw-card' : '') + (homeworkDone[g.slug] ? ' eg-hw-done' : '') + (completedSet[g.slug] ? ' eg-completed' : '') + '">' +
         '<div class="eg-thumb">' + thumb + heart + lockOverlay + homework + doneBadge + bearBadge + '</div>' +
         '<div class="eg-body">' +
           '<h3>' + esc(g.title) + '</h3>' +
           typeBadge +
+          scoreLine +
           '<p>' + esc(g.description || '') + '</p>' +
           '<span class="eg-meta">' + metaParts.join(' · ') + premiumBadge + '</span>' +
           seriesLine +
@@ -2165,11 +2184,17 @@
           if(Object.keys(homeworkSet).length) render();
         });
       // pobierz ukończone ćwiczenia (postępy — Wariant B); source='teacher' = zaliczone przez lektora
-      _sb.from('game_completions').select('game_slug, source').eq('user_id', session.user.id)
+      _sb.from('game_completions').select('game_slug, source, score, score_max, completed_at').eq('user_id', session.user.id)
         .then(function(r){
           if(r.error || !r.data) return;
           completedSet = {};
-          r.data.forEach(function(c){ completedSet[c.game_slug] = c.source || 'self'; });
+          scoreSet = {};
+          r.data.forEach(function(c){
+            completedSet[c.game_slug] = c.source || 'self';
+            if(c.score != null && c.score_max != null && c.score_max > 0){
+              scoreSet[c.game_slug] = { score: c.score, max: c.score_max, at: c.completed_at || null };
+            }
+          });
           render();
         });
     });
@@ -2273,6 +2298,7 @@
     'Dostęp tylko dla subskrybentów': 'For subscribers only',
     'Ćwiczenie dla subskrybentów — masz do niego dostęp': 'Subscriber exercise — you have access',
     'Ćwiczenie ukończone': 'Exercise completed',
+    'Twój wynik': 'Your score',
     'Zapisz na później': 'Save for later',
     'Ukryj pasek postępu': 'Hide progress bar',
     'Przełącz tryb jasny lub ciemny': 'Toggle light or dark mode',
