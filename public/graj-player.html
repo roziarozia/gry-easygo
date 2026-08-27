@@ -1277,6 +1277,7 @@
     'Perfekcyjnie! Wszystkie słówka poprawnie.': 'Perfect! All words correct.',
     'Zagraj jeszcze raz i popraw swój wynik.': 'Play again and improve your score.',
     'Poprawnie: ': 'Correct answer: ',
+    'Twoja odpowiedź: ': 'Your answer: ',
     'Zapraszam po więcej czytanek na różnych poziomach ': 'Come back for more readings at every level ',
     'Nie udało się wczytać nagrania. Odśwież stronę.': 'Couldn\u2019t load the audio. Please refresh the page.',
     'posłuchaj wymowy': 'listen to the pronunciation',
@@ -2348,12 +2349,21 @@ function renderGap(){
 function showGapAnswered(typed){
   const item = GAPS[gIndex];
   const ok = gapCorrect(item, typed);
-  const shownWord = typed && typed.trim()
-    ? '<span class="gap-word ' + (ok ? 'ok' : 'bad') + '">' + escapeHtml(typed.trim()) + '</span>'
-    : '<span class="gap-word bad">—</span>';
-  let html = gapSentenceHtml(item, shownWord);
-  if(!ok){
-    html += '<div style="margin-top:16px;font-size:21px">Poprawnie: <span class="gap-answer">' + escapeHtml(item.answers[0]) + '</span></div>';
+  const hasBlank = /_/.test(item.sentence || '');
+  let html;
+  if(hasBlank){
+    const shownWord = typed && typed.trim()
+      ? '<span class="gap-word ' + (ok ? 'ok' : 'bad') + '">' + escapeHtml(typed.trim()) + '</span>'
+      : '<span class="gap-word bad">—</span>';
+    html = gapSentenceHtml(item, shownWord);
+    if(!ok){
+      html += '<div style="margin-top:16px;font-size:21px">' + t('Poprawnie: ') + '<span class="gap-answer">' + escapeHtml(item.answers[0]) + '</span></div>';
+    }
+  } else {
+    html = gapSentenceHtml(item, null);
+    const twoja = (typed && typed.trim()) ? escapeHtml(typed.trim()) : '—';
+    html += '<div style="margin-top:16px;font-size:21px">' + t('Twoja odpowiedź: ') + '<span class="gap-word ' + (ok ? 'ok' : 'bad') + '">' + twoja + '</span></div>';
+    html += '<div style="margin-top:8px;font-size:21px">' + t('Poprawnie: ') + '<span class="gap-answer">' + escapeHtml(item.answers[0]) + '</span></div>';
   }
   gPrompt.innerHTML = html;
   // wyjaśnienie odpowiedzi (jak w quizie); może być dwujęzyczne: "polski||English"
