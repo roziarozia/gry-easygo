@@ -2409,7 +2409,7 @@ function nextGap(){
 function finishGap(){
   frame.className = frame.className.replace(/\bbg-\S+/g,'').trim();
   show(end);
-  markCompleted();
+  markCompleted(gScore, GAPS.length);
   scoreEl.textContent = t('Twój wynik: ') + gScore + ' / ' + GAPS.length;
   scoreEl.classList.remove('hidden');
   document.querySelector('#end .end-title .underline').textContent =
