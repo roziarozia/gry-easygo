@@ -913,6 +913,11 @@
   .gap-word.ok{ color:var(--green); background:#eaf7f0; }
   .gap-word.bad{ color:var(--red); background:#fbeded; text-decoration:line-through; }
   .gap-answer{ color:var(--green); font-weight:800; font-size:1.25em; }
+  .gap-tr-line{ margin-top:12px; font-size:16px; line-height:1.5; }
+  .gap-tr-answer{ color:var(--green); font-weight:700; }
+  .gap-tr-your{ font-weight:700; }
+  .gap-tr-your.ok{ color:var(--green); }
+  .gap-tr-your.bad{ color:var(--red); text-decoration:line-through; }
   .gap-back{
     background:transparent;
     border:none;
@@ -2362,9 +2367,9 @@ function showGapAnswered(typed){
   } else {
     html = gapSentenceHtml(item, null);
     const twoja = (typed && typed.trim()) ? escapeHtml(typed.trim()) : '—';
-    html += '<div style="margin-top:16px;font-size:21px">' + t('Twoja odpowiedź: ') + '<span class="gap-word ' + (ok ? 'ok' : 'bad') + '">' + twoja + '</span></div>';
+    html += '<div class="gap-tr-line">' + t('Twoja odpowiedź: ') + '<span class="gap-tr-your ' + (ok ? 'ok' : 'bad') + '">' + twoja + '</span></div>';
     if(!ok){
-      html += '<div style="margin-top:8px;font-size:21px">' + t('Poprawnie: ') + '<span class="gap-answer">' + escapeHtml(item.answers[0]) + '</span></div>';
+      html += '<div class="gap-tr-line">' + t('Poprawnie: ') + '<span class="gap-tr-answer">' + escapeHtml(item.answers[0]) + '</span></div>';
     }
   }
   gPrompt.innerHTML = html;
