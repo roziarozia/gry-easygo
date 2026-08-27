@@ -355,6 +355,9 @@
   .pv-instr{ display:inline-block; background:#e9e4f7; color:#6c5ba8; font-size:13px; font-weight:600; padding:6px 12px; border-radius:10px; margin-bottom:14px; }
   .pv-a{ font-size:16px; color:var(--green); font-weight:700; line-height:1.5; }
   .pv-a-label{ color:var(--ink); font-weight:600; }
+  .pv-expl{ font-size:14px; color:var(--ink); line-height:1.5; margin-top:12px; padding:10px 12px; background:rgba(255,255,255,.6); border-left:3px solid var(--gold); border-radius:8px; }
+  .pv-expl b{ font-weight:700; }
+  html.eg-dark .pv-expl{ background:rgba(255,255,255,.06); }
   .pv-opt{ font-size:15px; color:var(--ink); padding:6px 10px; border-radius:8px; margin:5px 0; line-height:1.4; }
   .pv-opt.correct{ background:#eaf7f0; color:#1e7e50; font-weight:700; }
   .pv-line{ font-size:15px; color:var(--ink); line-height:1.5; margin:6px 0; }
@@ -2512,6 +2515,10 @@ function buildPreviewItems(){
       if(instr) html += '<div class="pv-instr">' + instr + '</div>';
       html += '<div class="pv-q">' + pvEsc(g.sentence).replace(/\n/g, '<br>') + '</div>';
       html += '<div class="pv-a"><span class="pv-a-label">' + t('Poprawnie: ') + '</span>' + pvEsc(g.answers[0] || '') + '</div>';
+      if(g.explanation){
+        var expl = g.explanation.split('||')[0].trim();
+        if(expl) html += '<div class="pv-expl"><b>' + t('Wyjaśnienie: ') + '</b>' + pvEsc(expl) + '</div>';
+      }
       items.push(html);
     });
   } else if(tpl === 'quiz'){
@@ -2520,6 +2527,7 @@ function buildPreviewItems(){
       (q.options || []).forEach((opt, i) => {
         html += '<div class="pv-opt' + (i === q.correct ? ' correct' : '') + '">' + pvEsc(opt) + '</div>';
       });
+      if(q.explanation) html += '<div class="pv-expl"><b>' + t('Wyjaśnienie: ') + '</b>' + pvEsc(q.explanation) + '</div>';
       items.push(html);
     });
   } else if(tpl === 'speaking'){
@@ -2541,6 +2549,7 @@ function buildPreviewItems(){
       (q.options || []).forEach((opt, i) => {
         html += '<div class="pv-opt' + (i === q.correct ? ' correct' : '') + '">' + pvEsc(opt) + '</div>';
       });
+      if(q.explanation) html += '<div class="pv-expl"><b>' + t('Wyjaśnienie: ') + '</b>' + pvEsc(q.explanation) + '</div>';
       items.push(html);
     });
   } else if(tpl === 'reading'){
