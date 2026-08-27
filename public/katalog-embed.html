@@ -839,9 +839,12 @@
   /* znacznik ukończenia na kafelku */
   .eg-done-badge{ position:absolute; bottom:8px; left:50%; transform:translateX(-50%); z-index:3; display:inline-flex; align-items:center; gap:3px; background:#1e7e50; color:#fff; font-family:'Quicksand',sans-serif; font-weight:700; font-size:10.5px; padding:3px 8px 3px 6px; border-radius:999px; box-shadow:0 2px 8px rgba(30,126,80,.3); }
   .eg-done-badge.eg-done-teacher{ background:#6885db; box-shadow:0 2px 8px rgba(104,133,219,.3); }
-  .eg-score-line{ display:inline-flex; align-items:center; margin:2px 0 6px; padding:3px 9px; background:#eaf7f0; color:#1e7e50; font-family:'Quicksand',sans-serif; font-weight:600; font-size:12px; border-radius:8px; }
+  #egFilters button.eg-hw-filter{ position:relative; overflow:visible; }
+  .eg-hw-count{ position:absolute; top:-7px; right:-7px; min-width:19px; height:19px; padding:0 5px; display:inline-flex; align-items:center; justify-content:center; background:#b8a4e8; color:#fff; font-family:'Quicksand',sans-serif; font-weight:800; font-size:11.5px; line-height:1; border-radius:999px; box-shadow:0 2px 6px rgba(184,164,232,.55); border:2px solid #fff; }
+  html.eg-dark .eg-hw-count{ border-color:#1b2431; box-shadow:0 2px 6px rgba(184,164,232,.35); }
+  .eg-score-line{ display:inline-flex; align-items:center; max-width:100%; white-space:nowrap; margin:2px 0 6px; padding:3px 9px; background:#a78dd9; color:#fff; font-family:'Quicksand',sans-serif; font-weight:600; font-size:12px; border-radius:8px; }
   .eg-score-line strong{ font-weight:800; }
-  html.eg-dark .eg-score-line{ background:#1e3b2c; color:#7ddba9; }
+  html.eg-dark .eg-score-line{ background:#8b6fc7; color:#fff; }
   .eg-card.eg-completed .eg-thumb{ }
   /* znacznik "dla dzieci" — miś (obrys) w prawym dolnym rogu okładki */
   .eg-kids{ position:absolute; bottom:8px; right:8px; z-index:3; display:inline-flex; align-items:center; justify-content:center; width:30px; height:30px; border-radius:50%; background:rgba(255,255,255,.92); box-shadow:0 2px 8px rgba(0,0,0,.18); }
@@ -1544,7 +1547,7 @@
             _dstr = ' · ' + _d.toLocaleDateString(window.EG_LANG==='en'?'en-GB':'pl-PL', {day:'numeric', month:'short'});
           }catch(e){ _dstr = ''; }
         }
-        scoreLine = '<span class="eg-score-line"><svg viewBox="0 0 24 24" width="13" height="13" style="vertical-align:-2px;margin-right:4px"><path d="M12 2l2.4 7.4H22l-6 4.6 2.3 7.4-6.3-4.6L5.7 21.4 8 14 2 9.4h7.6z" fill="currentColor"/></svg>' + t('Twój wynik') + ': <strong>' + _sc.score + '/' + _sc.max + '</strong> · ' + _pct + '%' + _dstr + '</span>';
+        scoreLine = '<span class="eg-score-line"><svg viewBox="0 0 24 24" width="13" height="13" style="vertical-align:-2px;margin-right:4px"><path d="M12 2l2.4 7.4H22l-6 4.6 2.3 7.4-6.3-4.6L5.7 21.4 8 14 2 9.4h7.6z" fill="currentColor"/></svg>' + t('Wynik') + ': <strong>' + _sc.score + '/' + _sc.max + '</strong> · ' + _pct + '%' + _dstr + '</span>';
       }
       return '<article class="eg-card' + (g.is_premium ? ' eg-premium' : '') + (homeworkSet[g.slug] ? ' eg-hw-card' : '') + (homeworkDone[g.slug] ? ' eg-hw-done' : '') + (completedSet[g.slug] ? ' eg-completed' : '') + '">' +
         '<div class="eg-thumb">' + thumb + heart + lockOverlay + homework + doneBadge + bearBadge + '</div>' +
@@ -2098,6 +2101,26 @@
   var currentStudentId = null;
   var hideSpeaking = false; // uczeń podpięty pod lektora bez włączonego Speaking
   var userHasAccess = false; // czy zalogowany użytkownik ma pełny dostęp (bez kłódek)
+  var egIsTeacherStudent = false; // czy zalogowany to uczeń przypisany do lektora
+
+  // chmurka z liczbą NIEZROBIONYCH prac domowych na przycisku "Praca domowa"
+  function updateHwBadge(){
+    var hwBtn = document.querySelector('#egFilters button[data-cat="domowa"]');
+    if(!hwBtn) return;
+    var hwPending = 0;
+    Object.keys(homeworkSet).forEach(function(slug){ if(!homeworkDone[slug]) hwPending++; });
+    var hwCloud = hwBtn.querySelector('.eg-hw-count');
+    if(hwPending > 0 && egIsTeacherStudent){
+      if(!hwCloud){
+        hwCloud = document.createElement('span');
+        hwCloud.className = 'eg-hw-count';
+        hwBtn.appendChild(hwCloud);
+      }
+      hwCloud.textContent = hwPending;
+    } else if(hwCloud){
+      hwCloud.remove();
+    }
+  }
 
   // pokaż/ukryj filtry wymagające konta.
   // loggedIn: zrobione/do zrobienia/pasek postępu (każdy zalogowany)
@@ -2111,6 +2134,8 @@
     // praca domowa TYLKO dla ucznia lektora
     var hwBtn = document.querySelector('#egFilters button[data-cat="domowa"]');
     if(hwBtn) hwBtn.style.display = (loggedIn && isTeacherStudent) ? '' : 'none';
+    egIsTeacherStudent = !!(loggedIn && isTeacherStudent);
+    updateHwBadge();
 
     // które filtry są teraz niedostępne dla tego użytkownika?
     var hidden = [];
@@ -2181,6 +2206,7 @@
             homeworkSet[h.game_slug] = true;
             if(h.completed_at) homeworkDone[h.game_slug] = h.completed_at;
           });
+          updateHwBadge();
           if(Object.keys(homeworkSet).length) render();
         });
       // pobierz ukończone ćwiczenia (postępy — Wariant B); source='teacher' = zaliczone przez lektora
@@ -2209,6 +2235,7 @@
       .then(function(r){
         if(r.error){ alert('Nie udało się zapisać. Spróbuj ponownie.'); return; }
         if(done) homeworkDone[slug] = val; else delete homeworkDone[slug];
+        updateHwBadge();
         render();
       });
   };
@@ -2298,7 +2325,7 @@
     'Dostęp tylko dla subskrybentów': 'For subscribers only',
     'Ćwiczenie dla subskrybentów — masz do niego dostęp': 'Subscriber exercise — you have access',
     'Ćwiczenie ukończone': 'Exercise completed',
-    'Twój wynik': 'Your score',
+    'Wynik': 'Score',
     'Zapisz na później': 'Save for later',
     'Ukryj pasek postępu': 'Hide progress bar',
     'Przełącz tryb jasny lub ciemny': 'Toggle light or dark mode',
