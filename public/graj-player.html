@@ -2363,7 +2363,9 @@ function showGapAnswered(typed){
     html = gapSentenceHtml(item, null);
     const twoja = (typed && typed.trim()) ? escapeHtml(typed.trim()) : '—';
     html += '<div style="margin-top:16px;font-size:21px">' + t('Twoja odpowiedź: ') + '<span class="gap-word ' + (ok ? 'ok' : 'bad') + '">' + twoja + '</span></div>';
-    html += '<div style="margin-top:8px;font-size:21px">' + t('Poprawnie: ') + '<span class="gap-answer">' + escapeHtml(item.answers[0]) + '</span></div>';
+    if(!ok){
+      html += '<div style="margin-top:8px;font-size:21px">' + t('Poprawnie: ') + '<span class="gap-answer">' + escapeHtml(item.answers[0]) + '</span></div>';
+    }
   }
   gPrompt.innerHTML = html;
   // wyjaśnienie odpowiedzi (jak w quizie); może być dwujęzyczne: "polski||English"
