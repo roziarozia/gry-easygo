@@ -345,6 +345,7 @@
   .btn-preview{ background:#a78dd9; }
   .btn-preview:hover{ background:#8b6fc7; }
   #coverPreview{ margin-top:14px; }
+  #coverQuiz, #coverSpeak{ display:flex; justify-content:center; gap:12px; flex-wrap:wrap; }
   /* ===== PODGLĄD DLA LEKTORA ===== */
   #preview{ border:3px solid #b8a4e8; border-radius:22px; background:rgba(183,164,232,.07); padding:16px 14px 20px; margin:0 auto; max-width:640px; box-sizing:border-box; }
   .pv-badge{ display:inline-block; background:#a78dd9; color:#fff; font-family:'Quicksand',sans-serif; font-weight:700; font-size:12px; padding:4px 12px; border-radius:999px; margin-bottom:10px; }
@@ -358,10 +359,9 @@
   .pv-opt.correct{ background:#eaf7f0; color:#1e7e50; font-weight:700; }
   .pv-line{ font-size:15px; color:var(--ink); line-height:1.5; margin:6px 0; }
   .pv-speaker{ font-weight:700; color:#8b6fc7; }
-  .pv-nav{ display:flex; justify-content:space-between; gap:12px; margin-top:18px; }
-  .pv-arrow{ flex:1; font-family:'Quicksand',sans-serif; font-weight:700; font-size:22px; color:#8b6fc7; background:#f0e9fb; border:none; border-radius:12px; padding:8px 0; cursor:pointer; transition:background .15s; }
-  .pv-arrow:hover:not(:disabled){ background:#e3d7f5; }
-  .pv-arrow:disabled{ opacity:.35; cursor:default; }
+  .pv-nav{ display:flex; justify-content:center; gap:12px; margin-top:18px; }
+  .pv-arrow{ min-width:130px; }
+  .pv-arrow:disabled{ opacity:.4; cursor:default; }
   .pv-exit{ margin-top:16px; min-width:auto; padding:10px 20px; }
   html.eg-dark #preview{ background:rgba(183,164,232,.1); }
   html.eg-dark .pv-instr{ background:#2c2440; color:#c9b8ec; }
@@ -1557,12 +1557,12 @@
 
     <!-- PODGLĄD DLA LEKTORA -->
     <section id="preview" class="hidden">
-      <div class="pv-badge">👁 <span data-i18n="Podgląd lektora">Podgląd lektora</span></div>
+      <div class="pv-badge"><span data-i18n="Podgląd lektora">Podgląd lektora</span></div>
       <div class="pv-count" id="pvCount">1 / 1</div>
       <div class="pv-body" id="pvBody"></div>
       <div class="pv-nav">
-        <button class="pv-arrow" id="pvPrev" aria-label="poprzednie">‹</button>
-        <button class="pv-arrow" id="pvNext" aria-label="następne">›</button>
+        <button class="btn btn-secondary pv-arrow" id="pvPrev" data-i18n="Wstecz">Wstecz</button>
+        <button class="btn pv-arrow" id="pvNext" data-i18n="Dalej">Dalej</button>
       </div>
       <button class="btn btn-secondary pv-exit" id="pvExit" data-i18n="Zamknij podgląd">Zamknij podgląd</button>
     </section>
@@ -1817,8 +1817,24 @@ async function markCompleted(score, scoreMax){
     }
     // Podgląd dla lektora — widoczny tylko dla roli teacher, gdy zadanie ma treść
     if(IS_TEACHER && contentCount > 0){
-      var cpv = document.getElementById('coverPreview');
-      if(cpv) cpv.classList.remove('hidden');
+      var previewBtnEl = document.getElementById('startPreviewBtn');
+      // znajdź aktywny (widoczny) kontener przycisków startu
+      var activeBox = null;
+      ['coverModes','coverQuiz','coverGap','coverSpeak'].forEach(function(id){
+        var el = document.getElementById(id);
+        if(el && !el.classList.contains('hidden')) activeBox = el;
+      });
+      // wstaw przycisk podglądu do rzędu przycisków aktywnego bloku (obok Rozpocznij),
+      // żeby zawijał się obok przy jednym przycisku, a schodził niżej przy dwóch trybach
+      var row = activeBox ? (activeBox.querySelector('.mode-buttons') || activeBox) : null;
+      if(row && previewBtnEl){
+        row.appendChild(previewBtnEl);
+        previewBtnEl.classList.remove('hidden');
+        document.getElementById('coverPreview').classList.add('hidden');
+      } else {
+        // brak aktywnego bloku — pokaż w osobnym wierszu (fallback)
+        document.getElementById('coverPreview').classList.remove('hidden');
+      }
     }
 
     const loadingEl = document.getElementById('loading');
@@ -2494,7 +2510,7 @@ function buildPreviewItems(){
       const instr = pvEsc((GAME.instruction || '').split('||')[0].trim());
       let html = '';
       if(instr) html += '<div class="pv-instr">' + instr + '</div>';
-      html += '<div class="pv-q">' + pvEsc(g.sentence) + '</div>';
+      html += '<div class="pv-q">' + pvEsc(g.sentence).replace(/\n/g, '<br>') + '</div>';
       html += '<div class="pv-a"><span class="pv-a-label">' + t('Poprawnie: ') + '</span>' + pvEsc(g.answers[0] || '') + '</div>';
       items.push(html);
     });
