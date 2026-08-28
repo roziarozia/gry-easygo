@@ -1828,8 +1828,11 @@ async function markCompleted(score, scoreMax){
       document.getElementById('startSpeakBtn').textContent = t('Czytaj');
     }
     }
-    // Podgląd dla lektora — widoczny tylko dla roli teacher, gdy zadanie ma treść
-    if(IS_TEACHER && contentCount > 0){
+    // Podgląd dla lektora — widoczny tylko dla roli teacher, gdy zadanie ma treść.
+    // Pomijamy speaking i reading: tam nie ma pytań/odpowiedzi do przeklikania,
+    // a lektor i tak widzi cały materiał w panelu admina.
+    var previewableType = GAME.template !== 'speaking' && GAME.template !== 'reading';
+    if(IS_TEACHER && contentCount > 0 && previewableType){
       var previewBtnEl = document.getElementById('startPreviewBtn');
       // znajdź aktywny (widoczny) kontener przycisków startu
       var activeBox = null;
