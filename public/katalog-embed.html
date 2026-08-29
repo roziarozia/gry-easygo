@@ -775,8 +775,13 @@
     background:#efeafc; border:1.5px solid var(--eg-violet); border-radius:12px;
   }
   .eg-student-mode.eg-on{ display:flex; }
-  .eg-sm-eye{ flex:0 0 auto; color:var(--eg-violet); display:inline-flex; }
   .eg-sm-text{ font-family:'Quicksand',sans-serif; font-weight:700; font-size:14px; color:var(--eg-ink); }
+  .eg-sm-help{
+    font-family:'Nunito',sans-serif; font-size:12.5px; font-weight:700; color:var(--eg-violet);
+    background:none; border:none; padding:0; cursor:pointer; text-decoration:underline;
+    text-underline-offset:2px;
+  }
+  .eg-sm-help:hover{ color:var(--eg-magenta); }
   .eg-sm-name{ color:var(--eg-violet); }
   .eg-sm-legend{ display:inline-flex; align-items:center; gap:14px; font-family:'Nunito',sans-serif; font-size:12.5px; font-weight:600; color:var(--eg-muted); }
   .eg-sm-dot{ display:inline-flex; align-items:center; gap:5px; }
@@ -790,6 +795,43 @@
   }
   .eg-sm-exit:hover{ background:#e3daf8; }
   html.eg-dark .eg-student-mode{ background:#2b2440; border-color:#5a4a8a; }
+
+  /* Modal „jak to działa?” — wyjaśnienie trybu podglądu ucznia */
+  .eg-sm-modal-overlay{
+    position:fixed; inset:0; z-index:200; background:rgba(46,42,51,.5);
+    display:flex; align-items:center; justify-content:center; padding:20px;
+  }
+  .eg-sm-modal{
+    position:relative; max-width:440px; width:100%;
+    background:var(--eg-card); border-radius:16px; padding:26px 26px 22px;
+    box-shadow:0 20px 60px rgba(46,42,51,.3); max-height:88vh; overflow-y:auto;
+  }
+  .eg-sm-modal-close{
+    position:absolute; top:14px; right:14px; width:30px; height:30px;
+    display:inline-flex; align-items:center; justify-content:center;
+    background:var(--eg-card-soft); border:none; border-radius:999px; cursor:pointer;
+    color:var(--eg-muted); font-size:15px;
+  }
+  .eg-sm-modal-close:hover{ background:#efeafc; color:var(--eg-violet); }
+  .eg-sm-modal h3{
+    font-family:'Quicksand',sans-serif; font-weight:700; font-size:19px; color:var(--eg-ink);
+    margin:0 30px 12px 0;
+  }
+  .eg-sm-modal p{ font-family:'Nunito',sans-serif; font-size:14px; line-height:1.55; color:var(--eg-ink); margin:0 0 12px; }
+  .eg-sm-modal-sub{ font-weight:700; margin-bottom:8px !important; }
+  .eg-sm-modal-list{ list-style:none; margin:0 0 14px; padding:0; }
+  .eg-sm-modal-list li{
+    display:flex; align-items:flex-start; gap:10px;
+    font-family:'Nunito',sans-serif; font-size:13.5px; line-height:1.45; color:var(--eg-ink);
+    padding:5px 0;
+  }
+  .eg-sm-swatch{ flex:0 0 auto; width:16px; height:16px; border-radius:5px; margin-top:1px; }
+  .eg-sm-sw-done{ background:#1e7e50; }
+  .eg-sm-sw-prog{ background:#a78dd9; }
+  .eg-sm-sw-none{ background:transparent; border:1.5px solid var(--eg-line); }
+  .eg-sm-modal-note{ font-size:12.5px !important; color:var(--eg-muted) !important; margin-bottom:0 !important; }
+  html.eg-dark .eg-sm-modal-close{ background:#33294e; }
+  html.eg-dark .eg-sm-sw-none{ border-color:#4a4560; }
 
   /* Obwódki kafelków w trybie ucznia: zielona = zrobione, lawendowa = w trakcie */
   .eg-card.eg-sv-done{ box-shadow:0 0 0 3px #1e7e50; border-radius:16px; }
@@ -1196,13 +1238,27 @@
     </div>
     <button type="button" class="eg-progress-show" id="egProgressShow" style="display:none" data-i18n="Pokaż pasek postępu">Pokaż pasek postępu</button>
     <div class="eg-student-mode" id="egStudentMode">
-      <span class="eg-sm-eye"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7z" stroke="currentColor" stroke-width="1.8"/><circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="1.8"/></svg></span>
       <span class="eg-sm-text"><span data-i18n="Widzisz stronę oczami:">Widzisz stronę oczami:</span> <span class="eg-sm-name" id="egSmName"></span></span>
+      <button type="button" class="eg-sm-help" id="egSmHelp" data-i18n="jak to działa?">jak to działa?</button>
       <span class="eg-sm-legend">
         <span class="eg-sm-dot"><i class="eg-sm-done"></i><span data-i18n="zrobione">zrobione</span></span>
         <span class="eg-sm-dot"><i class="eg-sm-prog"></i><span data-i18n="w trakcie">w trakcie</span></span>
       </span>
       <button type="button" class="eg-sm-exit" id="egSmExit" data-i18n="Wyjdź z trybu ucznia">Wyjdź z trybu ucznia</button>
+    </div>
+    <div class="eg-sm-modal-overlay" id="egSmModal" style="display:none">
+      <div class="eg-sm-modal" role="dialog" aria-modal="true" aria-labelledby="egSmModalTitle">
+        <button type="button" class="eg-sm-modal-close" id="egSmModalClose" aria-label="Zamknij">✕</button>
+        <h3 id="egSmModalTitle" data-i18n="Podgląd oczami ucznia">Podgląd oczami ucznia</h3>
+        <p data-i18n="Widzisz katalog tak, jak wygląda dla wybranego ucznia. To tylko podgląd - nic nie zapisuje się na koncie ucznia, a Twoje własne postępy wracają, gdy wyjdziesz z trybu.">Widzisz katalog tak, jak wygląda dla wybranego ucznia. To tylko podgląd - nic nie zapisuje się na koncie ucznia, a Twoje własne postępy wracają, gdy wyjdziesz z trybu.</p>
+        <p class="eg-sm-modal-sub" data-i18n="Kolorowe obwódki wokół zadań pokazują postępy ucznia:">Kolorowe obwódki wokół zadań pokazują postępy ucznia:</p>
+        <ul class="eg-sm-modal-list">
+          <li><span class="eg-sm-swatch eg-sm-sw-done"></span><span data-i18n="zielona - zadanie zrobione">zielona - zadanie zrobione</span></li>
+          <li><span class="eg-sm-swatch eg-sm-sw-prog"></span><span data-i18n="lawendowa - zadanie w trakcie (z Twoją notatką, jeśli ją dodałaś)">lawendowa - zadanie w trakcie (z Twoją notatką, jeśli ją dodałaś)</span></li>
+          <li><span class="eg-sm-swatch eg-sm-sw-none"></span><span data-i18n="bez obwódki - uczeń jeszcze nie zaczął">bez obwódki - uczeń jeszcze nie zaczął</span></li>
+        </ul>
+        <p class="eg-sm-modal-note" data-i18n="Postępy „zrobione” i „w trakcie” ustawiasz w Panelu lektora.">Postępy „zrobione” i „w trakcie” ustawiasz w Panelu lektora.</p>
+      </div>
     </div>
     <div class="eg-active-filters" id="egActiveFilters" style="display:none">
       <span class="eg-af-label" data-i18n="Aktywne filtry:">Aktywne filtry:</span>
@@ -1762,6 +1818,21 @@
     // przycisk „Wyjdź z trybu ucznia" na banerze
     var smExit = document.getElementById('egSmExit');
     if(smExit) smExit.addEventListener('click', exitStudentView);
+    // modal „jak to działa?”
+    var smHelp = document.getElementById('egSmHelp');
+    var smModal = document.getElementById('egSmModal');
+    var smModalClose = document.getElementById('egSmModalClose');
+    if(smHelp && smModal){
+      smHelp.addEventListener('click', function(){ smModal.style.display = 'flex'; });
+    }
+    if(smModalClose && smModal){
+      smModalClose.addEventListener('click', function(){ smModal.style.display = 'none'; });
+    }
+    if(smModal){
+      smModal.addEventListener('click', function(e){
+        if(e.target === smModal) smModal.style.display = 'none'; // klik w tło zamyka
+      });
+    }
   })();
 
   function render(){
@@ -1943,7 +2014,9 @@
         : '';
       // przycisk "Zrobione" z datą — TYLKO w widoku "Praca domowa"
       var doneBtn = '';
-      if(curStatus === 'domowa' && homeworkSet[g.slug]){
+      // w trybie podglądu ucznia NIE pokazujemy przycisku oznaczania — to tylko podgląd,
+      // żaden zapis nie może pójść na konto (zapisy idą na konto zalogowanego lektora)
+      if(curStatus === 'domowa' && homeworkSet[g.slug] && !svViewing){
         if(homeworkDone[g.slug]){
           var d = new Date(homeworkDone[g.slug]);
           var dstr = d.toLocaleDateString('pl-PL', {day:'2-digit', month:'2-digit', year:'2-digit'});
@@ -2682,6 +2755,8 @@
   // uczeń oznacza pracę domową jako zrobioną / cofa
   window.egToggleDone = function(slug, done){
     if(!currentStudentId) return;
+    // w trybie podglądu ucznia blokujemy jakiekolwiek zapisy — lektor tylko ogląda
+    if(typeof svViewing !== 'undefined' && svViewing) return;
     var val = done ? new Date().toISOString() : null;
     _sb.from('homework').update({ completed_at: val })
       .eq('student_id', currentStudentId).eq('game_slug', slug)
@@ -2773,6 +2848,14 @@
     'w trakcie': 'in progress',
     'Wyjdź z trybu ucznia': 'Exit student view',
     'Wróć do widoku lektora': 'Back to teacher view',
+    'jak to działa?': 'how does it work?',
+    'Podgląd oczami ucznia': 'Viewing as a student',
+    'Widzisz katalog tak, jak wygląda dla wybranego ucznia. To tylko podgląd - nic nie zapisuje się na koncie ucznia, a Twoje własne postępy wracają, gdy wyjdziesz z trybu.': 'You see the catalogue as it looks for the selected student. This is view-only - nothing is saved to the student\'s account, and your own progress returns when you exit.',
+    'Kolorowe obwódki wokół zadań pokazują postępy ucznia:': 'Coloured outlines around exercises show the student\'s progress:',
+    'zielona - zadanie zrobione': 'green - exercise done',
+    'lawendowa - zadanie w trakcie (z Twoją notatką, jeśli ją dodałaś)': 'lavender - exercise in progress (with your note, if you added one)',
+    'bez obwódki - uczeń jeszcze nie zaczął': 'no outline - student hasn\'t started yet',
+    'Postępy „zrobione” i „w trakcie” ustawiasz w Panelu lektora.': 'You set "done" and "in progress" in the Teacher Panel.',
     'Więcej': 'More',
     'Ukryj': 'Hide',
     'OFERTA': 'PRICING',
