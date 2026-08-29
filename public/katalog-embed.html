@@ -726,6 +726,79 @@
   html.eg-dark .eg-af-clear{ background:#2b2436; }
   html.eg-dark .eg-af-clear:hover{ background:#4a2740; }
 
+  /* === TECZKA LEKTORA (podgląd oczami ucznia) === */
+  /* Rozwijana zakładka na górze — lektor wybiera ucznia/grupę i widzi katalog jego oczami. */
+  .eg-teczka{ position:relative; display:inline-flex; }
+  .eg-teczka-btn{
+    display:inline-flex; align-items:center; gap:7px;
+    font-family:'Quicksand',sans-serif; font-weight:700; font-size:13.5px;
+    color:#fff; background:var(--eg-violet); border:none; border-radius:999px;
+    padding:8px 16px; cursor:pointer; transition:filter .15s;
+  }
+  .eg-teczka-btn:hover{ filter:brightness(1.06); }
+  .eg-teczka-btn .eg-teczka-caret{ transition:transform .18s; }
+  .eg-teczka.eg-open .eg-teczka-caret{ transform:rotate(180deg); }
+  .eg-teczka-panel{
+    display:none; position:absolute; top:calc(100% + 8px); left:0; z-index:60;
+    min-width:260px; max-width:320px; max-height:60vh; overflow-y:auto;
+    background:var(--eg-card); border:1.5px solid var(--eg-line); border-radius:14px;
+    box-shadow:0 10px 34px rgba(46,42,51,.16); padding:8px;
+  }
+  .eg-teczka.eg-open .eg-teczka-panel{ display:block; }
+  .eg-teczka-panel .eg-tk-group-title{
+    font-family:'Quicksand',sans-serif; font-weight:700; font-size:11px; letter-spacing:.04em;
+    text-transform:uppercase; color:var(--eg-muted); padding:8px 10px 4px;
+  }
+  .eg-tk-item{
+    display:flex; align-items:center; gap:9px; width:100%; text-align:left;
+    font-family:'Nunito',sans-serif; font-size:14px; font-weight:600; color:var(--eg-ink);
+    background:none; border:none; border-radius:9px; padding:9px 10px; cursor:pointer;
+  }
+  .eg-tk-item:hover{ background:var(--eg-card-soft); }
+  .eg-tk-item.eg-tk-active{ background:#efeafc; color:var(--eg-violet); }
+  html.eg-dark .eg-tk-item.eg-tk-active{ background:#33294e; }
+  .eg-tk-avatar{
+    display:inline-flex; align-items:center; justify-content:center; flex:0 0 auto;
+    width:28px; height:28px; border-radius:999px; background:var(--eg-violet); color:#fff;
+    font-family:'Quicksand',sans-serif; font-weight:700; font-size:12px;
+  }
+  .eg-tk-avatar.eg-tk-grp{ background:var(--eg-gold); color:#5a4a1e; }
+  .eg-tk-exit{ color:var(--eg-magenta); }
+  .eg-tk-exit .eg-tk-avatar{ background:#f0e0ea; color:var(--eg-magenta); }
+
+  /* Baner trybu ucznia — żeby lektor pamiętał, czyimi oczami patrzy */
+  .eg-student-mode{
+    display:none; align-items:center; gap:12px; flex-wrap:wrap;
+    max-width:1180px; margin:0 auto 16px; padding:11px 16px;
+    background:#efeafc; border:1.5px solid var(--eg-violet); border-radius:12px;
+  }
+  .eg-student-mode.eg-on{ display:flex; }
+  .eg-sm-eye{ flex:0 0 auto; color:var(--eg-violet); display:inline-flex; }
+  .eg-sm-text{ font-family:'Quicksand',sans-serif; font-weight:700; font-size:14px; color:var(--eg-ink); }
+  .eg-sm-name{ color:var(--eg-violet); }
+  .eg-sm-legend{ display:inline-flex; align-items:center; gap:14px; font-family:'Nunito',sans-serif; font-size:12.5px; font-weight:600; color:var(--eg-muted); }
+  .eg-sm-dot{ display:inline-flex; align-items:center; gap:5px; }
+  .eg-sm-dot i{ width:12px; height:12px; border-radius:4px; display:inline-block; }
+  .eg-sm-dot .eg-sm-done{ background:#1e7e50; }
+  .eg-sm-dot .eg-sm-prog{ background:#a78dd9; }
+  .eg-sm-exit{
+    margin-left:auto; font-family:'Quicksand',sans-serif; font-weight:700; font-size:13px;
+    color:var(--eg-violet); background:var(--eg-card); border:1.5px solid var(--eg-violet);
+    border-radius:9px; padding:6px 14px; cursor:pointer; transition:background .12s;
+  }
+  .eg-sm-exit:hover{ background:#e3daf8; }
+  html.eg-dark .eg-student-mode{ background:#2b2440; border-color:#5a4a8a; }
+
+  /* Obwódki kafelków w trybie ucznia: zielona = zrobione, lawendowa = w trakcie */
+  .eg-card.eg-sv-done{ box-shadow:0 0 0 3px #1e7e50; border-radius:16px; }
+  .eg-card.eg-sv-progress{ box-shadow:0 0 0 3px #a78dd9; border-radius:16px; }
+  /* notatka lektora „w trakcie" (np. zacząć od slajdu 5) — mały pasek na kafelku */
+  .eg-sv-note{
+    display:block; margin-top:6px; font-family:'Nunito',sans-serif; font-size:12px; font-weight:600;
+    color:#6a4fb0; background:#efeafc; border-radius:8px; padding:5px 9px; line-height:1.35;
+  }
+  html.eg-dark .eg-sv-note{ color:#c9b6f2; background:#33294e; }
+
   .eg-grid{
     display:grid;
     grid-template-columns:repeat(4,1fr);
@@ -987,6 +1060,14 @@
       <span class="eg-theme-ico eg-theme-moon" aria-hidden="true"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.8A9 9 0 1111.2 3 7 7 0 0021 12.8z"/></svg></span>
     </button>
     <div class="eg-topbar-right">
+      <div class="eg-teczka" id="egTeczka" style="display:none">
+        <button type="button" class="eg-teczka-btn" id="egTeczkaBtn" aria-haspopup="true" aria-expanded="false">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M3 7a2 2 0 012-2h4l2 2h8a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2V7z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg>
+          <span id="egTeczkaLabel" data-i18n="Uczniowie">Uczniowie</span>
+          <span class="eg-teczka-caret">▾</span>
+        </button>
+        <div class="eg-teczka-panel" id="egTeczkaPanel"></div>
+      </div>
       <span class="eg-topbar-sep"></span>
       <div class="eg-account" id="egAccount"></div>
     </div>
@@ -1112,6 +1193,15 @@
       </div>
     </div>
     <button type="button" class="eg-progress-show" id="egProgressShow" style="display:none" data-i18n="Pokaż pasek postępu">Pokaż pasek postępu</button>
+    <div class="eg-student-mode" id="egStudentMode">
+      <span class="eg-sm-eye"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7z" stroke="currentColor" stroke-width="1.8"/><circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="1.8"/></svg></span>
+      <span class="eg-sm-text"><span data-i18n="Widzisz stronę oczami:">Widzisz stronę oczami:</span> <span class="eg-sm-name" id="egSmName"></span></span>
+      <span class="eg-sm-legend">
+        <span class="eg-sm-dot"><i class="eg-sm-done"></i><span data-i18n="zrobione">zrobione</span></span>
+        <span class="eg-sm-dot"><i class="eg-sm-prog"></i><span data-i18n="w trakcie">w trakcie</span></span>
+      </span>
+      <button type="button" class="eg-sm-exit" id="egSmExit" data-i18n="Wyjdź z trybu ucznia">Wyjdź z trybu ucznia</button>
+    </div>
     <div class="eg-active-filters" id="egActiveFilters" style="display:none">
       <span class="eg-af-label" data-i18n="Aktywne filtry:">Aktywne filtry:</span>
       <span class="eg-af-chips" id="egActiveFiltersChips"></span>
@@ -1480,6 +1570,147 @@
     if(typeof syncMobFilters === 'function') syncMobFilters();
   }
 
+  // ====== TECZKA LEKTORA — podgląd katalogu oczami ucznia ======
+  // Stan: kogo lektor aktualnie „ogląda". null = tryb własny (lektor).
+  var svViewing = null;          // { kind:'student'|'group', id, name } lub null
+  var svProgress = {};           // slug -> { done:bool, note:string } dla oglądanego ucznia
+  var svStudents = [];           // lista uczniów lektora [{id, name}]
+  var svGroups = [];             // lista grup [{id, name, memberIds:[]}]
+  var svTeacherId = null;
+
+  function initTeczka(teacherId){
+    svTeacherId = teacherId;
+    var teczka = document.getElementById('egTeczka');
+    if(!teczka) return;
+    // wczytaj uczniów (profiles.teacher_id = ja) + grupy
+    Promise.all([
+      _sb.from('profiles').select('id, student_name, email').eq('teacher_id', teacherId),
+      _sb.from('student_groups').select('id, name').eq('teacher_id', teacherId)
+    ]).then(function(res){
+      var pr = res[0], gr = res[1];
+      svStudents = (pr && pr.data ? pr.data : []).map(function(s){
+        return { id:s.id, name:(s.student_name || s.email || 'Uczeń') };
+      }).sort(function(a,b){ return a.name.localeCompare(b.name); });
+      svGroups = (gr && gr.data ? gr.data : []).map(function(g){
+        return { id:g.id, name:g.name };
+      }).sort(function(a,b){ return a.name.localeCompare(b.name); });
+      // pokaż teczkę tylko jeśli lektor ma jakichkolwiek uczniów
+      if(svStudents.length || svGroups.length){
+        teczka.style.display = '';
+        buildTeczkaPanel();
+      }
+    });
+  }
+
+  function buildTeczkaPanel(){
+    var panel = document.getElementById('egTeczkaPanel');
+    if(!panel) return;
+    var html = '';
+    // gdy w trybie ucznia — opcja wyjścia na górze
+    if(svViewing){
+      html += '<button type="button" class="eg-tk-item eg-tk-exit" data-kind="exit">' +
+        '<span class="eg-tk-avatar">✕</span>' + t('Wróć do widoku lektora') + '</button>';
+    }
+    if(svStudents.length){
+      html += '<div class="eg-tk-group-title">' + t('Uczniowie') + '</div>';
+      svStudents.forEach(function(s){
+        var active = (svViewing && svViewing.kind==='student' && svViewing.id===s.id);
+        html += '<button type="button" class="eg-tk-item' + (active?' eg-tk-active':'') + '" data-kind="student" data-id="' + esc(s.id) + '">' +
+          '<span class="eg-tk-avatar">' + esc(initials(s.name)) + '</span>' + esc(s.name) + '</button>';
+      });
+    }
+    if(svGroups.length){
+      html += '<div class="eg-tk-group-title">' + t('Grupy') + '</div>';
+      svGroups.forEach(function(g){
+        var active = (svViewing && svViewing.kind==='group' && svViewing.id===g.id);
+        html += '<button type="button" class="eg-tk-item' + (active?' eg-tk-active':'') + '" data-kind="group" data-id="' + esc(g.id) + '">' +
+          '<span class="eg-tk-avatar eg-tk-grp">' + esc(initials(g.name)) + '</span>' + esc(g.name) + '</button>';
+      });
+    }
+    panel.innerHTML = html;
+  }
+
+  function initials(name){
+    var parts = (name||'').trim().split(/\s+/);
+    if(parts.length >= 2) return (parts[0][0]||'').toUpperCase() + (parts[1][0]||'').toUpperCase();
+    return ((name||'?').slice(0,2)).toUpperCase();
+  }
+
+  // Wejdź w podgląd ucznia — załaduj jego postępy z student_progress
+  function enterStudentView(kind, id){
+    var target = (kind==='student')
+      ? svStudents.filter(function(s){ return s.id===id; })[0]
+      : svGroups.filter(function(g){ return g.id===id; })[0];
+    if(!target) return;
+    svViewing = { kind:kind, id:id, name:target.name };
+    // ładujemy postępy: dla ucznia po student_id, dla grupy — na razie po grupie nie ma per-slug,
+    // więc grupa pokazuje postępy wspólne (student_progress z group?) — obsługa ucznia najpierw.
+    var q = _sb.from('student_progress').select('game_slug, done, note').eq('teacher_id', svTeacherId);
+    if(kind==='student') q = q.eq('student_id', id);
+    q.then(function(r){
+      svProgress = {};
+      (r && r.data ? r.data : []).forEach(function(row){
+        svProgress[row.game_slug] = { done: !!row.done, note: (row.note||'') };
+      });
+      // baner + panel + kafelki
+      var sm = document.getElementById('egStudentMode');
+      var nm = document.getElementById('egSmName');
+      if(nm) nm.textContent = target.name;
+      if(sm) sm.classList.add('eg-on');
+      buildTeczkaPanel();
+      closeTeczka();
+      curPage = 1;
+      render();
+    });
+  }
+
+  function exitStudentView(){
+    svViewing = null;
+    svProgress = {};
+    var sm = document.getElementById('egStudentMode');
+    if(sm) sm.classList.remove('eg-on');
+    buildTeczkaPanel();
+    closeTeczka();
+    render();
+  }
+
+  function closeTeczka(){
+    var teczka = document.getElementById('egTeczka');
+    var btn = document.getElementById('egTeczkaBtn');
+    if(teczka) teczka.classList.remove('eg-open');
+    if(btn) btn.setAttribute('aria-expanded','false');
+  }
+
+  // podpięcie zdarzeń teczki
+  (function(){
+    var btn = document.getElementById('egTeczkaBtn');
+    var teczka = document.getElementById('egTeczka');
+    var panel = document.getElementById('egTeczkaPanel');
+    if(btn && teczka){
+      btn.addEventListener('click', function(e){
+        e.stopPropagation();
+        var open = teczka.classList.toggle('eg-open');
+        btn.setAttribute('aria-expanded', open ? 'true' : 'false');
+      });
+    }
+    if(panel){
+      panel.addEventListener('click', function(e){
+        var item = e.target.closest('.eg-tk-item');
+        if(!item) return;
+        var kind = item.getAttribute('data-kind');
+        if(kind === 'exit'){ exitStudentView(); return; }
+        enterStudentView(kind, item.getAttribute('data-id'));
+      });
+    }
+    // klik poza teczką zamyka panel
+    document.addEventListener('click', function(e){
+      if(teczka && !teczka.contains(e.target)) closeTeczka();
+    });
+    // przycisk „Wyjdź z trybu ucznia" na banerze
+    var smExit = document.getElementById('egSmExit');
+    if(smExit) smExit.addEventListener('click', exitStudentView);
+  })();
+
   function render(){
     var q = norm(curSearch);
     var list = allGames.filter(function(g){
@@ -1693,12 +1924,23 @@
         }
         scoreLine = '<span class="eg-score-line"><svg viewBox="0 0 24 24" width="13" height="13" style="vertical-align:-2px;margin-right:4px"><path d="M12 2l2.4 7.4H22l-6 4.6 2.3 7.4-6.3-4.6L5.7 21.4 8 14 2 9.4h7.6z" fill="currentColor"/></svg>' + t('Wynik') + ': <strong>' + _sc.score + '/' + _sc.max + '</strong> · ' + _pct + '%' + _dstr + '</span>';
       }
-      return '<article class="eg-card' + (g.is_premium ? ' eg-premium' : '') + (homeworkSet[g.slug] ? ' eg-hw-card' : '') + (homeworkDone[g.slug] ? ' eg-hw-done' : '') + (completedSet[g.slug] ? ' eg-completed' : '') + '">' +
+      // Tryb ucznia (teczka): obwódka zielona=zrobione, lawendowa=w trakcie + notatka lektora
+      var svClass = '';
+      var svNote = '';
+      if(svViewing && svProgress[g.slug]){
+        var sp = svProgress[g.slug];
+        svClass = sp.done ? ' eg-sv-done' : ' eg-sv-progress';
+        if(!sp.done && sp.note){
+          svNote = '<span class="eg-sv-note">' + esc(sp.note) + '</span>';
+        }
+      }
+      return '<article class="eg-card' + (g.is_premium ? ' eg-premium' : '') + (homeworkSet[g.slug] ? ' eg-hw-card' : '') + (homeworkDone[g.slug] ? ' eg-hw-done' : '') + (completedSet[g.slug] ? ' eg-completed' : '') + svClass + '">' +
         '<div class="eg-thumb">' + thumb + heart + lockOverlay + homework + doneBadge + bearBadge + '</div>' +
         '<div class="eg-body">' +
           '<h3>' + esc(g.title) + '</h3>' +
           typeBadge +
           scoreLine +
+          svNote +
           '<p>' + esc(g.description || '') + '</p>' +
           '<span class="eg-meta">' + metaParts.join(' · ') + premiumBadge + '</span>' +
           seriesLine +
@@ -2340,6 +2582,8 @@
           }
           render();
           renderAccount(session, p);
+          // Teczka lektora — podgląd katalogu oczami ucznia (tylko rola teacher)
+          if(p && p.role === 'teacher'){ initTeczka(session.user.id); }
         });
       // pobierz pracę domową ucznia (ze stanem ukończenia)
       _sb.from('homework').select('game_slug,completed_at').eq('student_id', session.user.id)
@@ -2455,6 +2699,13 @@
     'Wyczyść': 'Clear',
     'Aktywne filtry:': 'Active filters:',
     'Wyczyść wszystko': 'Clear all',
+    'Uczniowie': 'Students',
+    'Grupy': 'Groups',
+    'Widzisz stronę oczami:': 'Viewing as:',
+    'zrobione': 'done',
+    'w trakcie': 'in progress',
+    'Wyjdź z trybu ucznia': 'Exit student view',
+    'Wróć do widoku lektora': 'Back to teacher view',
     'Więcej': 'More',
     'Ukryj': 'Hide',
     'OFERTA': 'PRICING',
