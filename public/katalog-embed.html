@@ -695,6 +695,37 @@
     margin:0 auto;
     padding:44px 24px 90px;
   }
+  /* Pasek aktywnych filtrów — pokazuje wprost, że lista jest przefiltrowana.
+     Widoczny nad kafelkami zawsze (telefon i desktop), z możliwością wyczyszczenia. */
+  .eg-active-filters{
+    display:flex; align-items:center; flex-wrap:wrap; gap:8px;
+    max-width:1180px; margin:0 auto 14px; padding:10px 14px;
+    background:#fdf2f9; border:1.5px solid var(--eg-magenta); border-radius:12px;
+  }
+  .eg-af-label{ font-family:'Quicksand',sans-serif; font-weight:700; font-size:13.5px; color:var(--eg-magenta); }
+  .eg-af-chips{ display:inline-flex; flex-wrap:wrap; gap:6px; }
+  .eg-af-chip{
+    display:inline-flex; align-items:center; gap:5px;
+    font-family:'Quicksand',sans-serif; font-weight:700; font-size:13px; color:#fff;
+    background:var(--eg-magenta); border-radius:999px; padding:4px 6px 4px 11px;
+  }
+  .eg-af-chip button{
+    display:inline-flex; align-items:center; justify-content:center;
+    width:17px; height:17px; padding:0; border:none; border-radius:999px; cursor:pointer;
+    background:rgba(255,255,255,.28); color:#fff; font-size:12px; line-height:1;
+    transition:background .12s;
+  }
+  .eg-af-chip button:hover{ background:rgba(255,255,255,.5); }
+  .eg-af-clear{
+    margin-left:auto; font-family:'Quicksand',sans-serif; font-weight:700; font-size:13px;
+    color:var(--eg-magenta); background:#fff; border:1.5px solid var(--eg-magenta);
+    border-radius:9px; padding:6px 14px; cursor:pointer; transition:background .12s;
+  }
+  .eg-af-clear:hover{ background:#f6e3f0; }
+  html.eg-dark .eg-active-filters{ background:#3a1f30; border-color:#8a4a72; }
+  html.eg-dark .eg-af-clear{ background:#2b2436; }
+  html.eg-dark .eg-af-clear:hover{ background:#4a2740; }
+
   .eg-grid{
     display:grid;
     grid-template-columns:repeat(4,1fr);
@@ -1081,6 +1112,11 @@
       </div>
     </div>
     <button type="button" class="eg-progress-show" id="egProgressShow" style="display:none" data-i18n="Pokaż pasek postępu">Pokaż pasek postępu</button>
+    <div class="eg-active-filters" id="egActiveFilters" style="display:none">
+      <span class="eg-af-label" data-i18n="Aktywne filtry:">Aktywne filtry:</span>
+      <span class="eg-af-chips" id="egActiveFiltersChips"></span>
+      <button type="button" class="eg-af-clear" id="egActiveFiltersClear" data-i18n="Wyczyść wszystko">Wyczyść wszystko</button>
+    </div>
     <div class="eg-grid" id="egGrid"></div>
     <nav class="eg-pager" id="egPager" style="display:none" aria-label="Strony ćwiczeń" data-i18n-aria="Strony ćwiczeń"></nav>
   </main>
@@ -1336,6 +1372,114 @@
     });
   })();
 
+  // Kliknięcie ✕ na chipie aktywnego filtra — usuń pojedynczy filtr
+  (function(){
+    var chipsWrap = document.getElementById('egActiveFiltersChips');
+    if(chipsWrap){
+      chipsWrap.addEventListener('click', function(e){
+        var btn = e.target.closest('button[data-kind]');
+        if(!btn) return;
+        removeOneFilter(btn.getAttribute('data-kind'), btn.getAttribute('data-val'));
+      });
+    }
+    // „Wyczyść wszystko" — zresetuj wszystkie filtry naraz
+    var clearBtn = document.getElementById('egActiveFiltersClear');
+    if(clearBtn){
+      clearBtn.addEventListener('click', function(){
+        curType = 'wszystkie'; curStatus = 'wszystkie'; curLvls = []; curSearch = '';
+        curPage = 1;
+        levels.querySelectorAll('button').forEach(function(b){
+          b.classList.toggle('eg-active', b.getAttribute('data-lvl') === 'wszystkie');
+        });
+        filters.querySelectorAll('button').forEach(function(b){ b.classList.remove('eg-active'); });
+        var allBtn = filters.querySelector('[data-cat="wszystkie"]'); if(allBtn) allBtn.classList.add('eg-active');
+        var si = document.getElementById('egSearch'); if(si) si.value = '';
+        var sc = document.getElementById('egSearchClear'); if(sc) sc.style.display = 'none';
+        render();
+        if(typeof syncMobFilters === 'function') syncMobFilters();
+      });
+    }
+  })();
+
+  // Buduje pasek aktywnych filtrów nad kafelkami — żeby było widać, że lista jest
+  // przefiltrowana (częsty problem: włączone „Darmowe" i nie widać reszty materiałów).
+  // Każdy chip ma ✕ do usunięcia pojedynczego filtra; „Wyczyść wszystko" resetuje wszystkie.
+  function updateActiveFiltersBar(){
+    var bar = document.getElementById('egActiveFilters');
+    var chipsWrap = document.getElementById('egActiveFiltersChips');
+    if(!bar || !chipsWrap) return;
+    var statusLabels = {
+      'darmowe':'Darmowe', 'platne':'Dla subskrybentów', 'dzieci':'Dla dzieci',
+      'ulubione':'Ulubione', 'domowa':'Praca domowa', 'zrobione':'Zrobione', 'niezrobione':'Do zrobienia'
+    };
+    var typeLabels = {
+      'gramatyka':'Gramatyka', 'slownictwo':'Słownictwo',
+      'speaking':'Speaking', 'reading':'Reading', 'listening':'Listening'
+    };
+    var chips = [];
+    // poziomy (może być kilka)
+    curLvls.forEach(function(lv){
+      chips.push({ kind:'lvl', val:lv, label:lv });
+    });
+    // kategoria
+    if(curType && curType !== 'wszystkie'){
+      chips.push({ kind:'type', val:curType, label:(typeLabels[curType] || curType) });
+    }
+    // status
+    if(curStatus && curStatus !== 'wszystkie'){
+      chips.push({ kind:'status', val:curStatus, label:(statusLabels[curStatus] || curStatus) });
+    }
+    // wyszukiwanie
+    if(curSearch && curSearch.trim()){
+      chips.push({ kind:'search', val:'', label:'„' + curSearch.trim() + '"' });
+    }
+    if(chips.length === 0){ bar.style.display = 'none'; chipsWrap.innerHTML = ''; return; }
+    var html = '';
+    chips.forEach(function(c){
+      var lab = (typeof t === 'function') ? t(c.label) : c.label;
+      html += '<span class="eg-af-chip">' + esc(lab) +
+        '<button type="button" data-kind="' + c.kind + '" data-val="' + esc(c.val) +
+        '" aria-label="Usuń filtr">✕</button></span>';
+    });
+    chipsWrap.innerHTML = html;
+    bar.style.display = 'flex';
+  }
+
+  // usuwa pojedynczy filtr po kliknięciu ✕ na chipie
+  function removeOneFilter(kind, val){
+    if(kind === 'lvl'){
+      curLvls = curLvls.filter(function(x){ return x !== val; });
+      levels.querySelectorAll('button').forEach(function(b){
+        var bl = b.getAttribute('data-lvl');
+        if(bl === val) b.classList.remove('eg-active');
+      });
+      // jeśli nie został żaden poziom, podświetl „Wszystkie"
+      if(curLvls.length === 0){
+        var allLvl = levels.querySelector('[data-lvl="wszystkie"]');
+        if(allLvl) allLvl.classList.add('eg-active');
+      }
+    } else if(kind === 'type'){
+      curType = 'wszystkie';
+      filters.querySelectorAll('button[data-cat]').forEach(function(b){
+        var c = b.getAttribute('data-cat');
+        if(c === 'gramatyka' || c === 'slownictwo' || c === 'speaking' || c === 'reading' || c === 'listening')
+          b.classList.remove('eg-active');
+      });
+    } else if(kind === 'status'){
+      curStatus = 'wszystkie';
+      filters.querySelectorAll('button[data-cat]').forEach(function(b){
+        if(b.getAttribute('data-cat') === val) b.classList.remove('eg-active');
+      });
+    } else if(kind === 'search'){
+      curSearch = '';
+      var si = document.getElementById('egSearch'); if(si) si.value = '';
+      var sc = document.getElementById('egSearchClear'); if(sc) sc.style.display = 'none';
+    }
+    curPage = 1;
+    render();
+    if(typeof syncMobFilters === 'function') syncMobFilters();
+  }
+
   function render(){
     var q = norm(curSearch);
     var list = allGames.filter(function(g){
@@ -1580,6 +1724,7 @@
       if(sortWrap) sortWrap.style.display = 'flex';
     }
     grid.innerHTML = html;
+    updateActiveFiltersBar();
     renderPagination(totalPages);
     // baner zachęty przy filtrze "Dla subskrybentów" — tylko dla osób bez dostępu
     var promo = document.getElementById('egPromo');
@@ -2308,6 +2453,8 @@
     'Widok:': 'View:',
     // przyciski
     'Wyczyść': 'Clear',
+    'Aktywne filtry:': 'Active filters:',
+    'Wyczyść wszystko': 'Clear all',
     'Więcej': 'More',
     'Ukryj': 'Hide',
     'OFERTA': 'PRICING',
