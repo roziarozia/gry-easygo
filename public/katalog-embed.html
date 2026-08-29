@@ -207,6 +207,14 @@
     }
     .eg-account #egLogout{ flex-basis:100%; text-align:center; }
 
+    /* TECZKA na telefonie: własna linia (jak konto), wyśrodkowana; panel na całą szerokość */
+    .eg-teczka{ order:4; flex-basis:100%; justify-content:center; display:flex; }
+    .eg-teczka-btn{ width:auto; }
+    .eg-teczka-panel{
+      left:50%; transform:translateX(-50%);
+      min-width:0; width:calc(100vw - 32px); max-width:340px;
+    }
+
     /* ===== TELEFON: 3 pastylki zamiast ściany filtrów ===== */
     /* chowamy oryginalne rzędy filtrów i poziomów, pokazujemy pastylki */
     #egFilters, #egLevels{ display:none !important; }
@@ -767,6 +775,7 @@
   .eg-tk-avatar.eg-tk-grp{ background:var(--eg-gold); color:#5a4a1e; }
   .eg-tk-exit{ color:var(--eg-magenta); }
   .eg-tk-exit .eg-tk-avatar{ background:#f0e0ea; color:var(--eg-magenta); }
+  html.eg-dark .eg-tk-exit .eg-tk-avatar{ background:#4a2740; }
 
   /* Baner trybu ucznia — żeby lektor pamiętał, czyimi oczami patrzy */
   .eg-student-mode{
@@ -794,6 +803,14 @@
     border-radius:9px; padding:6px 14px; cursor:pointer; transition:background .12s;
   }
   .eg-sm-exit:hover{ background:#e3daf8; }
+  html.eg-dark .eg-sm-exit{ background:#33294e; color:#c9b6f2; border-color:#5a4a8a; }
+  html.eg-dark .eg-sm-exit:hover{ background:#42356a; }
+  /* baner trybu ucznia na telefonie: elementy w pionie, przycisk pełną szerokością */
+  @media (max-width:560px){
+    .eg-student-mode{ gap:9px 12px; padding:12px 14px; }
+    .eg-sm-legend{ flex-basis:100%; gap:16px; }
+    .eg-sm-exit{ margin-left:0; flex-basis:100%; text-align:center; padding:9px 14px; }
+  }
   html.eg-dark .eg-student-mode{ background:#2b2440; border-color:#5a4a8a; }
 
   /* Modal „jak to działa?” — wyjaśnienie trybu podglądu ucznia */
