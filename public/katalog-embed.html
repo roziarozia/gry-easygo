@@ -798,9 +798,13 @@
 
   /* Modal „jak to działa?” — wyjaśnienie trybu podglądu ucznia */
   .eg-sm-modal-overlay{
-    position:fixed; inset:0; z-index:200; background:rgba(46,42,51,.5);
-    display:flex; align-items:center; justify-content:center; padding:20px;
+    position:absolute; top:0; left:0; right:0; min-height:100%; z-index:200;
+    background:rgba(46,42,51,.5);
+    display:flex; align-items:flex-start; justify-content:center;
+    padding:20px;
   }
+  /* modal blisko góry — w iframe kotwiczymy u góry, a rodzic przewija tam widok */
+  .eg-sm-modal{ margin-top:30px; }
   .eg-sm-modal{
     position:relative; max-width:440px; width:100%;
     background:var(--eg-card); border-radius:16px; padding:26px 26px 22px;
@@ -836,12 +840,6 @@
   /* Obwódki kafelków w trybie ucznia: zielona = zrobione, lawendowa = w trakcie */
   .eg-card.eg-sv-done{ box-shadow:0 0 0 3px #1e7e50; border-radius:16px; }
   .eg-card.eg-sv-progress{ box-shadow:0 0 0 3px #a78dd9; border-radius:16px; }
-  /* notatka lektora „w trakcie" (np. zacząć od slajdu 5) — mały pasek na kafelku */
-  .eg-sv-note{
-    display:block; margin-top:6px; font-family:'Nunito',sans-serif; font-size:12px; font-weight:600;
-    color:#6a4fb0; background:#efeafc; border-radius:8px; padding:5px 9px; line-height:1.35;
-  }
-  html.eg-dark .eg-sv-note{ color:#c9b6f2; background:#33294e; }
 
   .eg-grid{
     display:grid;
@@ -1253,11 +1251,11 @@
         <p data-i18n="Widzisz katalog tak, jak wygląda dla wybranego ucznia. To tylko podgląd - nic nie zapisuje się na koncie ucznia, a Twoje własne postępy wracają, gdy wyjdziesz z trybu.">Widzisz katalog tak, jak wygląda dla wybranego ucznia. To tylko podgląd - nic nie zapisuje się na koncie ucznia, a Twoje własne postępy wracają, gdy wyjdziesz z trybu.</p>
         <p class="eg-sm-modal-sub" data-i18n="Kolorowe obwódki wokół zadań pokazują postępy ucznia:">Kolorowe obwódki wokół zadań pokazują postępy ucznia:</p>
         <ul class="eg-sm-modal-list">
-          <li><span class="eg-sm-swatch eg-sm-sw-done"></span><span data-i18n="zielona - zadanie zrobione">zielona - zadanie zrobione</span></li>
-          <li><span class="eg-sm-swatch eg-sm-sw-prog"></span><span data-i18n="lawendowa - zadanie w trakcie (z Twoją notatką, jeśli ją dodałaś)">lawendowa - zadanie w trakcie (z Twoją notatką, jeśli ją dodałaś)</span></li>
+          <li><span class="eg-sm-swatch eg-sm-sw-done"></span><span data-i18n="zielona - zadanie ukończone">zielona - zadanie ukończone</span></li>
+          <li><span class="eg-sm-swatch eg-sm-sw-prog"></span><span data-i18n="lawendowa - zadanie w trakcie">lawendowa - zadanie w trakcie</span></li>
           <li><span class="eg-sm-swatch eg-sm-sw-none"></span><span data-i18n="bez obwódki - uczeń jeszcze nie zaczął">bez obwódki - uczeń jeszcze nie zaczął</span></li>
         </ul>
-        <p class="eg-sm-modal-note" data-i18n="Postępy „zrobione” i „w trakcie” ustawiasz w Panelu lektora.">Postępy „zrobione” i „w trakcie” ustawiasz w Panelu lektora.</p>
+        <p class="eg-sm-modal-note" data-i18n="Status „w trakcie” ustawiasz w Panelu lektora.">Status „w trakcie” ustawiasz w Panelu lektora.</p>
       </div>
     </div>
     <div class="eg-active-filters" id="egActiveFilters" style="display:none">
@@ -1762,6 +1760,10 @@
       closeTeczka();
       curPage = 1;
       render();
+    }).catch(function(){
+      // błąd sieci — wycofaj tryb podglądu, żeby nie zawisł w połowie
+      svViewing = null;
+      alert('Nie udało się wczytać postępów ucznia. Spróbuj ponownie.');
     });
   }
 
@@ -1823,7 +1825,16 @@
     var smModal = document.getElementById('egSmModal');
     var smModalClose = document.getElementById('egSmModalClose');
     if(smHelp && smModal){
-      smHelp.addEventListener('click', function(){ smModal.style.display = 'flex'; });
+      smHelp.addEventListener('click', function(){
+        smModal.style.display = 'flex';
+        // katalog jest w iframe — poproś rodzica o przewinięcie na górę,
+        // żeby modal (kotwiczony u góry) był od razu w polu widzenia
+        try{
+          if(window.parent && window.parent !== window){
+            window.parent.postMessage({ egScrollTop: true }, '*');
+          }
+        }catch(e){}
+      });
     }
     if(smModalClose && smModal){
       smModalClose.addEventListener('click', function(){ smModal.style.display = 'none'; });
@@ -2050,14 +2061,19 @@
         }
         scoreLine = '<span class="eg-score-line"><svg viewBox="0 0 24 24" width="13" height="13" style="vertical-align:-2px;margin-right:4px"><path d="M12 2l2.4 7.4H22l-6 4.6 2.3 7.4-6.3-4.6L5.7 21.4 8 14 2 9.4h7.6z" fill="currentColor"/></svg>' + t('Wynik') + ': <strong>' + _sc.score + '/' + _sc.max + '</strong> · ' + _pct + '%' + _dstr + '</span>';
       }
-      // Tryb ucznia (teczka): obwódka zielona=zrobione, lawendowa=w trakcie + notatka lektora
+      // Tryb ucznia (teczka): obwódka wokół zadania wg postępów ucznia.
+      // Zielona = ukończone (oznaczone w panelu LUB faktycznie zrobione przez ucznia).
+      // Lawendowa = w trakcie (oznaczone w panelu), o ile nie jest już ukończone.
       var svClass = '';
-      var svNote = '';
-      if(svViewing && svProgress[g.slug]){
+      if(svViewing){
         var sp = svProgress[g.slug];
-        svClass = sp.done ? ' eg-sv-done' : ' eg-sv-progress';
-        if(!sp.done && sp.note){
-          svNote = '<span class="eg-sv-note">' + esc(sp.note) + '</span>';
+        var doneInPanel = sp && sp.done;
+        var doneByStudent = !!completedSet[g.slug];
+        var inProgress = sp && !sp.done;
+        if(doneInPanel || doneByStudent){
+          svClass = ' eg-sv-done';
+        } else if(inProgress){
+          svClass = ' eg-sv-progress';
         }
       }
       return '<article class="eg-card' + (g.is_premium ? ' eg-premium' : '') + (homeworkSet[g.slug] ? ' eg-hw-card' : '') + (homeworkDone[g.slug] ? ' eg-hw-done' : '') + (completedSet[g.slug] ? ' eg-completed' : '') + svClass + '">' +
@@ -2066,7 +2082,6 @@
           '<h3>' + esc(g.title) + '</h3>' +
           typeBadge +
           scoreLine +
-          svNote +
           '<p>' + esc(g.description || '') + '</p>' +
           '<span class="eg-meta">' + metaParts.join(' · ') + premiumBadge + '</span>' +
           seriesLine +
@@ -2852,10 +2867,10 @@
     'Podgląd oczami ucznia': 'Viewing as a student',
     'Widzisz katalog tak, jak wygląda dla wybranego ucznia. To tylko podgląd - nic nie zapisuje się na koncie ucznia, a Twoje własne postępy wracają, gdy wyjdziesz z trybu.': 'You see the catalogue as it looks for the selected student. This is view-only - nothing is saved to the student\'s account, and your own progress returns when you exit.',
     'Kolorowe obwódki wokół zadań pokazują postępy ucznia:': 'Coloured outlines around exercises show the student\'s progress:',
-    'zielona - zadanie zrobione': 'green - exercise done',
-    'lawendowa - zadanie w trakcie (z Twoją notatką, jeśli ją dodałaś)': 'lavender - exercise in progress (with your note, if you added one)',
+    'zielona - zadanie ukończone': 'green - exercise completed',
+    'lawendowa - zadanie w trakcie': 'lavender - exercise in progress',
     'bez obwódki - uczeń jeszcze nie zaczął': 'no outline - student hasn\'t started yet',
-    'Postępy „zrobione” i „w trakcie” ustawiasz w Panelu lektora.': 'You set "done" and "in progress" in the Teacher Panel.',
+    'Status „w trakcie” ustawiasz w Panelu lektora.': 'You set the "in progress" status in the Teacher Panel.',
     'Więcej': 'More',
     'Ukryj': 'Hide',
     'OFERTA': 'PRICING',
