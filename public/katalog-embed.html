@@ -756,6 +756,8 @@
   }
   .eg-tk-item:hover{ background:var(--eg-card-soft); }
   .eg-tk-item.eg-tk-active{ background:#efeafc; color:var(--eg-violet); }
+  .eg-tk-item.eg-tk-indent{ padding-left:22px; }
+  .eg-tk-empty{ font-family:'Nunito',sans-serif; font-size:12.5px; color:var(--eg-muted); padding:4px 10px 8px 22px; font-style:italic; }
   html.eg-dark .eg-tk-item.eg-tk-active{ background:#33294e; }
   .eg-tk-avatar{
     display:inline-flex; align-items:center; justify-content:center; flex:0 0 auto;
@@ -1577,6 +1579,8 @@
   var svStudents = [];           // lista uczniów lektora [{id, name}]
   var svGroups = [];             // lista grup [{id, name, memberIds:[]}]
   var svTeacherId = null;
+  // zapamiętane dane lektora — przywracane po wyjściu z trybu ucznia
+  var svBackup = null;           // { completedSet, scoreSet, homeworkSet, homeworkDone }
 
   function initTeczka(teacherId){
     svTeacherId = teacherId;
@@ -1584,12 +1588,12 @@
     if(!teczka) return;
     // wczytaj uczniów (profiles.teacher_id = ja) + grupy
     Promise.all([
-      _sb.from('profiles').select('id, student_name, email').eq('teacher_id', teacherId),
+      _sb.from('profiles').select('id, student_name, email, group_id').eq('teacher_id', teacherId),
       _sb.from('student_groups').select('id, name').eq('teacher_id', teacherId)
     ]).then(function(res){
       var pr = res[0], gr = res[1];
       svStudents = (pr && pr.data ? pr.data : []).map(function(s){
-        return { id:s.id, name:(s.student_name || s.email || 'Uczeń') };
+        return { id:s.id, name:(s.student_name || s.email || 'Uczeń'), groupId:(s.group_id || null) };
       }).sort(function(a,b){ return a.name.localeCompare(b.name); });
       svGroups = (gr && gr.data ? gr.data : []).map(function(g){
         return { id:g.id, name:g.name };
@@ -1611,23 +1615,38 @@
       html += '<button type="button" class="eg-tk-item eg-tk-exit" data-kind="exit">' +
         '<span class="eg-tk-avatar">✕</span>' + t('Wróć do widoku lektora') + '</button>';
     }
-    if(svStudents.length){
-      html += '<div class="eg-tk-group-title">' + t('Uczniowie') + '</div>';
-      svStudents.forEach(function(s){
-        var active = (svViewing && svViewing.kind==='student' && svViewing.id===s.id);
-        html += '<button type="button" class="eg-tk-item' + (active?' eg-tk-active':'') + '" data-kind="student" data-id="' + esc(s.id) + '">' +
-          '<span class="eg-tk-avatar">' + esc(initials(s.name)) + '</span>' + esc(s.name) + '</button>';
+    // GRUPY — każda rozwija wciętą listę swoich uczniów
+    if(svGroups.length){
+      svGroups.forEach(function(g){
+        var members = svStudents.filter(function(s){ return s.groupId === g.id; });
+        html += '<div class="eg-tk-group-title">' +
+          '<span class="eg-tk-avatar eg-tk-grp" style="width:20px;height:20px;font-size:10px;vertical-align:-4px;margin-right:6px">' + esc(initials(g.name)) + '</span>' +
+          esc(g.name) + ' · ' + members.length + ' ' + t('uczn.') + '</div>';
+        if(members.length){
+          members.forEach(function(s){
+            html += studentItemHtml(s, true);
+          });
+        } else {
+          html += '<div class="eg-tk-empty">' + t('Brak uczniów w grupie') + '</div>';
+        }
       });
     }
-    if(svGroups.length){
-      html += '<div class="eg-tk-group-title">' + t('Grupy') + '</div>';
-      svGroups.forEach(function(g){
-        var active = (svViewing && svViewing.kind==='group' && svViewing.id===g.id);
-        html += '<button type="button" class="eg-tk-item' + (active?' eg-tk-active':'') + '" data-kind="group" data-id="' + esc(g.id) + '">' +
-          '<span class="eg-tk-avatar eg-tk-grp">' + esc(initials(g.name)) + '</span>' + esc(g.name) + '</button>';
-      });
+    // UCZNIOWIE BEZ GRUPY (albo wszyscy, jeśli grup nie ma)
+    var ungrouped = svGroups.length
+      ? svStudents.filter(function(s){ return !s.groupId; })
+      : svStudents;
+    if(ungrouped.length){
+      html += '<div class="eg-tk-group-title">' + (svGroups.length ? t('Bez grupy') : t('Uczniowie')) + '</div>';
+      ungrouped.forEach(function(s){ html += studentItemHtml(s, false); });
     }
     panel.innerHTML = html;
+  }
+
+  function studentItemHtml(s, indented){
+    var active = (svViewing && svViewing.kind==='student' && svViewing.id===s.id);
+    return '<button type="button" class="eg-tk-item' + (indented?' eg-tk-indent':'') + (active?' eg-tk-active':'') +
+      '" data-kind="student" data-id="' + esc(s.id) + '">' +
+      '<span class="eg-tk-avatar">' + esc(initials(s.name)) + '</span>' + esc(s.name) + '</button>';
   }
 
   function initials(name){
@@ -1636,23 +1655,49 @@
     return ((name||'?').slice(0,2)).toUpperCase();
   }
 
-  // Wejdź w podgląd ucznia — załaduj jego postępy z student_progress
+  // Wejdź w podgląd ucznia — załaduj JEGO postępy, wyniki i pracę domową,
+  // i podmień globalne zestawy, żeby CAŁA strona (filtry, plakietki) pokazywała ucznia.
   function enterStudentView(kind, id){
-    var target = (kind==='student')
-      ? svStudents.filter(function(s){ return s.id===id; })[0]
-      : svGroups.filter(function(g){ return g.id===id; })[0];
+    if(kind !== 'student') return; // grupy rozwijają uczniów, nie wchodzi się „w grupę"
+    var target = svStudents.filter(function(s){ return s.id===id; })[0];
     if(!target) return;
-    svViewing = { kind:kind, id:id, name:target.name };
-    // ładujemy postępy: dla ucznia po student_id, dla grupy — na razie po grupie nie ma per-slug,
-    // więc grupa pokazuje postępy wspólne (student_progress z group?) — obsługa ucznia najpierw.
-    var q = _sb.from('student_progress').select('game_slug, done, note').eq('teacher_id', svTeacherId);
-    if(kind==='student') q = q.eq('student_id', id);
-    q.then(function(r){
+    // zapamiętaj dane lektora (raz — przy pierwszym wejściu)
+    if(!svBackup){
+      svBackup = {
+        completedSet: completedSet, scoreSet: scoreSet,
+        homeworkSet: homeworkSet, homeworkDone: homeworkDone
+      };
+    }
+    svViewing = { kind:'student', id:id, name:target.name };
+    // pobierz równolegle: notatki „w trakcie" (student_progress),
+    // ukończenia+wyniki (game_completions), pracę domową (homework) — WSZYSTKO ucznia
+    Promise.all([
+      _sb.from('student_progress').select('game_slug, done, note').eq('teacher_id', svTeacherId).eq('student_id', id),
+      _sb.from('game_completions').select('game_slug, source, score, score_max, completed_at').eq('user_id', id),
+      _sb.from('homework').select('game_slug, completed_at').eq('student_id', id)
+    ]).then(function(res){
+      // notatki „w trakcie” (lawendowe obwódki + tekst notatki)
       svProgress = {};
-      (r && r.data ? r.data : []).forEach(function(row){
+      (res[0] && res[0].data ? res[0].data : []).forEach(function(row){
         svProgress[row.game_slug] = { done: !!row.done, note: (row.note||'') };
       });
-      // baner + panel + kafelki
+      // ukończenia + wyniki UCZNIA — podmieniamy globalne zestawy
+      var cs = {}, ss = {};
+      (res[1] && res[1].data ? res[1].data : []).forEach(function(c){
+        cs[c.game_slug] = c.source || 'self';
+        if(c.score != null && c.score_max != null && c.score_max > 0){
+          ss[c.game_slug] = { score:c.score, max:c.score_max, at:c.completed_at || null };
+        }
+      });
+      completedSet = cs; scoreSet = ss;
+      // praca domowa UCZNIA
+      var hs = {}, hd = {};
+      (res[2] && res[2].data ? res[2].data : []).forEach(function(h){
+        hs[h.game_slug] = true;
+        if(h.completed_at) hd[h.game_slug] = h.completed_at;
+      });
+      homeworkSet = hs; homeworkDone = hd;
+      // baner + panel + render
       var sm = document.getElementById('egStudentMode');
       var nm = document.getElementById('egSmName');
       if(nm) nm.textContent = target.name;
@@ -1667,6 +1712,14 @@
   function exitStudentView(){
     svViewing = null;
     svProgress = {};
+    // przywróć dane lektora
+    if(svBackup){
+      completedSet = svBackup.completedSet;
+      scoreSet = svBackup.scoreSet;
+      homeworkSet = svBackup.homeworkSet;
+      homeworkDone = svBackup.homeworkDone;
+      svBackup = null;
+    }
     var sm = document.getElementById('egStudentMode');
     if(sm) sm.classList.remove('eg-on');
     buildTeczkaPanel();
@@ -2589,12 +2642,18 @@
       _sb.from('homework').select('game_slug,completed_at').eq('student_id', session.user.id)
         .then(function(r){
           if(r.error || !r.data) return;
-          homeworkSet = {};
-          homeworkDone = {};
+          // jeśli lektor zdążył wejść w tryb ucznia, nie nadpisuj widoku — zaktualizuj backup
+          var hsTmp = {}, hdTmp = {};
           r.data.forEach(function(h){
-            homeworkSet[h.game_slug] = true;
-            if(h.completed_at) homeworkDone[h.game_slug] = h.completed_at;
+            hsTmp[h.game_slug] = true;
+            if(h.completed_at) hdTmp[h.game_slug] = h.completed_at;
           });
+          if(typeof svViewing !== 'undefined' && svViewing){
+            if(svBackup){ svBackup.homeworkSet = hsTmp; svBackup.homeworkDone = hdTmp; }
+            return;
+          }
+          homeworkSet = hsTmp;
+          homeworkDone = hdTmp;
           updateHwBadge();
           if(Object.keys(homeworkSet).length) render();
         });
@@ -2602,14 +2661,19 @@
       _sb.from('game_completions').select('game_slug, source, score, score_max, completed_at').eq('user_id', session.user.id)
         .then(function(r){
           if(r.error || !r.data) return;
-          completedSet = {};
-          scoreSet = {};
+          var csTmp = {}, ssTmp = {};
           r.data.forEach(function(c){
-            completedSet[c.game_slug] = c.source || 'self';
+            csTmp[c.game_slug] = c.source || 'self';
             if(c.score != null && c.score_max != null && c.score_max > 0){
-              scoreSet[c.game_slug] = { score: c.score, max: c.score_max, at: c.completed_at || null };
+              ssTmp[c.game_slug] = { score: c.score, max: c.score_max, at: c.completed_at || null };
             }
           });
+          if(typeof svViewing !== 'undefined' && svViewing){
+            if(svBackup){ svBackup.completedSet = csTmp; svBackup.scoreSet = ssTmp; }
+            return;
+          }
+          completedSet = csTmp;
+          scoreSet = ssTmp;
           render();
         });
     });
@@ -2701,6 +2765,9 @@
     'Wyczyść wszystko': 'Clear all',
     'Uczniowie': 'Students',
     'Grupy': 'Groups',
+    'uczn.': 'students',
+    'Bez grupy': 'No group',
+    'Brak uczniów w grupie': 'No students in group',
     'Widzisz stronę oczami:': 'Viewing as:',
     'zrobione': 'done',
     'w trakcie': 'in progress',
