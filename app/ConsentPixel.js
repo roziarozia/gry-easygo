@@ -23,6 +23,11 @@ function loadPixel() {
 
 export default function ConsentPixel() {
   const [decision, setDecision] = useState(null);
+  // Baner renderujemy dopiero po zamontowaniu po stronie klienta. Serwer i pierwszy
+  // render klienta zwracają null (identycznie), więc nie ma rozbieżności hydration
+  // (React #418/#423), która wcześniej wywracała stronę i blokowała Pixel oraz Analytics.
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => { setMounted(true); }, []);
 
   useEffect(() => {
     function onMsg(e) {
@@ -50,8 +55,11 @@ export default function ConsentPixel() {
     setDecision('rejected');
   }
 
+  // Do czasu zamontowania po stronie klienta nie renderujemy nic (jak serwer) —
+  // to eliminuje mismatch hydration. Po zamontowaniu pokazujemy baner tylko,
+  // gdy użytkownik jeszcze nie podjął decyzji.
+  if (!mounted) return null;
   if (decision === 'accepted' || decision === 'rejected') return null;
-  if (decision === null && typeof window === 'undefined') return null;
 
   return (
     <div style={{
