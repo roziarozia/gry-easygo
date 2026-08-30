@@ -170,6 +170,7 @@
       justify-content:center;
       gap:10px 14px;
       padding:12px 14px;
+      position:relative;
     }
     .eg-topbar-left{ order:1; gap:18px; }
     .eg-topbar-left a span{ display:inline; }
@@ -208,12 +209,16 @@
     .eg-account #egLogout{ flex-basis:100%; text-align:center; }
 
     /* TECZKA na telefonie: własna linia (jak konto), wyśrodkowana; panel na całą szerokość */
-    .eg-teczka{ order:4; flex-basis:100%; justify-content:center; display:flex; }
+    .eg-teczka{ order:4; flex-basis:100%; justify-content:center; display:flex; position:static; }
     .eg-teczka-btn{ width:auto; }
+    /* panel: pełna szerokość belki, przypięty do jej krawędzi (nie do przycisku),
+       żeby nie uciekał w bok; teczka ma position:static, więc absolute liczy się
+       względem .eg-topbar (rodzic z position:relative) */
     .eg-teczka-panel{
-      left:50%; transform:translateX(-50%);
-      min-width:0; width:calc(100vw - 32px); max-width:340px;
+      left:16px; right:16px; transform:none;
+      min-width:0; width:auto; max-width:none;
     }
+    .eg-tk-item{ word-break:break-word; }
 
     /* ===== TELEFON: 3 pastylki zamiast ściany filtrów ===== */
     /* chowamy oryginalne rzędy filtrów i poziomów, pokazujemy pastylki */
