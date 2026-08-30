@@ -7,6 +7,12 @@ import { useEffect, useRef, useState } from 'react';
 export default function CatalogEmbed() {
   const ref = useRef(null);
 
+  // Montujemy iframe dopiero po stronie klienta. Serwer i pierwszy render klienta
+  // zwracają to samo (placeholder), więc nie ma rozbieżności hydration (React #418/#423),
+  // która wcześniej wywracała stronę i blokowała inicjalizację Pixela oraz Analytics.
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => { setMounted(true); }, []);
+
   // Przekaż parametry filtra (?poziom=, ?kategoria=) ze strony głównej do iframe,
   // żeby katalog w środce mógł je odczytać (window.location.search iframe'a
   // jest inny niż rodzica). Tag "A1"/"Gramatyka" pod ćwiczeniem prowadzi na
@@ -123,6 +129,13 @@ export default function CatalogEmbed() {
     window.addEventListener('message', onMsg);
     return () => window.removeEventListener('message', onMsg);
   }, []);
+
+  // Przed zamontowaniem po stronie klienta pokazujemy pusty blok o tej samej
+  // wysokości — dzięki temu serwer i klient renderują identycznie (brak mismatchu),
+  // a strona nie „przeskakuje" po pojawieniu się iframe.
+  if (!mounted) {
+    return <div style={{ width: '100%', height: 900 }} aria-hidden="true" />;
+  }
 
   return (
     <iframe
