@@ -2368,8 +2368,8 @@ let gGiven = [];   // wpisana odpowiedź ucznia dla każdego zdania
 // apostrofy ujednolicone, kropka po skrócie bez znaczenia
 function normGap(s){
   return (s || '').toString().toLowerCase()
-    .replace(/[’`]/g, "'")
-    .replace(/[.,!?;:]/g, '')
+    .replace(/[’‘`´]/g, "'")
+    .replace(/[.,!?;:"„”«»\-–—]/g, ' ')
     .replace(/\s+/g, ' ')
     .trim();
 }
