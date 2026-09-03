@@ -356,10 +356,9 @@
   .btn-preview:hover{ background:#8b6fc7; }
   #coverPreview{ margin-top:14px; }
   #coverQuiz, #coverSpeak{ display:flex; justify-content:center; gap:12px; flex-wrap:wrap; }
-  .shuffle-opt{ display:inline-flex; align-items:center; gap:8px; justify-content:center; flex-basis:100%; margin:16px auto 2px; padding:9px 16px; border:1.5px solid #a78dd9; border-radius:12px; background:rgba(167,141,217,.07); font-family:'Nunito',sans-serif; font-size:14px; font-weight:600; color:var(--ink); cursor:pointer; width:fit-content; transition:background .15s; }
-  .shuffle-opt:hover{ background:rgba(167,141,217,.15); }
-  .shuffle-opt input{ width:17px; height:17px; cursor:pointer; accent-color:#a78dd9; }
-  html.eg-dark .shuffle-opt{ background:rgba(167,141,217,.14); border-color:#8f77c4; }
+  .shuffle-opt{ display:inline-flex; align-items:center; gap:6px; justify-content:center; flex-basis:100%; margin:10px auto 0; font-family:'Nunito',sans-serif; font-size:12.5px; color:var(--ink); cursor:pointer; width:fit-content; opacity:.7; transition:opacity .15s; }
+  .shuffle-opt:hover{ opacity:1; }
+  .shuffle-opt input{ width:14px; height:14px; cursor:pointer; accent-color:#a78dd9; }
   /* ===== PODGLĄD DLA LEKTORA ===== */
   #preview{ border:3px solid #b8a4e8; border-radius:22px; background:rgba(183,164,232,.07); padding:16px 14px 20px; margin:0 auto; width:100%; max-width:640px; box-sizing:border-box; }
   .pv-badge{ display:inline-block; background:#a78dd9; color:#fff; font-family:'Quicksand',sans-serif; font-weight:700; font-size:12px; padding:4px 12px; border-radius:999px; margin-bottom:10px; }
@@ -1418,8 +1417,8 @@
           </div>
         </div>
         <div id="coverQuiz" class="hidden">
-          <label class="shuffle-opt"><input type="checkbox" id="shuffleQuiz"> <span data-i18n="Pomieszaj kolejność pytań">Pomieszaj kolejność pytań</span></label>
           <button class="btn" id="startQuizBtn" data-i18n="Rozpocznij quiz">Rozpocznij quiz</button>
+          <label class="shuffle-opt"><input type="checkbox" id="shuffleQuiz"> <span data-i18n="Pomieszaj kolejność pytań">Pomieszaj kolejność pytań</span></label>
         </div>
         <div id="coverGap" class="hidden">
           <span class="mode-label" data-i18n="Wybierz tryb">Wybierz tryb</span>
