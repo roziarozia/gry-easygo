@@ -356,6 +356,8 @@
   .btn-preview:hover{ background:#8b6fc7; }
   #coverPreview{ margin-top:14px; }
   #coverQuiz, #coverSpeak{ display:flex; justify-content:center; gap:12px; flex-wrap:wrap; }
+  .shuffle-opt{ display:flex; align-items:center; gap:7px; justify-content:center; flex-basis:100%; font-family:'Nunito',sans-serif; font-size:14px; color:var(--ink); cursor:pointer; margin:2px 0 4px; opacity:.85; }
+  .shuffle-opt input{ width:16px; height:16px; cursor:pointer; accent-color:var(--magenta,#ca4490); }
   /* ===== PODGLĄD DLA LEKTORA ===== */
   #preview{ border:3px solid #b8a4e8; border-radius:22px; background:rgba(183,164,232,.07); padding:16px 14px 20px; margin:0 auto; width:100%; max-width:640px; box-sizing:border-box; }
   .pv-badge{ display:inline-block; background:#a78dd9; color:#fff; font-family:'Quicksand',sans-serif; font-weight:700; font-size:12px; padding:4px 12px; border-radius:999px; margin-bottom:10px; }
@@ -1272,6 +1274,7 @@
     // przyciski główne
     'Rozpocznij': 'Start',
     'Rozpocznij quiz': 'Start quiz',
+    'Pomieszaj kolejność pytań': 'Shuffle question order',
     'Sprawdź': 'Check',
     'Sprawdź odpowiedzi': 'Check answers',
     'Dalej': 'Next',
@@ -1413,6 +1416,7 @@
           </div>
         </div>
         <div id="coverQuiz" class="hidden">
+          <label class="shuffle-opt"><input type="checkbox" id="shuffleQuiz"> <span data-i18n="Pomieszaj kolejność pytań">Pomieszaj kolejność pytań</span></label>
           <button class="btn" id="startQuizBtn" data-i18n="Rozpocznij quiz">Rozpocznij quiz</button>
         </div>
         <div id="coverGap" class="hidden">
@@ -1421,6 +1425,7 @@
             <button class="btn" id="startGapPlBtn" data-i18n="Z tłumaczeniem">Z tłumaczeniem</button>
             <button class="btn btn-violet" id="startGapBaseBtn" data-i18n="Z bezokolicznikiem">Z bezokolicznikiem</button>
           </div>
+          <label class="shuffle-opt"><input type="checkbox" id="shuffleGap"> <span data-i18n="Pomieszaj kolejność pytań">Pomieszaj kolejność pytań</span></label>
         </div>
         <div id="coverSpeak" class="hidden">
           <button class="btn" id="startSpeakBtn">Let's talk</button>
@@ -2128,7 +2133,20 @@ const LETTERS = ['A','B','C','D','E','F'];
 function escapeHtml(t){ const d=document.createElement('div'); d.textContent=t==null?'':t; return d.innerHTML; }
 function promptWithGap(t){ return escapeHtml(t).replace(/_/g, '<u>&nbsp;&nbsp;&nbsp;&nbsp;</u>'); }
 
+// tasowanie tablicy w miejscu (Fisher-Yates) - dla opcji "Pomieszaj kolejność pytań"
+function shuffleInPlace(arr){
+  for(let i = arr.length - 1; i > 0; i--){
+    const j = Math.floor(Math.random() * (i + 1));
+    const tmp = arr[i]; arr[i] = arr[j]; arr[j] = tmp;
+  }
+  return arr;
+}
+
 function startQuiz(){
+  // domyślnie kolejność jak w podglądzie lektora (po position); mieszamy tylko na życzenie ucznia
+  const sh = document.getElementById('shuffleQuiz');
+  if(sh && sh.checked) shuffleInPlace(QUESTIONS);
+  else QUESTIONS.sort((a,b)=>a.position-b.position);
   qIndex = 0; qScore = 0;
   qGiven = new Array(QUESTIONS.length).fill(null);
   show(quizSec);
@@ -2390,6 +2408,10 @@ function gapSentenceHtml(item, filled){
 
 function startGap(m){
   gapMode = m;
+  // domyślnie kolejność jak w podglądzie lektora (po position); mieszamy tylko na życzenie ucznia
+  const sh = document.getElementById('shuffleGap');
+  if(sh && sh.checked) shuffleInPlace(GAPS);
+  else GAPS.sort((a,b)=>a.position-b.position);
   gIndex = 0; gScore = 0;
   gGiven = new Array(GAPS.length).fill(null);
   show(gapSec);
