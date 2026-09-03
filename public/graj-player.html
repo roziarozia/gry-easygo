@@ -2547,9 +2547,13 @@ function pvEsc(s){ return escapeHtml(s == null ? '' : String(s)); }
 function buildPreviewItems(){
   const items = [];
   const tpl = GAME.template;
+  // Podgląd lektora ZAWSZE w stałej kolejności (po position), niezależnie od tego,
+  // czy uczeń wcześniej uruchomił zadanie z opcją "Pomieszaj kolejność".
+  const PV_QUESTIONS = QUESTIONS.slice().sort((a,b)=>a.position-b.position);
+  const PV_GAPS = GAPS.slice().sort((a,b)=>a.position-b.position);
   if(tpl === 'gap-fill'){
-    const hasBlank = GAPS.some(g => /_/.test(g.sentence || ''));
-    GAPS.forEach(g => {
+    const hasBlank = PV_GAPS.some(g => /_/.test(g.sentence || ''));
+    PV_GAPS.forEach(g => {
       const instr = pvEsc((GAME.instruction || '').split('||')[0].trim());
       let html = '';
       if(instr) html += '<div class="pv-instr">' + instr + '</div>';
@@ -2562,7 +2566,7 @@ function buildPreviewItems(){
       items.push(html);
     });
   } else if(tpl === 'quiz'){
-    QUESTIONS.forEach(q => {
+    PV_QUESTIONS.forEach(q => {
       let html = '<div class="pv-q">' + pvEsc(q.prompt) + '</div>';
       (q.options || []).forEach((opt, i) => {
         html += '<div class="pv-opt' + (i === q.correct ? ' correct' : '') + '">' + pvEsc(opt) + '</div>';
@@ -2584,7 +2588,7 @@ function buildPreviewItems(){
       script += '<div class="pv-line"><span class="pv-speaker">' + pvEsc(l.speaker) + ':</span> ' + pvEsc(l.text) + '</div>';
     });
     if(script) items.push('<div class="pv-instr">' + t('Nagranie') + '</div>' + script);
-    (QUESTIONS || []).forEach(q => {
+    (PV_QUESTIONS || []).forEach(q => {
       let html = '<div class="pv-q">' + pvEsc(q.prompt) + '</div>';
       (q.options || []).forEach((opt, i) => {
         html += '<div class="pv-opt' + (i === q.correct ? ' correct' : '') + '">' + pvEsc(opt) + '</div>';
