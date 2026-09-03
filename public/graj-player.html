@@ -1276,6 +1276,7 @@
     'Rozpocznij': 'Start',
     'Rozpocznij quiz': 'Start quiz',
     'Pomieszaj kolejność pytań': 'Shuffle question order',
+    'Podgląd dla lektora': "Teacher's view",
     'Sprawdź': 'Check',
     'Sprawdź odpowiedzi': 'Check answers',
     'Dalej': 'Next',
@@ -1417,7 +1418,9 @@
           </div>
         </div>
         <div id="coverQuiz" class="hidden">
-          <button class="btn" id="startQuizBtn" data-i18n="Rozpocznij quiz">Rozpocznij quiz</button>
+          <div class="mode-buttons">
+            <button class="btn" id="startQuizBtn" data-i18n="Rozpocznij quiz">Rozpocznij quiz</button>
+          </div>
           <label class="shuffle-opt"><input type="checkbox" id="shuffleQuiz"> <span data-i18n="Pomieszaj kolejność pytań">Pomieszaj kolejność pytań</span></label>
         </div>
         <div id="coverGap" class="hidden">
@@ -1442,7 +1445,7 @@
           </div>
         </div>
         <div id="coverPreview" class="hidden">
-          <button class="btn btn-preview" id="startPreviewBtn">Podgląd dla lektora</button>
+          <button class="btn btn-preview" id="startPreviewBtn" data-i18n="Podgląd dla lektora">Podgląd dla lektora</button>
         </div>
       </div>
       <span class="brand">easygo-english.pl</span>
