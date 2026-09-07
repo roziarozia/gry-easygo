@@ -356,9 +356,15 @@
   .btn-preview:hover{ background:#8b6fc7; }
   #coverPreview{ margin-top:14px; }
   #coverQuiz, #coverSpeak{ display:flex; justify-content:center; gap:12px; flex-wrap:wrap; }
-  .shuffle-opt{ display:inline-flex; align-items:center; gap:6px; justify-content:center; flex-basis:100%; margin:12px auto 30px; font-family:'Nunito',sans-serif; font-size:12.5px; color:var(--ink); cursor:pointer; width:fit-content; opacity:.7; transition:opacity .15s; }
-  .shuffle-opt:hover{ opacity:1; }
-  .shuffle-opt input{ width:15px; height:15px; cursor:pointer; accent-color:#a78dd9; border-radius:5px; }
+  .shuffle-opt{ display:inline-flex; align-items:center; gap:10px; justify-content:center; flex-basis:100%; margin:12px auto 30px; font-family:'Nunito',sans-serif; font-size:13.5px; color:var(--ink); cursor:pointer; width:fit-content; user-select:none; }
+  .shuffle-opt input{ position:absolute; opacity:0; width:0; height:0; }
+  .shuffle-opt .sw{ position:relative; width:38px; height:22px; background:#cfc9d6; border-radius:11px; flex:none; transition:background .2s; }
+  .shuffle-opt .sw::after{ content:''; position:absolute; top:2px; left:2px; width:18px; height:18px; background:#fff; border-radius:50%; transition:left .2s; }
+  .shuffle-opt input:checked + .sw{ background:#ca4490; }
+  .shuffle-opt input:checked + .sw::after{ left:18px; }
+  .shuffle-opt input:focus-visible + .sw{ box-shadow:0 0 0 3px rgba(202,68,144,.35); }
+  html.eg-dark .shuffle-opt .sw{ background:#4a4560; }
+  html.eg-dark .shuffle-opt input:checked + .sw{ background:#ca4490; }
   /* ===== PODGLĄD DLA LEKTORA ===== */
   #preview{ border:3px solid #b8a4e8; border-radius:22px; background:rgba(183,164,232,.07); padding:16px 14px 20px; margin:0 auto; width:100%; max-width:640px; box-sizing:border-box; }
   .pv-badge{ display:inline-block; background:#a78dd9; color:#fff; font-family:'Quicksand',sans-serif; font-weight:700; font-size:12px; padding:4px 12px; border-radius:999px; margin-bottom:10px; }
@@ -1421,7 +1427,7 @@
           <div class="mode-buttons">
             <button class="btn" id="startQuizBtn" data-i18n="Rozpocznij quiz">Rozpocznij quiz</button>
           </div>
-          <label class="shuffle-opt"><input type="checkbox" id="shuffleQuiz"> <span data-i18n="Pomieszaj kolejność pytań">Pomieszaj kolejność pytań</span></label>
+          <label class="shuffle-opt"><input type="checkbox" id="shuffleQuiz"><span class="sw"></span> <span data-i18n="Pomieszaj kolejność pytań">Pomieszaj kolejność pytań</span></label>
         </div>
         <div id="coverGap" class="hidden">
           <span class="mode-label" data-i18n="Wybierz tryb">Wybierz tryb</span>
@@ -1429,7 +1435,7 @@
             <button class="btn" id="startGapPlBtn" data-i18n="Z tłumaczeniem">Z tłumaczeniem</button>
             <button class="btn btn-violet" id="startGapBaseBtn" data-i18n="Z bezokolicznikiem">Z bezokolicznikiem</button>
           </div>
-          <label class="shuffle-opt"><input type="checkbox" id="shuffleGap"> <span data-i18n="Pomieszaj kolejność pytań">Pomieszaj kolejność pytań</span></label>
+          <label class="shuffle-opt"><input type="checkbox" id="shuffleGap"><span class="sw"></span> <span data-i18n="Pomieszaj kolejność pytań">Pomieszaj kolejność pytań</span></label>
         </div>
         <div id="coverSpeak" class="hidden">
           <button class="btn" id="startSpeakBtn">Let's talk</button>
