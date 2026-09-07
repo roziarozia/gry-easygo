@@ -196,6 +196,7 @@
     gap:16px;
     width:100%;
   }
+  #cover:not(.has-image){ padding-bottom:120px; box-sizing:border-box; }
 
   /* ===== OKŁADKA ===== */
   .level{
@@ -244,6 +245,10 @@
     flex-direction:column;
     align-items:center;
     gap:12px;
+    position:absolute;
+    left:0;right:0;bottom:0;
+    padding:24px 20px 26px;
+    z-index:2;
   }
   .mode-label{
     font-family:'Quicksand',sans-serif;
@@ -2395,11 +2400,25 @@ let gGiven = [];   // wpisana odpowiedź ucznia dla każdego zdania
 // normalizacja do tolerancyjnego porównania: małe litery, bez nadmiaru spacji,
 // apostrofy ujednolicone, kropka po skrócie bez znaczenia
 function normGap(s){
-  return (s || '').toString().toLowerCase()
+  let x = (s || '').toString().toLowerCase()
     .replace(/[’‘`´]/g, "'")
     .replace(/[.,!?;:"„”«»\-–—]/g, ' ')
     .replace(/\s+/g, ' ')
     .trim();
+  // rozwiń JEDNOZNACZNE skróty, żeby "'ve lived" == "have lived", "don't" == "do not".
+  // Uwaga: 's (is/has) i 'd (would/had) są dwuznaczne - NIE rozwijamy ich, by nie psuć trafień.
+  x = x
+    .replace(/\bwon't\b/g, 'will not')
+    .replace(/\bcan't\b/g, 'cannot')
+    .replace(/\bshan't\b/g, 'shall not')
+    .replace(/n't\b/g, ' not')
+    .replace(/'ll\b/g, ' will')
+    .replace(/'ve\b/g, ' have')
+    .replace(/'re\b/g, ' are')
+    .replace(/'m\b/g, ' am')
+    .replace(/\s+/g, ' ')
+    .trim();
+  return x;
 }
 function gapCorrect(item, typed){
   const t = normGap(typed);
