@@ -2733,7 +2733,7 @@ function renderSpeak(){
   }
   // gdy jest para obrazków, tekst pytania idzie na całą szerokość i wyśrodkowany
   // (żeby nie było pustego kwadratu po wspólnym obrazku zadania); słowa zawsze widoczne
-  if(row) row.classList.toggle('speak-row-textonly', hasPair);
+  if(row) row.classList.toggle('speak-row-textonly', hasPair || hasSingle);
   const total = SPEAKS.length;
   document.getElementById('sProgress').textContent = (sIdx + 1) + ' / ' + total;
   document.getElementById('sBar').style.width = total ? (((sIdx + 1) / total) * 100 + '%') : '0%';
