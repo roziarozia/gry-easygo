@@ -745,6 +745,8 @@
   .speak-row-textonly{ justify-content:center; }
   .speak-row-textonly .speak-img{ display:none; }
   .speak-row-textonly .speak-text{ text-align:center; flex:0 1 auto; }
+  .speak-single{ display:flex; justify-content:center; margin:4px 0 8px; }
+  .speak-single img{ max-width:260px; max-height:220px; width:auto; height:auto; border-radius:16px; object-fit:contain; }
   /* para obrazków dla "This or That" — dwie opcje obok siebie */
   .speak-pair{
     display:flex;
@@ -1529,6 +1531,7 @@
         <div class="speak-vs">or</div>
         <div class="speak-opt" id="speakOptB"><div class="speak-opt-img" id="speakImgB"></div></div>
       </div>
+      <div class="speak-single" id="speakSingle" style="display:none"><img id="speakSingleImg" alt=""></div>
       <div class="nav" id="sNav">
         <button class="btn btn-secondary" id="sPrev" data-i18n="Wstecz">Wstecz</button>
         <button class="btn" id="sNext" data-i18n="Dalej">Dalej</button>
@@ -2696,12 +2699,18 @@ function startSpeak(){
 function renderSpeak(){
   const cur = SPEAKS[sIdx] || { text:'', image_a:null, image_b:null };
   document.getElementById('speakText').textContent = cur.text || '';
-  // para obrazków opcji (This or That) — pokazujemy tylko gdy pytanie ma oba obrazki
+  // obrazki przy pytaniu:
+  //  - dwa (image_a + image_b) → para "This or That"
+  //  - jeden (tylko image_a) → pojedynczy obrazek ilustrujący pytanie
+  //  - brak → sam tekst
   const pair = document.getElementById('speakPair');
   const imgA = document.getElementById('speakImgA');
   const imgB = document.getElementById('speakImgB');
+  const single = document.getElementById('speakSingle');
+  const singleImg = document.getElementById('speakSingleImg');
   const row = document.querySelector('.speak-row');
   const hasPair = !!(cur.image_a && cur.image_b);
+  const hasSingle = !!(cur.image_a && !cur.image_b);
   if(pair && imgA && imgB){
     if(hasPair){
       imgA.style.backgroundImage = "url('" + cur.image_a + "')";
@@ -2711,6 +2720,15 @@ function renderSpeak(){
       imgA.style.backgroundImage = '';
       imgB.style.backgroundImage = '';
       pair.style.display = 'none';
+    }
+  }
+  if(single && singleImg){
+    if(hasSingle){
+      singleImg.src = cur.image_a;
+      single.style.display = 'flex';
+    }else{
+      singleImg.src = '';
+      single.style.display = 'none';
     }
   }
   // gdy jest para obrazków, tekst pytania idzie na całą szerokość i wyśrodkowany
