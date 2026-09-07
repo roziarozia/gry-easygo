@@ -2686,23 +2686,13 @@ let sIdx = 0;
 function startSpeak(){
   sIdx = 0;
   show(speakSec);
-  // obrazek Y ustawiamy raz — jest wspólny dla wszystkich pytań
-  const imgEl = document.getElementById('speakImg');
-  if(GAME.question_image_url){
-    imgEl.style.backgroundImage = "url('" + GAME.question_image_url + "')";
-    imgEl.classList.remove('empty');
-  }else{
-    imgEl.classList.add('empty');
-  }
+  // obrazek ustawiany jest w renderSpeak (per pytanie: własny image_a albo wspólny question_image_url)
   renderSpeak();
 }
 function renderSpeak(){
   const cur = SPEAKS[sIdx] || { text:'', image_a:null, image_b:null };
   document.getElementById('speakText').textContent = cur.text || '';
-  // obrazki przy pytaniu:
-  //  - dwa (image_a + image_b) → para "This or That"
-  //  - jeden (tylko image_a) → pojedynczy obrazek ilustrujący pytanie
-  //  - brak → sam tekst
+  const imgEl = document.getElementById('speakImg');
   const pair = document.getElementById('speakPair');
   const imgA = document.getElementById('speakImgA');
   const imgB = document.getElementById('speakImgB');
@@ -2710,7 +2700,7 @@ function renderSpeak(){
   const singleImg = document.getElementById('speakSingleImg');
   const row = document.querySelector('.speak-row');
   const hasPair = !!(cur.image_a && cur.image_b);
-  const hasSingle = !!(cur.image_a && !cur.image_b);
+  // "This or That" = dwa obrazki (image_a + image_b) → para na środku
   if(pair && imgA && imgB){
     if(hasPair){
       imgA.style.backgroundImage = "url('" + cur.image_a + "')";
@@ -2722,18 +2712,22 @@ function renderSpeak(){
       pair.style.display = 'none';
     }
   }
-  if(single && singleImg){
-    if(hasSingle){
-      singleImg.src = cur.image_a;
-      single.style.display = 'flex';
+  if(single) single.style.display = 'none';
+  // Obrazek po LEWEJ (standardowy układ lewo-prawo, jak wszystkie speakingi):
+  // najpierw własny obrazek pytania (image_a), a jeśli go nie ma - wspólny obrazek zadania.
+  if(imgEl && !hasPair){
+    const perQuestion = (cur.image_a && !cur.image_b) ? cur.image_a : '';
+    const src = perQuestion || GAME.question_image_url || '';
+    if(src){
+      imgEl.style.backgroundImage = "url('" + src + "')";
+      imgEl.classList.remove('empty');
     }else{
-      singleImg.src = '';
-      single.style.display = 'none';
+      imgEl.style.backgroundImage = '';
+      imgEl.classList.add('empty');
     }
   }
-  // gdy jest para obrazków, tekst pytania idzie na całą szerokość i wyśrodkowany
-  // (żeby nie było pustego kwadratu po wspólnym obrazku zadania); słowa zawsze widoczne
-  if(row) row.classList.toggle('speak-row-textonly', hasPair || hasSingle);
+  // tekst wyśrodkowany na całą szerokość tylko przy parze "This or That"
+  if(row) row.classList.toggle('speak-row-textonly', hasPair);
   const total = SPEAKS.length;
   document.getElementById('sProgress').textContent = (sIdx + 1) + ' / ' + total;
   document.getElementById('sBar').style.width = total ? (((sIdx + 1) / total) * 100 + '%') : '0%';
