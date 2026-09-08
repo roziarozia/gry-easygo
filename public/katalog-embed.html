@@ -1729,6 +1729,17 @@
       if(svStudents.length || svGroups.length){
         teczka.style.display = '';
         buildTeczkaPanel();
+        // przywróć podgląd ucznia, jeśli był włączony przed wejściem w zadanie
+        // (dzięki temu "Back to exercises" nie gubi trybu podglądu)
+        try{
+          var saved = sessionStorage.getItem('egSvViewing');
+          if(saved){
+            var sv = JSON.parse(saved);
+            if(sv && sv.id && svStudents.some(function(s){ return s.id===sv.id; })){
+              enterStudentView('student', sv.id);
+            }
+          }
+        }catch(e){}
       }
     });
   }
@@ -1796,6 +1807,9 @@
       };
     }
     svViewing = { kind:'student', id:id, name:target.name };
+    // zapamiętaj wybór na czas sesji, żeby podgląd nie znikał po wejściu w zadanie
+    // i powrocie ("Back to exercises") - trwa, dopóki lektor sam nie wyłączy podglądu
+    try{ sessionStorage.setItem('egSvViewing', JSON.stringify({ id:id, name:target.name })); }catch(e){}
     // pobierz równolegle: notatki „w trakcie" (student_progress),
     // ukończenia+wyniki (game_completions), pracę domową (homework) — WSZYSTKO ucznia
     Promise.all([
@@ -1843,6 +1857,8 @@
   function exitStudentView(){
     svViewing = null;
     svProgress = {};
+    // lektor sam wyłączył podgląd - usuń zapamiętany wybór
+    try{ sessionStorage.removeItem('egSvViewing'); }catch(e){}
     // przywróć dane lektora
     if(svBackup){
       completedSet = svBackup.completedSet;
