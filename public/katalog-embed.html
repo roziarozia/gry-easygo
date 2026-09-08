@@ -151,6 +151,15 @@
     letter-spacing:.02em; transition:background .18s, transform .18s;
   }
   .eg-nav-oferta:hover{ opacity:1 !important; background:#b33a7e; transform:translateY(-1px); }
+  /* Przycisk "Jak to działa?" — pigułka z obramowaniem, obok OFERTY; widoczny dla wszystkich, także bez subskrypcji */
+  .eg-nav-how{
+    display:inline-flex; align-items:center; gap:6px;
+    color:var(--eg-magenta); background:transparent;
+    border:1.5px solid var(--eg-magenta); padding:4px 13px;
+    border-radius:999px; font-family:'Nunito',sans-serif; font-size:13.5px; font-weight:700;
+    cursor:pointer; transition:background .18s, color .18s, transform .18s;
+  }
+  .eg-nav-how:hover{ background:var(--eg-magenta); color:#fff; transform:translateY(-1px); }
   .eg-topbar-right{ display:flex; align-items:center; gap:14px; }
   .eg-social{ display:flex; align-items:center; gap:10px; }
   .eg-social a{ color:var(--eg-magenta); display:inline-flex; transition:transform .18s, opacity .18s; }
@@ -839,6 +848,15 @@
     color:var(--eg-muted); font-size:15px;
   }
   .eg-sm-modal-close:hover{ background:#efeafc; color:var(--eg-violet); }
+  /* Modal "Jak działa EasyWonders" — dla osób z zewnątrz, z ikonami */
+  .eg-how-modal{ max-width:500px; }
+  .eg-how-intro{ color:var(--eg-muted); font-size:14px; margin:2px 0 16px; }
+  .eg-how-list{ list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:16px; }
+  .eg-how-list li{ display:flex; gap:13px; align-items:flex-start; }
+  .eg-how-ico{ flex:none; width:38px; height:38px; border-radius:11px; background:var(--eg-card-soft); display:inline-flex; align-items:center; justify-content:center; }
+  .eg-how-list li span:last-child{ font-size:13.5px; line-height:1.45; color:var(--eg-ink); }
+  .eg-how-list li strong{ font-size:14.5px; }
+  .eg-how-cta{ margin:18px 0 0; padding-top:16px; border-top:1px solid var(--eg-line); font-size:14px; color:var(--eg-ink); }
   .eg-sm-modal h3{
     font-family:'Quicksand',sans-serif; font-weight:700; font-size:19px; color:var(--eg-ink);
     margin:0 30px 12px 0;
@@ -1102,6 +1120,10 @@
       <a class="eg-nav-oferta" id="egOfertaNav" href="/oferta" title="Oferta i cennik EasyWonders">
         <span data-i18n="OFERTA">OFERTA</span>
       </a>
+      <button type="button" class="eg-nav-how" id="egHowNav" title="Jak działa EasyWonders">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.7"/><path d="M9.3 9.2a2.7 2.7 0 015.2 1c0 1.8-2.5 2-2.5 3.5" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/><circle cx="12" cy="17" r="0.4" fill="currentColor" stroke="currentColor" stroke-width="0.8"/></svg>
+        <span data-i18n="Jak to działa?">Jak to działa?</span>
+      </button>
       <a href="https://fiszki.easygo-english.pl/" target="_blank" rel="noopener" title="Aplikacja z fiszkami">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true"><rect x="3" y="6" width="14" height="12" rx="2" stroke="currentColor" stroke-width="1.7"/><path d="M7 3.5h11A2.5 2.5 0 0120.5 6v11" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg><span>fiszki!</span>
       </a>
@@ -1278,6 +1300,32 @@
           <li><span class="eg-sm-swatch eg-sm-sw-none"></span><span data-i18n="bez obwódki - uczeń jeszcze nie zaczął">bez obwódki - uczeń jeszcze nie zaczął</span></li>
         </ul>
         <p class="eg-sm-modal-note" data-i18n="Status „w trakcie” ustawiasz w Panelu lektora.">Status „w trakcie” ustawiasz w Panelu lektora.</p>
+      </div>
+    </div>
+    <div class="eg-sm-modal-overlay" id="egHowModal" style="display:none">
+      <div class="eg-sm-modal eg-how-modal" role="dialog" aria-modal="true" aria-labelledby="egHowTitle">
+        <button type="button" class="eg-sm-modal-close" id="egHowClose" aria-label="Zamknij">✕</button>
+        <h3 id="egHowTitle" data-i18n="Jak działa EasyWonders?">Jak działa EasyWonders?</h3>
+        <p class="eg-how-intro" data-i18n="EasyWonders to platforma z interaktywnymi ćwiczeniami do angielskiego - dla uczących się i dla lektorów. Oto, co zyskujesz:">EasyWonders to platforma z interaktywnymi ćwiczeniami do angielskiego - dla uczących się i dla lektorów. Oto, co zyskujesz:</p>
+        <ul class="eg-how-list">
+          <li>
+            <span class="eg-how-ico" style="color:#c2398a"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M4 10.5 12 4l8 6.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><path d="M6 9.5V20h12V9.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><path d="M10 20v-5h4v5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+            <span><strong data-i18n="Setki ćwiczeń w jednym miejscu">Setki ćwiczeń w jednym miejscu</strong><br><span data-i18n="Gramatyka, słownictwo, czytanki, słuchanki i konwersacje na poziomach A1-C2. Nowe materiały pojawiają się cały czas.">Gramatyka, słownictwo, czytanki, słuchanki i konwersacje na poziomach A1-C2. Nowe materiały pojawiają się cały czas.</span></span>
+          </li>
+          <li>
+            <span class="eg-how-ico" style="color:#3aa76d"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M4 10.5 12 4l8 6.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><path d="M6 9.5V20h12V9.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><path d="M10 20v-5h4v5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+            <span><strong data-i18n="Praca domowa, która sama się sprawdza">Praca domowa, która sama się sprawdza</strong><br><span data-i18n="Lektor zadaje ćwiczenia jednym kliknięciem, a uczeń oznacza je jako zrobione. Widać, kto co przerobił i kiedy.">Lektor zadaje ćwiczenia jednym kliknięciem, a uczeń oznacza je jako zrobione. Widać, kto co przerobił i kiedy.</span></span>
+          </li>
+          <li>
+            <span class="eg-how-ico" style="color:#a78dd9"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M3 7a2 2 0 012-2h4l2 2h8a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2V7z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg></span>
+            <span><strong data-i18n="Teczka lektora i podgląd oczami ucznia">Teczka lektora i podgląd oczami ucznia</strong><br><span data-i18n="Lektor ma na górze strony teczkę ze swoimi uczniami i widzi całą platformę tak, jak wygląda u każdego z nich - co już zrobili (zielona ramka) i co jest w trakcie (lawendowa).">Lektor ma na górze strony teczkę ze swoimi uczniami i widzi całą platformę tak, jak wygląda u każdego z nich - co już zrobili (zielona ramka) i co jest w trakcie (lawendowa).</span></span>
+          </li>
+          <li>
+            <span class="eg-how-ico" style="color:#e08a2b"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="12" cy="8" r="4" stroke="currentColor" stroke-width="1.8"/><path d="M4 20c0-3.5 3.6-6 8-6s8 2.5 8 6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg></span>
+            <span><strong data-i18n="Konta dla całej szkoły językowej">Konta dla całej szkoły językowej</strong><br><span data-i18n="Właściciel zaprasza lektorów i przydziela im miejsca, a lektorzy dodają swoich uczniów i prowadzą ich w grupach lub indywidualnie.">Właściciel zaprasza lektorów i przydziela im miejsca, a lektorzy dodają swoich uczniów i prowadzą ich w grupach lub indywidualnie.</span></span>
+          </li>
+        </ul>
+        <p class="eg-how-cta" data-i18n="Chcesz spróbować? Zajrzyj do zakładki OFERTA i wybierz plan dla siebie.">Chcesz spróbować? Zajrzyj do zakładki <strong>OFERTA</strong> i wybierz plan dla siebie.</p>
       </div>
     </div>
     <div class="eg-active-filters" id="egActiveFilters" style="display:none">
@@ -1864,6 +1912,28 @@
     if(smModal){
       smModal.addEventListener('click', function(e){
         if(e.target === smModal) smModal.style.display = 'none'; // klik w tło zamyka
+      });
+    }
+    // Modal "Jak działa EasyWonders" — przycisk w nagłówku, widoczny dla wszystkich
+    var howNav = document.getElementById('egHowNav');
+    var howModal = document.getElementById('egHowModal');
+    var howClose = document.getElementById('egHowClose');
+    if(howNav && howModal){
+      howNav.addEventListener('click', function(){
+        howModal.style.display = 'flex';
+        try{
+          if(window.parent && window.parent !== window){
+            window.parent.postMessage({ egScrollTop: true }, '*');
+          }
+        }catch(e){}
+      });
+    }
+    if(howClose && howModal){
+      howClose.addEventListener('click', function(){ howModal.style.display = 'none'; });
+    }
+    if(howModal){
+      howModal.addEventListener('click', function(e){
+        if(e.target === howModal) howModal.style.display = 'none';
       });
     }
   })();
