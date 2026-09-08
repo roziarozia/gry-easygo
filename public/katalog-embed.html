@@ -127,7 +127,7 @@
   /* GORNY PASEK: linki do reszty swiata EasyGo po lewej, social + konto po prawej.
      Zajmuje puste 76px nad logo. Logo i haslo zostaja nietkniete. */
   .eg-topbar{
-    display:flex; align-items:center; gap:16px;
+    display:flex; align-items:center; gap:11px;
     max-width:1180px; margin:0 auto; padding:10px 24px;
     border-bottom:1px solid var(--eg-line);
   }
@@ -752,10 +752,10 @@
   /* Rozwijana zakładka na górze — lektor wybiera ucznia/grupę i widzi katalog jego oczami. */
   .eg-teczka{ position:relative; display:inline-flex; }
   .eg-teczka-btn{
-    display:inline-flex; align-items:center; gap:7px;
-    font-family:'Quicksand',sans-serif; font-weight:700; font-size:13.5px;
+    display:inline-flex; align-items:center; gap:5px;
+    font-family:'Quicksand',sans-serif; font-weight:700; font-size:12.5px;
     color:#fff; background:var(--eg-violet); border:none; border-radius:999px;
-    padding:8px 16px; cursor:pointer; transition:filter .15s;
+    padding:6px 12px; cursor:pointer; transition:filter .15s; white-space:nowrap;
   }
   .eg-teczka-btn:hover{ filter:brightness(1.06); }
   .eg-teczka-btn .eg-teczka-caret{ transition:transform .18s; }
@@ -851,6 +851,8 @@
   /* Modal "Jak działa EasyWonders" — dla osób z zewnątrz, z ikonami */
   .eg-how-modal{ max-width:500px; }
   .eg-how-intro{ color:var(--eg-muted); font-size:14px; margin:2px 0 16px; }
+  .eg-how-trust{ display:inline-block; background:rgba(58,167,109,.12); color:#2e8558; font-size:13px; font-weight:700; padding:5px 13px; border-radius:999px; margin:4px 0 14px; }
+  html.eg-dark .eg-how-trust{ background:rgba(58,167,109,.2); color:#7fd4a6; }
   .eg-how-list{ list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:16px; }
   .eg-how-list li{ display:flex; gap:13px; align-items:flex-start; }
   .eg-how-ico{ flex:none; width:38px; height:38px; border-radius:11px; background:var(--eg-card-soft); display:inline-flex; align-items:center; justify-content:center; }
@@ -1306,6 +1308,7 @@
       <div class="eg-sm-modal eg-how-modal" role="dialog" aria-modal="true" aria-labelledby="egHowTitle">
         <button type="button" class="eg-sm-modal-close" id="egHowClose" aria-label="Zamknij">✕</button>
         <h3 id="egHowTitle" data-i18n="Jak działa EasyWonders?">Jak działa EasyWonders?</h3>
+        <div class="eg-how-trust" data-i18n="⭐ Zaufało nam już ponad 100 osób">⭐ Zaufało nam już ponad 100 osób</div>
         <p class="eg-how-intro" data-i18n="EasyWonders to platforma z interaktywnymi ćwiczeniami do angielskiego - dla uczących się i dla lektorów. Oto, co zyskujesz:">EasyWonders to platforma z interaktywnymi ćwiczeniami do angielskiego - dla uczących się i dla lektorów. Oto, co zyskujesz:</p>
         <ul class="eg-how-list">
           <li>
@@ -1325,7 +1328,7 @@
             <span><strong data-i18n="Konta dla całej szkoły językowej">Konta dla całej szkoły językowej</strong><br><span data-i18n="Właściciel subskrypcji zaprasza lektorów, przydziela im miejsca i dodaje uczniów. Każdy lektor prowadzi potem swoich uczniów - w grupach lub indywidualnie - zadaje im pracę domową i śledzi postępy.">Właściciel subskrypcji zaprasza lektorów, przydziela im miejsca i dodaje uczniów. Każdy lektor prowadzi potem swoich uczniów - w grupach lub indywidualnie - zadaje im pracę domową i śledzi postępy.</span></span>
           </li>
         </ul>
-        <p class="eg-how-cta" data-i18n="Chcesz spróbować? Zajrzyj do zakładki OFERTA i wybierz plan dla siebie.">Chcesz spróbować? Zajrzyj do zakładki <strong>OFERTA</strong> i wybierz plan dla siebie.</p>
+        <p class="eg-how-cta" data-i18n="Wypróbuj EasyWonders za darmo przez 7 dni - bez ryzyka, w każdej chwili możesz zrezygnować. Zajrzyj do zakładki OFERTA, wybierz plan i zacznij naukę już dziś.">Wypróbuj EasyWonders <strong>za darmo przez 7 dni</strong> - bez ryzyka, w każdej chwili możesz zrezygnować. Zajrzyj do zakładki <strong>OFERTA</strong>, wybierz plan i zacznij naukę już dziś.</p>
       </div>
     </div>
     <div class="eg-active-filters" id="egActiveFilters" style="display:none">
