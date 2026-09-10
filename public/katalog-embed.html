@@ -1035,8 +1035,8 @@
   .eg-score-line.clickable{ cursor:pointer; text-decoration:underline; text-decoration-style:dotted; }
   .eg-score-line.clickable:hover{ filter:brightness(1.12); }
   /* Szczegóły odpowiedzi ucznia - modal (lawendowy, jak podgląd lektora) */
-  .eg-ansd-overlay{ position:fixed; inset:0; background:rgba(46,42,51,.55); display:none; align-items:flex-start; justify-content:center; z-index:99999; overflow-y:auto; padding:40px 16px; }
-  .eg-ansd{ background:var(--eg-card,#fff); border-radius:20px; max-width:620px; width:100%; padding:26px 26px 30px; box-shadow:0 20px 60px rgba(0,0,0,.25); position:relative; }
+  .eg-ansd-overlay{ position:fixed; inset:0; background:rgba(46,42,51,.55); display:none; align-items:center; justify-content:center; z-index:99999; overflow-y:auto; padding:24px 12px; }
+  .eg-ansd{ background:var(--eg-card,#fff); border-radius:20px; max-width:620px; width:100%; padding:26px 26px 30px; box-shadow:0 20px 60px rgba(0,0,0,.25); position:relative; font-family:'Nunito',sans-serif; margin:auto; }
   html.eg-dark .eg-ansd{ background:#232030; }
   .eg-ansd-close{ position:absolute; top:14px; right:16px; background:none; border:none; font-size:20px; color:var(--eg-muted,#9a94a6); cursor:pointer; line-height:1; }
   .eg-ansd h3{ margin:0 0 4px; font-family:'Quicksand',sans-serif; font-size:20px; color:var(--eg-ink,#2e2a33); }
@@ -3224,7 +3224,7 @@
       var compQ = await window._egSb.from('game_completions').select('answers, score, score_max').eq('game_slug', gameSlug).eq('user_id', userId).maybeSingle();
       var comp = compQ && compQ.data ? compQ.data : null;
       if(!comp || !Array.isArray(comp.answers) || !comp.answers.length){
-        content.innerHTML = '<h3>Szczegóły odpowiedzi</h3><p class="eg-ansd-sub">Dla tego ćwiczenia nie ma jeszcze zapisanych szczegółowych odpowiedzi. Pojawią się, gdy uczeń rozwiąże je ponownie.</p>';
+        content.innerHTML = '<h3>Szczegóły odpowiedzi</h3><p class="eg-ansd-sub" style="text-align:center;padding:20px 0 8px">Dla tego ćwiczenia nie ma jeszcze zapisanych szczegółowych odpowiedzi.<br>Pojawią się, gdy uczeń rozwiąże je ponownie.</p>';
         return;
       }
       var gQ = await window._egSb.from('games').select('id, title').eq('slug', gameSlug).maybeSingle();
