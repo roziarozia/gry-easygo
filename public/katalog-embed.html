@@ -3179,8 +3179,9 @@
   }
 
   /* ===== SZCZEGÓŁY ODPOWIEDZI UCZNIA (katalog) ===== */
-  (function(){
+  function egEnsureAnsdModal(){
     if(document.getElementById('egAnsdOverlay')) return;
+    if(!document.body){ return; }
     var ov = document.createElement('div');
     ov.className = 'eg-ansd-overlay';
     ov.id = 'egAnsdOverlay';
@@ -3189,16 +3190,26 @@
     var cb = document.getElementById('egAnsdClose');
     if(cb) cb.addEventListener('click', function(){ ov.style.display='none'; });
     ov.addEventListener('click', function(e){ if(e.target === ov) ov.style.display='none'; });
+  }
+  (function(){
+    egEnsureAnsdModal();
     // klik w wynik ucznia (w podglądzie oczami ucznia) otwiera szczegóły JEGO odpowiedzi
     document.addEventListener('click', function(e){
       var el = e.target.closest ? e.target.closest('.eg-score-line[data-ansd-slug]') : null;
-      if(el && typeof svViewing !== 'undefined' && svViewing && svViewing.kind==='student'){
-        var slug = el.getAttribute('data-ansd-slug');
-        if(slug) window.egShowAnswerDetails(slug, svViewing.id);
+      if(!el) return;
+      e.preventDefault();
+      e.stopPropagation();
+      var slug = el.getAttribute('data-ansd-slug');
+      // ID ucznia z aktualnego podglądu (svViewing) - albo z zapamiętanego wyboru
+      var uid = (typeof svViewing !== 'undefined' && svViewing && svViewing.id) ? svViewing.id : null;
+      if(!uid){
+        try{ var sv = JSON.parse(sessionStorage.getItem('egSvViewing')||'null'); if(sv && sv.id) uid = sv.id; }catch(e2){}
       }
-    });
+      if(slug && uid) window.egShowAnswerDetails(slug, uid);
+    }, true);
   })();
   window.egShowAnswerDetails = async function(gameSlug, userId){
+    egEnsureAnsdModal();
     var overlay = document.getElementById('egAnsdOverlay');
     var content = document.getElementById('egAnsdContent');
     if(!overlay || !content || !_sb) return;
