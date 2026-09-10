@@ -3132,6 +3132,15 @@ async function egShowAnswerDetails(gameSlug, userId, opts){
   }catch(e){ overlay.style.top = '0'; overlay.style.height = '100%'; }
   void overlay.offsetWidth;
   overlay.classList.add('show');
+  // PEWNE zamykanie - podpinam bezpośrednio do istniejącego X i overlay
+  (function(){
+    var closeIt = function(){ overlay.classList.remove('show'); overlay.style.display='none'; };
+    var xBtn = overlay.querySelector('#egAnsdClose, .eg-ansd-close');
+    if(xBtn){ xBtn.onclick = function(ev){ ev.stopPropagation(); closeIt(); }; }
+    overlay.onclick = function(ev){ if(ev.target === overlay) closeIt(); };
+    var escH = function(ev){ if(ev.key === 'Escape'){ closeIt(); document.removeEventListener('keydown', escH); } };
+    document.addEventListener('keydown', escH);
+  })();
   try{
     // 1) pobierz zapisane odpowiedzi ucznia dla tej gry
     var compQ = await _db.from('game_completions')
