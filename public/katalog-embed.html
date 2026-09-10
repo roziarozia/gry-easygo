@@ -1437,9 +1437,18 @@
   // Po potwierdzeniu maila (link z Supabase) token sesji wraca w adresie jako #access_token=…
   // Supabase zapisuje sesję ASYNCHRONICZNIE, więc getSession() na starcie widzi jeszcze "brak".
   // Nasłuchujemy więc pojawienia się sesji i wtedy odświeżamy stan zalogowania + czyścimy token z URL.
+  // Hero (przekaz "co to jest") jest dla NIEzalogowanych - po zalogowaniu znika,
+  // bo stały użytkownik przyszedł ćwiczyć, nie czytać marketing.
+  function egUpdateHeroVisibility(loggedIn){
+    var hero = document.querySelector('.eg-hero');
+    var tagline = document.querySelector('.eg-hero-tagline');
+    if(hero) hero.style.display = loggedIn ? 'none' : '';
+    if(tagline) tagline.style.display = loggedIn ? 'none' : '';
+  }
   if(_sb){
     _sb.auth.onAuthStateChange(function(event, session){
       if(session && (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED' || event === 'INITIAL_SESSION')){
+        egUpdateHeroVisibility(true); // zalogowany -> ukryj hero
         // usuń token z adresu, żeby nie wisiał w pasku i nie został przy odświeżeniu
         if(window.location.hash && window.location.hash.indexOf('access_token') !== -1){
           try{ history.replaceState(null, '', window.location.pathname + window.location.search); }catch(e){}
@@ -1447,6 +1456,11 @@
         if(typeof loadHomework === 'function'){ loadHomework(); }
       }
     });
+    // sprawdź sesję na starcie - jeśli już zalogowany, hero od razu ukryte (bez mignięcia)
+    _sb.auth.getSession().then(function(r){
+      var s = r && r.data ? r.data.session : null;
+      egUpdateHeroVisibility(!!s);
+    }).catch(function(){});
   }
   var homeworkSet = {}; // sluggi gier przypisanych zalogowanemu uczniowi jako praca domowa
   var completedSet = {}; // sluggi ćwiczeń, które uczeń już ukończył (postępy)
