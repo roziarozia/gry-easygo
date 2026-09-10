@@ -394,8 +394,10 @@
   html.eg-dark .pv-instr{ background:#2c2440; color:#c9b8ec; }
   html.eg-dark .pv-opt.correct{ background:#1e3b2c; color:#7ddba9; }
   /* Szczegóły odpowiedzi ucznia — modal, styl jak podgląd lektora (lawendowy) */
-  .eg-ansd-overlay{ position:fixed; inset:0; background:rgba(46,42,51,.55); display:none; align-items:center; justify-content:center; z-index:99999; overflow-y:auto; padding:24px 12px; }
-  .eg-ansd{ background:var(--card,#fff); border-radius:20px; max-width:620px; width:100%; padding:26px 26px 30px; box-shadow:0 20px 60px rgba(0,0,0,.25); position:relative; font-family:'Nunito',sans-serif; margin:auto; }
+  .eg-ansd-overlay{ position:fixed; inset:0; background:rgba(46,42,51,.55); display:none; align-items:center; justify-content:center; z-index:99999; overflow-y:auto; padding:24px 12px; opacity:0; transition:opacity .18s ease; }
+  .eg-ansd-overlay.show{ opacity:1; }
+  .eg-ansd{ background:var(--card,#fff); border-radius:20px; max-width:620px; width:100%; padding:26px 26px 30px; box-shadow:0 20px 60px rgba(0,0,0,.25); position:relative; font-family:'Nunito',sans-serif; margin:auto; transform:translateY(8px); transition:transform .18s ease; }
+  .eg-ansd-overlay.show .eg-ansd{ transform:translateY(0); }
   html.eg-dark .eg-ansd{ background:#232030; }
   .eg-ansd-close{ position:absolute; top:14px; right:16px; background:none; border:none; font-size:20px; color:var(--muted,#9a94a6); cursor:pointer; line-height:1; }
   .eg-ansd h3{ margin:0 0 4px; font-family:'Quicksand',sans-serif; font-size:20px; color:var(--ink); }
@@ -3082,6 +3084,8 @@ async function egShowAnswerDetails(gameSlug, userId, opts){
   if(!overlay || !content || !_db) return;
   content.innerHTML = '<p style="color:#9a94a6;font-size:14px">Wczytuję szczegóły…</p>';
   overlay.style.display = 'flex';
+  void overlay.offsetWidth;
+  overlay.classList.add('show');
   try{
     // 1) pobierz zapisane odpowiedzi ucznia dla tej gry
     var compQ = await _db.from('game_completions')
@@ -3089,7 +3093,7 @@ async function egShowAnswerDetails(gameSlug, userId, opts){
       .eq('game_slug', gameSlug).eq('user_id', userId).maybeSingle();
     var comp = compQ && compQ.data ? compQ.data : null;
     if(!comp || !Array.isArray(comp.answers) || !comp.answers.length){
-      content.innerHTML = '<h3>Szczegóły odpowiedzi</h3><p class="eg-ansd-sub">Dla tego ćwiczenia nie ma jeszcze zapisanych szczegółowych odpowiedzi. Pojawią się, gdy uczeń rozwiąże je ponownie.</p>';
+      content.innerHTML = '<h3>Szczegóły odpowiedzi</h3><p class="eg-ansd-sub" style="text-align:center;padding:20px 0 8px">Szczegóły pojawią się przy ponownym rozwiązaniu ćwiczenia.</p>';
       return;
     }
     // 2) pobierz treść pytań tej gry
@@ -3130,8 +3134,8 @@ async function egShowAnswerDetails(gameSlug, userId, opts){
     var overlay = document.getElementById('egAnsdOverlay');
     if(!overlay) return;
     // klik w X (zamknij) lub w tło overlay zamyka modal
-    if(e.target.closest && e.target.closest('#egAnsdClose')){ overlay.style.display='none'; return; }
-    if(e.target === overlay){ overlay.style.display='none'; }
+    if(e.target.closest && e.target.closest('#egAnsdClose')){ overlay.classList.remove('show'); overlay.style.display='none'; return; }
+    if(e.target === overlay){ overlay.classList.remove('show'); overlay.style.display='none'; }
   });
 })();
 </script>
