@@ -3222,6 +3222,8 @@
     if(!overlay || !content || !window._egSb) return;
     content.innerHTML = '<p style="color:#9a94a6;font-size:14px">Wczytuję szczegóły…</p>';
     overlay.style.display = 'flex';
+    // katalog jest w iframe - poproś rodzica o przewinięcie na górę, żeby modal był w widoku
+    try{ if(window.parent && window.parent !== window){ window.parent.postMessage({ egScrollTop: true }, '*'); } }catch(e){}
     // wymuszenie reflow + klasa show -> płynne pojawienie (bez zacięcia)
     void overlay.offsetWidth;
     overlay.classList.add('show');
