@@ -3222,10 +3222,21 @@
     if(!overlay || !content || !window._egSb) return;
     content.innerHTML = '<p style="color:#9a94a6;font-size:14px">Wczytuję szczegóły…</p>';
     overlay.style.display = 'flex';
-    // OVERLAY (przyciemnienie) = fixed inset:0 -> równo pokrywa cały widok.
-    overlay.style.position = 'fixed';
-    overlay.style.top = '0'; overlay.style.left = '0'; overlay.style.right = '0'; overlay.style.bottom = '0';
-    overlay.style.height = ''; overlay.style.alignItems = 'center';
+    // Modal stawiamy tam gdzie użytkownik patrzy (rodzic przewija, więc pozycja widoku = -frameElement.top).
+    try{
+      var fe = window.frameElement;
+      var topInDoc;
+      if(fe){
+        var r = fe.getBoundingClientRect();
+        var winH = (fe.ownerDocument && fe.ownerDocument.defaultView) ? fe.ownerDocument.defaultView.innerHeight : 700;
+        topInDoc = (-r.top) + (winH * 0.12);
+      }else{ topInDoc = (window.pageYOffset || 0) + 40; }
+      overlay.style.position = 'absolute';
+      overlay.style.top = Math.max(0, topInDoc) + 'px';
+      overlay.style.left = '0'; overlay.style.right = '0'; overlay.style.bottom = 'auto';
+      overlay.style.height = 'auto'; overlay.style.minHeight = '0';
+      overlay.style.alignItems = 'flex-start';
+    }catch(e){ overlay.style.position='fixed'; overlay.style.top='0'; overlay.style.bottom='0'; }
     void overlay.offsetWidth;
     overlay.classList.add('show');
     try{
