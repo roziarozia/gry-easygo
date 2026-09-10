@@ -1037,7 +1037,7 @@
   /* Szczegóły odpowiedzi ucznia - modal (lawendowy, jak podgląd lektora) */
   .eg-ansd-overlay{ position:fixed; inset:0; background:rgba(46,42,51,.55); display:none; align-items:center; justify-content:center; z-index:99999; overflow-y:auto; padding:24px 12px; opacity:0; transition:opacity .18s ease; }
   .eg-ansd-overlay.show{ opacity:1; }
-  .eg-ansd{ background:#f6f3fc; border-radius:20px; max-width:620px; width:100%; padding:26px 26px 30px; box-shadow:0 20px 60px rgba(0,0,0,.25); position:relative; font-family:'Nunito',sans-serif; transform:translateY(8px); transition:transform .18s ease; }
+  .eg-ansd{ background:#f6f3fc; border-radius:20px; max-width:620px; width:100%; padding:26px 26px 30px; box-shadow:0 20px 60px rgba(0,0,0,.25); max-height:88vh; overflow-y:auto; position:relative; font-family:'Nunito',sans-serif; transform:translateY(8px); transition:transform .18s ease; }
   .eg-ansd-overlay.show .eg-ansd{ transform:translateY(0); }
   html.eg-dark .eg-ansd{ background:#232030; }
   .eg-ansd-close{ position:absolute; top:14px; right:16px; background:none; border:none; font-size:20px; color:var(--eg-muted,#9a94a6); cursor:pointer; line-height:1; }
@@ -3225,29 +3225,22 @@
     overlay.style.display = 'flex';
     overlay.style.position = 'absolute';
     overlay.style.left = '0'; overlay.style.right = '0'; overlay.style.bottom = 'auto';
-    overlay.style.alignItems = 'flex-start'; overlay.style.justifyContent = 'center';
+    overlay.style.alignItems = 'center'; overlay.style.justifyContent = 'center';
+    overlay.style.transform = ''; overlay.style.width = '';
     overlay.style.boxShadow = '0 0 0 100vmax rgba(46,42,51,.55)';
     overlay.style.clipPath = 'inset(-100vmax)';
-    function egAnsdReposition(){
-      try{
-        var fe = window.frameElement; if(!fe) return;
-        var r = fe.getBoundingClientRect();
-        var winH = (fe.ownerDocument && fe.ownerDocument.defaultView) ? fe.ownerDocument.defaultView.innerHeight : 700;
-        overlay.style.top = Math.max(0, (-r.top)) + 'px';
-        overlay.style.height = winH + 'px';
-      }catch(e){}
-    }
-    var egRepoTicking = false;
-    function egRepoOnScroll(){
-      if(egRepoTicking) return; egRepoTicking = true;
-      (window.requestAnimationFrame || function(cb){setTimeout(cb,16);})(function(){ egAnsdReposition(); egRepoTicking=false; });
-    }
-    egAnsdReposition();
-    overlay._egRepo = egRepoOnScroll;
+    // pozycja RAZ - na środku aktualnego widoku. Modal nieruchomy, lista przewija się WEWNĄTRZ.
     try{
-      var pw = (window.frameElement && window.frameElement.ownerDocument) ? window.frameElement.ownerDocument.defaultView : null;
-      if(pw){ pw.addEventListener('scroll', egRepoOnScroll, {passive:true}); pw.addEventListener('resize', egRepoOnScroll); }
-    }catch(e){}
+      var fe = window.frameElement;
+      var winH = 700, viewTopInDoc = 0;
+      if(fe){
+        var r = fe.getBoundingClientRect();
+        winH = (fe.ownerDocument && fe.ownerDocument.defaultView) ? fe.ownerDocument.defaultView.innerHeight : 700;
+        viewTopInDoc = -r.top;
+      }
+      overlay.style.height = winH + 'px';
+      overlay.style.top = Math.max(0, viewTopInDoc) + 'px';
+    }catch(e){ overlay.style.top='0'; overlay.style.height='100%'; }
     void overlay.offsetWidth;
     overlay.classList.add('show');
     try{
