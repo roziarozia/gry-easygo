@@ -1404,6 +1404,7 @@
   var LOGIN_LINK = '/logowanie'; // ścieżka względna — działa na każdej domenie, sesja zostaje na tej samej
   var MIN_TILES = 3; // ile minimum kafelków (dopełnia "wkrótce")
   var _sb = window.supabase ? window.supabase.createClient(SUPA_URL, SUPA_KEY) : null;
+  try{ window._egSb = _sb; }catch(e){}
   // Po potwierdzeniu maila (link z Supabase) token sesji wraca w adresie jako #access_token=…
   // Supabase zapisuje sesję ASYNCHRONICZNIE, więc getSession() na starcie widzi jeszcze "brak".
   // Nasłuchujemy więc pojawienia się sesji i wtedy odświeżamy stan zalogowania + czyścimy token z URL.
@@ -3206,8 +3207,8 @@
         try{ var sv = JSON.parse(sessionStorage.getItem('egSvViewing')||'null'); if(sv && sv.id) uid = sv.id; }catch(e2){}
       }
       // 2) poza podglądem - własny wynik zalogowanego użytkownika
-      if(!uid && _sb){
-        try{ var r = await _sb.auth.getSession(); var s = r && r.data ? r.data.session : null; if(s) uid = s.user.id; }catch(e3){}
+      if(!uid && window._egSb){
+        try{ var r = await window._egSb.auth.getSession(); var s = r && r.data ? r.data.session : null; if(s) uid = s.user.id; }catch(e3){}
       }
       if(slug && uid) window.egShowAnswerDetails(slug, uid);
     }, true);
@@ -3216,20 +3217,20 @@
     egEnsureAnsdModal();
     var overlay = document.getElementById('egAnsdOverlay');
     var content = document.getElementById('egAnsdContent');
-    if(!overlay || !content || !_sb) return;
+    if(!overlay || !content || !window._egSb) return;
     content.innerHTML = '<p style="color:#9a94a6;font-size:14px">Wczytuję szczegóły…</p>';
     overlay.style.display = 'flex';
     try{
-      var compQ = await _sb.from('game_completions').select('answers, score, score_max').eq('game_slug', gameSlug).eq('user_id', userId).maybeSingle();
+      var compQ = await window._egSb.from('game_completions').select('answers, score, score_max').eq('game_slug', gameSlug).eq('user_id', userId).maybeSingle();
       var comp = compQ && compQ.data ? compQ.data : null;
       if(!comp || !Array.isArray(comp.answers) || !comp.answers.length){
         content.innerHTML = '<h3>Szczegóły odpowiedzi</h3><p class="eg-ansd-sub">Dla tego ćwiczenia nie ma jeszcze zapisanych szczegółowych odpowiedzi. Pojawią się, gdy uczeń rozwiąże je ponownie.</p>';
         return;
       }
-      var gQ = await _sb.from('games').select('id, title').eq('slug', gameSlug).maybeSingle();
+      var gQ = await window._egSb.from('games').select('id, title').eq('slug', gameSlug).maybeSingle();
       var gameId = gQ && gQ.data ? gQ.data.id : null;
       var gameTitle = gQ && gQ.data ? gQ.data.title : '';
-      var qsQ = await _sb.from('questions').select('position, prompt, options, correct, explanation').eq('game_id', gameId).order('position');
+      var qsQ = await window._egSb.from('questions').select('position, prompt, options, correct, explanation').eq('game_id', gameId).order('position');
       var questions = qsQ && qsQ.data ? qsQ.data : [];
       var esc = function(s){ var d=document.createElement('div'); d.textContent=(s==null?'':s); return d.innerHTML; };
       var html = '<h3>' + esc(gameTitle || 'Szczegóły odpowiedzi') + '</h3>';
