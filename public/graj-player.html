@@ -3100,17 +3100,12 @@ async function egShowAnswerDetails(gameSlug, userId, opts){
   if(!overlay || !content || !_db) return;
   content.innerHTML = '<p style="color:#9a94a6;font-size:14px">Wczytuję szczegóły…</p>';
   overlay.style.display = 'flex';
-  // player bywa w iframe - position:fixed bywa zawodne, więc ustawiam overlay
-  // na aktualnej pozycji scrolla, żeby modal pojawił się tam, gdzie użytkownik patrzy
-  try{
-    var sy = window.scrollY || window.pageYOffset || 0;
-    var vh = window.innerHeight || 600;
-    overlay.style.position = 'absolute';
-    overlay.style.top = sy + 'px';
-    overlay.style.left = '0';
-    overlay.style.right = '0';
-    overlay.style.minHeight = vh + 'px';
-  }catch(e){}
+  // katalog/player w iframe: scroll dzieje się w oknie rodzica, nie w iframe.
+  // Robię jak inne działające modale: proszę rodzica o przewinięcie na górę,
+  // a modal ustawiam na górze iframe (fixed) - wtedy jest w widoku.
+  overlay.style.position = 'fixed';
+  overlay.style.top = '0';
+  try{ if(window.parent && window.parent !== window){ window.parent.postMessage({ egScrollTop: true }, '*'); } }catch(e){}
   void overlay.offsetWidth;
   overlay.classList.add('show');
   try{

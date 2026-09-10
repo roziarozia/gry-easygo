@@ -3222,17 +3222,11 @@
     if(!overlay || !content || !window._egSb) return;
     content.innerHTML = '<p style="color:#9a94a6;font-size:14px">Wczytuję szczegóły…</p>';
     overlay.style.display = 'flex';
-    // katalog w iframe - ustawiam overlay na aktualnej pozycji scrolla, żeby modal
-    // pojawił się tam, gdzie użytkownik patrzy (position:fixed w iframe bywa zawodne)
-    try{
-      var sy = window.scrollY || window.pageYOffset || 0;
-      var vh = window.innerHeight || 600;
-      overlay.style.position = 'absolute';
-      overlay.style.top = sy + 'px';
-      overlay.style.left = '0';
-      overlay.style.right = '0';
-      overlay.style.minHeight = vh + 'px';
-    }catch(e){}
+    // katalog w iframe: scroll dzieje się w oknie rodzica. Robię jak inne działające
+    // modale - proszę rodzica o przewinięcie na górę, modal fixed na górze iframe.
+    overlay.style.position = 'fixed';
+    overlay.style.top = '0';
+    try{ if(window.parent && window.parent !== window){ window.parent.postMessage({ egScrollTop: true }, '*'); } }catch(e){}
     void overlay.offsetWidth;
     overlay.classList.add('show');
     try{
