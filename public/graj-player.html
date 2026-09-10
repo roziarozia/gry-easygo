@@ -3124,12 +3124,22 @@ async function egShowAnswerDetails(gameSlug, userId, opts){
       overlay.style.height = winH + 'px';
     }catch(e){}
   }
+  // płynne podążanie za scrollem (rAF) - bez przycinania/drgania
+  var egRepoTicking = false;
+  function egRepoOnScroll(){
+    if(egRepoTicking) return;
+    egRepoTicking = true;
+    (window.requestAnimationFrame || function(cb){setTimeout(cb,16);})(function(){
+      egAnsdReposition();
+      egRepoTicking = false;
+    });
+  }
   egAnsdReposition();
   // nasłuch: przy każdym ruchu okna rodzica przesuwaj modal, żeby był zawsze w widoku
-  overlay._egRepo = egAnsdReposition;
+  overlay._egRepo = egRepoOnScroll;
   try{
     var pw = (window.frameElement && window.frameElement.ownerDocument) ? window.frameElement.ownerDocument.defaultView : null;
-    if(pw){ pw.addEventListener('scroll', egAnsdReposition, {passive:true}); pw.addEventListener('resize', egAnsdReposition); }
+    if(pw){ pw.addEventListener('scroll', egRepoOnScroll, {passive:true}); pw.addEventListener('resize', egRepoOnScroll); }
   }catch(e){}
   void overlay.offsetWidth;
   overlay.classList.add('show');
