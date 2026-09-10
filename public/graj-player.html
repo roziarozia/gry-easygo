@@ -396,7 +396,7 @@
   /* Szczegóły odpowiedzi ucznia — modal, styl jak podgląd lektora (lawendowy) */
   .eg-ansd-overlay{ position:fixed; inset:0; background:rgba(46,42,51,.55); display:none; align-items:center; justify-content:center; z-index:99999; overflow-y:auto; padding:24px 12px; opacity:0; transition:opacity .18s ease; }
   .eg-ansd-overlay.show{ opacity:1; }
-  .eg-ansd{ background:#f6f3fc; border-radius:20px; max-width:620px; width:100%; padding:26px 26px 30px; box-shadow:0 20px 60px rgba(0,0,0,.25); position:relative; font-family:'Nunito',sans-serif; margin:auto; transform:translateY(8px); transition:transform .18s ease; }
+  .eg-ansd{ background:#f6f3fc; border-radius:20px; max-width:620px; width:100%; padding:26px 26px 30px; box-shadow:0 20px 60px rgba(0,0,0,.25); position:relative; font-family:'Nunito',sans-serif; transform:translateY(8px); transition:transform .18s ease; }
   .eg-ansd-overlay.show .eg-ansd{ transform:translateY(0); }
   html.eg-dark .eg-ansd{ background:#232030; }
   .eg-ansd-close{ position:absolute; top:14px; right:16px; background:none; border:none; font-size:20px; color:var(--muted,#9a94a6); cursor:pointer; line-height:1; }
@@ -3100,23 +3100,10 @@ async function egShowAnswerDetails(gameSlug, userId, opts){
   if(!overlay || !content || !_db) return;
   content.innerHTML = '<p style="color:#9a94a6;font-size:14px">Wczytuję szczegóły…</p>';
   overlay.style.display = 'flex';
-  // Modal w iframe: fixed kotwiczy do iframe, nie do widoku. Liczymy, gdzie jest widok
-  // użytkownika względem początku iframe (frameElement.top jest ujemny gdy przewinięte w głąb).
-  try{
-    var fe = window.frameElement;
-    if(fe){
-      var r = fe.getBoundingClientRect();
-      var winH = (fe.ownerDocument && fe.ownerDocument.defaultView) ? fe.ownerDocument.defaultView.innerHeight : (window.innerHeight || 700);
-      var viewCenterInIframe = -r.top + (winH / 2);   // środek widoku, licząc od góry iframe
-      overlay.style.position = 'absolute';
-      overlay.style.top = Math.max(0, viewCenterInIframe - 230) + 'px';
-      overlay.style.left = '0'; overlay.style.right = '0'; overlay.style.bottom = 'auto';
-      overlay.style.height = winH + 'px';
-      overlay.style.alignItems = 'center';
-    }else{
-      overlay.style.position = 'fixed'; overlay.style.top='0'; overlay.style.bottom='0';
-    }
-  }catch(e){ overlay.style.position = 'fixed'; overlay.style.top='0'; overlay.style.bottom='0'; }
+  // OVERLAY (przyciemnienie) = fixed inset:0 -> zawsze równo pokrywa cały widok.
+  overlay.style.position = 'fixed';
+  overlay.style.top = '0'; overlay.style.left = '0'; overlay.style.right = '0'; overlay.style.bottom = '0';
+  overlay.style.height = ''; overlay.style.alignItems = 'center';
   void overlay.offsetWidth;
   overlay.classList.add('show');
   try{
