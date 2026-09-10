@@ -3212,8 +3212,7 @@
       if(!uid && window._egSb){
         try{ var r = await window._egSb.auth.getSession(); var s = r && r.data ? r.data.session : null; if(s) uid = s.user.id; }catch(e3){}
       }
-      if(slug && uid){ console.log('[ANSD] klik - wywołuję z slug:', slug, 'uid:', uid); window.egShowAnswerDetails(slug, uid); }
-      else{ console.log('[ANSD] klik - BRAK slug albo uid. slug:', slug, 'uid:', uid); }
+      if(slug && uid) window.egShowAnswerDetails(slug, uid);
     }, true);
   })();
   window.egShowAnswerDetails = async function(gameSlug, userId){
@@ -3227,9 +3226,7 @@
     void overlay.offsetWidth;
     overlay.classList.add('show');
     try{
-      console.log('[ANSD] pytam o slug:', gameSlug, 'user:', userId);
       var compQ = await window._egSb.from('game_completions').select('answers, score, score_max').eq('game_slug', gameSlug).eq('user_id', userId).maybeSingle();
-      console.log('[ANSD] odpowiedz bazy:', compQ);
       var comp = compQ && compQ.data ? compQ.data : null;
       if(!comp || !Array.isArray(comp.answers) || !comp.answers.length){
         content.innerHTML = '<h3>Szczegóły odpowiedzi</h3><p class="eg-ansd-sub" style="text-align:center;padding:20px 0 8px">Szczegóły pojawią się przy ponownym rozwiązaniu ćwiczenia.</p>';
