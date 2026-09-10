@@ -402,9 +402,9 @@
   .eg-ansd-close{ position:absolute; top:14px; right:16px; background:none; border:none; font-size:20px; color:var(--muted,#9a94a6); cursor:pointer; line-height:1; }
   .eg-ansd h3{ margin:0 0 4px; font-family:'Quicksand',sans-serif; font-size:20px; color:var(--ink); }
   .eg-ansd-sub{ font-size:14px; color:var(--muted,#9a94a6); margin:0 0 18px; }
-  .eg-ansd-q{ padding:12px 14px; border-radius:12px; margin:10px 0; background:rgba(183,164,232,.10); border:1px solid rgba(183,164,232,.3); }
-  .eg-ansd-q.ok{ background:rgba(183,164,232,.10); border-color:#bfe6d0; }
-  .eg-ansd-q.bad{ background:rgba(183,164,232,.10); border-color:#f2c7c7; }
+  .eg-ansd-q{ padding:12px 14px; border-radius:12px; margin:10px 0; background:rgba(183,164,232,.09); border:1px solid rgba(183,164,232,.25); }
+  .eg-ansd-q.ok{ background:#eaf7f0; border-color:#bfe6d0; }
+  .eg-ansd-q.bad{ background:#fbeded; border-color:#f2c7c7; }
   .eg-ansd-qtxt{ font-size:15px; font-weight:700; color:var(--ink); margin-bottom:8px; overflow-wrap:break-word; }
   .eg-ansd-row{ font-size:14px; line-height:1.5; margin:3px 0; overflow-wrap:break-word; }
   .eg-ansd-row .lbl{ color:var(--muted,#9a94a6); }
@@ -3100,25 +3100,10 @@ async function egShowAnswerDetails(gameSlug, userId, opts){
   if(!overlay || !content || !_db) return;
   content.innerHTML = '<p style="color:#9a94a6;font-size:14px">Wczytuję szczegóły…</p>';
   overlay.style.display = 'flex';
-  // NIE przewijamy strony. Ustawiamy modal w części iframe, która jest teraz widoczna.
-  // Iframe rośnie do wysokości zawartości (brak własnego scrolla), a rodzic przewija całość -
-  // więc liczymy, która część iframe jest w oknie, przez getBoundingClientRect względem rodzica.
-  try{
-    var rect = window.frameElement ? window.frameElement.getBoundingClientRect() : null;
-    if(rect){
-      // widoczny środek okna rodzica względem początku iframe
-      var parentViewCenter = -rect.top + (window.parent.innerHeight / 2);
-      overlay.style.position = 'absolute';
-      overlay.style.top = Math.max(0, parentViewCenter - 220) + 'px';
-      overlay.style.left = '0'; overlay.style.right = '0';
-        overlay.style.height = (window.parent.innerHeight || 600) + 'px';
-    }else{
-      overlay.style.position = 'fixed';
-      overlay.style.top = '0';
-    }
-  }catch(e){
-    overlay.style.position = 'fixed'; overlay.style.top = '0';
-  }
+  // fixed daje równe przyciemnienie całego widocznego obszaru (bez nierównego cienia)
+  overlay.style.position = 'fixed';
+  overlay.style.top = '0'; overlay.style.left = '0'; overlay.style.right = '0'; overlay.style.bottom = '0';
+  overlay.style.height = '';
   void overlay.offsetWidth;
   overlay.classList.add('show');
   try{
