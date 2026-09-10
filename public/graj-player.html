@@ -3110,8 +3110,13 @@ async function egShowAnswerDetails(gameSlug, userId, opts){
   content.innerHTML = '<p style="color:#9a94a6;font-size:14px">Wczytuję szczegóły…</p>';
   overlay.style.display = 'flex';
   overlay.style.position = 'absolute';
-  overlay.style.left = '0'; overlay.style.right = '0'; overlay.style.bottom = 'auto';
+  overlay.style.bottom = 'auto';
   overlay.style.alignItems = 'flex-start';
+  overlay.style.justifyContent = 'center';
+  overlay.style.left = '0'; overlay.style.right = '0'; overlay.style.width = ''; overlay.style.transform = '';
+  // box-shadow w kolorze przyciemnienia wypełnia brzegi ekranu (koniec białej ramki wokół)
+  overlay.style.boxShadow = '0 0 0 100vmax rgba(46,42,51,.55)';
+  overlay.style.clipPath = 'inset(0 -100vmax)';
   // Modal musi jeździć z użytkownikiem. W tym iframe przewija się rodzic, więc na bieżąco
   // przeliczamy, gdzie jest widok (-frameElement.top) i ustawiamy tam overlay + jego wysokość.
   function egAnsdReposition(){
