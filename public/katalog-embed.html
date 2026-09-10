@@ -592,23 +592,28 @@
     .eg-cols{ display:none; }
   }
   /* HERO - sekcja powitalna: mówi wprost czym jest platforma i co daje */
-  .eg-hero-tagline{ margin:6px 0 18px; font-size:15px; color:var(--eg-muted); }
-  .eg-hero{ max-width:680px; margin:0 auto 30px; text-align:center; }
-  .eg-hero-title{ font-family:'Quicksand',sans-serif; font-weight:700; font-size:clamp(22px,3.4vw,32px); line-height:1.25; color:var(--eg-ink); margin:0 0 14px; }
-  .eg-hero-sub{ font-size:15.5px; line-height:1.6; color:var(--eg-muted); margin:0 0 22px; }
-  .eg-hero-row{ display:flex; gap:12px; justify-content:center; flex-wrap:wrap; align-items:center; }
-  .eg-hero-cta{ background:var(--eg-magenta); color:#fff; border:none; border-radius:999px; padding:12px 26px; font-family:'Quicksand',sans-serif; font-weight:700; font-size:15px; cursor:pointer; transition:background .18s, transform .18s; }
-  .eg-hero-cta:hover{ background:#b33a7e; transform:translateY(-1px); }
-  .eg-hero-how{ background:transparent; color:var(--eg-magenta); border:1.5px solid var(--eg-magenta); border-radius:999px; padding:11px 22px; font-family:'Quicksand',sans-serif; font-weight:700; font-size:14.5px; cursor:pointer; transition:background .18s, color .18s; }
-  .eg-hero-how:hover{ background:var(--eg-magenta); color:#fff; }
-  .eg-hero-trust{ display:inline-block; margin:18px auto 0; background:rgba(58,167,109,.12); color:#2e8558; font-size:13px; font-weight:700; padding:5px 14px; border-radius:999px; }
-  html.eg-dark .eg-hero-trust{ background:rgba(58,167,109,.2); color:#7fd4a6; }
+  .eg-hero-tagline{ margin:6px 0 10px; font-size:15px; color:var(--eg-muted); }
+  .eg-hero{ max-width:680px; margin:0 auto 16px; text-align:center; }
+  .eg-hero-title{ font-family:'Quicksand',sans-serif; font-weight:700; font-size:clamp(22px,3.4vw,32px); line-height:1.25; color:var(--eg-ink); margin:0 0 8px; }
+  .eg-intro-link{ color:var(--eg-magenta) !important; text-decoration:underline; text-decoration-thickness:1.5px; text-underline-offset:2px; cursor:pointer; }
+  .eg-intro-link:hover{ opacity:.8 !important; }
+  .eg-intro-sub{ font-size:15.5px; line-height:1.55; color:var(--eg-muted); margin:0 0 18px; }
+  .eg-intro-row{ display:flex; gap:12px; justify-content:center; flex-wrap:wrap; align-items:center; }
+  .eg-intro-cta{ background:var(--eg-magenta); color:#fff; border:none; border-radius:999px; padding:12px 26px; font-family:'Quicksand',sans-serif; font-weight:700; font-size:15px; cursor:pointer; transition:background .18s, transform .18s; }
+  .eg-intro-cta:hover{ background:#b33a7e; transform:translateY(-1px); }
+  .eg-intro-how{ background:transparent; color:var(--eg-magenta); border:1.5px solid var(--eg-magenta); border-radius:999px; padding:11px 22px; font-family:'Quicksand',sans-serif; font-weight:700; font-size:14.5px; cursor:pointer; transition:background .18s, color .18s; }
+  .eg-intro-how:hover{ background:var(--eg-magenta); color:#fff; }
+  .eg-intro-trust{ display:inline-flex; align-items:center; gap:6px; margin:14px auto 0; background:rgba(183,164,232,.15); color:#7a5fb0; font-size:13px; font-weight:700; padding:5px 14px; border-radius:999px; }
+  .eg-intro-star{ flex:none; }
+  html.eg-dark .eg-intro-trust{ background:rgba(183,164,232,.18); color:#c9b6f0; }
   @media (max-width:560px){
-    .eg-hero{ margin-bottom:24px; }
-    .eg-hero-sub{ font-size:14.5px; }
-    .eg-hero-cta{ width:100%; }
-    .eg-hero-how{ width:100%; }
+    .eg-hero{ margin-bottom:16px; }
+    .eg-intro-sub{ font-size:14.5px; }
+    .eg-intro-cta{ width:100%; }
+    .eg-intro-how{ width:100%; }
   }
+  .eg-intro{ max-width:680px; margin:0 auto 16px; text-align:center; }
+  .eg-intro-title{ font-family:'Quicksand',sans-serif; font-weight:700; font-size:clamp(22px,3.4vw,32px); line-height:1.25; color:var(--eg-ink); margin:0 0 8px; }
   .eg-search-wrap{
     position:relative;
     max-width:440px;
@@ -1218,14 +1223,14 @@
       </span>
     </h1>
     <p class="eg-hero-tagline"><span data-i18n="Miejsce, które otwiera drzwi.">Miejsce, które otwiera drzwi.</span> 🩷</p>
-    <div class="eg-hero">
-      <h2 class="eg-hero-title" data-i18n="Interaktywna platforma do nauki angielskiego — dla lektorów i ich uczniów">Interaktywna platforma do nauki angielskiego — dla lektorów i ich uczniów</h2>
-      <p class="eg-hero-sub" data-i18n="Setki interaktywnych ćwiczeń z wyjaśnieniami na każdym poziomie (A1–C2): gramatyka, słownictwo, czytanki, słuchanki i konwersacje. Zadawaj pracę domową, która sama się sprawdza, i śledź postępy każdego ucznia — wszystko w jednym miejscu.">Setki interaktywnych ćwiczeń z wyjaśnieniami na każdym poziomie (A1–C2): gramatyka, słownictwo, czytanki, słuchanki i konwersacje. Zadawaj pracę domową, która sama się sprawdza, i śledź postępy każdego ucznia — wszystko w jednym miejscu.</p>
-      <div class="eg-hero-row">
-        <button type="button" class="eg-hero-cta" id="egHeroCta" data-i18n="Wypróbuj za darmo przez 7 dni">Wypróbuj za darmo przez 7 dni</button>
-        <button type="button" class="eg-hero-how" id="egHeroHow" data-i18n="Jak to działa?">Jak to działa?</button>
+    <div class="eg-intro">
+      <h2 class="eg-intro-title">Interaktywna platforma do nauki angielskiego – dla <a href="/oferta" class="eg-intro-link">lektorów</a> i ich <a href="/oferta" class="eg-intro-link">uczniów</a></h2>
+      <p class="eg-intro-sub">Setki interaktywnych ćwiczeń z wyjaśnieniami na każdym poziomie:<br>gramatyka, słownictwo, czytanki, słuchanki i konwersacje.<br>Zadawaj pracę domową, która sama się sprawdza,<br>i śledź postępy każdego ucznia – wszystko w jednym miejscu.</p>
+      <div class="eg-intro-row">
+        <button type="button" class="eg-intro-cta" id="egHeroCta" data-i18n="Wypróbuj za darmo przez 7 dni">Wypróbuj za darmo przez 7 dni</button>
+        <button type="button" class="eg-intro-how" id="egHeroHow" data-i18n="Jak to działa?">Jak to działa?</button>
       </div>
-      <p class="eg-hero-trust" data-i18n="⭐ Zaufało nam już ponad 100 osób">⭐ Zaufało nam już ponad 100 osób</p>
+      <p class="eg-intro-trust"><svg class="eg-intro-star" width="15" height="15" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 3.5l2.6 5.7 6.2.6-4.7 4.1 1.4 6.1L12 17.3 6.5 20.1l1.4-6.1L3.2 9.8l6.2-.6z" stroke="#ca4490" stroke-width="1.6" stroke-linejoin="round"/></svg> <span data-i18n="Zaufało nam już ponad 100 osób">Zaufało nam już ponad 100 osób</span></p>
     </div>
     <div class="eg-search-wrap">
       <svg class="eg-search-icon" width="17" height="17" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="11" cy="11" r="7" stroke="#5a5568" stroke-width="2"/><line x1="16.5" y1="16.5" x2="21" y2="21" stroke="#5a5568" stroke-width="2" stroke-linecap="round"/></svg>
@@ -1440,10 +1445,8 @@
   // Hero (przekaz "co to jest") jest dla NIEzalogowanych - po zalogowaniu znika,
   // bo stały użytkownik przyszedł ćwiczyć, nie czytać marketing.
   function egUpdateHeroVisibility(loggedIn){
-    var hero = document.querySelector('.eg-hero');
-    var tagline = document.querySelector('.eg-hero-tagline');
-    if(hero) hero.style.display = loggedIn ? 'none' : '';
-    if(tagline) tagline.style.display = loggedIn ? 'none' : '';
+    var intro = document.querySelector('.eg-intro');
+    if(intro) intro.style.display = loggedIn ? 'none' : '';
   }
   if(_sb){
     _sb.auth.onAuthStateChange(function(event, session){
