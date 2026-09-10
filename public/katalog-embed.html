@@ -3193,17 +3193,21 @@
   }
   (function(){
     egEnsureAnsdModal();
-    // klik w wynik ucznia (w podglądzie oczami ucznia) otwiera szczegóły JEGO odpowiedzi
-    document.addEventListener('click', function(e){
+    // klik w wynik: w podglądzie ucznia -> szczegóły ucznia; poza podglądem -> własne szczegóły
+    document.addEventListener('click', async function(e){
       var el = e.target.closest ? e.target.closest('.eg-score-line[data-ansd-slug]') : null;
       if(!el) return;
       e.preventDefault();
       e.stopPropagation();
       var slug = el.getAttribute('data-ansd-slug');
-      // ID ucznia z aktualnego podglądu (svViewing) - albo z zapamiętanego wyboru
+      // 1) ID oglądanego ucznia (podgląd lektora)
       var uid = (typeof svViewing !== 'undefined' && svViewing && svViewing.id) ? svViewing.id : null;
       if(!uid){
         try{ var sv = JSON.parse(sessionStorage.getItem('egSvViewing')||'null'); if(sv && sv.id) uid = sv.id; }catch(e2){}
+      }
+      // 2) poza podglądem - własny wynik zalogowanego użytkownika
+      if(!uid && _sb){
+        try{ var r = await _sb.auth.getSession(); var s = r && r.data ? r.data.session : null; if(s) uid = s.user.id; }catch(e3){}
       }
       if(slug && uid) window.egShowAnswerDetails(slug, uid);
     }, true);

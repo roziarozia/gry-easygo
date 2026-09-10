@@ -3125,10 +3125,14 @@ async function egShowAnswerDetails(gameSlug, userId, opts){
   }
 }
 (function(){
-  var overlay = document.getElementById('egAnsdOverlay');
-  var closeBtn = document.getElementById('egAnsdClose');
-  if(closeBtn && overlay){ closeBtn.addEventListener('click', function(){ overlay.style.display='none'; }); }
-  if(overlay){ overlay.addEventListener('click', function(e){ if(e.target === overlay) overlay.style.display='none'; }); }
+  // delegacja - działa niezależnie od kolejności ładowania modala w DOM
+  document.addEventListener('click', function(e){
+    var overlay = document.getElementById('egAnsdOverlay');
+    if(!overlay) return;
+    // klik w X (zamknij) lub w tło overlay zamyka modal
+    if(e.target.closest && e.target.closest('#egAnsdClose')){ overlay.style.display='none'; return; }
+    if(e.target === overlay){ overlay.style.display='none'; }
+  });
 })();
 </script>
 
