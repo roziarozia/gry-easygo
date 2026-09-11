@@ -613,11 +613,15 @@
   }
   .eg-intro{ max-width:760px; margin:8px auto 20px; text-align:center; }
   .eg-intro-eyebrow{ font-family:'Quicksand',sans-serif; font-weight:700; font-size:12.5px; letter-spacing:2px; text-transform:uppercase; color:var(--eg-magenta); margin:0 0 14px; }
-  .eg-intro-head{ display:inline-block; padding:22px 32px; border:1.5px solid rgba(202,68,144,.25); border-radius:16px; background:rgba(202,68,144,.03); margin-bottom:20px; }
-  html.eg-dark .eg-intro-head{ background:rgba(202,68,144,.08); border-color:rgba(202,68,144,.35); }
+  .eg-intro-head{ display:inline-block; position:relative; padding:30px 46px; margin-bottom:22px; }
+  .eg-corner{ position:absolute; width:26px; height:26px; }
+  .eg-corner-tl{ top:0; left:0; border-top:3px solid var(--eg-magenta); border-left:3px solid var(--eg-magenta); border-top-left-radius:6px; }
+  .eg-corner-tr{ top:0; right:0; border-top:3px solid var(--eg-magenta); border-right:3px solid var(--eg-magenta); border-top-right-radius:6px; }
+  .eg-corner-bl{ bottom:0; left:0; border-bottom:3px solid var(--eg-magenta); border-left:3px solid var(--eg-magenta); border-bottom-left-radius:6px; }
+  .eg-corner-br{ bottom:0; right:0; border-bottom:3px solid var(--eg-magenta); border-right:3px solid var(--eg-magenta); border-bottom-right-radius:6px; }
   .eg-intro-line{ white-space:nowrap; }
   @media (max-width:680px){ .eg-intro-line{ white-space:normal; } }
-  .eg-intro-title{ font-family:'Quicksand',sans-serif; font-weight:700; font-size:clamp(23px,3.2vw,32px); line-height:1.25; color:var(--eg-ink); margin:0 0 16px; }
+  .eg-intro-title{ font-family:Georgia,'Times New Roman',serif; font-style:italic; font-weight:600; font-size:clamp(22px,3vw,29px); line-height:1.3; color:#8b6fc7; margin:0; }
   @media (max-width:720px){
   }
   /* SEKCJA "Jak to działa" - kroki z ikonami (tylko dla niezalogowanych) */
@@ -1277,6 +1281,10 @@
     <p class="eg-hero-tagline"><span data-i18n="Miejsce, które otwiera drzwi">Miejsce, które otwiera drzwi</span><br><span data-i18n="To co, zaczynamy przygodę z językiem angielskim?">To co, zaczynamy przygodę z językiem angielskim?</span> 🩷</p>
     <div class="eg-intro">
       <div class="eg-intro-head">
+        <span class="eg-corner eg-corner-tl"></span>
+        <span class="eg-corner eg-corner-tr"></span>
+        <span class="eg-corner eg-corner-bl"></span>
+        <span class="eg-corner eg-corner-br"></span>
         <p class="eg-intro-eyebrow" data-i18n="Platforma do nauki angielskiego">Platforma do nauki angielskiego</p>
         <h2 class="eg-intro-title"><span class="eg-intro-line" data-i18n="Ucz się lub ucz innych języka angielskiego">Ucz się lub ucz innych języka angielskiego</span><br><span class="eg-intro-line" data-i18n="z platformą, która ogarnie wszystko!">z platformą, która ogarnie wszystko!</span></h2>
       </div>
