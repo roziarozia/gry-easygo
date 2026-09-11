@@ -2246,21 +2246,31 @@
     // PIERWSZE WEJŚCIE niezalogowanego (bez filtrów, bez wyszukiwania, domyślne sortowanie):
     // przeplataj darmowe z płatnymi, żeby na wejściu nie było ściany kłódek (to odstrasza).
     // Gdy ktoś użyje filtrów/wyszukiwarki - ta gałąź się nie uruchamia, filtry działają normalnie.
-    console.log('[MIX] sesja:', egHasSession, '| q:', JSON.stringify(q), '| seria:', curSeries, '| sort:', curSort, '| typ:', curType, '| status:', curStatus, '| poziomy:', curLvls.length);
     if(!egHasSession && !q && !curSeries && curSort === 'default'
        && curType === 'wszystkie' && curStatus === 'wszystkie' && curLvls.length === 0){
-      console.log('[MIX] PRZEPLATAM! darmowych:', list.filter(function(g){return !g.is_premium;}).length, 'platnych:', list.filter(function(g){return !!g.is_premium;}).length);
       var darmowe = list.filter(function(g){ return !g.is_premium; });
       var platne  = list.filter(function(g){ return !!g.is_premium; });
-      // przeplatanie 1:1 - darmowe rozkładają się na pierwszych stronach, potem płatne
+      // Darmowych jest znacznie mniej niż płatnych (np. 31 vs 161), więc rozkładamy je
+      // RÓWNOMIERNIE na CAŁEJ liście - żeby na każdej stronie (i po scrollu) były widoczne
+      // darmowe wśród kłódek, a nie tylko na początku.
       var mixed = [];
-      var di = 0, pi = 0;
-      while(di < darmowe.length || pi < platne.length){
-        if(di < darmowe.length) mixed.push(darmowe[di++]);
-        if(pi < platne.length) mixed.push(platne[pi++]);
+      if(!darmowe.length){ mixed = platne; }
+      else if(!platne.length){ mixed = darmowe; }
+      else {
+        var step = (darmowe.length + platne.length) / darmowe.length; // co ile pozycji jedno darmowe
+        var di = 0, pi = 0, nextFreeAt = 0;
+        for(var idx = 0; idx < darmowe.length + platne.length; idx++){
+          if(di < darmowe.length && idx >= Math.round(nextFreeAt)){
+            mixed.push(darmowe[di++]);
+            nextFreeAt += step;
+          } else if(pi < platne.length){
+            mixed.push(platne[pi++]);
+          } else if(di < darmowe.length){
+            mixed.push(darmowe[di++]);
+          }
+        }
       }
       list = mixed;
-      console.log('[MIX] pierwsze 12 po przeplataniu:', list.slice(0,12).map(function(g){ return g.is_premium ? 'KLODKA' : 'DARMO'; }).join(', '));
     }
     // ---- PAGINACJA: potnij do bieżącej strony (na pełnej, przefiltrowanej liście) ----
     var perPage = pageSize();
@@ -2270,7 +2280,6 @@
     var pageStart = (curPage - 1) * perPage;
     var fullCount = list.length;                       // ile realnych zadań w tym filtrze
     var pageList = list.slice(pageStart, pageStart + perPage);
-    console.log('[MIX] curPage:', curPage, '| perPage:', perPage, '| pageStart:', pageStart, '| pageList pierwsze 8:', pageList.slice(0,8).map(function(g){ return g.is_premium ? 'K' : 'D'; }).join(''));
     var isLastPage = (curPage >= totalPages);
 
     var html = pageList.map(function(g){
