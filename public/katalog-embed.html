@@ -611,12 +611,10 @@
     .eg-intro-cta{ width:100%; }
     .eg-intro-how{ width:100%; }
   }
-  .eg-intro{ max-width:820px; margin:0 auto 16px; text-align:center; background:var(--eg-card,#fff); border:0.5px solid var(--eg-line); border-top:3px solid var(--eg-magenta); border-radius:14px; padding:24px 34px; box-shadow:0 6px 22px rgba(46,42,51,.09); }
-  html.eg-dark .eg-intro{ box-shadow:0 6px 22px rgba(0,0,0,.3); }
-  .eg-intro-title{ font-family:'Quicksand',sans-serif; font-weight:700; font-size:clamp(20px,2.8vw,28px); line-height:1.3; color:var(--eg-ink); margin:0 0 8px; }
-  .eg-intro-line{ white-space:nowrap; }
+  .eg-intro{ max-width:640px; margin:8px auto 20px; text-align:center; }
+  .eg-intro-eyebrow{ font-family:'Quicksand',sans-serif; font-weight:700; font-size:12.5px; letter-spacing:2px; text-transform:uppercase; color:var(--eg-magenta); margin:0 0 14px; }
+  .eg-intro-title{ font-family:'Quicksand',sans-serif; font-weight:700; font-size:clamp(23px,3.2vw,32px); line-height:1.25; color:var(--eg-ink); margin:0 0 16px; }
   @media (max-width:720px){
-    .eg-intro-line{ white-space:normal; }
   }
   /* SEKCJA "Jak to działa" - kroki z ikonami (tylko dla niezalogowanych) */
   .eg-how{ max-width:1100px; margin:0 auto 20px; }
@@ -944,10 +942,16 @@
     grid-template-columns:repeat(4,1fr);
     gap:24px;
   }
-  .eg-about{ max-width:760px; margin:56px auto 0; padding:0 20px; }
-  .eg-about h2{ font-family:'Quicksand',sans-serif; font-weight:700; font-size:20px; color:var(--eg-magenta); margin:28px 0 10px; }
-  .eg-about h2:first-child{ margin-top:0; }
-  .eg-about p{ font-size:15px; line-height:1.7; color:#5a5563; margin:0 0 14px; }
+  .eg-about{ max-width:700px; margin:56px auto 0; padding:0 20px; }
+  .eg-about-h{ text-align:center; font-family:'Quicksand',sans-serif; font-weight:700; font-size:clamp(22px,2.8vw,26px); color:var(--eg-ink); margin:0 0 32px; }
+  .eg-about-blocks{ display:flex; flex-direction:column; gap:26px; }
+  .eg-about-block{ padding-left:22px; border-left:3px solid var(--eg-line); }
+  .eg-about-b1{ border-left-color:var(--eg-magenta); }
+  .eg-about-b2{ border-left-color:#b7a4e8; }
+  .eg-about-b3{ border-left-color:#d4af37; }
+  .eg-about-block h3{ font-family:'Quicksand',sans-serif; font-weight:700; font-size:16.5px; color:var(--eg-ink); margin:0 0 7px; }
+  .eg-about-block p{ font-size:14.5px; line-height:1.7; color:#5a5563; margin:0; }
+  .eg-about-fiszki{ text-align:center; font-size:14px; margin:28px 0 0; color:#5a5563; }
   .eg-about-fiszki a{ color:var(--eg-magenta); font-weight:700; text-decoration:none; }
   .eg-about-fiszki a:hover{ text-decoration:underline; }
   .eg-footer{ text-align:center; margin:48px auto 20px; padding-top:24px; border-top:1px solid var(--eg-line); max-width:400px; }
@@ -1268,8 +1272,9 @@
     </h1>
     <p class="eg-hero-tagline"><span data-i18n="Miejsce, które otwiera drzwi">Miejsce, które otwiera drzwi</span><br><span data-i18n="To co, zaczynamy przygodę z językiem angielskim?">To co, zaczynamy przygodę z językiem angielskim?</span> 🩷</p>
     <div class="eg-intro">
-      <h2 class="eg-intro-title"><span class="eg-intro-line">Interaktywna platforma do nauki angielskiego</span><br><span class="eg-intro-line">dla <a href="/oferta" class="eg-intro-link">lektorów i ich uczniów</a> oraz <a href="/oferta" class="eg-intro-link">uczniów indywidualnych</a></span></h2>
-      <p class="eg-intro-sub">Setki interaktywnych ćwiczeń z wyjaśnieniami na każdym poziomie:<br><span class="eg-intro-cats">gramatyka, słownictwo, czytanki, słuchanki i konwersacje</span>.<br>Zadawaj pracę domową, która sama się sprawdza,<br>i śledź postępy każdego ucznia – wszystko w jednym miejscu.</p>
+      <p class="eg-intro-eyebrow" data-i18n="Platforma do nauki angielskiego">Platforma do nauki angielskiego</p>
+      <h2 class="eg-intro-title">Ucz się lub ucz innych języka angielskiego z platformą, która ogarnie wszystko!</h2>
+      <p class="eg-intro-sub">Setki interaktywnych ćwiczeń z wyjaśnieniami na każdym poziomie – dla <a href="/oferta" class="eg-intro-link">lektorów i ich uczniów</a> oraz <a href="/oferta" class="eg-intro-link">uczniów indywidualnych</a>.</p>
       <div class="eg-intro-row">
         <button type="button" class="eg-intro-cta" id="egHeroCta" data-i18n="Wypróbuj za darmo przez 7 dni">Wypróbuj za darmo przez 7 dni</button>
         <button type="button" class="eg-intro-how" id="egHeroHow" data-i18n="Jak to działa?">Jak to działa?</button>
@@ -1521,15 +1526,25 @@
   </main>
 
   <section class="eg-about">
-    <h2 data-i18n="Angielski przez zabawę, czyli jak to działa">Angielski przez zabawę, czyli jak to działa</h2>
-    <p>Każde zadanie na tej stronie powstaje z myślą o tym, żeby nauka angielskiego była lekka i przyjemna. Znajdziesz tu ćwiczenia ze słownictwa - What is it?, w których nazywasz przedmioty na obrazkach, oraz quizy i uzupełnianie luk, gdzie wybierasz poprawną formę i od razu dowiadujesz się, dlaczego właśnie ta jest właściwa. Do każdego słówka możesz odsłuchać wymowę, a przy części haseł znajdziesz też wariant brytyjski i amerykański. Zadania typu QUIZ i GAP-FILL (uzupełnianie luk) mają również dodane wyjaśnienia poprawnych odpowiedzi. Dzięki wyjaśnieniom lektor może przypisać dane zadanie uczniowi w ramach pracy domowej, a uczeń będzie miał doskonałą powtórkę przerabianego materiału.</p>
-
-    <h2 data-i18n="Dla kogo są te gry?">Dla kogo są te gry?</h2>
-    <p>Dla wszystkich, którzy uczą się angielskiego samodzielnie i chcą poćwiczyć między lekcjami. Zadania są podzielone na poziomy, więc bez trudu wybierzesz coś dla siebie, niezależnie od tego, czy dopiero zaczynasz, czy szlifujesz to, co już umiesz. Nauczyciele znajdą tu gotowe materiały do wykorzystania na lekcjach. Po wykupieniu subskrypcji lektor otrzymuje dostęp do Panelu Lektora, gdzie może dodawać swoich uczniów do konta - przypisując im w ten sposób dostęp do wszystkich zadań na platformie. Lektor może również w Panelu Lektora przypisać uczniowi pracę domową. Liczba uczniów, których Lektor może dodać w Panelu zależy od ilości miejsc, które wybiera przy zakupie Subskrypcji.</p>
-
-    <h2 data-i18n="Ucz się kiedy chcesz, bez zakładania konta">Ucz się kiedy chcesz, bez zakładania konta</h2>
-    <p>Część ćwiczeń jest darmowa i są one dostępne od ręki, bez logowania. Nowe zadania dodaję regularnie, więc zapraszam do zaglądania tu częściej. Pełna baza ćwiczeń dostępna jest tylko dla subskrybentów.</p>
-    <p class="eg-about-fiszki">Jeśli chcesz uczyć się słówek systematycznie, zajrzyj też do mojej aplikacji z fiszkami - <a href="http://fiszki.easygo-english.pl/">EasyGo fiszki!</a></p>
+    <h2 class="eg-about-h" data-i18n="Czym jest EasyWonders?">Czym jest EasyWonders?</h2>
+    <div class="eg-about-blocks">
+      <div class="eg-about-block eg-about-b1">
+        <p>EasyWonders to interaktywna platforma do nauki języka angielskiego, stworzona z myślą o lektorach, szkołach językowych i osobach uczących się samodzielnie. Znajdziesz tu setki ćwiczeń z wyjaśnieniami na każdym poziomie zaawansowania – od A1 do C2. Materiały obejmują gramatykę, słownictwo, czytanki, słuchanki oraz ćwiczenia konwersacyjne. Każde zadanie zawiera wyjaśnienia poprawnych odpowiedzi, dzięki czemu nauka staje się skuteczna i świadoma – uczeń nie tylko rozwiązuje ćwiczenie, ale rozumie, dlaczego dana odpowiedź jest właściwa.</p>
+      </div>
+      <div class="eg-about-block eg-about-b2">
+        <h3 data-i18n="Dla nauczycieli i szkół językowych">Dla nauczycieli i szkół językowych</h3>
+        <p>Nauczyciele angielskiego znajdą w EasyWonders gotowe materiały do wykorzystania na lekcjach oraz jako praca domowa. Po wykupieniu subskrypcji lektor otrzymuje dostęp do Panelu Lektora, w którym może dodawać swoich uczniów, przypisywać im pracę domową jednym kliknięciem i śledzić ich postępy. Dzięki funkcji podglądu oczami ucznia lektor widzi dokładnie, które ćwiczenia uczeń wykonał, co zrobił dobrze, a co sprawiło mu trudność – i wie, co warto powtórzyć na kolejnej lekcji. Praca domowa sprawdza się automatycznie, co oszczędza czas, a uczeń od razu otrzymuje informację zwrotną z wyjaśnieniem. To idealne narzędzie zarówno dla lektorów pracujących indywidualnie, jak i dla całych szkół językowych, które chcą prowadzić uczniów w grupach.</p>
+      </div>
+      <div class="eg-about-block eg-about-b2">
+        <h3 data-i18n="Dla uczniów indywidualnych">Dla uczniów indywidualnych</h3>
+        <p>Jeśli uczysz się angielskiego samodzielnie, EasyWonders pozwoli Ci ćwiczyć w swoim tempie, kiedy tylko masz ochotę. Zadania są podzielone na poziomy, więc bez trudu wybierzesz coś dla siebie – niezależnie od tego, czy dopiero zaczynasz przygodę z językiem, czy szlifujesz to, co już umiesz. Po każdym ćwiczeniu od razu widzisz, co poszło dobrze, a co wymaga poprawy, wraz z wyjaśnieniem. Możesz też śledzić własne postępy i wracać do zagadnień, które sprawiają Ci trudność. To nauka angielskiego online, która naprawdę działa – bo uczysz się na własnych błędach.</p>
+      </div>
+      <div class="eg-about-block eg-about-b3">
+        <h3 data-i18n="Podsumowując">Podsumowując</h3>
+        <p>EasyWonders to nowoczesna platforma do nauki angielskiego, z której możesz korzystać wszędzie tam, gdzie masz dostęp do internetu – na komputerze, tablecie czy telefonie. Interaktywne ćwiczenia z wyjaśnieniami, praca domowa, która sprawdza się sama, śledzenie postępów i podgląd oczami ucznia sprawiają, że to wartościowe narzędzie zarówno dla nauczycieli, jak i dla uczniów. Część ćwiczeń jest dostępna za darmo, bez zakładania konta, a pełna baza materiałów otwiera się po wykupieniu subskrypcji. Nowe zadania dodawane są regularnie, więc warto zaglądać tu częściej. Rozpocznij naukę angielskiego z EasyWonders już dziś i przekonaj się, jak przyjemna i skuteczna może być nauka języka.</p>
+      </div>
+    </div>
+    <p class="eg-about-fiszki">Jeśli chcesz uczyć się słówek systematycznie, zajrzyj też do mojej aplikacji z fiszkami – <a href="http://fiszki.easygo-english.pl/">EasyGo fiszki!</a></p>
   </section>
 
   <footer class="eg-footer">
@@ -1570,6 +1585,8 @@
     if(intro) intro.style.display = loggedIn ? 'none' : '';
     var how = document.querySelector('.eg-how');
     if(how) how.style.display = loggedIn ? 'none' : '';
+    var about = document.querySelector('.eg-about');
+    if(about) about.style.display = loggedIn ? 'none' : '';
   }
   if(_sb){
     _sb.auth.onAuthStateChange(function(event, session){
@@ -3241,7 +3258,11 @@
     'Następna strona': 'Next page',
     'Poprzednia strona': 'Previous page',
     'Angielski przez zabawę, czyli jak to działa': 'Learning English through play — how it works',
-    'Dla kogo są te gry?': 'Who are these games for?',
+    'Platforma do nauki angielskiego': 'English learning platform',
+    'Czym jest EasyWonders?': 'What is EasyWonders?',
+    'Dla nauczycieli i szkół językowych': 'For teachers and language schools',
+    'Dla uczniów indywidualnych': 'For individual learners',
+    'Podsumowując': 'In a nutshell',
     'Ucz się kiedy chcesz, bez zakładania konta': 'Learn whenever you want, no account needed',
     'To ćwiczenia dla subskrybentów.': 'These exercises are for subscribers.',
     'Dostęp tylko dla subskrybentów': 'For subscribers only',
