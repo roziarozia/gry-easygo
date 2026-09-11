@@ -2260,6 +2260,7 @@
         if(pi < platne.length) mixed.push(platne[pi++]);
       }
       list = mixed;
+      console.log('[MIX] pierwsze 12 po przeplataniu:', list.slice(0,12).map(function(g){ return g.is_premium ? 'KLODKA' : 'DARMO'; }).join(', '));
     }
     // ---- PAGINACJA: potnij do bieżącej strony (na pełnej, przefiltrowanej liście) ----
     var perPage = pageSize();
