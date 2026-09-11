@@ -613,6 +613,8 @@
   }
   .eg-intro{ max-width:760px; margin:8px auto 20px; text-align:center; }
   .eg-intro-eyebrow{ font-family:'Quicksand',sans-serif; font-weight:700; font-size:12.5px; letter-spacing:2px; text-transform:uppercase; color:var(--eg-magenta); margin:0 0 14px; }
+  .eg-intro-head{ display:inline-block; padding:22px 32px; border:1.5px solid rgba(202,68,144,.25); border-radius:16px; background:rgba(202,68,144,.03); margin-bottom:20px; }
+  html.eg-dark .eg-intro-head{ background:rgba(202,68,144,.08); border-color:rgba(202,68,144,.35); }
   .eg-intro-line{ white-space:nowrap; }
   @media (max-width:680px){ .eg-intro-line{ white-space:normal; } }
   .eg-intro-title{ font-family:'Quicksand',sans-serif; font-weight:700; font-size:clamp(23px,3.2vw,32px); line-height:1.25; color:var(--eg-ink); margin:0 0 16px; }
@@ -1274,9 +1276,11 @@
     </h1>
     <p class="eg-hero-tagline"><span data-i18n="Miejsce, które otwiera drzwi">Miejsce, które otwiera drzwi</span><br><span data-i18n="To co, zaczynamy przygodę z językiem angielskim?">To co, zaczynamy przygodę z językiem angielskim?</span> 🩷</p>
     <div class="eg-intro">
-      <p class="eg-intro-eyebrow" data-i18n="Platforma do nauki angielskiego">Platforma do nauki angielskiego</p>
-      <h2 class="eg-intro-title"><span class="eg-intro-line" data-i18n="Ucz się lub ucz innych języka angielskiego">Ucz się lub ucz innych języka angielskiego</span><br><span class="eg-intro-line" data-i18n="z platformą, która ogarnie wszystko!">z platformą, która ogarnie wszystko!</span></h2>
-      <p class="eg-intro-sub" id="egIntroSub">Setki interaktywnych ćwiczeń z wyjaśnieniami na każdym poziomie – dla <a href="/oferta" class="eg-intro-link">lektorów i ich uczniów</a> oraz <a href="/oferta" class="eg-intro-link">uczniów indywidualnych</a>.</p>
+      <div class="eg-intro-head">
+        <p class="eg-intro-eyebrow" data-i18n="Platforma do nauki angielskiego">Platforma do nauki angielskiego</p>
+        <h2 class="eg-intro-title"><span class="eg-intro-line" data-i18n="Ucz się lub ucz innych języka angielskiego">Ucz się lub ucz innych języka angielskiego</span><br><span class="eg-intro-line" data-i18n="z platformą, która ogarnie wszystko!">z platformą, która ogarnie wszystko!</span></h2>
+      </div>
+      <p class="eg-intro-sub" id="egIntroSub">Setki interaktywnych ćwiczeń z wyjaśnieniami na każdym poziomie –<br>dla <a href="/oferta" class="eg-intro-link">lektorów i ich uczniów</a> oraz <a href="/oferta" class="eg-intro-link">uczniów indywidualnych</a>.</p>
       <div class="eg-intro-row">
         <button type="button" class="eg-intro-cta" id="egHeroCta" data-i18n="Wypróbuj za darmo przez 7 dni">Wypróbuj za darmo przez 7 dni</button>
         <button type="button" class="eg-intro-how" id="egHeroHow" data-i18n="Jak to działa?">Jak to działa?</button>
@@ -3348,8 +3352,8 @@
     var iSub = document.getElementById('egIntroSub');
     if(iSub){
       iSub.innerHTML = (window.EG_LANG === 'en')
-        ? 'Hundreds of interactive exercises with explanations at every level – for <a href="/oferta" class="eg-intro-link">tutors and their students</a> and <a href="/oferta" class="eg-intro-link">individual learners</a>.'
-        : 'Setki interaktywnych ćwiczeń z wyjaśnieniami na każdym poziomie – dla <a href="/oferta" class="eg-intro-link">lektorów i ich uczniów</a> oraz <a href="/oferta" class="eg-intro-link">uczniów indywidualnych</a>.';
+        ? 'Hundreds of interactive exercises with explanations at every level –<br>for <a href="/oferta" class="eg-intro-link">tutors and their students</a> and <a href="/oferta" class="eg-intro-link">individual learners</a>.'
+        : 'Setki interaktywnych ćwiczeń z wyjaśnieniami na każdym poziomie –<br>dla <a href="/oferta" class="eg-intro-link">lektorów i ich uczniów</a> oraz <a href="/oferta" class="eg-intro-link">uczniów indywidualnych</a>.';
     }
     var showAll = document.querySelector('[data-i18n-html="showall"]');
     if(showAll){ showAll.textContent = '✕ ' + window.t('pokaż wszystkie zadania'); }
