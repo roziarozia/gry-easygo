@@ -2270,6 +2270,7 @@
     var pageStart = (curPage - 1) * perPage;
     var fullCount = list.length;                       // ile realnych zadań w tym filtrze
     var pageList = list.slice(pageStart, pageStart + perPage);
+    console.log('[MIX] curPage:', curPage, '| perPage:', perPage, '| pageStart:', pageStart, '| pageList pierwsze 8:', pageList.slice(0,8).map(function(g){ return g.is_premium ? 'K' : 'D'; }).join(''));
     var isLastPage = (curPage >= totalPages);
 
     var html = pageList.map(function(g){
