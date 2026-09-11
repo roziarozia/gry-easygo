@@ -421,8 +421,8 @@
   html.eg-dark .eg-ansd-ok{ color:#5fd39a; }
   html.eg-dark .eg-ansd-bad{ color:#f08a80; }
   html.eg-dark .eg-ansd-q{ background:rgba(183,164,232,.12); border-color:rgba(183,164,232,.3); }
-  html.eg-dark .eg-ansd-q.ok{ background:rgba(95,211,154,.1); border-color:rgba(95,211,154,.35); }
-  html.eg-dark .eg-ansd-q.bad{ background:rgba(240,138,128,.1); border-color:rgba(240,138,128,.35); }
+  html.eg-dark .eg-ansd-q.ok{ background:rgba(95,211,154,.1); border-color:rgba(95,211,154,.3); }
+  html.eg-dark .eg-ansd-q.bad{ background:rgba(240,138,128,.1); border-color:rgba(240,138,128,.3); }
   @media (max-width:520px){
     .eg-ansd-overlay{ padding:16px 8px; }
     .eg-ansd{ padding:20px 16px 24px; border-radius:16px; }
@@ -2629,7 +2629,20 @@ function nextGap(){
 function finishGap(){
   frame.className = frame.className.replace(/\bbg-\S+/g,'').trim();
   show(end);
-  markCompleted(gScore, GAPS.length);
+  // szczegóły odpowiedzi ucznia dla gap-fill (co wpisał vs poprawna) - typ 'gap'
+  var gapAnswersDetail = GAPS.map(function(item, i){
+    var typed = gGiven[i];
+    return {
+      q: i,
+      type: 'gap',
+      sentence: item.sentence || '',
+      typed: (typed == null ? null : typed),
+      correct_text: (item.answers && item.answers.length ? item.answers[0] : ''),
+      ok: gapCorrect(item, typed || ''),
+      explanation: item.explanation || ''
+    };
+  });
+  markCompleted(gScore, GAPS.length, gapAnswersDetail);
   scoreEl.textContent = t('Twój wynik: ') + gScore + ' / ' + GAPS.length;
   scoreEl.classList.remove('hidden');
   document.querySelector('#end .end-title .underline').textContent =
@@ -3174,6 +3187,21 @@ async function egShowAnswerDetails(gameSlug, userId, opts){
     var html = '<h3>' + esc(gameTitle || 'Szczegóły odpowiedzi') + '</h3>';
     html += '<p class="eg-ansd-sub">Wynik: ' + (comp.score != null ? comp.score : '–') + ' / ' + (comp.score_max != null ? comp.score_max : questions.length) + '</p>';
     comp.answers.forEach(function(a){
+      // GAP-FILL: dane są w samym wpisie (sentence, typed, correct_text) - inny format niż quiz
+      if(a.type === 'gap'){
+        var sentTxt = (a.sentence || '').replace(/_+/g, '_____');
+        html += '<div class="eg-ansd-q ' + (a.ok ? 'ok' : 'bad') + '">';
+        html += '<div class="eg-ansd-qtxt">' + (a.ok ? '✓ ' : '✗ ') + esc(sentTxt || ('Zdanie ' + (a.q+1))) + '</div>';
+        if(a.ok){
+          html += '<div class="eg-ansd-row"><span class="lbl">Odpowiedź: </span><span class="eg-ansd-ok">' + esc(a.typed || '') + '</span></div>';
+        }else{
+          html += '<div class="eg-ansd-row"><span class="lbl">Uczeń wpisał: </span><span class="eg-ansd-bad">' + esc(a.typed == null || a.typed === '' ? '(brak odpowiedzi)' : a.typed) + '</span></div>';
+          html += '<div class="eg-ansd-row"><span class="lbl">Poprawna: </span><span class="eg-ansd-ok">' + esc(a.correct_text || '') + '</span></div>';
+          if(a.explanation){ html += '<div class="eg-ansd-expl">' + esc(a.explanation) + '</div>'; }
+        }
+        html += '</div>';
+        return;
+      }
       var q = questions[a.q] || {};
       var opts2 = q.options || [];
       var pickedTxt = (a.picked == null) ? '(brak odpowiedzi)' : (opts2[a.picked] != null ? opts2[a.picked] : '?');

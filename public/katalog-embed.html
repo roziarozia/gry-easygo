@@ -3473,6 +3473,20 @@
       var html = '<h3>' + esc(gameTitle || 'Szczegóły odpowiedzi') + '</h3>';
       html += '<p class="eg-ansd-sub">Wynik: ' + (comp.score != null ? comp.score : '–') + ' / ' + (comp.score_max != null ? comp.score_max : questions.length) + '</p>';
       comp.answers.forEach(function(a){
+        if(a.type === 'gap'){
+          var sentTxt = (a.sentence || '').replace(/_+/g, '_____');
+          html += '<div class="eg-ansd-q ' + (a.ok ? 'ok' : 'bad') + '">';
+          html += '<div class="eg-ansd-qtxt">' + (a.ok ? '\u2713 ' : '\u2717 ') + esc(sentTxt || ('Zdanie ' + (a.q+1))) + '</div>';
+          if(a.ok){
+            html += '<div class="eg-ansd-row"><span class="lbl">Odpowiedź: </span><span class="eg-ansd-ok">' + esc(a.typed || '') + '</span></div>';
+          }else{
+            html += '<div class="eg-ansd-row"><span class="lbl">Uczeń wpisał: </span><span class="eg-ansd-bad">' + esc(a.typed == null || a.typed === '' ? '(brak odpowiedzi)' : a.typed) + '</span></div>';
+            html += '<div class="eg-ansd-row"><span class="lbl">Poprawna: </span><span class="eg-ansd-ok">' + esc(a.correct_text || '') + '</span></div>';
+            if(a.explanation){ html += '<div class="eg-ansd-expl">' + esc(a.explanation) + '</div>'; }
+          }
+          html += '</div>';
+          return;
+        }
         var q = questions[a.q] || {};
         var opts2 = q.options || [];
         var pickedTxt = (a.picked == null) ? '(brak odpowiedzi)' : (opts2[a.picked] != null ? opts2[a.picked] : '?');
