@@ -952,6 +952,8 @@
   }
   .eg-about{ max-width:700px; margin:56px auto 0; padding:0 20px; }
   .eg-about-h{ text-align:center; font-family:'Quicksand',sans-serif; font-weight:700; font-size:clamp(22px,2.8vw,26px); color:var(--eg-ink); margin:0 0 32px; }
+  .eg-about-h .eg-brand-easy{ color:var(--eg-magenta); }
+  .eg-about-h .eg-brand-wonders{ color:var(--eg-gold,#f4c94c); }
   .eg-about-blocks{ display:flex; flex-direction:column; gap:26px; }
   .eg-about-block{ padding-left:22px; border-left:3px solid var(--eg-line); }
   .eg-about-b1{ border-left-color:var(--eg-magenta); }
@@ -1542,7 +1544,7 @@
   </main>
 
   <section class="eg-about">
-    <h2 class="eg-about-h" data-i18n="Czym jest EasyWonders?">Czym jest EasyWonders?</h2>
+    <h2 class="eg-about-h" id="egAboutH">Czym jest <span class="eg-brand-easy">Easy</span><span class="eg-brand-wonders">Wonders</span>?</h2>
     <div class="eg-about-blocks">
       <div class="eg-about-block eg-about-b1">
         <p data-i18n="EasyWonders to interaktywna platforma do nauki języka angielskiego, stworzona z myślą o lektorach, szkołach językowych i osobach uczących się samodzielnie. Znajdziesz tu setki ćwiczeń z wyjaśnieniami na każdym poziomie zaawansowania – od A1 do C2. Materiały obejmują gramatykę, słownictwo, czytanki, słuchanki oraz ćwiczenia konwersacyjne. Każde zadanie zawiera wyjaśnienia poprawnych odpowiedzi, dzięki czemu nauka staje się skuteczna i świadoma – uczeń nie tylko rozwiązuje ćwiczenie, ale rozumie, dlaczego dana odpowiedź jest właściwa.">EasyWonders to interaktywna platforma do nauki języka angielskiego, stworzona z myślą o lektorach, szkołach językowych i osobach uczących się samodzielnie. Znajdziesz tu setki ćwiczeń z wyjaśnieniami na każdym poziomie zaawansowania – od A1 do C2. Materiały obejmują gramatykę, słownictwo, czytanki, słuchanki oraz ćwiczenia konwersacyjne. Każde zadanie zawiera wyjaśnienia poprawnych odpowiedzi, dzięki czemu nauka staje się skuteczna i świadoma – uczeń nie tylko rozwiązuje ćwiczenie, ale rozumie, dlaczego dana odpowiedź jest właściwa.</p>
@@ -3325,7 +3327,7 @@
     'Kontakt': 'Contact',
     'Coś nie działa? Zgłoś problem na': 'Something not working? Report it at',
     'Regulamin': 'Terms & conditions',
-    'Miejsce, które otwiera drzwi': 'Where doors open',
+    'Miejsce, które otwiera drzwi': 'Where doors open.',
     'To co, zaczynamy przygodę z językiem angielskim?': 'Ready to start your English adventure?',
     'pokaż wszystkie zadania': 'show all exercises',
     'Spodobały Ci się? Wykup dostęp i odblokuj wszystkie — bez ograniczeń.':
@@ -3367,6 +3369,14 @@
       iSub.innerHTML = (window.EG_LANG === 'en')
         ? 'Hundreds of interactive exercises with explanations at every level –<br>for <a href="/oferta" class="eg-intro-link">tutors and their students</a> and <a href="/oferta" class="eg-intro-link">individual learners</a>.'
         : 'Setki interaktywnych ćwiczeń z wyjaśnieniami na każdym poziomie –<br>dla <a href="/oferta" class="eg-intro-link">lektorów i ich uczniów</a> oraz <a href="/oferta" class="eg-intro-link">uczniów indywidualnych</a>.';
+    }
+    // nagłówek "Czym jest EasyWonders?" - Easy różowe, Wonders złote (jak logo)
+    var aboutH = document.getElementById('egAboutH');
+    if(aboutH){
+      var brand = '<span class="eg-brand-easy">Easy</span><span class="eg-brand-wonders">Wonders</span>';
+      aboutH.innerHTML = (window.EG_LANG === 'en')
+        ? 'What is ' + brand + '?'
+        : 'Czym jest ' + brand + '?';
     }
     var showAll = document.querySelector('[data-i18n-html="showall"]');
     if(showAll){ showAll.textContent = '✕ ' + window.t('pokaż wszystkie zadania'); }
