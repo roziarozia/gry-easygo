@@ -1617,6 +1617,9 @@
     _sb.auth.getSession().then(function(r){
       var s = r && r.data ? r.data.session : null;
       egUpdateHeroVisibility(!!s);
+      // niezalogowany: wymuś ponowny render, żeby na pewno zadziałało przeplatanie
+      // (egHasSession jest teraz na pewno false)
+      if(!s && typeof render === 'function'){ try{ render(); }catch(e){} }
     }).catch(function(){});
   }
   var homeworkSet = {}; // sluggi gier przypisanych zalogowanemu uczniowi jako praca domowa
