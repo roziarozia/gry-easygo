@@ -2250,9 +2250,9 @@
        && curType === 'wszystkie' && curStatus === 'wszystkie' && curLvls.length === 0){
       var darmowe = list.filter(function(g){ return !g.is_premium; });
       var platne  = list.filter(function(g){ return !!g.is_premium; });
+      // przeplatanie 1:1 - darmowe rozkładają się na pierwszych stronach, potem płatne
       var mixed = [];
       var di = 0, pi = 0;
-      // wzór: darmowe, płatne, darmowe, płatne... aż wyczerpią się obie pule
       while(di < darmowe.length || pi < platne.length){
         if(di < darmowe.length) mixed.push(darmowe[di++]);
         if(pi < platne.length) mixed.push(platne[pi++]);
@@ -2946,7 +2946,15 @@
       _egRestoring = false;
       saveFilters();                    // zapisz raz, na czysto (localStorage + URL)
     } else {
-      restoreFilters();
+      // Zapamiętane filtry przywracamy tylko ZALOGOWANYM. Niezalogowany gość ma zobaczyć
+      // stronę "jak z pudełka" (z przeplatanymi darmowymi/płatnymi), a nie stary filtr
+      // z poprzedniej wizyty, który blokowałby przeplatanie i pokazywał samą ścianę kłódek.
+      if(_sb){
+        _sb.auth.getSession().then(function(r){
+          var s2 = r && r.data ? r.data.session : null;
+          if(s2){ restoreFilters(); render(); if(typeof syncMobFilters === 'function') syncMobFilters(); }
+        }).catch(function(){});
+      }
     }
     render();
     if(window._egBuildMob) window._egBuildMob();  // zbuduj pastylki telefonu (lustro filtrów)
