@@ -2246,8 +2246,10 @@
     // PIERWSZE WEJŚCIE niezalogowanego (bez filtrów, bez wyszukiwania, domyślne sortowanie):
     // przeplataj darmowe z płatnymi, żeby na wejściu nie było ściany kłódek (to odstrasza).
     // Gdy ktoś użyje filtrów/wyszukiwarki - ta gałąź się nie uruchamia, filtry działają normalnie.
+    console.log('[MIX] sesja:', egHasSession, '| q:', JSON.stringify(q), '| seria:', curSeries, '| sort:', curSort, '| typ:', curType, '| status:', curStatus, '| poziomy:', curLvls.length);
     if(!egHasSession && !q && !curSeries && curSort === 'default'
        && curType === 'wszystkie' && curStatus === 'wszystkie' && curLvls.length === 0){
+      console.log('[MIX] PRZEPLATAM! darmowych:', list.filter(function(g){return !g.is_premium;}).length, 'platnych:', list.filter(function(g){return !!g.is_premium;}).length);
       var darmowe = list.filter(function(g){ return !g.is_premium; });
       var platne  = list.filter(function(g){ return !!g.is_premium; });
       // przeplatanie 1:1 - darmowe rozkładają się na pierwszych stronach, potem płatne
