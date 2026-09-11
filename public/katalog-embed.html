@@ -640,13 +640,10 @@
   .eg-how-step-desc{ font-size:12px; line-height:1.4; color:var(--eg-muted); margin:0; }
   /* telefon: kroki zawijają się - staramy się po 3, a jak ciasno to po 2 */
   @media (max-width:620px){
-    .eg-how-steps{ flex-wrap:wrap; gap:8px; }
-    .eg-how-step{ flex:1 1 calc(33.333% - 8px); min-width:96px; padding:14px 8px; }
-    .eg-how-ico{ width:42px; height:42px; margin-bottom:8px; }
-    .eg-how-ico svg{ width:22px; height:22px; }
-  }
-  @media (max-width:380px){
-    .eg-how-step{ flex-basis:calc(50% - 8px); }
+    .eg-how-steps{ flex-wrap:wrap; gap:10px; }
+    .eg-how-step{ flex:1 1 100%; min-width:0; max-width:none; padding:20px 16px; }
+    .eg-how-ico{ width:46px; height:46px; }
+    .eg-how-ico svg{ width:24px; height:24px; }
   }
   /* Napis "Przejrzyj naszą bazę ćwiczeń!" z różową falą na całą szerokość */
   .eg-browse{ text-align:center; margin:6px auto 4px; }
