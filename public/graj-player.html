@@ -2007,7 +2007,8 @@ function show(section){
   section.classList.remove('hidden');
   frame.classList.toggle('slide-mode',
     section === slide || (section === cover && coverHasImage));
-  frame.classList.toggle('reading-mode', section === readingSec);
+  var artgapSec = document.getElementById('artgap');
+  frame.classList.toggle('reading-mode', section === readingSec || section === artgapSec);
   frame.classList.toggle('quiz-mode', section === quizSec || section === gapSec);
   if(section !== quizSec && section !== gapSec) frame.className = frame.className.replace(/\bbg-\S+/g,'').trim();
 }
