@@ -2958,13 +2958,26 @@ document.getElementById('agCheck').addEventListener('click', function(){
     e.textContent = expl;
     e.classList.remove('hidden');
   }
-  this.disabled = true; this.style.opacity = '0.5';
-  // zapisz wynik (jak inne typy)
+  // zapisz wynik szczegółowy
   var answersDetail = agInputs.map(function(inp, i){
     return { q: i, type: 'artgap', typed: null, correct_text: agAnswers[i], ok: agNorm(inp.value) === agNorm(agAnswers[i]) };
   });
   markCompleted(ok, agInputs.length, answersDetail);
+  agFinalScore = ok;
+  agFinalMax = agInputs.length;
+  // przycisk "Sprawdź" -> "Zakończ" (przejście do ekranu końcowego: wynik, jeszcze raz, powrót)
+  var btn = this;
+  btn.textContent = t('Zakończ');
+  btn.onclick = function(){ finishArtgap(); };
 });
+
+var agFinalScore = 0, agFinalMax = 0;
+function finishArtgap(){
+  frame.className = frame.className.replace(/\bbg-\S+/g,'').trim();
+  show(end);
+  scoreEl.textContent = t('Twój wynik: ') + agFinalScore + ' / ' + agFinalMax;
+  scoreEl.classList.remove('hidden');
+}
 
 function startReading(){
   rIdx = 0;
