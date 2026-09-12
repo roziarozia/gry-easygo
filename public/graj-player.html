@@ -1610,6 +1610,7 @@
     <!-- ARTICLE-GAP: tekst z lukami (przedimki) -->
     <section id="artgap" class="hidden">
       <div class="ag-instr" id="agInstr">Uzupełnij tekst: <b>a</b>, <b>an</b>, <b>the</b> lub <b>–</b> (myślnik, gdy przedimek nie jest potrzebny).</div>
+      <div class="reading-img ag-img" id="agImg" style="display:none"><img id="agImgTag" alt=""></div>
       <div class="reading-text ag-text" id="agText"></div>
       <div class="ag-expl hidden" id="agExpl"></div>
       <div class="nav" id="agNav">
@@ -2883,14 +2884,25 @@ function startArtgap(){
   document.getElementById('agExpl').classList.add('hidden');
   var checkBtn = document.getElementById('agCheck');
   checkBtn.disabled = false; checkBtn.style.opacity = '';
-  // zbuduj tekst: łączymy wszystkie akapity (GAPS), zamieniając [[?]] na pola input
+  // zbuduj tekst: łączymy wszystkie akapity (GAPS), zamieniając _ na pola input
   var textEl = document.getElementById('agText');
   textEl.innerHTML = '';
   var globalIdx = 0;
   var rawGaps = (GAME.gaps || []).slice().sort(function(a,b){ return a.position - b.position; });
+  // obrazek w treści (z pierwszego akapitu, który go ma)
+  var imgUrl = '';
+  rawGaps.forEach(function(g){ if(!imgUrl && g.image_url) imgUrl = g.image_url; });
+  var imgWrap = document.getElementById('agImg');
+  var imgTag = document.getElementById('agImgTag');
+  if(imgUrl && imgWrap && imgTag){
+    imgTag.src = imgUrl;
+    imgWrap.style.display = '';
+  } else if(imgWrap){
+    imgWrap.style.display = 'none';
+  }
   rawGaps.forEach(function(g){
     var ans = (g.answers || '').split('|');   // odpowiedzi tego akapitu po kolei (surowy string)
-    var parts = (g.sentence || '').split('[[?]]');
+    var parts = (g.sentence || '').split('_');
     var para = document.createElement('p');
     parts.forEach(function(chunk, i){
       para.appendChild(document.createTextNode(chunk));
