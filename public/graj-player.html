@@ -874,7 +874,9 @@
   .ag-input{ width:56px; text-align:center; font-family:'Nunito',sans-serif; font-size:inherit; font-weight:700; padding:1px 4px; margin:0 2px; border:none; border-bottom:2px solid var(--line,#d9d4e0); background:transparent; color:var(--ink); }
   .ag-input:focus{ outline:none; border-bottom-color:var(--magenta); }
   .ag-input.ag-ok{ color:#1d9e75; border-bottom-color:#1d9e75; }
-  .ag-input.ag-bad{ color:#e24b4a; border-bottom-color:#e24b4a; }
+  .ag-input.ag-bad{ color:#e24b4a; border-bottom-color:#e24b4a; text-decoration:line-through; }
+  .ag-correct{ color:#1d9e75; font-weight:700; margin:0 2px 0 4px; white-space:nowrap; }
+  html.eg-dark .ag-correct{ color:#5fd39a; }
   html.eg-dark .ag-input.ag-ok{ color:#5fd39a; border-bottom-color:#5fd39a; }
   html.eg-dark .ag-input.ag-bad{ color:#f08a80; border-bottom-color:#f08a80; }
   .ag-score{ font-family:'Quicksand',sans-serif; font-weight:700; font-size:15px; color:var(--ink); margin-left:14px; }
@@ -2931,11 +2933,22 @@ document.getElementById('agCheck').addEventListener('click', function(){
   var ok = 0;
   agInputs.forEach(function(inp, i){
     var correct = agAnswers[i];
-    var good = agNorm(inp.value) === agNorm(correct);
-    inp.value = correct;
+    var typed = inp.value;
+    var good = agNorm(typed) === agNorm(correct);
     inp.readOnly = true;
-    inp.classList.add(good ? 'ag-ok' : 'ag-bad');
-    if(good) ok++;
+    if(good){
+      inp.value = correct;
+      inp.classList.add('ag-ok');
+      ok++;
+    } else {
+      // pokaż co uczeń wpisał (czerwone), a obok poprawną (zielona)
+      inp.value = (typed && typed.trim()) ? typed : '—';
+      inp.classList.add('ag-bad');
+      var corr = document.createElement('span');
+      corr.className = 'ag-correct';
+      corr.textContent = correct;
+      if(inp.parentNode){ inp.parentNode.insertBefore(corr, inp.nextSibling); }
+    }
   });
   document.getElementById('agScore').textContent = t('Twój wynik: ') + ok + ' / ' + agInputs.length;
   // wyjaśnienie
