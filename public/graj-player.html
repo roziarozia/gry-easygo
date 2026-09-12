@@ -866,6 +866,20 @@
     padding:4px 2px;
   }
   .reading-text p{ margin:0 0 14px; }
+  /* ARTICLE-GAP: tekst z lukami */
+  #artgap{ display:flex; flex-direction:column; height:100%; }
+  .ag-instr{ max-width:720px; margin:0 auto 16px; font-family:'Nunito',sans-serif; font-size:14px; color:var(--muted); text-align:center; }
+  .ag-instr b{ color:var(--magenta); }
+  .ag-text{ line-height:2.3; }
+  .ag-input{ width:56px; text-align:center; font-family:'Nunito',sans-serif; font-size:inherit; font-weight:700; padding:1px 4px; margin:0 2px; border:none; border-bottom:2px solid var(--line,#d9d4e0); background:transparent; color:var(--ink); }
+  .ag-input:focus{ outline:none; border-bottom-color:var(--magenta); }
+  .ag-input.ag-ok{ color:#1d9e75; border-bottom-color:#1d9e75; }
+  .ag-input.ag-bad{ color:#e24b4a; border-bottom-color:#e24b4a; }
+  html.eg-dark .ag-input.ag-ok{ color:#5fd39a; border-bottom-color:#5fd39a; }
+  html.eg-dark .ag-input.ag-bad{ color:#f08a80; border-bottom-color:#f08a80; }
+  .ag-score{ font-family:'Quicksand',sans-serif; font-weight:700; font-size:15px; color:var(--ink); margin-left:14px; }
+  .ag-expl{ max-width:720px; margin:14px auto 0; padding:12px 16px; background:rgba(183,164,232,.1); border-left:3px solid #a78dd9; border-radius:8px; font-family:'Nunito',sans-serif; font-size:13.5px; line-height:1.5; color:var(--ink); }
+  html.eg-dark .ag-expl{ background:rgba(183,164,232,.14); }
   .reading-word{
     color:var(--magenta);
     font-weight:800;
@@ -1593,6 +1607,17 @@
       </div>
     </section>
 
+    <!-- ARTICLE-GAP: tekst z lukami (przedimki) -->
+    <section id="artgap" class="hidden">
+      <div class="ag-instr" id="agInstr">Uzupełnij tekst: <b>a</b>, <b>an</b>, <b>the</b> lub <b>–</b> (myślnik, gdy przedimek nie jest potrzebny).</div>
+      <div class="reading-text ag-text" id="agText"></div>
+      <div class="ag-expl hidden" id="agExpl"></div>
+      <div class="nav" id="agNav">
+        <button class="btn" id="agCheck" data-i18n="Sprawdź">Sprawdź</button>
+        <span class="ag-score" id="agScore"></span>
+      </div>
+    </section>
+
     <!-- SLUCHANKA -->
     <section id="listening" class="hidden">
       <div class="ls-head">
@@ -1817,6 +1842,7 @@ async function markCompleted(score, scoreMax, answers){
       GAME.template === 'speaking' ? SPEAKS.length :
       GAME.template === 'reading'  ? READING.length :
       GAME.template === 'listening'? QUESTIONS.length :
+      GAME.template === 'article-gap' ? GAPS.length :
                                      SLIDES.length;
     // Zablokowane: zadanie premium, a treść pusta = brak dostępu (niezalogowany
     // gość albo zalogowany bez subskrypcji). Opublikowane premium zawsze ma treść,
@@ -1892,11 +1918,17 @@ async function markCompleted(score, scoreMax, answers){
       document.getElementById('coverSpeak').classList.remove('hidden');
       document.getElementById('startSpeakBtn').textContent = t('Czytaj');
     }
+    // Article-gap (tekst z lukami): jeden przycisk „Rozpocznij"
+    if(GAME.template === 'article-gap'){
+      document.getElementById('coverModes').classList.add('hidden');
+      document.getElementById('coverSpeak').classList.remove('hidden');
+      document.getElementById('startSpeakBtn').textContent = t('Rozpocznij');
+    }
     }
     // Podgląd dla lektora — widoczny tylko dla roli teacher, gdy zadanie ma treść.
     // Pomijamy speaking i reading: tam nie ma pytań/odpowiedzi do przeklikania,
     // a lektor i tak widzi cały materiał w panelu admina.
-    var previewableType = GAME.template !== 'speaking' && GAME.template !== 'reading';
+    var previewableType = GAME.template !== 'speaking' && GAME.template !== 'reading' && GAME.template !== 'article-gap';
     if(IS_TEACHER && contentCount > 0 && previewableType){
       var previewBtnEl = document.getElementById('startPreviewBtn');
       // znajdź aktywny (widoczny) kontener przycisków startu
@@ -1966,6 +1998,8 @@ function show(section){
   speakSec.classList.add('hidden');
   readingSec.classList.add('hidden');
   listeningSec.classList.add('hidden');
+  var _ag = document.getElementById('artgap');
+  if(_ag) _ag.classList.add('hidden');
   end.classList.add('hidden');
   var _pv = document.getElementById('preview');
   if(_pv) _pv.classList.add('hidden');
@@ -2833,6 +2867,79 @@ function showSpeakEnd(){
 
 /* ---------- READING (czytanka) ---------- */
 let rIdx = 0;
+/* ===== ARTICLE-GAP: tekst z lukami (przedimki) ===== */
+var agInputs = [];   // pola input w kolejności
+var agAnswers = [];  // poprawne odpowiedzi w kolejności
+var agChecked = false;
+function agNorm(s){ return (s||'').trim().toLowerCase().replace(/[-–—]/g,'–'); }
+function startArtgap(){
+  frame.className = frame.className.replace(/\bbg-\S+/g,'').trim();
+  if(GAME.bg) frame.classList.add('bg-' + GAME.bg);
+  show(document.getElementById('artgap'));
+  agChecked = false;
+  agInputs = [];
+  agAnswers = [];
+  document.getElementById('agScore').textContent = '';
+  document.getElementById('agExpl').classList.add('hidden');
+  var checkBtn = document.getElementById('agCheck');
+  checkBtn.disabled = false; checkBtn.style.opacity = '';
+  // zbuduj tekst: łączymy wszystkie akapity (GAPS), zamieniając [[?]] na pola input
+  var textEl = document.getElementById('agText');
+  textEl.innerHTML = '';
+  var globalIdx = 0;
+  GAPS.forEach(function(g){
+    var ans = (g.answers || '').split('|');   // odpowiedzi tego akapitu po kolei
+    var parts = (g.sentence || '').split('[[?]]');
+    var para = document.createElement('p');
+    parts.forEach(function(chunk, i){
+      para.appendChild(document.createTextNode(chunk));
+      if(i < parts.length - 1){
+        var inp = document.createElement('input');
+        inp.type = 'text';
+        inp.className = 'ag-input';
+        inp.autocomplete = 'off';
+        inp.setAttribute('autocapitalize','off');
+        inp.spellcheck = false;
+        inp.setAttribute('data-ans', (ans[i] || '').trim());
+        para.appendChild(inp);
+        agInputs.push(inp);
+        agAnswers.push((ans[i] || '').trim());
+        globalIdx++;
+      }
+    });
+    textEl.appendChild(para);
+    // zapamiętaj wyjaśnienie (weźmiemy z pierwszego akapitu który je ma)
+    if(g.explanation && !textEl._expl){ textEl._expl = g.explanation; }
+  });
+}
+document.getElementById('agCheck').addEventListener('click', function(){
+  if(agChecked) return;
+  agChecked = true;
+  var ok = 0;
+  agInputs.forEach(function(inp, i){
+    var correct = agAnswers[i];
+    var good = agNorm(inp.value) === agNorm(correct);
+    inp.value = correct;
+    inp.readOnly = true;
+    inp.classList.add(good ? 'ag-ok' : 'ag-bad');
+    if(good) ok++;
+  });
+  document.getElementById('agScore').textContent = t('Twój wynik: ') + ok + ' / ' + agInputs.length;
+  // wyjaśnienie
+  var expl = document.getElementById('agText')._expl;
+  if(expl){
+    var e = document.getElementById('agExpl');
+    e.textContent = expl;
+    e.classList.remove('hidden');
+  }
+  this.disabled = true; this.style.opacity = '0.5';
+  // zapisz wynik (jak inne typy)
+  var answersDetail = agInputs.map(function(inp, i){
+    return { q: i, type: 'artgap', typed: null, correct_text: agAnswers[i], ok: agNorm(inp.value) === agNorm(agAnswers[i]) };
+  });
+  markCompleted(ok, agInputs.length, answersDetail);
+});
+
 function startReading(){
   rIdx = 0;
   show(readingSec);
@@ -3026,6 +3133,7 @@ document.getElementById('rPrev').addEventListener('click', function(){ stopReadi
 document.getElementById('startSpeakBtn').addEventListener('click', function(){
   if(GAME && GAME.template === 'listening') startListening();
   else if(GAME && GAME.template === 'reading') startReading();
+  else if(GAME && GAME.template === 'article-gap') startArtgap();
   else startSpeak();
 });
 document.getElementById('sNext').addEventListener('click', nextSpeak);
@@ -3040,6 +3148,7 @@ document.getElementById('againBtn').addEventListener('click', () => {
   else if(GAME && GAME.template === 'gap-fill') startGap(gapMode);
   else if(GAME && GAME.template === 'speaking') startSpeak();
   else if(GAME && GAME.template === 'reading') startReading();
+  else if(GAME && GAME.template === 'article-gap') startArtgap();
   else start(mode);
 });
 document.getElementById('nextBtn').addEventListener('click', next);
