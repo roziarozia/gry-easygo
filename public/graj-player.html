@@ -2887,8 +2887,9 @@ function startArtgap(){
   var textEl = document.getElementById('agText');
   textEl.innerHTML = '';
   var globalIdx = 0;
-  GAPS.forEach(function(g){
-    var ans = (g.answers || '').split('|');   // odpowiedzi tego akapitu po kolei
+  var rawGaps = (GAME.gaps || []).slice().sort(function(a,b){ return a.position - b.position; });
+  rawGaps.forEach(function(g){
+    var ans = (g.answers || '').split('|');   // odpowiedzi tego akapitu po kolei (surowy string)
     var parts = (g.sentence || '').split('[[?]]');
     var para = document.createElement('p');
     parts.forEach(function(chunk, i){
@@ -2908,7 +2909,6 @@ function startArtgap(){
       }
     });
     textEl.appendChild(para);
-    // zapamiętaj wyjaśnienie (weźmiemy z pierwszego akapitu który je ma)
     if(g.explanation && !textEl._expl){ textEl._expl = g.explanation; }
   });
 }
