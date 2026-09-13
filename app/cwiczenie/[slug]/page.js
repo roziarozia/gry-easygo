@@ -131,6 +131,7 @@ export default async function CwiczeniePage({ params }) {
 
         <div style={{
           display: 'inline-block', background: 'var(--eg-card, #fff)', borderRadius: 16,
+          border: '1.5px solid var(--eg-line, #eceaf2)',
           padding: '14px 26px', boxShadow: '0 6px 18px rgba(167,141,217,.28)', marginBottom: 16,
         }}>
           <h1 style={{ fontFamily: "'Quicksand',sans-serif", fontSize: 24, fontWeight: 700, color: 'var(--eg-ink)', margin: 0, lineHeight: 1.25 }}>
