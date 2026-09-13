@@ -688,11 +688,25 @@
     font-weight:700;
     font-size:24px;
     color:var(--ink);
-    background:rgba(244,201,76,.35);
+    background:rgba(183,164,232,.18);
+    border:2px solid #b7a4e8;
     padding:10px 26px;
     border-radius:999px;
   }
+  html.eg-dark .score{ background:rgba(183,164,232,.14); border-color:#544b74; }
   #end .nav .btn{box-shadow:none;}
+  /* przyciski ekranu końcowego: OBA na białym tle z różową ramką (jej wybór) */
+  #end .nav .btn,
+  #end .nav .btn.btn-secondary{
+    background:#fff;
+    color:var(--magenta);
+    border:1.5px solid var(--magenta);
+    backdrop-filter:none;
+  }
+  #end .nav .btn:hover{ background:#fdf2f9; transform:translateY(-1px); }
+  html.eg-dark #end .nav .btn,
+  html.eg-dark #end .nav .btn.btn-secondary{ background:#2b2436; color:#e88bb8; border-color:#e88bb8; }
+  html.eg-dark #end .nav .btn:hover{ background:#352a42; }
 
   .brand{
     font-family:'Quicksand',sans-serif;
