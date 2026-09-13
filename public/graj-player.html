@@ -869,6 +869,7 @@
   /* ARTICLE-GAP: tekst z lukami */
   #artgap{ display:flex; flex-direction:column; }
   .frame.artgap-mode{ aspect-ratio:auto; height:auto; max-height:none; justify-content:flex-start; align-items:stretch; padding:40px 36px 44px; }
+  .frame.end-mode{ aspect-ratio:auto; height:auto; min-height:0; max-height:none; justify-content:center; padding:40px 36px 44px; }
   .frame.artgap-mode > section{ height:auto; width:100%; }
   .ag-instr{ max-width:720px; margin:0 auto 16px; font-family:'Nunito',sans-serif; font-size:14px; color:var(--muted); text-align:center; }
   .ag-instr b{ color:var(--magenta); }
@@ -2017,6 +2018,7 @@ function show(section){
   var artgapSec = document.getElementById('artgap');
   frame.classList.toggle('reading-mode', section === readingSec);
   frame.classList.toggle('artgap-mode', section === artgapSec);
+  frame.classList.toggle('end-mode', section === end);
   frame.classList.toggle('quiz-mode', section === quizSec || section === gapSec);
   if(section !== quizSec && section !== gapSec) frame.className = frame.className.replace(/\bbg-\S+/g,'').trim();
 }
