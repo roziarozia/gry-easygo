@@ -402,6 +402,13 @@
   .eg-ansd::-webkit-scrollbar-track{ background:transparent; margin:14px 0; }
   .eg-ansd::-webkit-scrollbar-thumb{ background:#cabdea; border-radius:999px; border:2.5px solid #f6f3fc; }
   html.eg-dark .eg-ansd::-webkit-scrollbar-thumb{ background:#544b74; border-color:#232030; }
+    /* podgląd artykułu z lukami w "Szczegóły wyniku" - jak w katalogu */
+  .eg-agf-text{ font-size:15.5px; line-height:2.1; color:var(--ink); margin:8px 0 4px; text-align:left; }
+  .eg-agf-ok{ color:#1d9e75; font-weight:700; }
+  .eg-agf-bad{ color:#e24b4a; font-weight:700; text-decoration:line-through; margin:0 1px; }
+  .eg-agf-corr{ color:#1d9e75; font-weight:700; margin:0 3px 0 4px; }
+  html.eg-dark .eg-agf-ok, html.eg-dark .eg-agf-corr{ color:#5fd39a; }
+  html.eg-dark .eg-agf-bad{ color:#f08a80; }
   .eg-ansd-overlay.show .eg-ansd{ transform:translateY(0); }
   html.eg-dark .eg-ansd{ background:#232030; }
   .eg-ansd-close{ position:absolute; top:14px; right:16px; background:none; border:none; font-size:20px; color:var(--muted,#9a94a6); cursor:pointer; line-height:1; }
@@ -3449,6 +3456,29 @@ async function egShowAnswerDetails(gameSlug, userId, opts){
     var html = '<h3>' + esc(gameTitle || 'Szczegóły odpowiedzi') + '</h3>';
     html += '<p class="eg-ansd-sub">Wynik: ' + (comp.score != null ? comp.score : '–') + ' / ' + (comp.score_max != null ? comp.score_max : questions.length) + '</p>';
     comp.answers.forEach(function(a){
+      // ARTICLE-GAP: jeden wpis 'artgap-full' = cały tekst; luki wypełniamy kolorami
+      // (zielona poprawna / czerwona przekreślona + poprawna obok) - jak w katalogu
+      if(a.type === 'artgap-full'){
+        var agParts = (a.full_text || '').split('_');
+        var agGaps = a.gaps || [];
+        var agTxt = '';
+        agParts.forEach(function(chunk, idx){
+          agTxt += esc(chunk);
+          if(idx < agParts.length - 1){
+            var g = agGaps[idx] || {};
+            if(g.ok){
+              agTxt += '<span class="eg-agf-ok">' + esc(g.correct_text || '') + '</span>';
+            } else {
+              var wrote = (g.typed == null || g.typed === '') ? '\u2014' : g.typed;
+              agTxt += '<span class="eg-agf-bad">' + esc(wrote) + '</span>';
+              agTxt += '<span class="eg-agf-corr">' + esc(g.correct_text || '') + '</span>';
+            }
+          }
+        });
+        html += '<div class="eg-agf-text">' + agTxt.replace(/\n/g,'<br>') + '</div>';
+        if(a.explanation){ html += '<div class="eg-ansd-expl">' + esc(a.explanation) + '</div>'; }
+        return;
+      }
       // GAP-FILL: dane są w samym wpisie (sentence, typed, correct_text) - inny format niż quiz
       if(a.type === 'gap'){
         var sentTxt = (a.sentence || '').replace(/_+/g, '_____');
