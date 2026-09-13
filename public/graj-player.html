@@ -48,20 +48,29 @@
   html,body{height:100%;}
   body{
     font-family:'Nunito',sans-serif;
-    background:
-      radial-gradient(circle at 88% 8%, rgba(244,201,76,.22) 0 16%, transparent 17%),
-      radial-gradient(circle at 6% 92%, rgba(104,133,219,.14) 0 20%, transparent 21%),
-      var(--bg);
+    /* KONFETTI (jej wybór, opcja B 2026-09-13): drobne kropki lawenda/złoto/róż
+       zamiast dawnych dwóch kul w rogach */
+    background-color:#faf8fd;
+    background-image:
+      radial-gradient(#d7c6f1 2.6px, transparent 3.1px),
+      radial-gradient(rgba(244,201,76,.55) 2.1px, transparent 2.6px),
+      radial-gradient(rgba(202,68,144,.30) 2.1px, transparent 2.6px);
+    background-size:150px 150px, 205px 205px, 240px 240px;
+    background-position:0 0, 65px 95px, 130px 45px;
     color:var(--ink);
     display:flex;
     flex-direction:column;
   }
-  /* w trybie ciemnym te "kule" są przygaszone */
+  /* w trybie ciemnym konfetti przygaszone, ale widoczne (wcześniej tło było
+     praktycznie czarne) */
   html.eg-dark body{
-    background:
-      radial-gradient(circle at 88% 8%, rgba(244,201,76,.10) 0 16%, transparent 17%),
-      radial-gradient(circle at 6% 92%, rgba(104,133,219,.10) 0 20%, transparent 21%),
-      var(--bg);
+    background-color:#26222f;
+    background-image:
+      radial-gradient(rgba(167,141,217,.45) 2.6px, transparent 3.1px),
+      radial-gradient(rgba(244,201,76,.28) 2.1px, transparent 2.6px),
+      radial-gradient(rgba(232,139,184,.28) 2.1px, transparent 2.6px);
+    background-size:150px 150px, 205px 205px, 240px 240px;
+    background-position:0 0, 65px 95px, 130px 45px;
   }
   /* kolorowe tła ćwiczeń (bg-mint/peach/…) — przygaszone ciemne wersje, żeby nie oślepiały */
   html.eg-dark .frame[class*="bg-"]{ background:linear-gradient(135deg,#24263a,#2b2d42) !important; }
