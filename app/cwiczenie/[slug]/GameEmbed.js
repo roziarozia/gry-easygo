@@ -37,11 +37,14 @@ export default function GameEmbed({ slug }) {
   }, []);
 
   return (
-    <div style={{ maxWidth: 980, margin: '0 auto', padding: '20px 16px 0' }}>
+    <div style={{ maxWidth: 1120, margin: '0 auto', padding: '20px 16px 0' }}>
       <iframe
         src={`/graj-player.html?g=${encodeURIComponent(slug)}`}
         title="Ćwiczenie"
-        style={{ width: '100%', height, border: 'none', borderRadius: 20, display: 'block' }}
+        // minHeight = ćwiczenie ma zajmować większość ekranu; height (z postMessage)
+        // pozwala ramce UROSNĄĆ ponad to dla długich treści (np. tekst z lukami)
+        // i skurczyć się z powrotem do minHeight na ekranie końcowym.
+        style={{ width: '100%', height, minHeight: '86vh', border: 'none', borderRadius: 20, display: 'block' }}
         loading="eager"
       />
     </div>
