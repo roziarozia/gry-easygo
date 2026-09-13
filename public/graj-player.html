@@ -2983,6 +2983,16 @@ function startArtgap(){
   frame.className = frame.className.replace(/\bbg-\S+/g,'').trim();
   if(GAME.bg) frame.classList.add('bg-' + GAME.bg);
   show(document.getElementById('artgap'));
+  // polecenie: jeśli ćwiczenie ma własne instruction w bazie, użyj go zamiast
+  // domyślnego (o przedimkach). Format dwujęzyczny "PL||EN" jak w innych typach.
+  var agInstrEl = document.getElementById('agInstr');
+  if(agInstrEl){
+    var agIns = (GAME.instruction || '').trim();
+    if(agIns){
+      var agInsParts = agIns.split('||');
+      agInstrEl.textContent = (window.EG_LANG === 'en' && agInsParts[1]) ? agInsParts[1].trim() : agInsParts[0].trim();
+    }
+  }
   agChecked = false;
   agInputs = [];
   agAnswers = [];
