@@ -2991,6 +2991,9 @@ function startArtgap(){
     if(agIns){
       var agInsParts = agIns.split('||');
       agInstrEl.textContent = (window.EG_LANG === 'en' && agInsParts[1]) ? agInsParts[1].trim() : agInsParts[0].trim();
+    } else if(window.EG_LANG === 'en'){
+      // domyślne polecenie o przedimkach po angielsku (statyczny HTML, bez danych z bazy)
+      agInstrEl.innerHTML = 'Fill in the text with <b>a</b>, <b>an</b>, <b>the</b> or <b>\u2013</b> (a dash when no article is needed).';
     }
   }
   agChecked = false;
