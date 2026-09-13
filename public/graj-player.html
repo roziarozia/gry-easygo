@@ -868,8 +868,8 @@
   .reading-text p{ margin:0 0 14px; }
   /* ARTICLE-GAP: tekst z lukami */
   #artgap{ display:flex; flex-direction:column; }
-  .frame.artgap-mode{ height:auto; max-height:none; padding:40px 20px 36px; }
-  .frame.artgap-mode > section{ height:auto; }
+  .frame.artgap-mode{ aspect-ratio:auto; height:auto; max-height:none; justify-content:flex-start; align-items:stretch; padding:40px 36px 44px; }
+  .frame.artgap-mode > section{ height:auto; width:100%; }
   .ag-instr{ max-width:720px; margin:0 auto 16px; font-family:'Nunito',sans-serif; font-size:14px; color:var(--muted); text-align:center; }
   .ag-instr b{ color:var(--magenta); }
   .ag-text{ line-height:2.2; overflow:visible; flex:none; max-height:none; }
@@ -1271,6 +1271,7 @@
     .frame{padding:60px 20px 56px;height:min(560px,72vh);}
     .frame.slide-mode{padding:0;}
     .frame.reading-mode{height:auto;max-height:90vh;padding:48px 20px 40px;}
+    .frame.artgap-mode{height:auto;max-height:none;padding:36px 16px 40px;justify-content:flex-start;}
     .btn{min-width:130px;font-size:15px;}
     .prompt{padding:10px 24px 12px;}
     .type-box input{width:min(260px,100%);}
