@@ -3465,23 +3465,34 @@ async function egShowAnswerDetails(gameSlug, userId, opts){
       winH = (fe.ownerDocument && fe.ownerDocument.defaultView) ? fe.ownerDocument.defaultView.innerHeight : 700;
       viewTopInDoc = -r.top; // gdzie zaczyna się widok, licząc od góry iframe
     }
-    var docH = Math.max(document.documentElement.scrollHeight, document.body.scrollHeight);
-    // modal musi zmieścić się w WIDOCZNYM wycinku iframe'a - iframe bywa niższy
-    // niż okno przeglądarki (odtwarzacz ma 86vh), więc liczenie od samego okna
-    // ucinało dół modala na krawędzi iframe'a
+    // BEZ wewnętrznego paska (jej decyzja): modal pokazuje się w pełnej
+    // wysokości, strona pod spodem rośnie i całość przewija się JEDNYM
+    // paskiem całej strony. body.minHeight wymusza wzrost iframe'a
+    // (raporty wysokości mierzą body), overlay przyciemnia wszystko.
     var visTop = Math.max(0, viewTopInDoc);
-    var visH = Math.min(docH, viewTopInDoc + winH) - visTop;
     overlay.style.top = '0';
-    overlay.style.height = docH + 'px';
+    overlay.style.overflow = 'visible';
     overlay.style.paddingTop = (visTop + 24) + 'px';
+    overlay.style.paddingBottom = '40px';
     var box = overlay.querySelector('.eg-ansd');
-    if(box) box.style.maxHeight = Math.max(260, visH - 48) + 'px';
+    if(box){ box.style.maxHeight = 'none'; box.style.overflowY = 'visible'; }
+    var fit = function(){
+      try{
+        var docH = Math.max(document.documentElement.scrollHeight, document.body.scrollHeight);
+        var need = box ? (visTop + 24 + box.offsetHeight + 40) : 0;
+        var H = Math.max(docH, need);
+        overlay.style.height = H + 'px';
+        document.body.style.minHeight = H + 'px';
+      }catch(e){}
+    };
+    fit();
+    if(window.requestAnimationFrame) requestAnimationFrame(fit);
   }catch(e){ overlay.style.top = '0'; overlay.style.height = '100%'; }
   void overlay.offsetWidth;
   overlay.classList.add('show');
   // PEWNE zamykanie - podpinam bezpośrednio do istniejącego X i overlay
   (function(){
-    var closeIt = function(){ overlay.classList.remove('show'); overlay.style.display='none'; };
+    var closeIt = function(){ overlay.classList.remove('show'); overlay.style.display='none'; document.body.style.minHeight=''; };
     var xBtn = overlay.querySelector('#egAnsdClose, .eg-ansd-close');
     if(xBtn){ xBtn.onclick = function(ev){ ev.stopPropagation(); closeIt(); }; }
     overlay.onclick = function(ev){ if(ev.target === overlay) closeIt(); };
