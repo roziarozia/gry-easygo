@@ -55,7 +55,8 @@ export default function ExerciseMeta({ slideCountLabel, level, category }) {
 
   const mc = (kolor) => ({
     background: 'var(--eg-card, #fff)', borderRadius: 14, padding: '10px 18px',
-    minWidth: 96, boxShadow: '0 4px 14px rgba(46,42,51,.10)', borderTop: `4px solid ${kolor}`,
+    minWidth: 96, boxShadow: '0 4px 14px rgba(46,42,51,.10)',
+    border: '1.5px solid var(--eg-line, #eceaf2)', borderTop: `4px solid ${kolor}`,
   });
   const duzy = { display: 'block', fontFamily: "'Quicksand',sans-serif", fontSize: 17, fontWeight: 700, color: 'var(--eg-ink)' };
   const maly = { fontSize: 12, color: 'var(--eg-muted)', fontWeight: 700 };
