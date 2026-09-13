@@ -867,10 +867,12 @@
   }
   .reading-text p{ margin:0 0 14px; }
   /* ARTICLE-GAP: tekst z lukami */
-  #artgap{ display:flex; flex-direction:column; height:100%; }
+  #artgap{ display:flex; flex-direction:column; }
+  .frame.artgap-mode{ height:auto; max-height:none; padding:40px 20px 36px; }
+  .frame.artgap-mode > section{ height:auto; }
   .ag-instr{ max-width:720px; margin:0 auto 16px; font-family:'Nunito',sans-serif; font-size:14px; color:var(--muted); text-align:center; }
   .ag-instr b{ color:var(--magenta); }
-  .ag-text{ line-height:2.3; }
+  .ag-text{ line-height:2.2; overflow:visible; flex:none; max-height:none; }
   .ag-input{ width:56px; text-align:center; font-family:'Nunito',sans-serif; font-size:inherit; font-weight:700; padding:1px 4px; margin:0 2px; border:none; border-bottom:2px solid var(--line,#d9d4e0); background:transparent; color:var(--ink); }
   .ag-input:focus{ outline:none; border-bottom-color:var(--magenta); }
   .ag-input.ag-ok{ color:#1d9e75; border-bottom-color:#1d9e75; }
@@ -2012,7 +2014,8 @@ function show(section){
   frame.classList.toggle('slide-mode',
     section === slide || (section === cover && coverHasImage));
   var artgapSec = document.getElementById('artgap');
-  frame.classList.toggle('reading-mode', section === readingSec || section === artgapSec);
+  frame.classList.toggle('reading-mode', section === readingSec);
+  frame.classList.toggle('artgap-mode', section === artgapSec);
   frame.classList.toggle('quiz-mode', section === quizSec || section === gapSec);
   if(section !== quizSec && section !== gapSec) frame.className = frame.className.replace(/\bbg-\S+/g,'').trim();
 }
@@ -2942,17 +2945,28 @@ document.getElementById('agCheck').addEventListener('click', function(){
   if(agChecked) return;
   agChecked = true;
   var ok = 0;
+  // pełny tekst z lukami (zapisujemy go w całości, żeby w szczegółach pokazać ciągły tekst)
+  var fullText = '';
+  (GAME.gaps || []).slice().sort(function(a,b){ return a.position-b.position; }).forEach(function(g){
+    if(fullText) fullText += '\n\n';
+    fullText += (g.sentence || '');
+  });
+  var agGapList = [];  // dla każdej luki: co wpisał, poprawna, czy ok
   agInputs.forEach(function(inp, i){
     var correct = agAnswers[i];
     var typed = inp.value;
     var good = agIsCorrect(typed, correct);
+    agGapList.push({
+      typed: (typed && typed.trim()) ? typed.trim() : null,
+      correct_text: agMainAnswer(correct),
+      ok: good
+    });
     inp.readOnly = true;
     if(good){
       inp.value = agMainAnswer(correct);
       inp.classList.add('ag-ok');
       ok++;
     } else {
-      // pokaż co uczeń wpisał (czerwone), a obok poprawną (zielona)
       inp.value = (typed && typed.trim()) ? typed : '—';
       inp.classList.add('ag-bad');
       var corr = document.createElement('span');
@@ -2969,11 +2983,14 @@ document.getElementById('agCheck').addEventListener('click', function(){
     e.textContent = expl;
     e.classList.remove('hidden');
   }
-  // zapisz wynik szczegółowy
-  var answersDetail = agInputs.map(function(inp, i){
-    return { q: i, type: 'artgap', typed: null, correct_text: agMainAnswer(agAnswers[i]), ok: agIsCorrect(inp.value, agAnswers[i]) };
-  });
-  markCompleted(ok, agInputs.length, answersDetail);
+  // zapis szczegółów: specjalny wpis 'artgap-full' z całym tekstem + listą luk + wyjaśnieniem
+  var agDetail = [{
+    type: 'artgap-full',
+    full_text: fullText,
+    gaps: agGapList,
+    explanation: expl || ''
+  }];
+  markCompleted(ok, agInputs.length, agDetail);
   agFinalScore = ok;
   agFinalMax = agInputs.length;
   // przycisk "Sprawdź" -> "Zakończ" (przejście do ekranu końcowego: wynik, jeszcze raz, powrót)
@@ -3015,11 +3032,19 @@ function finishArtgap(){
       { t:'You rock!', s:'Kawał dobrej roboty!' },
       { t:'Impressive!', s:'Bardzo dobry wynik!' }
     ];
+  } else if(agFinalScore < agFinalMax){
+    // 90-99% - bardzo wysoko, ale NIE bezbłędnie (bo były błędy)
+    pool = [
+      { t:'Almost perfect!', s:'Prawie perfekcyjnie - tylko drobiazgi!' },
+      { t:'So close!', s:'Jeszcze chwila i będzie komplet!' },
+      { t:'Excellent!', s:'Świetny wynik - o włos od perfekcji!' }
+    ];
   } else {
+    // 100% - zero błędów
     pool = [
       { t:'Perfect!', s:'Bezbłędnie! Mistrzostwo.' },
       { t:'You nailed it!', s:'Trafione w punkt - rewelacja!' },
-      { t:'Outstanding!', s:'Perfekcyjny wynik. Brawo!' }
+      { t:'Flawless!', s:'Perfekcyjny wynik, zero błędów. Brawo!' }
     ];
   }
   var pick = pool[Math.floor(Math.random() * pool.length)];
@@ -3034,7 +3059,8 @@ function finishArtgap(){
     else if(pct < 50) enSub = 'Keep practising - you\u2019re getting there.';
     else if(pct < 75) enSub = 'Nice! Fix a few gaps and you\u2019re golden.';
     else if(pct < 90) enSub = 'Really well done!';
-    else enSub = 'Flawless - amazing work!';
+    else if(agFinalScore < agFinalMax) enSub = 'So close to perfect - just a tiny slip!';
+    else enSub = 'Flawless - not a single mistake!';
     endSub.textContent = enSub;
   }
 }
