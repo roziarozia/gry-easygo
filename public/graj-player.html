@@ -3005,6 +3005,10 @@ function finishArtgap(){
   frame.className = frame.className.replace(/\bbg-\S+/g,'').trim();
   frame.classList.remove('artgap-mode');
   show(end);
+  // uczeń klika "Zakończ" na dole długiego tekstu — po skurczeniu ramki przewiń
+  // stronę-rodzica do góry odtwarzacza, żeby karta z wynikiem była od razu widoczna
+  try{ if(window.frameElement) window.frameElement.scrollIntoView({block:'start'}); }catch(e){}
+  try{ window.scrollTo(0,0); }catch(e){}
   scoreEl.textContent = t('Twój wynik: ') + agFinalScore + ' / ' + agFinalMax;
   scoreEl.classList.remove('hidden');
   // wynik klikalny - podgląd szczegółów (cały tekst z lukami)
@@ -3488,7 +3492,19 @@ async function egShowAnswerDetails(gameSlug, userId, opts){
 (function(){
   function report(){
     try{
-      var h = Math.max(document.body.scrollHeight, document.documentElement.scrollHeight);
+      // PUŁAPKA: html,body mają height:100%, więc scrollHeight nigdy nie jest mniejszy
+      // niż AKTUALNA wysokość iframe'a. Po długim ćwiczeniu (article-gap) iframe urósł,
+      // a na ekranie końcowym pomiar dalej zwracał starą, dużą wysokość — ramka nigdy
+      // nie malała i nad/pod slajdem z wynikiem zostawała pusta przestrzeń.
+      // FIX: na czas pomiaru uwalniamy height na <html> (body ze 100% spada do auto),
+      // mierzymy NATURALNĄ wysokość treści i przywracamy styl. Dzieje się to w jednej
+      // klatce, bez migotania. Ruszamy tylko <html> (nie <body>), żeby nie wyzwalać
+      // MutationObservera obserwującego body (pętla).
+      var de = document.documentElement;
+      var prev = de.style.height;
+      de.style.height = 'auto';
+      var h = document.body.scrollHeight;
+      de.style.height = prev;
       if(window.parent && window.parent!==window){ window.parent.postMessage({egPlayerHeight:h}, '*'); }
     }catch(e){}
   }
