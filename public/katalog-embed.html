@@ -1119,6 +1119,7 @@
   html.eg-dark .eg-ansd{ background:#232030; }
   .eg-ansd-close{ position:absolute; top:14px; right:16px; background:none; border:none; font-size:20px; color:var(--eg-muted,#9a94a6); cursor:pointer; line-height:1; }
   .eg-ansd h3{ margin:0 0 4px; font-family:'Quicksand',sans-serif; font-size:20px; color:var(--eg-ink,#2e2a33); }
+  .eg-ansd-head{ text-align:center; margin:0 0 14px !important; padding-bottom:12px; border-bottom:1px solid rgba(183,164,232,.25); }
   .eg-ansd-sub{ font-size:14px; color:var(--eg-muted,#9a94a6); margin:0 0 18px; }
   .eg-ansd-q{ padding:12px 14px; border-radius:12px; margin:10px 0; background:rgba(183,164,232,.10); border:1px solid rgba(183,164,232,.3); }
   .eg-ansd-q.ok{ background:rgba(183,164,232,.10); border-color:#bfe6d0; }
@@ -3577,7 +3578,7 @@
       var qsQ = await window._egSb.from('questions').select('position, prompt, options, correct, explanation').eq('game_id', gameId).order('position');
       var questions = qsQ && qsQ.data ? qsQ.data : [];
       var esc = function(s){ var d=document.createElement('div'); d.textContent=(s==null?'':s); return d.innerHTML; };
-      var html = '<h3>' + esc(gameTitle || 'Szczegóły odpowiedzi') + '</h3>';
+      var html = '<h3 class="eg-ansd-head">' + (window.EG_LANG === 'en' ? 'Answer details' : 'Szczegóły wyniku') + '</h3>';
       html += '<p class="eg-ansd-sub">Wynik: ' + (comp.score != null ? comp.score : '–') + ' / ' + (comp.score_max != null ? comp.score_max : questions.length) + '</p>';
       comp.answers.forEach(function(a){
         // ARTICLE-GAP: cały tekst z lukami wypełnionymi kolorami (nie pojedyncze zdania)

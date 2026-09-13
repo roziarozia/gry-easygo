@@ -3003,9 +3003,22 @@ document.getElementById('agCheck').addEventListener('click', function(){
 var agFinalScore = 0, agFinalMax = 0;
 function finishArtgap(){
   frame.className = frame.className.replace(/\bbg-\S+/g,'').trim();
+  frame.classList.remove('artgap-mode');
   show(end);
   scoreEl.textContent = t('Twój wynik: ') + agFinalScore + ' / ' + agFinalMax;
   scoreEl.classList.remove('hidden');
+  // wynik klikalny - podgląd szczegółów (cały tekst z lukami)
+  scoreEl.style.cursor = 'pointer';
+  scoreEl.style.textDecoration = 'underline';
+  scoreEl.style.textDecorationStyle = 'dotted';
+  scoreEl.title = t('Kliknij, aby zobaczyć szczegóły');
+  scoreEl.onclick = async function(){
+    try{
+      var r = await _db.auth.getSession();
+      var s = r && r.data ? r.data.session : null;
+      if(s && currentSlug) egShowAnswerDetails(currentSlug, s.user.id);
+    }catch(e){}
+  };
   // wynik w % decyduje o tonie zakończenia; w każdym progu losowa wersja (PL/EN)
   var pct = agFinalMax > 0 ? (agFinalScore / agFinalMax) * 100 : 0;
   var pool;
