@@ -99,10 +99,6 @@
     justify-content:center;
     padding:24px;
   }
-  .stage.stage-top{ align-items:flex-start; }
-  /* ekran końcowy: karta zachowuje pełną SZEROKOŚĆ, ale wysokość dopasowuje się do treści
-     (bez pustej przestrzeni pod hasłem/wynikiem, żeby przyciski pod kartą były od razu widoczne) */
-  .frame.end-fit{ aspect-ratio:auto !important; height:auto !important; max-height:none !important; }
   /* SLUCHANKA: wszystko na jednym ekranie, wiec ramka nie moze byc sztywna.
      Zdejmujemy proporcje 3:2, poszerzamy i pozwalamy przewijac w pionie. */
   .frame.frame-listening{
@@ -2021,10 +2017,6 @@ function show(section){
   var artgapSec = document.getElementById('artgap');
   frame.classList.toggle('reading-mode', section === readingSec);
   frame.classList.toggle('artgap-mode', section === artgapSec);
-  // ekran końcowy: karta u góry (bez pustej przestrzeni nad nią, przyciski od razu widoczne)
-  var stageEl = document.querySelector('.stage');
-  if(stageEl) stageEl.classList.toggle('stage-top', section === end);
-  frame.classList.toggle('end-fit', section === end);
   frame.classList.toggle('quiz-mode', section === quizSec || section === gapSec);
   if(section !== quizSec && section !== gapSec) frame.className = frame.className.replace(/\bbg-\S+/g,'').trim();
 }
