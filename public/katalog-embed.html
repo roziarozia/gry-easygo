@@ -1231,6 +1231,38 @@
   @media (prefers-reduced-motion: reduce){
     .eg-card,.eg-play,.eg-filters button{transition:none;}
   }
+
+  /* ===== POWIĘKSZENIE STRONY GŁÓWNEJ (2026-09-13) =====
+     Zgłoszenie: "na głównej wszystko jest jakieś małe — logo, literki".
+     Blok TYLKO desktop (min-width:821px): logo, hasło, wyszukiwarka, filtry,
+     poziomy, sortowanie, górny pasek i teksty kafelków podbite o ~10-15%,
+     a kolumna treści poszerzona 1180 → 1320 px — przy tej samej liczbie
+     kolumn kafelki (i okładki) są fizycznie większe. Telefon nietknięty
+     (wszystkie reguły mobilne żyją w max-width:820/560 i tu nie sięgają).
+     Blok stoi na KOŃCU stylów, więc przy tej samej specyficzności wygrywa
+     z regułami wyżej. */
+  @media (min-width:821px){
+    .eg-topbar, .eg-hero, .eg-sort-wrap, .eg-wrap,
+    .eg-active-filters, .eg-series-banner{ max-width:1320px; }
+    .eg-topbar-left a{ font-size:15px; }
+    .eg-nav-how{ font-size:13.5px; padding:4px 12px; }
+    .eg-nav-oferta{ padding:6px 17px; }
+    .eg-account{ font-size:15px; }
+    .eg-hero-title .eg-logo{ width:min(620px,84vw); }
+    .eg-hero-tagline{ font-size:17.5px; }
+    .eg-search-wrap{ max-width:520px; }
+    .eg-search{ font-size:16.5px; padding:14px 46px 14px 48px; }
+    .eg-filters button{ font-size:15.5px; padding:11px 24px; }
+    .eg-levels button{ font-size:14.5px; padding:8px 18px; }
+    .eg-sort-wrap select{ font-size:14.5px; max-width:230px; padding:9px 36px 9px 18px; }
+    .eg-cols-label{ font-size:14.5px; }
+    .eg-cols button{ width:38px; height:38px; font-size:15.5px; }
+    .eg-progress-show{ font-size:15px; padding:9px 22px; }
+    .eg-body h3{ font-size:21px !important; }
+    .eg-body p{ font-size:16px; }
+    .eg-meta{ font-size:14px; }
+    .eg-type{ font-size:12.5px; }
+  }
 </style>
 
 <div class="eg-games">
