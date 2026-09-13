@@ -70,10 +70,29 @@ function budujOpis(game) {
   return { zdanie1: zdanie1 + zacheta, kwPolskie };
 }
 
+// Pigułki kategorii w pełnych kolorach (opcja 2): poziom lawenda, kategoria magenta,
+// subskrypcja złoto, darmowe mięta. Wspólna baza stylu + kolor.
+const PILL_BASE = {
+  display: 'inline-flex', alignItems: 'center', borderRadius: 999,
+  padding: '5px 14px', fontSize: 12.5, fontWeight: 800,
+  letterSpacing: '.2px', textDecoration: 'none',
+};
+const PILL = {
+  level: { ...PILL_BASE, background: '#a78dd9', color: '#fff' },
+  cat: { ...PILL_BASE, background: 'var(--eg-magenta, #ca4490)', color: '#fff' },
+  premium: { ...PILL_BASE, background: '#f4c94c', color: '#6b5417' },
+  free: { ...PILL_BASE, background: '#5fbf9f', color: '#fff' },
+};
+
 export default async function CwiczeniePage({ params }) {
   const game = await getGameBySlug(params.slug);
   if (!game) notFound();
   const catLabel = CAT_LABEL[game.category] || game.category || '';
+
+  // Tytuł na białej plakietce: część po dwukropku w magencie ("Open Cloze: New York").
+  const dwukropek = (game.title || '').indexOf(':');
+  const tytulPrzed = dwukropek > -1 ? game.title.slice(0, dwukropek + 1) : game.title;
+  const tytulPo = dwukropek > -1 ? game.title.slice(dwukropek + 1) : '';
 
   const jsonLd = {
     '@context': 'https://schema.org', '@type': 'LearningResource',
@@ -91,30 +110,37 @@ export default async function CwiczeniePage({ params }) {
       {/* GÓRA: gra osadzona w formie i wielkości jak teraz (okładka + granie po kliknięciu) */}
       <GameEmbed slug={game.slug} />
 
-      {/* DÓŁ: opis czytelny dla Google/AI — Twój tekst z bazy, wyśrodkowany, zwięzły */}
-      <section style={{ maxWidth: 680, margin: '0 auto', padding: '6px 20px 40px', textAlign: 'center' }}>
-        <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', justifyContent: 'center', marginBottom: 12 }}>
+      {/* DÓŁ: opis w stylu "opcja 2 na białym tle" — pełnokolorowe pigułki,
+          tytuł na plakietce z cieniem, mini-karty meta w ExerciseMeta */}
+      <section style={{ maxWidth: 680, margin: '0 auto', padding: '10px 20px 40px', textAlign: 'center' }}>
+        <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', justifyContent: 'center', marginBottom: 16 }}>
           {game.level && (
-            <Link href={`/?poziom=${encodeURIComponent(game.level)}`} className="eg-tag eg-tag-level eg-tag-link">
+            <Link href={`/?poziom=${encodeURIComponent(game.level)}`} style={PILL.level}>
               {game.level}
             </Link>
           )}
           {catLabel && (
-            <Link href={`/?kategoria=${encodeURIComponent(game.category)}`} className="eg-tag eg-tag-link">
+            <Link href={`/?kategoria=${encodeURIComponent(game.category)}`} style={PILL.cat}>
               {catLabel}
             </Link>
           )}
           {game.is_premium
-            ? <span className="eg-tag eg-tag-premium">Dla subskrybentów</span>
-            : <Link href="/?kategoria=darmowe" className="eg-tag eg-tag-free eg-tag-link">Darmowe</Link>}
+            ? <span style={PILL.premium}>Dla subskrybentów</span>
+            : <Link href="/?kategoria=darmowe" style={PILL.free}>Darmowe</Link>}
         </div>
 
-        <h1 style={{ fontFamily: "'Quicksand',sans-serif", fontSize: 23, fontWeight: 700, color: 'var(--eg-ink)', margin: '0 0 10px', lineHeight: 1.25 }}>
-          {game.title}
-        </h1>
+        <div style={{
+          display: 'inline-block', background: 'var(--eg-card, #fff)', borderRadius: 16,
+          padding: '14px 26px', boxShadow: '0 6px 18px rgba(167,141,217,.28)', marginBottom: 16,
+        }}>
+          <h1 style={{ fontFamily: "'Quicksand',sans-serif", fontSize: 24, fontWeight: 700, color: 'var(--eg-ink)', margin: 0, lineHeight: 1.25 }}>
+            {tytulPrzed}
+            {tytulPo && <span style={{ color: 'var(--eg-magenta, #ca4490)' }}>{tytulPo}</span>}
+          </h1>
+        </div>
 
         {game.description && (
-          <p style={{ fontSize: 15, lineHeight: 1.6, color: 'var(--eg-ink)', margin: '0 0 14px', fontWeight: 600 }}>
+          <p style={{ fontSize: 15, lineHeight: 1.6, color: 'var(--eg-ink)', margin: '0 0 12px', fontWeight: 600 }}>
             {game.description}
           </p>
         )}
@@ -124,11 +150,11 @@ export default async function CwiczeniePage({ params }) {
           const { zdanie1, kwPolskie } = budujOpis(game);
           return (
             <>
-              <p style={{ fontSize: 15, lineHeight: 1.65, color: 'var(--eg-ink)', margin: '0 0 14px' }}>
+              <p style={{ fontSize: 14.5, lineHeight: 1.65, color: 'var(--eg-muted)', margin: '0 0 12px' }}>
                 {zdanie1}
               </p>
               {kwPolskie && (
-                <p style={{ fontSize: 14.5, lineHeight: 1.6, color: 'var(--eg-muted)', margin: '0 0 16px' }}>
+                <p style={{ fontSize: 14.5, lineHeight: 1.6, color: 'var(--eg-muted)', margin: '0 0 18px' }}>
                   <strong style={{ color: 'var(--eg-ink)' }}>Czego się nauczysz:</strong> {kwPolskie}.
                 </p>
               )}
