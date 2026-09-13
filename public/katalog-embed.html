@@ -3596,11 +3596,17 @@
         winH = (fe.ownerDocument && fe.ownerDocument.defaultView) ? fe.ownerDocument.defaultView.innerHeight : 700;
         viewTopInDoc = -r.top;
       }
+      var docH = Math.max(document.documentElement.scrollHeight, document.body.scrollHeight);
+      // modal musi zmieścić się w WIDOCZNYM wycinku iframe'a - iframe bywa niższy
+      // niż okno przeglądarki (odtwarzacz ma 86vh), więc liczenie od samego okna
+      // ucinało dół modala na krawędzi iframe'a
+      var visTop = Math.max(0, viewTopInDoc);
+      var visH = Math.min(docH, viewTopInDoc + winH) - visTop;
       overlay.style.top = '0';
-      overlay.style.height = Math.max(document.documentElement.scrollHeight, document.body.scrollHeight) + 'px';
-      overlay.style.paddingTop = (Math.max(0, viewTopInDoc) + 28) + 'px';
+      overlay.style.height = docH + 'px';
+      overlay.style.paddingTop = (visTop + 24) + 'px';
       var box = overlay.querySelector('.eg-ansd');
-      if(box) box.style.maxHeight = Math.max(320, winH - 76) + 'px';
+      if(box) box.style.maxHeight = Math.max(260, visH - 48) + 'px';
     }catch(e){ overlay.style.top='0'; overlay.style.height='100%'; }
     void overlay.offsetWidth;
     overlay.classList.add('show');
