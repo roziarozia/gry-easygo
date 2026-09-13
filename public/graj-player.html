@@ -100,8 +100,9 @@
     padding:24px;
   }
   .stage.stage-top{ align-items:flex-start; }
-  /* ekran końcowy: karta dopasowuje wysokość do treści (bez pustej przestrzeni pod hasłem/wynikiem) */
-  .frame.end-fit{ aspect-ratio:auto !important; height:auto !important; max-height:none !important; min-height:0 !important; }
+  /* ekran końcowy: karta zachowuje pełną SZEROKOŚĆ, ale wysokość dopasowuje się do treści
+     (bez pustej przestrzeni pod hasłem/wynikiem, żeby przyciski pod kartą były od razu widoczne) */
+  .frame.end-fit{ aspect-ratio:auto !important; height:auto !important; max-height:none !important; }
   /* SLUCHANKA: wszystko na jednym ekranie, wiec ramka nie moze byc sztywna.
      Zdejmujemy proporcje 3:2, poszerzamy i pozwalamy przewijac w pionie. */
   .frame.frame-listening{
