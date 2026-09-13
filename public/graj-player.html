@@ -2878,6 +2878,15 @@ var agInputs = [];   // pola input w kolejności
 var agAnswers = [];  // poprawne odpowiedzi w kolejności
 var agChecked = false;
 function agNorm(s){ return (s||'').trim().toLowerCase().replace(/[-–—]/g,'–'); }
+// odpowiedź może mieć kilka akceptowanych wariantów po "/" (np. "–/an" = myślnik LUB an)
+function agIsCorrect(typed, correct){
+  var variants = String(correct).split('/');
+  var t = agNorm(typed);
+  for(var i=0;i<variants.length;i++){ if(agNorm(variants[i]) === t) return true; }
+  return false;
+}
+// do wyświetlenia pokazujemy pierwszy wariant (główny)
+function agMainAnswer(correct){ return String(correct).split('/')[0]; }
 function startArtgap(){
   frame.className = frame.className.replace(/\bbg-\S+/g,'').trim();
   if(GAME.bg) frame.classList.add('bg-' + GAME.bg);
@@ -2936,10 +2945,10 @@ document.getElementById('agCheck').addEventListener('click', function(){
   agInputs.forEach(function(inp, i){
     var correct = agAnswers[i];
     var typed = inp.value;
-    var good = agNorm(typed) === agNorm(correct);
+    var good = agIsCorrect(typed, correct);
     inp.readOnly = true;
     if(good){
-      inp.value = correct;
+      inp.value = agMainAnswer(correct);
       inp.classList.add('ag-ok');
       ok++;
     } else {
@@ -2948,7 +2957,7 @@ document.getElementById('agCheck').addEventListener('click', function(){
       inp.classList.add('ag-bad');
       var corr = document.createElement('span');
       corr.className = 'ag-correct';
-      corr.textContent = correct;
+      corr.textContent = agMainAnswer(correct);
       if(inp.parentNode){ inp.parentNode.insertBefore(corr, inp.nextSibling); }
     }
   });
@@ -2962,7 +2971,7 @@ document.getElementById('agCheck').addEventListener('click', function(){
   }
   // zapisz wynik szczegółowy
   var answersDetail = agInputs.map(function(inp, i){
-    return { q: i, type: 'artgap', typed: null, correct_text: agAnswers[i], ok: agNorm(inp.value) === agNorm(agAnswers[i]) };
+    return { q: i, type: 'artgap', typed: null, correct_text: agMainAnswer(agAnswers[i]), ok: agIsCorrect(inp.value, agAnswers[i]) };
   });
   markCompleted(ok, agInputs.length, answersDetail);
   agFinalScore = ok;
@@ -2979,11 +2988,55 @@ function finishArtgap(){
   show(end);
   scoreEl.textContent = t('Twój wynik: ') + agFinalScore + ' / ' + agFinalMax;
   scoreEl.classList.remove('hidden');
+  // wynik w % decyduje o tonie zakończenia; w każdym progu losowa wersja (PL/EN)
+  var pct = agFinalMax > 0 ? (agFinalScore / agFinalMax) * 100 : 0;
+  var pool;
+  if(pct < 30){
+    pool = [
+      { t:'Try again!', s:'Nie poddawaj się - spróbuj jeszcze raz!' },
+      { t:'Keep going!', s:'Każda próba to postęp. Do dzieła!' },
+      { t:'Don\u2019t give up!', s:'Jeszcze raz i pójdzie lepiej!' }
+    ];
+  } else if(pct < 50){
+    pool = [
+      { t:'Keep practising!', s:'Jeszcze trochę pracy - jesteś na dobrej drodze.' },
+      { t:'Almost there!', s:'Powtórz zasady i spróbuj ponownie.' },
+      { t:'Getting warmer!', s:'Coraz lepiej! Zagraj jeszcze raz.' }
+    ];
+  } else if(pct < 75){
+    pool = [
+      { t:'Good job!', s:'Nieźle! Popraw kilka luk i będzie idealnie.' },
+      { t:'Nice work!', s:'Dobra robota - jesteś blisko.' },
+      { t:'Well done!', s:'Solidny wynik! Spróbuj pobić rekord.' }
+    ];
+  } else if(pct < 90){
+    pool = [
+      { t:'Great job!', s:'Świetnie ci poszło!' },
+      { t:'You rock!', s:'Kawał dobrej roboty!' },
+      { t:'Impressive!', s:'Bardzo dobry wynik!' }
+    ];
+  } else {
+    pool = [
+      { t:'Perfect!', s:'Bezbłędnie! Mistrzostwo.' },
+      { t:'You nailed it!', s:'Trafione w punkt - rewelacja!' },
+      { t:'Outstanding!', s:'Perfekcyjny wynik. Brawo!' }
+    ];
+  }
+  var pick = pool[Math.floor(Math.random() * pool.length)];
   var agUnder = document.querySelector('#end .end-title .underline');
-  if(agUnder) agUnder.textContent = (agFinalScore === agFinalMax) ? 'Perfekcyjnie!' : 'Dobra robota!';
-  endSub.textContent = (agFinalScore === agFinalMax)
-    ? 'Wszystkie luki uzupełnione poprawnie.'
-    : 'Zagraj jeszcze raz i popraw swój wynik.';
+  // tytuł zawsze po angielsku (motywujące hasło), podtytuł wg języka interfejsu
+  if(agUnder) agUnder.textContent = pick.t;
+  endSub.textContent = (window.EG_LANG === 'en') ? '' : pick.s;
+  // gdy interfejs EN, podtytuł też po angielsku (krótki wariant)
+  if(window.EG_LANG === 'en'){
+    var enSub;
+    if(pct < 30) enSub = 'Don\u2019t give up - try again!';
+    else if(pct < 50) enSub = 'Keep practising - you\u2019re getting there.';
+    else if(pct < 75) enSub = 'Nice! Fix a few gaps and you\u2019re golden.';
+    else if(pct < 90) enSub = 'Really well done!';
+    else enSub = 'Flawless - amazing work!';
+    endSub.textContent = enSub;
+  }
 }
 
 function startReading(){
