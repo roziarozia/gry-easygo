@@ -1389,6 +1389,8 @@
     'Odpowiedz na wszystkie pytania.': 'Please answer all the questions.',
     'Znasz już ': 'You now know ',
     ' nowych słówek.': ' new words.',
+    'Wszystkie luki uzupełnione poprawnie.': 'All gaps filled correctly.',
+    'Zagraj jeszcze raz i popraw swój wynik.': 'Play again and improve your score.',
     'Wykup dostęp': 'Get access',
     'Perfekcyjnie! Wszystkie słówka poprawnie.': 'Perfect! All words correct.',
     'Zagraj jeszcze raz i popraw swój wynik.': 'Play again and improve your score.',
@@ -2977,6 +2979,11 @@ function finishArtgap(){
   show(end);
   scoreEl.textContent = t('Twój wynik: ') + agFinalScore + ' / ' + agFinalMax;
   scoreEl.classList.remove('hidden');
+  var agUnder = document.querySelector('#end .end-title .underline');
+  if(agUnder) agUnder.textContent = (agFinalScore === agFinalMax) ? 'Perfekcyjnie!' : 'Dobra robota!';
+  endSub.textContent = (agFinalScore === agFinalMax)
+    ? 'Wszystkie luki uzupełnione poprawnie.'
+    : 'Zagraj jeszcze raz i popraw swój wynik.';
 }
 
 function startReading(){
