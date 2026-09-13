@@ -1115,6 +1115,13 @@
   .eg-agf-corr{ color:#1d9e75; font-weight:700; margin:0 3px 0 4px; }
   html.eg-dark .eg-agf-ok, html.eg-dark .eg-agf-corr{ color:#5fd39a; }
   html.eg-dark .eg-agf-bad{ color:#f08a80; }
+  .ag-expl-list{ list-style:none; margin:2px 0 0; padding:0; display:grid; grid-template-columns:1fr 1fr; gap:9px 22px; text-align:left; }
+  .ag-expl-list li{ line-height:1.4; }
+  .ag-expl-list b{ display:block; font-weight:700; color:var(--eg-ink,#2e2a33); font-size:13.5px; }
+  .ag-expl-list span{ display:block; color:var(--eg-muted,#9a94a6); font-size:12.5px; margin-top:1px; }
+  html.eg-dark .ag-expl-list b{ color:#e8e6ef; }
+  html.eg-dark .ag-expl-list span{ color:#b0aabe; }
+  @media (max-width:560px){ .ag-expl-list{ grid-template-columns:1fr; gap:8px; } }
   .eg-ansd-overlay.show .eg-ansd{ transform:translateY(0); }
   html.eg-dark .eg-ansd{ background:#232030; color:#e8e6ef; }
   html.eg-dark .eg-agf-text{ color:#e8e6ef; }
@@ -1174,6 +1181,9 @@
   .eg-progress-show:hover{ background:#f5e6ef; }
   html.eg-dark .eg-progress-hide:hover{ background:#3a2c36; }
   html.eg-dark .eg-progress-show{ background:#2b2436; border-color:#4a3a44; color:#e88bb8; }
+  html.eg-dark .eg-progress-show:hover{ background:#352a42; }
+  html.eg-dark .eg-done-no:hover{ background:#243228; }
+  html.eg-dark .eg-search-clear{ background:#3a3550; color:#b0aabe; }
   .eg-progress-right{ display:flex; align-items:center; gap:12px; }
   .eg-progress-adjust{ font-family:'Quicksand',sans-serif; font-weight:700; font-size:13px; color:#6885db; background:#eaf0fb; border:1.5px solid #c9d8f2; border-radius:9px; padding:6px 13px; cursor:pointer; }
   .eg-progress-adjust:hover{ background:#dbe6f8; }
@@ -1265,11 +1275,15 @@
     .eg-body p{ font-size:17px; }
     .eg-meta{ font-size:15px; }
     .eg-type{ font-size:13.5px; }
+    .eg-play{ font-size:16px; padding:14px 0; }
+    .eg-about-block h3{ font-size:18px; }
+    .eg-about-block p{ font-size:15.5px; }
+    .eg-about-fiszki{ font-size:15px; }
   }
 
   /* Modal "Szczegóły wyniku": lawendowa ramka + własny, subtelny pasek
      przewijania wewnątrz okna (długa lista NIE rozpycha strony). */
-  .eg-ansd{ border:2px solid #b7a4e8; scrollbar-width:thin; scrollbar-color:#cabdea transparent; }
+  .eg-ansd{ border:2px solid #a78dd9; scrollbar-width:thin; scrollbar-color:#cabdea transparent; }
   html.eg-dark .eg-ansd{ border-color:#544b74; scrollbar-color:#544b74 transparent; }
   .eg-ansd::-webkit-scrollbar{ width:10px; }
   .eg-ansd::-webkit-scrollbar-track{ background:transparent; margin:14px 0; }
@@ -3668,7 +3682,27 @@
             }
           });
           html += '<div class="eg-agf-text">' + txt.replace(/\n/g,'<br>') + '</div>';
-          if(a.explanation){ html += '<div class="eg-ansd-expl">' + esc(a.explanation) + '</div>'; }
+          if(a.explanation){
+            var agFmt = null;
+            try{
+              var _t = String(a.explanation);
+              if(_t.indexOf('(') !== -1){
+                var _p = _t.split(/\),\s+/);
+                if(_p.length >= 3){
+                  agFmt = '<ul class="ag-expl-list">';
+                  for(var _i=0;_i<_p.length;_i++){
+                    var _s = _p[_i].trim().replace(/\.\s*$/,'');
+                    if(_i < _p.length-1) _s += ')';
+                    var _m = _s.match(/^([\s\S]*?)\s*\(([\s\S]*)\)$/);
+                    if(_m){ agFmt += '<li><b>' + esc(_m[1]) + '</b><span>' + esc(_m[2]) + '</span></li>'; }
+                    else { agFmt += '<li><b>' + esc(_s) + '</b></li>'; }
+                  }
+                  agFmt += '</ul>';
+                }
+              }
+            }catch(e){ agFmt = null; }
+            html += '<div class="eg-ansd-expl">' + (agFmt || esc(a.explanation)) + '</div>';
+          }
           return;
         }
         if(a.type === 'gap'){
