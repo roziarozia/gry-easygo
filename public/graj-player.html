@@ -687,13 +687,14 @@
     font-family:'Quicksand',sans-serif;
     font-weight:700;
     font-size:24px;
-    color:var(--ink);
-    background:rgba(183,164,232,.18);
-    border:2px solid #b7a4e8;
-    padding:10px 26px;
+    color:#fff;
+    background:#a78dd9;   /* pełny lawendowy - ten sam co "Score:" na kafelku katalogu */
+    border:none;
+    padding:12px 28px;
     border-radius:999px;
   }
-  html.eg-dark .score{ background:rgba(183,164,232,.14); border-color:#544b74; }
+  /* lawendowa obwódka całej ramki na ekranie końcowym */
+  .frame.end-mode{ border:3px solid #a78dd9; }
   #end .nav .btn{box-shadow:none;}
   /* przyciski ekranu końcowego: OBA na białym tle z różową ramką (jej wybór) */
   #end .nav .btn,
@@ -2044,6 +2045,7 @@ function show(section){
   frame.classList.toggle('reading-mode', section === readingSec);
   frame.classList.toggle('artgap-mode', section === artgapSec);
   frame.classList.toggle('quiz-mode', section === quizSec || section === gapSec);
+  frame.classList.toggle('end-mode', section === end);
   if(section !== quizSec && section !== gapSec) frame.className = frame.className.replace(/\bbg-\S+/g,'').trim();
 }
 
