@@ -1263,6 +1263,15 @@
     .eg-meta{ font-size:14px; }
     .eg-type{ font-size:12.5px; }
   }
+
+  /* Modal "Szczegóły wyniku": lawendowa ramka + własny, subtelny pasek
+     przewijania wewnątrz okna (długa lista NIE rozpycha strony). */
+  .eg-ansd{ border:2px solid #b7a4e8; scrollbar-width:thin; scrollbar-color:#cabdea transparent; }
+  html.eg-dark .eg-ansd{ border-color:#544b74; scrollbar-color:#544b74 transparent; }
+  .eg-ansd::-webkit-scrollbar{ width:10px; }
+  .eg-ansd::-webkit-scrollbar-track{ background:transparent; margin:14px 0; }
+  .eg-ansd::-webkit-scrollbar-thumb{ background:#cabdea; border-radius:999px; border:2.5px solid #f6f3fc; }
+  html.eg-dark .eg-ansd::-webkit-scrollbar-thumb{ background:#544b74; border-color:#232030; }
 </style>
 
 <div class="eg-games">
@@ -3570,21 +3579,28 @@
     overlay.style.display = 'flex';
     overlay.style.position = 'absolute';
     overlay.style.left = '0'; overlay.style.right = '0'; overlay.style.bottom = 'auto';
-    overlay.style.alignItems = 'center'; overlay.style.justifyContent = 'center';
+    overlay.style.alignItems = 'flex-start'; overlay.style.justifyContent = 'center';
     overlay.style.transform = ''; overlay.style.width = '';
-    overlay.style.boxShadow = '0 0 0 100vmax rgba(46,42,51,.55)';
-    overlay.style.clipPath = 'inset(-100vmax)';
-    // pozycja RAZ - na środku aktualnego widoku. Modal nieruchomy, lista przewija się WEWNĄTRZ.
+    overlay.style.boxShadow = ''; overlay.style.clipPath = '';
+    overlay.style.overflow = 'hidden';
+    // Katalog żyje w iframie rozciągniętym na całą treść, więc position:fixed tu nie działa.
+    // Zamiast sztuczek: przyciemniamy CAŁY dokument (top:0 + wysokość dokumentu), modal
+    // stawiamy w aktualnie widocznym wycinku (paddingTop) i ograniczamy jego wysokość do
+    // okna przeglądarki - długa lista przewija się WEWNĄTRZ modala (własny pasek),
+    // strona pod spodem nie dostaje drugiego scrolla.
     try{
       var fe = window.frameElement;
-      var winH = 700, viewTopInDoc = 0;
+      var winH = window.innerHeight || 700, viewTopInDoc = window.scrollY || 0;
       if(fe){
         var r = fe.getBoundingClientRect();
         winH = (fe.ownerDocument && fe.ownerDocument.defaultView) ? fe.ownerDocument.defaultView.innerHeight : 700;
         viewTopInDoc = -r.top;
       }
-      overlay.style.height = winH + 'px';
-      overlay.style.top = Math.max(0, viewTopInDoc) + 'px';
+      overlay.style.top = '0';
+      overlay.style.height = Math.max(document.documentElement.scrollHeight, document.body.scrollHeight) + 'px';
+      overlay.style.paddingTop = (Math.max(0, viewTopInDoc) + 28) + 'px';
+      var box = overlay.querySelector('.eg-ansd');
+      if(box) box.style.maxHeight = Math.max(320, winH - 76) + 'px';
     }catch(e){ overlay.style.top='0'; overlay.style.height='100%'; }
     void overlay.offsetWidth;
     overlay.classList.add('show');
