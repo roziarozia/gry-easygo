@@ -934,7 +934,7 @@
   .ag-instr{ max-width:720px; margin:0 auto 16px; font-family:'Nunito',sans-serif; font-size:14px; color:var(--muted); text-align:center; }
   .ag-instr b{ color:var(--magenta); }
   .ag-text{ line-height:2.2; overflow:visible; flex:none; max-height:none; }
-  .ag-input{ width:56px; text-align:center; font-family:'Nunito',sans-serif; font-size:inherit; font-weight:700; padding:1px 4px; margin:0 2px; border:none; border-bottom:2px solid var(--line,#d9d4e0); background:transparent; color:var(--ink); }
+  .ag-input{ width:76px; text-align:center; font-family:'Nunito',sans-serif; font-size:inherit; font-weight:700; padding:1px 4px; margin:0 2px; border:none; border-bottom:2px solid var(--line,#d9d4e0); background:transparent; color:var(--ink); }
   .ag-input:focus{ outline:none; border-bottom-color:var(--magenta); }
   .ag-input.ag-ok{ color:#1d9e75; border-bottom-color:#1d9e75; }
   .ag-input.ag-bad{ color:#e24b4a; border-bottom-color:#e24b4a; text-decoration:line-through; }
@@ -2982,6 +2982,11 @@ function showSpeakEnd(){
 let rIdx = 0;
 /* ===== ARTICLE-GAP: tekst z lukami (przedimki) ===== */
 var agInputs = [];   // pola input w kolejności
+function agFitInput(inp){
+  var len = (inp.value || '').length;
+  var w = Math.max(76, 20 + len * 10);
+  inp.style.width = Math.min(w, 220) + 'px';
+}
 var agAnswers = [];  // poprawne odpowiedzi w kolejności
 var agChecked = false;
 function agNorm(s){ return (s||'').trim().toLowerCase().replace(/[-–—]/g,'–'); }
@@ -3048,6 +3053,8 @@ function startArtgap(){
         inp.setAttribute('autocapitalize','off');
         inp.spellcheck = false;
         inp.setAttribute('data-ans', (ans[i] || '').trim());
+        // luka rośnie razem z wpisywanym słowem (dłuższe odpowiedzi w open cloze się nie ucinają)
+        inp.addEventListener('input', function(){ agFitInput(this); });
         para.appendChild(inp);
         agInputs.push(inp);
         agAnswers.push((ans[i] || '').trim());
@@ -3082,10 +3089,12 @@ document.getElementById('agCheck').addEventListener('click', function(){
     if(good){
       inp.value = agMainAnswer(correct);
       inp.classList.add('ag-ok');
+      agFitInput(inp);
       ok++;
     } else {
       inp.value = (typed && typed.trim()) ? typed : '—';
       inp.classList.add('ag-bad');
+      agFitInput(inp);
       var corr = document.createElement('span');
       corr.className = 'ag-correct';
       corr.textContent = agMainAnswer(correct);
