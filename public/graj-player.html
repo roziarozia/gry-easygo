@@ -3473,6 +3473,28 @@ document.getElementById('fullBtn').addEventListener('click', () => {
   }
 });
 
+/* Na pełnym ekranie karta jest mała (sztywne 980px), więc skalujemy ją
+   proporcjonalnie do rozmiaru ekranu; poza fullscreen — bez zmian. */
+(function(){
+  var fsFrame = document.querySelector('.frame');
+  if(!fsFrame) return;
+  function egFsScale(){
+    if(!document.fullscreenElement){ fsFrame.style.transform = ''; return; }
+    fsFrame.style.transform = '';
+    var r = fsFrame.getBoundingClientRect();
+    if(!r.width || !r.height) return;
+    var s = Math.min((window.innerWidth * 0.94) / r.width, (window.innerHeight * 0.90) / r.height);
+    if(s > 1.02){
+      fsFrame.style.transformOrigin = 'center center';
+      fsFrame.style.transform = 'scale(' + s.toFixed(3) + ')';
+    }
+  }
+  document.addEventListener('fullscreenchange', egFsScale);
+  window.addEventListener('resize', egFsScale);
+  // karta zmienia wysokość np. przy wejściu w czytankę (reading-mode) — przelicz i wtedy
+  if(window.ResizeObserver){ new ResizeObserver(egFsScale).observe(fsFrame); }
+})();
+
 /* ===== SZCZEGÓŁY ODPOWIEDZI UCZNIA =====
 function egAnsdCleanup(overlay){
   try{
