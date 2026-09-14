@@ -748,6 +748,14 @@
   }
 
   /* ===== DOLNY PASEK ===== */
+  /* Pełny ekran: przyciski interfejsu większe, żeby nie ginęły na dużym ekranie */
+  html:fullscreen #grajHome{ font-size:16px !important; padding:9px 19px 9px 15px !important; gap:9px !important; }
+  html:fullscreen #grajHome svg{ width:19px; height:19px; }
+  html:fullscreen #grajLang{ font-size:16px !important; padding:9px 16px !important; }
+  html:fullscreen #grajTheme{ font-size:19px !important; padding:9px 14px !important; }
+  html:fullscreen .bottom-bar a,
+  html:fullscreen .bottom-bar button{ font-size:17px; padding:12px 26px; }
+  html:fullscreen .bottom-bar{ padding-bottom:30px; gap:16px; }
   .bottom-bar{
     display:flex;
     justify-content:center;
