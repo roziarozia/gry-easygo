@@ -601,6 +601,21 @@
   .eg-intro-row{ display:flex; gap:12px; justify-content:center; flex-wrap:wrap; align-items:center; }
   .eg-intro-cta{ background:var(--eg-magenta); color:#fff; border:none; border-radius:999px; padding:12px 26px; font-family:'Quicksand',sans-serif; font-weight:700; font-size:15px; cursor:pointer; transition:background .18s, transform .18s; }
   .eg-intro-cta:hover{ background:#b33a7e; transform:translateY(-1px); }
+  .eg-intro-new{ display:inline-block; font-size:13px; font-weight:800; color:#6a5798; background:#f6f3fc; border:1.5px solid #ddd3f0; border-radius:999px; padding:4px 13px; margin:0 0 16px; }
+  html.eg-dark .eg-intro-new{ background:#2b2436; border-color:#4a3f5e; color:#c9bce6; }
+  .eg-intro-sep{ height:1px; background:var(--eg-line); max-width:520px; margin:22px auto 4px; }
+  .eg-intro-pick{ font-size:13px; color:var(--eg-muted); margin:0 0 14px; }
+  .eg-paths{ display:grid; grid-template-columns:1fr 1fr; gap:14px; max-width:600px; margin:0 auto; }
+  .eg-path{ text-align:left; background:var(--eg-card,#fff); border:1.5px solid var(--eg-line); border-top:4px solid var(--eg-magenta); border-radius:16px; padding:18px; cursor:pointer; transition:transform .15s, box-shadow .15s; box-shadow:0 4px 14px rgba(46,42,51,.06); font-family:'Nunito',sans-serif; display:block; }
+  .eg-path-s{ border-top-color:var(--eg-law); }
+  .eg-path:hover{ transform:translateY(-2px); box-shadow:0 8px 20px rgba(167,141,217,.2); }
+  .eg-path-ic{ display:block; color:var(--eg-magenta); margin-bottom:10px; }
+  .eg-path-s .eg-path-ic{ color:var(--eg-law); }
+  .eg-path-h{ display:block; font-family:'Quicksand',sans-serif; font-weight:700; font-size:17px; color:var(--eg-ink); margin-bottom:5px; }
+  .eg-path-p{ display:block; font-size:13px; line-height:1.5; color:var(--eg-muted); margin-bottom:10px; }
+  .eg-path-go{ display:block; font-size:13px; font-weight:800; color:var(--eg-magenta); }
+  .eg-path-s .eg-path-go{ color:#6a5798; }
+  @media(max-width:560px){ .eg-paths{ grid-template-columns:1fr; } }
   .eg-intro-how{ background:transparent; color:var(--eg-magenta); border:1.5px solid var(--eg-magenta); border-radius:999px; padding:11px 22px; font-family:'Quicksand',sans-serif; font-weight:700; font-size:14.5px; cursor:pointer; transition:background .18s, color .18s; }
   .eg-intro-how:hover{ background:var(--eg-magenta); color:#fff; }
   .eg-intro-trust{ display:inline-flex; align-items:center; gap:6px; margin:14px auto 0; background:rgba(183,164,232,.15); color:#7a5fb0; font-size:13px; font-weight:700; padding:5px 14px; border-radius:999px; }
@@ -1356,15 +1371,31 @@
         <p class="eg-intro-eyebrow" data-i18n="Platforma do nauki angielskiego">Platforma do nauki angielskiego</p>
         <h2 class="eg-intro-title"><span class="eg-intro-line" data-i18n="Ucz się lub ucz innych języka angielskiego">Ucz się lub ucz innych języka angielskiego</span><br><span class="eg-intro-line" data-i18n="z platformą, która ogarnie wszystko!">z platformą, która ogarnie wszystko!</span></h2>
       </div>
-      <p class="eg-intro-sub" id="egIntroSub">Setki interaktywnych ćwiczeń z wyjaśnieniami na każdym poziomie –<br>dla <a href="/oferta" class="eg-intro-link">lektorów i ich uczniów</a> oraz <a href="/oferta" class="eg-intro-link">uczniów indywidualnych</a>.</p>
+      <p class="eg-intro-sub" id="egIntroSub"><strong style="color:var(--eg-ink)">Ponad 200 interaktywnych ćwiczeń</strong> z wyjaśnieniami, na każdym poziomie od A1 do C2 –<br>dla <a href="/oferta" class="eg-intro-link">lektorów i ich uczniów</a> oraz <a href="/oferta" class="eg-intro-link">uczniów indywidualnych</a>.</p>
+      <p class="eg-intro-new" data-i18n="Nowe materiały kilka razy w tygodniu">Nowe materiały kilka razy w tygodniu</p>
       <div class="eg-intro-row">
         <button type="button" class="eg-intro-cta" id="egHeroCta" data-i18n="Wypróbuj za darmo przez 7 dni">Wypróbuj za darmo przez 7 dni</button>
-        <button type="button" class="eg-intro-how" id="egHeroHow" data-i18n="Jak to działa?">Jak to działa?</button>
       </div>
       <p class="eg-intro-trust"><svg class="eg-intro-star" width="15" height="15" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 3.5l2.6 5.7 6.2.6-4.7 4.1 1.4 6.1L12 17.3 6.5 20.1l1.4-6.1L3.2 9.8l6.2-.6z" stroke="#ca4490" stroke-width="1.6" stroke-linejoin="round"/></svg> <span data-i18n="Zaufało nam już ponad 100 osób">Zaufało nam już ponad 100 osób</span></p>
+      <div class="eg-intro-sep"></div>
+      <p class="eg-intro-pick" data-i18n="Wybierz swoją ścieżkę:">Wybierz swoją ścieżkę:</p>
+      <div class="eg-paths">
+        <button type="button" class="eg-path eg-path-t" id="egPathTutor">
+          <span class="eg-path-ic"><svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M2 8l10-4 10 4-10 4z"/><path d="M6 10v5c0 1.5 3 3 6 3s6-1.5 6-3v-5"/><path d="M22 8v5"/></svg></span>
+          <span class="eg-path-h" data-i18n="Uczę angielskiego">Uczę angielskiego</span>
+          <span class="eg-path-p" data-i18n="Gotowe ćwiczenia na lekcję i pracę domową, która sprawdza się sama. Panel lektora i postępy uczniów.">Gotowe ćwiczenia na lekcję i pracę domową, która sprawdza się sama. Panel lektora i postępy uczniów.</span>
+          <span class="eg-path-go" data-i18n="Zobacz, jak to działa →">Zobacz, jak to działa →</span>
+        </button>
+        <button type="button" class="eg-path eg-path-s" id="egPathStudent">
+          <span class="eg-path-ic"><svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M3 5.5A2.5 2.5 0 0 1 5.5 3H11v16H5.5A2.5 2.5 0 0 0 3 21.5z"/><path d="M21 5.5A2.5 2.5 0 0 0 18.5 3H13v16h5.5a2.5 2.5 0 0 1 2.5 2.5z"/></svg></span>
+          <span class="eg-path-h" data-i18n="Uczę się sam / sama">Uczę się sam / sama</span>
+          <span class="eg-path-p" data-i18n="Ćwicz kiedy chcesz, w swoim tempie. Od razu widzisz wynik i wyjaśnienie każdego błędu.">Ćwicz kiedy chcesz, w swoim tempie. Od razu widzisz wynik i wyjaśnienie każdego błędu.</span>
+          <span class="eg-path-go" data-i18n="Zobacz, jak to działa →">Zobacz, jak to działa →</span>
+        </button>
+      </div>
     </div>
     <div class="eg-how">
-      <div class="eg-how-block">
+      <div class="eg-how-block" id="egHowTutor">
         <h3 class="eg-how-title"><span data-i18n="Jak to działa dla lektorów i ich uczniów">Jak to działa dla lektorów i ich uczniów</span></h3>
         <p class="eg-how-lead" data-i18n="W pięciu prostych krokach">W pięciu prostych krokach</p>
         <div class="eg-how-steps">
@@ -1401,7 +1432,7 @@
         </div>
       </div>
 
-      <div class="eg-how-block">
+      <div class="eg-how-block" id="egHowStudent">
         <h3 class="eg-how-title"><span data-i18n="Jak to działa dla uczniów indywidualnych">Jak to działa dla uczniów indywidualnych</span></h3>
         <p class="eg-how-lead" data-i18n="W czterech prostych krokach">W czterech prostych krokach</p>
         <div class="eg-how-steps">
@@ -2256,6 +2287,17 @@
         try{ if(window.parent && window.parent !== window){ window.parent.postMessage({ egScrollTop: true }, '*'); } }catch(e){}
       });
     }
+    // kafelki ścieżek → przewiń do właściwej sekcji "jak to działa"
+    function egScrollToHow(id){
+      var el = document.getElementById(id);
+      if(!el) return;
+      try{ if(window.parent && window.parent !== window){ window.parent.postMessage({ egScrollTo: id }, '*'); } }catch(e){}
+      el.scrollIntoView({ behavior:'smooth', block:'start' });
+    }
+    var pathT = document.getElementById('egPathTutor');
+    if(pathT) pathT.addEventListener('click', function(){ egScrollToHow('egHowTutor'); });
+    var pathS = document.getElementById('egPathStudent');
+    if(pathS) pathS.addEventListener('click', function(){ egScrollToHow('egHowStudent'); });
     var heroCta = document.getElementById('egHeroCta');
     if(heroCta){
       heroCta.addEventListener('click', function(){
@@ -3395,6 +3437,13 @@
     'Coś nie działa? Zgłoś problem na': 'Something not working? Report it at',
     'Regulamin': 'Terms & conditions',
     'Miejsce, które otwiera drzwi': 'Where doors open.',
+    'Nowe materiały kilka razy w tygodniu': 'New materials several times a week',
+    'Wybierz swoją ścieżkę:': 'Choose your path:',
+    'Uczę angielskiego': 'I teach English',
+    'Gotowe ćwiczenia na lekcję i pracę domową, która sprawdza się sama. Panel lektora i postępy uczniów.': 'Ready-made exercises for lessons and self-checking homework. Teacher panel and student progress.',
+    'Uczę się sam / sama': 'I learn on my own',
+    'Ćwicz kiedy chcesz, w swoim tempie. Od razu widzisz wynik i wyjaśnienie każdego błędu.': 'Practise whenever you like, at your own pace. See your score and an explanation of every mistake right away.',
+    'Zobacz, jak to działa →': 'See how it works →',
     'Poznaj naszą bazę ćwiczeń!': 'Explore our exercise library!',
     'Jak to działa dla lektorów i ich uczniów': 'How it works for tutors and their students',
     'Jak to działa dla uczniów indywidualnych': 'How it works for individual learners',
@@ -3457,8 +3506,8 @@
     var iSub = document.getElementById('egIntroSub');
     if(iSub){
       iSub.innerHTML = (window.EG_LANG === 'en')
-        ? 'Hundreds of interactive exercises with explanations at every level –<br>for <a href="/oferta" class="eg-intro-link">tutors and their students</a> and <a href="/oferta" class="eg-intro-link">individual learners</a>.'
-        : 'Setki interaktywnych ćwiczeń z wyjaśnieniami na każdym poziomie –<br>dla <a href="/oferta" class="eg-intro-link">lektorów i ich uczniów</a> oraz <a href="/oferta" class="eg-intro-link">uczniów indywidualnych</a>.';
+        ? '<strong style="color:var(--eg-ink)">Over 200 interactive exercises</strong> with explanations, at every level from A1 to C2 –<br>for <a href="/oferta" class="eg-intro-link">tutors and their students</a> and <a href="/oferta" class="eg-intro-link">individual learners</a>.'
+        : '<strong style="color:var(--eg-ink)">Ponad 200 interaktywnych ćwiczeń</strong> z wyjaśnieniami, na każdym poziomie od A1 do C2 –<br>dla <a href="/oferta" class="eg-intro-link">lektorów i ich uczniów</a> oraz <a href="/oferta" class="eg-intro-link">uczniów indywidualnych</a>.';
     }
     // nagłówek "Czym jest EasyWonders?" - Easy różowe, Wonders złote (jak logo)
     var aboutH = document.getElementById('egAboutH');
