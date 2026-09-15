@@ -13,6 +13,17 @@ export default function CatalogEmbed() {
   const [mounted, setMounted] = useState(false);
   useEffect(() => { setMounted(true); }, []);
 
+  // Pop-up z demo panelu lektora — renderowany TUTAJ (u rodzica), żeby był
+  // przypięty do ekranu, a nie rozciągnięty na całą wysokość iframe katalogu.
+  const [demoUrl, setDemoUrl] = useState(null);
+  useEffect(() => {
+    if (!demoUrl) return;
+    const onKey = (e) => { if (e.key === 'Escape') setDemoUrl(null); };
+    window.addEventListener('keydown', onKey);
+    document.body.style.overflow = 'hidden';
+    return () => { window.removeEventListener('keydown', onKey); document.body.style.overflow = ''; };
+  }, [demoUrl]);
+
   // Przekaż parametry filtra (?poziom=, ?kategoria=) ze strony głównej do iframe,
   // żeby katalog w środce mógł je odczytać (window.location.search iframe'a
   // jest inny niż rodzica). Tag "A1"/"Gramatyka" pod ćwiczeniem prowadzi na
@@ -121,6 +132,10 @@ export default function CatalogEmbed() {
           window.location.href = e.data.egNavigate;
         }
       }
+      // katalog prosi o otwarcie demo panelu lektora w pop-upie
+      if (e.data && e.data.egOpenDemo) {
+        setDemoUrl(String(e.data.egOpenDemo));
+      }
       // zmiana strony w katalogu: przewiń okno główne na górę katalogu
       if (e.data && e.data.egScrollTop && ref.current) {
         ref.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -138,11 +153,21 @@ export default function CatalogEmbed() {
   }
 
   return (
+    <>
     <iframe
       ref={ref}
       src={src}
       title="Katalog ćwiczeń"
       style={{ width: '100%', height: 900, border: 'none', display: 'block' }}
     />
+      {demoUrl && (
+        <div onClick={() => setDemoUrl(null)} style={{ position: 'fixed', inset: 0, background: 'rgba(46,42,51,.55)', zIndex: 9999, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 16 }}>
+          <div onClick={(e) => e.stopPropagation()} style={{ position: 'relative', background: '#fff', borderRadius: 18, width: '100%', maxWidth: 960, height: '86vh', overflow: 'hidden', boxShadow: '0 24px 70px rgba(0,0,0,.35)' }}>
+            <button type="button" onClick={() => setDemoUrl(null)} aria-label="Zamknij" style={{ position: 'absolute', top: 10, right: 12, zIndex: 2, width: 34, height: 34, borderRadius: '50%', border: 'none', background: 'rgba(255,255,255,.92)', color: '#2e2a33', fontSize: 22, lineHeight: 1, cursor: 'pointer', boxShadow: '0 2px 8px rgba(0,0,0,.2)' }}>×</button>
+            <iframe src={demoUrl} title="Podgląd panelu lektora" style={{ width: '100%', height: '100%', border: 0 }} />
+          </div>
+        </div>
+      )}
+    </>
   );
 }
