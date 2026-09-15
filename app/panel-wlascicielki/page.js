@@ -265,33 +265,50 @@ const inputStyle = { width: '100%', boxSizing: 'border-box', border: '1.5px soli
 const th = { padding: '9px 12px', fontWeight: 700, whiteSpace: 'nowrap' };
 const td = { padding: '9px 12px', whiteSpace: 'nowrap' };
 
-// Wykres słupkowy bez bibliotek (czysty div/flex). stacked = lektorzy+uczniowie w słupku.
+// Wykres słupkowy bez bibliotek. Liczba nad słupkiem + oś z wartościami po lewej.
 function BarChart({ data, stacked, color }) {
   const max = Math.max(1, ...data.map((d) => (d.teachers || 0) + (d.students || 0)));
+  const total = data.reduce((acc, d) => acc + (d.teachers || 0) + (d.students || 0), 0);
+  const H = 150;
+  // Wartości na osi pionowej (0, połowa, maks)
+  const axis = max <= 2 ? [max, 0] : [max, Math.round(max / 2), 0];
   return (
     <div style={{ background: C.card, border: '1.5px solid ' + C.line, borderRadius: 14, padding: '16px 14px 10px' }}>
-      <div style={{ display: 'flex', alignItems: 'flex-end', gap: 2, height: 130 }}>
-        {data.map((d, i) => {
-          const t = d.teachers || 0, st = d.students || 0, sum = t + st;
-          const title = new Date(d.date).toLocaleDateString('pl-PL', { day: 'numeric', month: 'short' }) + ': ' + sum;
-          return (
-            <div key={i} title={title} style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'flex-end', height: '100%', cursor: 'default' }}>
-              {stacked ? (
-                <>
-                  <div style={{ height: (st / max * 100) + '%', background: C.magenta, borderRadius: '3px 3px 0 0' }} />
-                  <div style={{ height: (t / max * 100) + '%', background: C.law, borderRadius: st ? 0 : '3px 3px 0 0' }} />
-                </>
-              ) : (
-                <div style={{ height: (sum / max * 100) + '%', background: color || C.law, borderRadius: '3px 3px 0 0' }} />
-              )}
-            </div>
-          );
-        })}
-      </div>
-      <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 6, fontSize: 10.5, color: C.muted }}>
-        <span>{new Date(data[0].date).toLocaleDateString('pl-PL', { day: 'numeric', month: 'short' })}</span>
-        <span>maks. {max}/dzień</span>
-        <span>{new Date(data[data.length - 1].date).toLocaleDateString('pl-PL', { day: 'numeric', month: 'short' })}</span>
+      <div style={{ display: 'flex', gap: 6 }}>
+        {/* oś pionowa z liczbami */}
+        <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'space-between', height: H + 18, fontSize: 10.5, color: C.muted, textAlign: 'right', minWidth: 16, paddingBottom: 18 }}>
+          {axis.map((v, i) => <span key={i}>{v}</span>)}
+        </div>
+        <div style={{ flex: 1 }}>
+          <div style={{ display: 'flex', alignItems: 'flex-end', gap: 2, height: H, borderBottom: '1px solid ' + C.line, borderLeft: '1px solid ' + C.line, paddingLeft: 2 }}>
+            {data.map((d, i) => {
+              const t = d.teachers || 0, st = d.students || 0, sum = t + st;
+              const title = new Date(d.date).toLocaleDateString('pl-PL', { day: 'numeric', month: 'short' }) + ': ' + sum;
+              return (
+                <div key={i} title={title} style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'flex-end', alignItems: 'center', height: '100%', cursor: 'default', position: 'relative' }}>
+                  {sum > 0 && (
+                    <span style={{ fontSize: 9.5, fontWeight: 800, color: C.ink, marginBottom: 1, lineHeight: 1 }}>{sum}</span>
+                  )}
+                  <div style={{ width: '100%', display: 'flex', flexDirection: 'column', justifyContent: 'flex-end', height: 'calc(100% - 12px)' }}>
+                    {stacked ? (
+                      <>
+                        <div style={{ height: (st / max * 100) + '%', background: C.magenta, borderRadius: '3px 3px 0 0' }} />
+                        <div style={{ height: (t / max * 100) + '%', background: C.law, borderRadius: st ? 0 : '3px 3px 0 0' }} />
+                      </>
+                    ) : (
+                      <div style={{ height: (sum / max * 100) + '%', background: color || C.law, borderRadius: '3px 3px 0 0' }} />
+                    )}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+          <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 6, fontSize: 10.5, color: C.muted }}>
+            <span>{new Date(data[0].date).toLocaleDateString('pl-PL', { day: 'numeric', month: 'short' })}</span>
+            <span style={{ fontWeight: 700, color: C.ink }}>razem w 30 dni: {total}</span>
+            <span>{new Date(data[data.length - 1].date).toLocaleDateString('pl-PL', { day: 'numeric', month: 'short' })}</span>
+          </div>
+        </div>
       </div>
     </div>
   );
