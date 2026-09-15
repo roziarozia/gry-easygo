@@ -127,6 +127,31 @@ body.pm-lock{overflow:hidden}
 .set-block{padding:16px 0;border-bottom:1px solid var(--eg-line)}
 .set-block b{font-size:15px;display:block;margin-bottom:4px}
 .set-block .muted{margin:0 0 12px;line-height:1.5}
+
+@media(max-width:640px){
+  .stud{flex-direction:column;align-items:flex-start;gap:8px}
+  .stud .em{width:100%;word-break:break-all}
+  .stud-acts{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+  .tabs{gap:6px}
+  .tab{padding:7px 13px;font-size:12.5px}
+  .tch-top{flex-direction:column;align-items:flex-start}
+}
+
+@media(max-width:640px){
+  .wrap{padding:14px 12px 40px}
+  .card{padding:14px}
+  .ex{flex-wrap:wrap}
+  .ex .mk{margin-left:0;width:100%}
+  .filters{flex-direction:column}
+  .pm-body{padding:14px}
+  .pm-head{padding:14px 16px}
+  .pm-head h3{font-size:16px;word-break:break-all}
+  .pm-tab{padding:7px 12px;font-size:12px}
+  .fbtns .fbtn{flex:1 1 auto}
+  .seg{flex-wrap:wrap}
+  .addrow .inp{flex:1 1 100%}
+  .legend{font-size:11.5px}
+}
 </style></head><body>
 <div class="demo-badge">Podgląd demonstracyjny — przykładowi uczniowie, nic nie jest zapisywane. W prawdziwym panelu działasz na swoich uczniach.</div>
 <div class="wrap">
@@ -297,10 +322,10 @@ document.querySelectorAll('.tab').forEach(function(b){
 function renderStudents(){
   document.getElementById('studList').innerHTML = students.map(function(s,i){
     return '<div class="stud"><span class="em">'+s.mail+'</span>'
-      +'<span class="stat">✓ aktywny (ma dostęp)</span>'
+      +'<div class="stud-acts"><span class="stat">✓ aktywny (ma dostęp)</span>'
       +'<span class="sp">Speaking:</span><span class="toggle '+(s.speaking?'on':'')+'" data-i="'+i+'"></span>'
       +'<button class="sact">Przypisz do gr.</button>'
-      +'<button class="sact del" data-del="'+i+'">Usuń</button></div>';
+      +'<button class="sact del" data-del="'+i+'">Usuń</button></div></div>';
   }).join('');
   document.getElementById('seatN').textContent=students.length;
   document.querySelectorAll('.toggle').forEach(function(t){
@@ -368,8 +393,9 @@ function renderProg(){
   document.getElementById('progList').innerHTML = students.map(function(s,i){
     var p=ensureP(s.mail);
     var d=0,w=0,t=0; for(var k in p){ if(p[k].status==='done')d++; else if(p[k].status==='prog')w++; else t++; }
-    return '<div class="stud prog-open" data-m="'+s.mail+'"><span class="em" style="flex:1;min-width:0">'+s.mail+'</span>'
-      +'<span class="sp">✓ '+d+' zrobione · ◔ '+w+' w trakcie · ○ '+t+' niezrobione</span>'
+    return '<div class="stud prog-open" data-m="'+s.mail+'" style="flex-direction:column;align-items:flex-start;gap:6px">'
+      +'<span class="em" style="flex:none;min-width:0;word-break:break-all">'+s.mail+'</span>'
+      +'<span class="sp" style="white-space:normal">✓ '+d+' zrobione · ◔ '+w+' w trakcie · ○ '+t+' niezrobione</span>'
       +'<span class="sact">Otwórz →</span></div>';
   }).join('');
   document.querySelectorAll('.prog-open').forEach(function(r){ r.addEventListener('click',function(){ pmOpen(r.dataset.m); }); });
