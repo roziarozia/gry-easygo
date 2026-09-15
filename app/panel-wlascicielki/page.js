@@ -1,11 +1,11 @@
 'use client';
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 
 // ───────────────────────────────────────────────────────────────────────────
-// Panel właścicielki EasyWonders (jeden plik, wersja klient)
-// Łączy się WYŁĄCZNIE z bezpieczną funkcją owner-dashboard (mail+hasło jako sekret
-// po stronie serwera). Żadne dane nie przechodzą przez publiczny klucz strony.
-// Hasło nie jest nigdzie zapisywane — znika po zalogowaniu / zamknięciu karty.
+// Panel właścicielki EasyWonders (jeden plik, klient)
+// Łączy się WYŁĄCZNIE z bezpieczną funkcją owner-dashboard (mail+hasło = sekret
+// serwera). Żadne dane nie idą przez publiczny klucz strony. Hasło nie jest
+// zapisywane — znika po zalogowaniu / zamknięciu karty.
 // ───────────────────────────────────────────────────────────────────────────
 
 const FN_URL = 'https://svjrdyxwqznbzxqeytdn.supabase.co/functions/v1/owner-dashboard';
@@ -34,27 +34,32 @@ export default function PanelWlascicielki() {
   const [err, setErr] = useState('');
   const [openTeacher, setOpenTeacher] = useState(null);
   const [showSleeping, setShowSleeping] = useState(false);
-  const [rankTab, setRankTab] = useState('access'); // 'access' | 'outside'
+  const [rankTab, setRankTab] = useState('access');
+  const [query, setQuery] = useState('');
 
   async function login(e) {
     if (e) e.preventDefault();
     setErr(''); setLoading(true);
     try {
       const res = await fetch(FN_URL, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, password }),
       });
       if (res.status === 401) { setErr('Błędny mail lub hasło.'); setLoading(false); return; }
       if (!res.ok) { setErr('Coś poszło nie tak (' + res.status + '). Spróbuj ponownie.'); setLoading(false); return; }
-      const json = await res.json();
-      setData(json);
+      setData(await res.json());
       setPassword('');
-    } catch (e2) {
-      setErr('Brak połączenia z serwerem.');
-    }
+    } catch (e2) { setErr('Brak połączenia z serwerem.'); }
     setLoading(false);
   }
+
+  const found = useMemo(() => {
+    if (!data || !query.trim()) return [];
+    const q = query.trim().toLowerCase();
+    return data.directory
+      .filter((d) => (d.email || '').toLowerCase().includes(q) || (d.name || '').toLowerCase().includes(q))
+      .slice(0, 12);
+  }, [data, query]);
 
   if (!data) {
     return (
@@ -116,9 +121,7 @@ export default function PanelWlascicielki() {
                     {t.students.map((st, j) => (
                       <tr key={j} style={{ borderTop: '1px solid ' + C.line }}>
                         <td style={td}><span style={{ display: 'inline-block', width: 8, height: 8, borderRadius: '50%', background: st.activeThisWeek ? C.green : '#d8d2e4', marginRight: 7 }} />{st.name}</td>
-                        <td style={td}>{st.exercises}</td>
-                        <td style={td}>{st.self}</td>
-                        <td style={td}>{st.assigned}</td>
+                        <td style={td}>{st.exercises}</td><td style={td}>{st.self}</td><td style={td}>{st.assigned}</td>
                         <td style={{ ...td, color: C.muted }}>{fmtDate(st.lastActive)}</td>
                       </tr>
                     ))}
@@ -140,6 +143,36 @@ export default function PanelWlascicielki() {
           <button onClick={() => setData(null)} style={{ background: 'transparent', border: '2px solid ' + C.magenta, color: C.magenta, borderRadius: 999, padding: '7px 16px', fontSize: 13, fontWeight: 800, cursor: 'pointer' }}>Wyloguj</button>
         </div>
 
+        {/* WYSZUKIWARKA */}
+        <div style={{ background: C.card, border: '1.5px solid ' + C.line, borderRadius: 14, padding: '14px 16px', marginBottom: 26 }}>
+          <input value={query} onChange={(e) => setQuery(e.target.value)} placeholder="🔍 wpisz mail lub imię, aby sprawdzić konto…" autoComplete="off"
+            style={{ ...inputStyle, marginBottom: found.length || query ? 12 : 0 }} />
+          {query && found.length === 0 && <div style={{ fontSize: 13, color: C.muted }}>Nie znaleziono takiego konta.</div>}
+          {found.length > 0 && (
+            <div style={{ overflowX: 'auto' }}>
+              <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13 }}>
+                <thead><tr style={{ textAlign: 'left', color: C.muted }}>
+                  <th style={th}>Mail</th><th style={th}>Rola</th><th style={th}>Dostęp</th><th style={th}>Lektor</th><th style={th}>Ćwiczeń</th><th style={th}>Dołączył</th><th style={th}>Ostatnio</th>
+                </tr></thead>
+                <tbody>
+                  {found.map((d, i) => (
+                    <tr key={i} style={{ borderTop: '1px solid ' + C.line }}>
+                      <td style={td}>{d.email}</td>
+                      <td style={td}>{d.role === 'teacher' ? 'lektor' : d.role === 'student' ? 'uczeń' : d.role}</td>
+                      <td style={td}>{d.accessSource === 'teacher' ? 'przez lektora' : d.access === 'full' ? 'pełny' : 'free'}</td>
+                      <td style={{ ...td, color: C.muted }}>{d.teacherEmail || '—'}</td>
+                      <td style={td}>{d.exercises}</td>
+                      <td style={{ ...td, color: C.muted }}>{fmtDate(d.createdAt)}</td>
+                      <td style={{ ...td, color: C.muted }}>{fmtDate(d.lastActive)}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </div>
+
+        {/* PODSUMOWANIE */}
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(140px,1fr))', gap: 12, marginBottom: 26 }}>
           <Stat label="Lektorzy" value={s.teachers} hint="konta nauczycieli" color={C.law} />
           <Stat label="Uczniowie" value={s.students} hint="wszyscy uczniowie" color={C.magenta} />
@@ -148,14 +181,23 @@ export default function PanelWlascicielki() {
           <Stat label="Nowi dziś" value={s.newAccountsToday} hint="nowe konta" color={C.law} />
         </div>
 
-        {/* Aktywni lektorzy */}
+        {/* WYKRESY */}
+        <SectionTitle>Nowe konta (30 dni)</SectionTitle>
+        <p style={{ fontSize: 13, color: C.muted, margin: '0 0 12px' }}>Ile kont dziennie. <b style={{ color: C.law }}>Lawendowy</b> = lektorzy, <b style={{ color: C.magenta }}>różowy</b> = uczniowie. Widać, jak dowozi reklama.</p>
+        <BarChart data={data.signupsByDay} stacked />
+
+        <SectionTitle>Aktywność (30 dni)</SectionTitle>
+        <p style={{ fontSize: 13, color: C.muted, margin: '0 0 12px' }}>Ile ćwiczeń dziennie ukończono na całej platformie.</p>
+        <BarChart data={data.activityByDay.map((d) => ({ date: d.date, teachers: d.n, students: 0 }))} color={C.gold} />
+
+        {/* AKTYWNI LEKTORZY */}
         <SectionTitle>Aktywni lektorzy ({active.length})</SectionTitle>
         <p style={{ fontSize: 13, color: C.muted, margin: '0 0 12px' }}>Ktoś z ich uczniów ćwiczył w ostatnim tygodniu. Kliknij, aby zobaczyć uczniów.</p>
         <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
           {active.length === 0 ? <Empty>Nikt nie był aktywny w tym tygodniu.</Empty> : active.map((t, i) => renderTeacher(t, i, 'a'))}
         </div>
 
-        {/* Uśpieni lektorzy — zwinięci */}
+        {/* UŚPIENI */}
         <div style={{ marginTop: 24 }}>
           <div onClick={() => setShowSleeping(!showSleeping)} style={{ cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 8, color: C.muted, fontWeight: 800, fontFamily: "'Quicksand',sans-serif", fontSize: 15 }}>
             <span style={{ transform: showSleeping ? 'rotate(90deg)' : 'none', transition: '.15s' }}>›</span>
@@ -163,17 +205,15 @@ export default function PanelWlascicielki() {
           </div>
           {showSleeping && (
             <>
-              <p style={{ fontSize: 13, color: C.muted, margin: '8px 0 12px' }}>Konta bez aktywności w ostatnim tygodniu — kandydaci do „dogrzania", zanim odejdą.</p>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-                {sleeping.map((t, i) => renderTeacher(t, i, 's'))}
-              </div>
+              <p style={{ fontSize: 13, color: C.muted, margin: '8px 0 12px' }}>Konta bez aktywności w ostatnim tygodniu — kandydaci do „dogrzania".</p>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>{sleeping.map((t, i) => renderTeacher(t, i, 's'))}</div>
             </>
           )}
         </div>
 
-        {/* Świeże konta z zewnątrz */}
+        {/* ŚWIEŻE KONTA */}
         <SectionTitle>Świeże konta z zewnątrz (14 dni)</SectionTitle>
-        <p style={{ fontSize: 13, color: C.muted, margin: '0 0 12px' }}>Konta bez lektora — lektorki z reklamy, które się rozglądają, albo samodzielni uczniowie.</p>
+        <p style={{ fontSize: 13, color: C.muted, margin: '0 0 12px' }}>Konta bez lektora — lektorki z reklamy albo samodzielni uczniowie.</p>
         <TableCard empty={data.outsiders.length === 0} emptyText="Brak nowych kont z zewnątrz.">
           <thead><tr style={{ textAlign: 'left', color: C.muted, background: C.lawSoft }}>
             <th style={th}>Mail</th><th style={th}>Rola</th><th style={th}>Dostęp</th><th style={th}>Ćwiczeń</th><th style={th}>Kiedy</th>
@@ -183,7 +223,7 @@ export default function PanelWlascicielki() {
               <tr key={i} style={{ borderTop: '1px solid ' + C.line }}>
                 <td style={td}>{o.email}</td>
                 <td style={td}>{o.role === 'teacher' ? 'lektor' : o.role === 'student' ? 'uczeń' : o.role}</td>
-                <td style={td}>{o.access === 'full' ? 'pełny' : o.access === 'free' ? 'free' : o.access}</td>
+                <td style={td}>{o.access === 'full' ? 'pełny' : 'free'}</td>
                 <td style={td}>{o.exercises}</td>
                 <td style={{ ...td, color: C.muted }}>{fmtDate(o.createdAt)}</td>
               </tr>
@@ -191,12 +231,12 @@ export default function PanelWlascicielki() {
           </tbody>
         </TableCard>
 
-        {/* Ranking ćwiczeń — dwie zakładki */}
+        {/* RANKING */}
         <SectionTitle>Najczęściej robione ćwiczenia</SectionTitle>
-        <p style={{ fontSize: 13, color: C.muted, margin: '0 0 12px' }}>Rozdzielone wg tego, KTO ćwiczy — żeby darmowy ruch z zewnątrz nie zagłuszał tego, co robią realni uczniowie.</p>
+        <p style={{ fontSize: 13, color: C.muted, margin: '0 0 12px' }}>Rozdzielone wg tego, KTO ćwiczy — żeby darmowy ruch nie zagłuszał realnych uczniów.</p>
         <div style={{ display: 'flex', gap: 8, marginBottom: 12 }}>
           <Tab active={rankTab === 'access'} onClick={() => setRankTab('access')}>Uczniowie z dostępem</Tab>
-          <Tab active={rankTab === 'outside'} onClick={() => setRankTab('outside')}>Ruch z zewnątrz (free)</Tab>
+          <Tab active={rankTab === 'outside'} onClick={() => setRankTab('outside')}>Konta free (bez dostępu)</Tab>
         </div>
         <TableCard empty={ranking.length === 0} emptyText="Brak danych w tej grupie.">
           <thead><tr style={{ textAlign: 'left', color: C.muted, background: C.lawSoft }}>
@@ -205,8 +245,7 @@ export default function PanelWlascicielki() {
           <tbody>
             {ranking.map((g, i) => (
               <tr key={i} style={{ borderTop: '1px solid ' + C.line }}>
-                <td style={td}>{g.title}</td>
-                <td style={td}>{g.level}</td>
+                <td style={td}>{g.title}</td><td style={td}>{g.level}</td>
                 <td style={td}>{g.premium ? <span style={{ color: C.magenta, fontWeight: 700 }}>premium</span> : <span style={{ color: C.muted }}>darmowe</span>}</td>
                 <td style={{ ...td, fontWeight: 800 }}>{g.n}</td>
               </tr>
@@ -226,6 +265,38 @@ const inputStyle = { width: '100%', boxSizing: 'border-box', border: '1.5px soli
 const th = { padding: '9px 12px', fontWeight: 700, whiteSpace: 'nowrap' };
 const td = { padding: '9px 12px', whiteSpace: 'nowrap' };
 
+// Wykres słupkowy bez bibliotek (czysty div/flex). stacked = lektorzy+uczniowie w słupku.
+function BarChart({ data, stacked, color }) {
+  const max = Math.max(1, ...data.map((d) => (d.teachers || 0) + (d.students || 0)));
+  return (
+    <div style={{ background: C.card, border: '1.5px solid ' + C.line, borderRadius: 14, padding: '16px 14px 10px' }}>
+      <div style={{ display: 'flex', alignItems: 'flex-end', gap: 2, height: 130 }}>
+        {data.map((d, i) => {
+          const t = d.teachers || 0, st = d.students || 0, sum = t + st;
+          const title = new Date(d.date).toLocaleDateString('pl-PL', { day: 'numeric', month: 'short' }) + ': ' + sum;
+          return (
+            <div key={i} title={title} style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'flex-end', height: '100%', cursor: 'default' }}>
+              {stacked ? (
+                <>
+                  <div style={{ height: (st / max * 100) + '%', background: C.magenta, borderRadius: '3px 3px 0 0' }} />
+                  <div style={{ height: (t / max * 100) + '%', background: C.law, borderRadius: st ? 0 : '3px 3px 0 0' }} />
+                </>
+              ) : (
+                <div style={{ height: (sum / max * 100) + '%', background: color || C.law, borderRadius: '3px 3px 0 0' }} />
+              )}
+            </div>
+          );
+        })}
+      </div>
+      <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 6, fontSize: 10.5, color: C.muted }}>
+        <span>{new Date(data[0].date).toLocaleDateString('pl-PL', { day: 'numeric', month: 'short' })}</span>
+        <span>maks. {max}/dzień</span>
+        <span>{new Date(data[data.length - 1].date).toLocaleDateString('pl-PL', { day: 'numeric', month: 'short' })}</span>
+      </div>
+    </div>
+  );
+}
+
 function Stat({ label, value, hint, color }) {
   return (
     <div style={{ background: C.card, border: '1.5px solid ' + C.line, borderTop: '4px solid ' + color, borderRadius: 14, padding: '14px 16px' }}>
@@ -243,30 +314,14 @@ function Mini({ label, value, strong, text }) {
     </div>
   );
 }
-function SectionTitle({ children }) {
-  return <h2 style={{ fontFamily: "'Quicksand',sans-serif", fontSize: 18, color: C.ink, margin: '30px 0 4px' }}>{children}</h2>;
-}
-function Empty({ children }) {
-  return <div style={{ background: C.card, border: '1.5px solid ' + C.line, borderRadius: 14, padding: 16, fontSize: 13, color: C.muted }}>{children}</div>;
-}
+function SectionTitle({ children }) { return <h2 style={{ fontFamily: "'Quicksand',sans-serif", fontSize: 18, color: C.ink, margin: '30px 0 4px' }}>{children}</h2>; }
+function Empty({ children }) { return <div style={{ background: C.card, border: '1.5px solid ' + C.line, borderRadius: 14, padding: 16, fontSize: 13, color: C.muted }}>{children}</div>; }
 function TableCard({ children, empty, emptyText }) {
   if (empty) return <Empty>{emptyText}</Empty>;
-  return (
-    <div style={{ background: C.card, border: '1.5px solid ' + C.line, borderRadius: 14, overflow: 'hidden' }}>
-      <div style={{ overflowX: 'auto' }}>
-        <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13 }}>{children}</table>
-      </div>
-    </div>
-  );
+  return <div style={{ background: C.card, border: '1.5px solid ' + C.line, borderRadius: 14, overflow: 'hidden' }}><div style={{ overflowX: 'auto' }}><table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13 }}>{children}</table></div></div>;
 }
 function Tab({ active, onClick, children }) {
-  return (
-    <button onClick={onClick} style={{
-      border: '1.5px solid ' + (active ? C.magenta : C.line), background: active ? C.magenta : '#fff',
-      color: active ? '#fff' : C.muted, borderRadius: 999, padding: '7px 16px', fontSize: 13, fontWeight: 800,
-      fontFamily: "'Nunito',sans-serif", cursor: 'pointer',
-    }}>{children}</button>
-  );
+  return <button onClick={onClick} style={{ border: '1.5px solid ' + (active ? C.magenta : C.line), background: active ? C.magenta : '#fff', color: active ? '#fff' : C.muted, borderRadius: 999, padding: '7px 16px', fontSize: 13, fontWeight: 800, fontFamily: "'Nunito',sans-serif", cursor: 'pointer' }}>{children}</button>;
 }
 function SubBadge({ status }) {
   const map = { active: { t: 'aktywna', c: C.green }, trialing: { t: 'trial', c: C.law }, past_due: { t: 'zaległość', c: C.gold }, canceled: { t: 'anulowana', c: C.red } };
