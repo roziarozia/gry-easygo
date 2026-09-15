@@ -6,12 +6,6 @@
      gra pojawia się tu sama, bez edycji tego kodu.
      ============================================================ -->
 
-<div class="eg-demo-overlay" id="egDemoOverlay" aria-hidden="true">
-  <div class="eg-demo-box">
-    <button type="button" class="eg-demo-close" id="egDemoClose" aria-label="Zamknij">×</button>
-    <iframe id="egDemoFrame" title="Podgląd panelu lektora" loading="lazy"></iframe>
-  </div>
-</div>
 <script>
   // ustaw tryb ciemny OD RAZU (przed renderowaniem), wspólny dla całego serwisu przez localStorage
   (function(){
@@ -1317,11 +1311,6 @@
   .eg-demo-btn{ display:inline-flex; align-items:center; gap:9px; background:linear-gradient(135deg,#a78dd9,#ca4490); color:#fff; border:none; border-radius:999px; padding:14px 30px; font-family:'Quicksand',sans-serif; font-weight:700; font-size:16px; cursor:pointer; box-shadow:0 6px 18px rgba(202,68,144,.32); transition:transform .15s, box-shadow .15s; }
   .eg-demo-btn:hover{ transform:translateY(-2px); box-shadow:0 10px 26px rgba(202,68,144,.42); }
   html.eg-dark .eg-demo-btn{ box-shadow:0 6px 18px rgba(0,0,0,.4); }
-  .eg-demo-overlay{ display:none; position:fixed; inset:0; background:rgba(46,42,51,.55); z-index:9999; align-items:center; justify-content:center; padding:20px; }
-  .eg-demo-overlay.eg-open{ display:flex; }
-  .eg-demo-box{ position:relative; background:#fff; border-radius:18px; width:100%; max-width:960px; height:88vh; overflow:hidden; box-shadow:0 24px 70px rgba(0,0,0,.35); }
-  .eg-demo-box iframe{ width:100%; height:100%; border:0; }
-  .eg-demo-close{ position:absolute; top:10px; right:12px; z-index:2; width:34px; height:34px; border-radius:50%; border:none; background:rgba(255,255,255,.9); color:var(--eg-ink); font-size:22px; line-height:1; cursor:pointer; box-shadow:0 2px 8px rgba(0,0,0,.2); }
 </style>
 
 <div class="eg-games">
@@ -2320,18 +2309,15 @@
     var pathS = document.getElementById('egPathStudent');
     if(pathS) pathS.addEventListener('click', function(){ egScrollToHow('egHowStudent'); });
     
-    // Pop-up z demo panelu lektora
+    // Demo panelu lektora — pop-up otwiera STRONA-RODZIC (żeby był na ekranie, nie na całą stronę)
     (function(){
-      var btn=document.getElementById('egDemoBtn'), ov=document.getElementById('egDemoOverlay'),
-          fr=document.getElementById('egDemoFrame'), cl=document.getElementById('egDemoClose');
-      if(!btn||!ov) return;
-      function open(){ if(!fr.src) fr.src='/demo-panelu.html'; ov.classList.add('eg-open'); ov.setAttribute('aria-hidden','false');
-        try{ if(window.parent&&window.parent!==window){ window.parent.postMessage({egScrollTop:true},'*'); } }catch(e){} }
-      function close(){ ov.classList.remove('eg-open'); ov.setAttribute('aria-hidden','true'); }
-      btn.addEventListener('click', open);
-      cl.addEventListener('click', close);
-      ov.addEventListener('click', function(e){ if(e.target===ov) close(); });
-      document.addEventListener('keydown', function(e){ if(e.key==='Escape') close(); });
+      var btn=document.getElementById('egDemoBtn'); if(!btn) return;
+      btn.addEventListener('click', function(){
+        try{
+          if(window.parent && window.parent!==window){ window.parent.postMessage({egOpenDemo:'/demo-panelu.html'},'*'); return; }
+        }catch(e){}
+        window.open('/demo-panelu.html','_blank','noopener');
+      });
     })();
 
     var heroCta = document.getElementById('egHeroCta');
