@@ -1,0 +1,466 @@
+<!doctype html>
+<html lang="pl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Podgląd Panelu Lektora — EasyWonders</title>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&family=Quicksand:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--eg-magenta:#ca4490;--eg-law:#a78dd9;--eg-gold:#f4c94c;--eg-ink:#2e2a33;--eg-muted:#7a7484;--eg-card:#fff;--eg-bg:#faf9fc;--eg-line:#eae6f2;--eg-green:#5fbf9f;--eg-lawsoft:#f6f3fc;}
+*{box-sizing:border-box}
+body{margin:0;font-family:'Nunito',sans-serif;color:var(--eg-ink);background:var(--eg-bg)}
+.demo-badge{background:linear-gradient(90deg,#f6f3fc,#fdf7ff);border-bottom:1.5px solid var(--eg-line);text-align:center;padding:9px 16px;font-size:13px;color:#6a5798;font-weight:700}
+.wrap{max-width:900px;margin:0 auto;padding:18px 16px 50px}
+.head h1{font-family:'Quicksand',sans-serif;font-size:22px;margin:0 0 2px;color:var(--eg-ink)}
+.sub{font-size:13.5px;color:var(--eg-muted);margin:0 0 16px}
+.seats{display:inline-block;font-size:12.5px;color:var(--eg-muted);background:#fff;border:1.5px solid var(--eg-line);border-radius:999px;padding:5px 13px;font-weight:700;margin-bottom:14px}
+.tabs{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:18px}
+.tab{border:1.5px solid var(--eg-line);background:#fff;color:var(--eg-muted);border-radius:999px;padding:8px 17px;font-size:13.5px;font-weight:800;cursor:pointer;font-family:'Nunito',sans-serif}
+.tab.on{background:var(--eg-magenta);color:#fff;border-color:var(--eg-magenta)}
+.card{background:#fff;border:1.5px solid var(--eg-line);border-radius:16px;padding:18px;margin-bottom:12px}
+.h2{font-family:'Quicksand',sans-serif;font-size:19px;margin:0 0 4px}
+.lead{font-size:13px;color:var(--eg-muted);margin:0 0 16px;line-height:1.5}
+.seg{display:inline-flex;gap:8px;margin-bottom:14px}
+.segbtn{border:1.5px solid var(--eg-line);background:#fff;color:var(--eg-muted);border-radius:12px;padding:8px 18px;font-size:13.5px;font-weight:800;cursor:pointer;font-family:'Nunito',sans-serif}
+.segbtn.on{background:var(--eg-lawsoft);border-color:var(--eg-law);color:#6a5798}
+.inp{border:1.5px solid var(--eg-line);border-radius:12px;padding:11px 14px;font-size:14px;font-family:'Nunito',sans-serif;outline:none;width:100%;background:#fff;color:var(--eg-ink)}
+select.inp{cursor:pointer}
+.filters{display:flex;gap:10px;margin:12px 0}
+.filters .inp{flex:1}
+.fbtns{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px}
+.fbtn{border:1.5px solid var(--eg-line);background:#fff;color:var(--eg-muted);border-radius:10px;padding:7px 14px;font-size:12.5px;font-weight:800;cursor:pointer;font-family:'Nunito',sans-serif}
+.fbtn.on{background:var(--eg-lawsoft);border-color:var(--eg-law);color:#6a5798}
+.legend{font-size:12px;color:var(--eg-muted);margin-bottom:6px;display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.tag{font-size:11px;font-weight:800;border-radius:6px;padding:2px 8px;white-space:nowrap}
+.tag.lesson{background:#fdf3d7;color:#8a6d16;border:1px solid #f0dfa5}
+.tag.self{background:#e4eefb;color:#3f6bb0;border:1px solid #c7dbf5}
+.hint{font-size:11.5px;color:var(--eg-muted);margin-bottom:12px}
+.ex{display:flex;align-items:center;gap:13px;border:1.5px solid var(--eg-line);border-radius:14px;padding:11px 14px;margin-bottom:9px;cursor:pointer;transition:border-color .12s}
+.ex:hover{border-color:var(--eg-law)}
+.ex.picked{border-color:var(--eg-magenta);background:#fdf4f9}
+.ex.lesson{background:#fffdf5}
+.ex.self{background:#f6faff}
+.cb{width:20px;height:20px;border-radius:5px;border:2px solid #cfc7dd;flex-shrink:0;display:flex;align-items:center;justify-content:center;color:#fff;font-size:13px}
+.ex.picked .cb{background:var(--eg-magenta);border-color:var(--eg-magenta)}
+.thumb{width:48px;height:36px;border-radius:7px;flex-shrink:0}
+.ex .t{flex:1;min-width:0}
+.ex .t b{font-size:14px;display:block}
+.ex .t span{font-size:12px;color:var(--eg-muted)}
+.ex .mk{margin-left:auto}
+.btn{background:var(--eg-magenta);color:#fff;border:none;border-radius:999px;padding:10px 20px;font-size:14px;font-weight:800;cursor:pointer;font-family:'Nunito',sans-serif}
+.btn.ghost{background:transparent;color:var(--eg-magenta);border:1.5px solid var(--eg-magenta)}
+.stud{display:flex;align-items:center;gap:12px;padding:13px 4px;border-top:1px solid var(--eg-line);flex-wrap:wrap}
+.stud:first-child{border-top:none}
+.stud .em{font-weight:700;font-size:14px;flex:1;min-width:140px}
+.stat{font-size:11.5px;font-weight:800;color:#2e8558;background:rgba(95,191,159,.15);border-radius:999px;padding:3px 11px;white-space:nowrap}
+.sp{font-size:12px;color:var(--eg-muted);white-space:nowrap}
+.toggle{width:36px;height:20px;border-radius:999px;background:#d8d2e4;position:relative;cursor:pointer;flex-shrink:0}
+.toggle.on{background:var(--eg-green)}
+.toggle::after{content:"";position:absolute;top:2px;left:2px;width:16px;height:16px;border-radius:50%;background:#fff;transition:.15s}
+.toggle.on::after{transform:translateX(16px)}
+.sact{font-size:12px;font-weight:800;color:var(--eg-magenta);cursor:pointer;background:none;border:none;font-family:'Nunito',sans-serif}
+.sact.del{color:#c0554f}
+.addrow{display:flex;gap:10px;flex-wrap:wrap;margin-top:4px}
+.prog-bar{height:8px;background:var(--eg-line);border-radius:999px;overflow:hidden;flex:1;min-width:80px}
+.prog-fill{height:100%;background:linear-gradient(90deg,var(--eg-law),var(--eg-magenta));border-radius:999px}
+.muted{font-size:12.5px;color:var(--eg-muted)}
+.hidden{display:none}
+.foot{text-align:center;margin-top:22px}
+.foot .btn{padding:12px 26px;font-size:15px}
+.foot p{font-size:12.5px;color:var(--eg-muted);margin:8px 0 0}
+.toast{position:fixed;bottom:18px;left:50%;transform:translateX(-50%);background:var(--eg-ink);color:#fff;padding:10px 18px;border-radius:999px;font-size:13px;font-weight:700;opacity:0;transition:opacity .25s;pointer-events:none;z-index:50}
+.toast.show{opacity:1}
+
+.hw-toolbar{background:var(--eg-lawsoft);border:1.5px solid #e6dff5;border-radius:14px;padding:14px;margin-bottom:14px}
+.hw-count{display:inline-flex;align-items:center;gap:7px;background:#fff;border:1.5px solid var(--eg-line);border-radius:999px;padding:6px 14px;font-size:12.5px;font-weight:800;color:var(--eg-magenta);margin-bottom:12px}
+.hw-count .dot{width:8px;height:8px;border-radius:50%;background:var(--eg-magenta)}
+.ex{box-shadow:0 2px 8px rgba(46,42,51,.04)}
+.ex.picked{box-shadow:0 4px 14px rgba(202,68,144,.14)}
+.legend{background:#fff;border:1px solid var(--eg-line);border-radius:10px;padding:9px 12px}
+
+/* Modal Postępy (per uczeń) */
+.pm-overlay{position:fixed;inset:0;background:rgba(46,42,51,.5);display:none;align-items:flex-start;justify-content:center;z-index:60;padding:20px;overflow:auto}
+.pm-overlay.on{display:flex}
+.pm{background:#fff;border-radius:20px;max-width:860px;width:100%;margin:auto;padding:0;box-shadow:0 20px 60px rgba(0,0,0,.3)}
+.pm-head{display:flex;align-items:center;justify-content:space-between;padding:20px 24px;border-bottom:1px solid var(--eg-line)}
+.pm-head h3{font-family:'Quicksand',sans-serif;font-size:19px;margin:0}
+.pm-x{background:none;border:none;font-size:24px;color:var(--eg-muted);cursor:pointer;line-height:1}
+.pm-body{padding:20px 24px 26px}
+.pm-add{background:#f7f5fb;border:1px solid var(--eg-line);border-radius:14px;padding:16px}
+.pm-add .lbl{font-weight:800;font-size:14px;margin:0 0 8px}
+.pm-add .row2{display:flex;gap:10px}
+.pm-or{text-align:center;color:var(--eg-muted);font-size:12px;font-weight:700;letter-spacing:.1em;margin:12px 0}
+.pm-sep{height:1px;background:var(--eg-line);margin:18px 0}
+.pm-tabs{display:flex;gap:8px;flex-wrap:wrap;margin:14px 0}
+.pm-tab{border:1.5px solid var(--eg-line);background:#fff;color:var(--eg-muted);border-radius:999px;padding:8px 16px;font-size:13px;font-weight:800;cursor:pointer;display:inline-flex;align-items:center;gap:8px;font-family:'Nunito',sans-serif}
+.pm-tab.on[data-s="todo"]{background:var(--eg-magenta);border-color:var(--eg-magenta);color:#fff}
+.pm-tab.on[data-s="prog"]{background:var(--eg-law);border-color:var(--eg-law);color:#fff}
+.pm-tab.on[data-s="done"]{background:var(--eg-green);border-color:var(--eg-green);color:#fff}
+.pm-tab .num{background:rgba(0,0,0,.12);border-radius:999px;padding:1px 8px;font-size:11px}
+.pm-tab.on .num{background:rgba(255,255,255,.25)}
+.pm-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.pm-card{border:1px solid var(--eg-line);border-radius:14px;padding:13px}
+.pm-card .top{display:flex;gap:10px;align-items:flex-start;margin-bottom:10px}
+.pm-card .th{width:40px;height:40px;border-radius:8px;flex-shrink:0}
+.pm-card b{font-size:13.5px;line-height:1.3;display:block}
+.pm-card .meta{font-size:11.5px;color:var(--eg-muted)}
+.pm-acts{display:flex;gap:8px;margin-bottom:9px}
+.pm-b{flex:1;border:none;border-radius:9px;padding:7px;font-size:12px;font-weight:800;cursor:pointer;color:#fff;font-family:'Nunito',sans-serif}
+.pm-b.prog{background:var(--eg-law)}
+.pm-b.done{background:var(--eg-green)}
+.pm-b.off{opacity:.4}
+.pm-note{width:100%;border:1px solid var(--eg-line);border-radius:9px;padding:7px 10px;font-size:12.5px;font-family:'Nunito',sans-serif;outline:none}
+.pm-savenote{background:none;border:none;color:var(--eg-magenta);font-size:12px;font-weight:800;cursor:pointer;margin-top:6px;font-family:'Nunito',sans-serif}
+@media(max-width:640px){.pm-grid{grid-template-columns:1fr}.pm-add .row2{flex-direction:column}}
+.prog-open{cursor:pointer}
+.prog-open:hover{background:var(--eg-lawsoft)}
+
+.pool{background:var(--eg-lawsoft);border:1.5px solid #e6dff5;border-radius:14px;padding:6px 16px;margin-top:6px}
+.pool-row{display:flex;justify-content:space-between;align-items:center;padding:11px 0;border-top:1px solid #e6dff5;font-size:14px;font-weight:700}
+.pool-row:first-child{border-top:none}
+.pool-row b{font-size:19px;font-family:'Quicksand',sans-serif}
+.tch{border-top:1px solid var(--eg-line);padding:14px 4px}
+.tch-top{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.tch-nm{flex:1;min-width:160px}
+.tch-nm b{font-size:14px}
+.tch-nm span{font-size:12px;color:var(--eg-muted);display:block}
+.tch-lim{width:56px;text-align:center}
+.tch-show{width:100%;background:var(--eg-lawsoft);border:1px solid #e6dff5;color:#6a5798;border-radius:10px;padding:9px;font-size:13px;font-weight:800;cursor:pointer;margin-top:10px;font-family:'Nunito',sans-serif}
+.set-block{padding:16px 0;border-bottom:1px solid var(--eg-line)}
+.set-block b{font-size:15px;display:block;margin-bottom:4px}
+.set-block .muted{margin:0 0 12px;line-height:1.5}
+</style></head><body>
+<div class="demo-badge">Podgląd demonstracyjny — przykładowi uczniowie, nic nie jest zapisywane. W prawdziwym panelu działasz na swoich uczniach.</div>
+<div class="wrap">
+  <div class="head"><h1>Panel lektora</h1><p class="sub">Zarządzaj uczniami i pracą domową</p></div>
+  <span class="seats">Wykorzystane miejsca: <b id="seatN">5</b> / 10</span>
+  <div class="tabs">
+    <button class="tab on" data-t="students">Moi uczniowie</button>
+    <button class="tab" data-t="hw">Praca domowa</button>
+    <button class="tab" data-t="prog">Postępy uczniów</button>
+    <button class="tab" data-t="teachers">Moi lektorzy</button>
+    <button class="tab" data-t="settings">Ustawienia</button>
+  </div>
+  <div id="students">
+    <div class="card">
+      <div class="h2">Dodaj ucznia</div>
+      <p class="lead">Uczeń dostanie e-mailem zaproszenie i założy własne konto. Tylko Ty widzisz jego adres.</p>
+      <div class="addrow"><input class="inp" id="newMail" placeholder="e-mail ucznia" style="flex:1"><button class="btn" id="addStud">+ Dodaj</button></div>
+    </div>
+    <div class="card"><div class="h2" style="margin-bottom:6px">Moi uczniowie</div><div id="studList"></div></div>
+  </div>
+  <div id="hw" class="hidden">
+    <div class="card">
+      <div class="h2">Praca domowa</div>
+      <p class="lead">Wybierz ucznia lub grupę, a potem zaznacz ćwiczenia do przerobienia w domu. Uczniowie zobaczą je u siebie w zakładce „Praca domowa".</p>
+      <div class="seg"><button class="segbtn on" id="segStud">Pojedynczy uczeń</button><button class="segbtn" id="segGroup">Grupa</button></div>
+      <div class="hw-toolbar">
+        <select class="inp" id="hwStud"></select>
+        <input class="inp" id="hwSearch" placeholder="Szukaj ćwiczenia po nazwie…" style="margin-top:10px">
+        <div class="filters">
+          <select class="inp" id="fCat"><option>Wszystkie kategorie</option><option>Gramatyka</option><option>Słownictwo</option><option>Reading</option><option>Listening</option><option>Speaking</option></select>
+          <select class="inp" id="fLvl"><option>Wszystkie poziomy</option><option>A1</option><option>A2</option><option>B1</option><option>B2</option><option>C1</option></select>
+        </div>
+      </div>
+      <div class="hw-count"><span class="dot"></span><span id="hwCount">0 ćwiczeń zadanych do domu</span></div>
+      <div class="fbtns">
+        <button class="fbtn on" data-f="all">Wszystkie ćwiczenia</button>
+        <button class="fbtn" data-f="todo">Jeszcze nie zrobił</button>
+        <button class="fbtn" data-f="assigned">Przypisane uczniowi</button>
+      </div>
+      <div class="legend"><b>Oznaczenia:</b>
+        <span class="tag lesson">📖 robiliście na lekcji</span> <span class="muted">— już przerobione razem</span>
+        <span class="tag self">✓ uczeń zrobił sam</span> <span class="muted">— ukończył w aplikacji</span>
+      </div>
+      <p class="hint">Możesz je i tak zadać do domu (np. do powtórki) — kliknij ćwiczenie.</p>
+      <div id="exList"></div>
+    </div>
+  </div>
+  <div id="prog" class="hidden">
+    <div class="card"><div class="h2" style="margin-bottom:4px">Postępy uczniów</div>
+      <p class="lead" style="margin-bottom:10px">Kliknij ucznia, żeby prowadzić jego listę: oznaczaj ćwiczenia jako „w trakcie" lub „zrobione", dodawaj własne pozycje i notatki.</p>
+      <div id="progList"></div></div>
+  </div>
+  <!-- MOI LEKTORZY -->
+  <div id="teachers" class="hidden">
+    <div class="card">
+      <div class="h2">Moi lektorzy</div>
+      <p class="lead">Rozdziel swoją pulę miejsc między lektorów. Ty dodajesz uczniów i przypisujesz ich do lektorów. Lektor widzi tylko imię i nazwisko ucznia (nie widzi adresu e-mail). Dostęp uczniów działa dzięki Twojej subskrypcji.</p>
+      <div class="pool">
+        <div class="pool-row"><span>Twoja pula miejsc</span><b style="color:var(--eg-law)">100</b></div>
+        <div class="pool-row"><span>Rozdane lektorom</span><b style="color:var(--eg-law)" id="tGiven">8</b></div>
+        <div class="pool-row"><span>Wolne do rozdania</span><b style="color:var(--eg-green)" id="tFree">92</b></div>
+      </div>
+      <div class="addrow" style="margin:16px 0 4px">
+        <input class="inp" id="tMail" placeholder="e-mail lektora" style="flex:2">
+        <input class="inp" id="tSeats" placeholder="miejsca" style="flex:0 1 110px">
+        <button class="btn" id="tInvite">Zaproś lektora</button>
+      </div>
+      <div id="tList" style="margin-top:8px"></div>
+    </div>
+  </div>
+
+  <!-- USTAWIENIA -->
+  <div id="settings" class="hidden">
+    <div class="card">
+      <div class="h2">Ustawienia konta</div>
+      <div class="set-block">
+        <b>Twoja subskrypcja</b>
+        <p class="muted">Zarządzaj płatnością, zmień plan lub anuluj subskrypcję. Po anulowaniu zachowujesz dostęp do końca opłaconego okresu.</p>
+        <button class="btn ghost" onclick="toast('Przekierowanie do Stripe (demo)')">Zarządzaj subskrypcją</button>
+      </div>
+      <div class="set-block">
+        <b>Zmiana hasła</b>
+        <p class="muted">Wpisz nowe hasło (minimum 6 znaków).</p>
+        <div class="addrow"><input class="inp" type="password" placeholder="nowe hasło" style="flex:1"><button class="btn" onclick="toast('Hasło zmienione (demo)')">Zmień hasło</button></div>
+      </div>
+      <div class="set-block" style="border:none">
+        <b style="color:#c0554f">Usunięcie konta</b>
+        <p class="muted">Usunięcie konta jest nieodwracalne. Stracisz dostęp do panelu, a Twoi uczniowie stracą dostęp przyznany przez Ciebie. Ta operacja nie usuwa kont Twoich uczniów.</p>
+        <button class="btn" style="background:#c0554f" onclick="toast('To tylko podgląd — konto nie zostało usunięte')">Usuń moje konto</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="foot">
+    <button class="btn" onclick="cta()">Załóż konto lektora i korzystaj naprawdę</button>
+    <p>To tylko podgląd — w prawdziwym panelu pracujesz na swoich uczniach i ćwiczeniach.</p>
+  </div>
+</div>
+<div class="pm-overlay" id="pmOverlay">
+  <div class="pm">
+    <div class="pm-head"><h3 id="pmTitle">Postępy —</h3><button class="pm-x" onclick="pmClose()">×</button></div>
+    <div class="pm-body">
+      <div class="pm-add">
+        <p class="lbl">Dodaj ćwiczenie z bazy</p>
+        <div class="row2"><select class="inp" id="pmSelect"></select><button class="btn" id="pmAddBase">Dodaj</button></div>
+        <div class="pm-or">— ALBO —</div>
+        <p class="lbl">Dodaj własną pozycję</p>
+        <div class="row2"><input class="inp" id="pmOwn" placeholder="np. „Present Perfect z tablicy”"><button class="btn" id="pmAddOwn">Dodaj</button></div>
+      </div>
+      <div class="pm-sep"></div>
+      <input class="inp" id="pmSearch" placeholder="Szukaj ćwiczenia po nazwie…">
+      <div class="filters" style="margin:12px 0">
+        <label style="font-size:13px;color:var(--eg-muted);align-self:center">Kategoria:</label>
+        <select class="inp" id="pmCat" style="flex:0 1 160px"><option>Wszystkie</option><option>Gramatyka</option><option>Słownictwo</option><option>Reading</option><option>Listening</option><option>Speaking</option></select>
+        <label style="font-size:13px;color:var(--eg-muted);align-self:center">Poziom:</label>
+        <select class="inp" id="pmLvl" style="flex:0 1 130px"><option>Wszystkie</option><option>A1</option><option>A2</option><option>B1</option><option>B2</option><option>C1</option></select>
+      </div>
+      <div class="pm-tabs">
+        <button class="pm-tab on" data-s="todo">○ Niezrobione <span class="num" id="pmNTodo">0</span></button>
+        <button class="pm-tab" data-s="prog">◔ W trakcie <span class="num" id="pmNProg">0</span></button>
+        <button class="pm-tab" data-s="done">✓ Zrobione <span class="num" id="pmNDone">0</span></button>
+      </div>
+      <div class="pm-grid" id="pmGrid"></div>
+    </div>
+  </div>
+</div>
+<div class="toast" id="toast"></div>
+<script>
+var students = [
+  { mail:'anna.k@przyklad.pl', speaking:true, done:12, prog:2, score:'15/15' },
+  { mail:'tomek.b@przyklad.pl', speaking:false, done:7, prog:1, score:'11/12' },
+  { mail:'kasia.w@przyklad.pl', speaking:true, done:20, prog:0, score:'18/20' },
+  { mail:'piotr.n@przyklad.pl', speaking:false, done:3, prog:3, score:'—' },
+  { mail:'ola.s@przyklad.pl', speaking:true, done:15, prog:1, score:'14/15' },
+];
+var COLORS = ['#8ca0b3','#6b4a7a','#e0c060','#7a4b86','#9a5fb0','#5f8f9f','#c98a52','#4a6b8a','#b8639e','#8f74c9'];
+var library = [
+  { t:'Sports', l:'A2', c:'listening', cat:'Listening' },
+  { t:'Possessive Adjectives & Pronouns – translate the sentences (part 2)', l:'A2', c:'gramatyka', cat:'Gramatyka' },
+  { t:'Tying the Knot', l:'B2', c:'reading', cat:'Reading' },
+  { t:'Negative Prefixes (part 2, B1)', l:'B1', c:'słownictwo', cat:'Słownictwo' },
+  { t:'Negative Prefixes (part 2, B2)', l:'B2', c:'słownictwo', cat:'Słownictwo' },
+  { t:'Open Cloze: New York', l:'C1', c:'gramatyka', cat:'Gramatyka' },
+  { t:'Present Simple vs Continuous', l:'B1', c:'gramatyka', cat:'Gramatyka' },
+  { t:'Food & Drinks', l:'A1', c:'słownictwo', cat:'Słownictwo' },
+  { t:'Autumn', l:'B1', c:'listening', cat:'Listening' },
+  { t:'Michelin-Starred Restaurants', l:'C1', c:'reading', cat:'Reading' },
+];
+library.forEach(function(g,i){ g.color=COLORS[i%COLORS.length]; });
+var state = {};
+students.forEach(function(s){ state[s.mail]={assigned:{},lesson:{},self:{}}; });
+state['kasia.w@przyklad.pl'].self['Open Cloze: New York']=true;
+state['kasia.w@przyklad.pl'].lesson['Tying the Knot']=true;
+state['anna.k@przyklad.pl'].self['Food & Drinks']=true;
+state['anna.k@przyklad.pl'].assigned['Autumn']=true;
+var toast=function(m){var t=document.getElementById('toast');t.textContent=m;t.classList.add('show');setTimeout(function(){t.classList.remove('show');},1600);};
+var fFilter='all';
+document.querySelectorAll('.tab').forEach(function(b){
+  b.addEventListener('click',function(){
+    document.querySelectorAll('.tab').forEach(function(x){x.classList.remove('on');}); b.classList.add('on');
+    ['students','hw','prog','teachers','settings'].forEach(function(id){document.getElementById(id).classList.add('hidden');});
+    document.getElementById(b.dataset.t).classList.remove('hidden');
+    if(b.dataset.t==='hw'){ fillStud(); renderEx(); }
+    if(b.dataset.t==='prog') renderProg();
+    if(b.dataset.t==='teachers') renderTeachers();
+  });
+});
+function renderStudents(){
+  document.getElementById('studList').innerHTML = students.map(function(s,i){
+    return '<div class="stud"><span class="em">'+s.mail+'</span>'
+      +'<span class="stat">✓ aktywny (ma dostęp)</span>'
+      +'<span class="sp">Speaking:</span><span class="toggle '+(s.speaking?'on':'')+'" data-i="'+i+'"></span>'
+      +'<button class="sact">Przypisz do gr.</button>'
+      +'<button class="sact del" data-del="'+i+'">Usuń</button></div>';
+  }).join('');
+  document.getElementById('seatN').textContent=students.length;
+  document.querySelectorAll('.toggle').forEach(function(t){
+    t.addEventListener('click',function(){ var s=students[+t.dataset.i]; s.speaking=!s.speaking; t.classList.toggle('on'); toast('Speaking: '+(s.speaking?'wł.':'wył.')); });
+  });
+  document.querySelectorAll('[data-del]').forEach(function(b){
+    b.addEventListener('click',function(){ var m=students[+b.dataset.del].mail; students.splice(+b.dataset.del,1); delete state[m]; renderStudents(); toast('Uczeń usunięty (demo)'); });
+  });
+}
+document.getElementById('addStud').addEventListener('click',function(){
+  var m=document.getElementById('newMail').value.trim();
+  if(!m){ toast('Wpisz e-mail ucznia'); return; }
+  students.push({mail:m,speaking:false,done:0,prog:0,score:'—'}); state[m]={assigned:{},lesson:{},self:{}};
+  document.getElementById('newMail').value=''; renderStudents(); toast('Zaproszenie wysłane (demo)');
+});
+function fillStud(){ document.getElementById('hwStud').innerHTML=students.map(function(s){return '<option>'+s.mail+'</option>';}).join(''); }
+document.getElementById('segStud').addEventListener('click',function(){ this.classList.add('on'); document.getElementById('segGroup').classList.remove('on'); document.getElementById('hwStud').style.display=''; });
+document.getElementById('segGroup').addEventListener('click',function(){ this.classList.add('on'); document.getElementById('segStud').classList.remove('on'); toast('Tryb grupy (demo)'); });
+document.getElementById('hwStud').addEventListener('change',renderEx);
+document.getElementById('hwSearch').addEventListener('input',renderEx);
+document.getElementById('fCat').addEventListener('change',renderEx);
+document.getElementById('fLvl').addEventListener('change',renderEx);
+document.querySelectorAll('.fbtn').forEach(function(b){ b.addEventListener('click',function(){ document.querySelectorAll('.fbtn').forEach(function(x){x.classList.remove('on');}); b.classList.add('on'); fFilter=b.dataset.f; renderEx(); }); });
+function renderEx(){
+  var who=document.getElementById('hwStud').value||students[0].mail;
+  var st=state[who]||{assigned:{},lesson:{},self:{}};
+  var q=(document.getElementById('hwSearch').value||'').toLowerCase();
+  var cat=document.getElementById('fCat').value, lvl=document.getElementById('fLvl').value;
+  var rows=library.filter(function(g){
+    if(q && g.t.toLowerCase().indexOf(q)<0) return false;
+    if(cat!=='Wszystkie kategorie' && g.cat!==cat) return false;
+    if(lvl!=='Wszystkie poziomy' && g.l!==lvl) return false;
+    if(fFilter==='assigned' && !st.assigned[g.t]) return false;
+    if(fFilter==='todo' && (st.self[g.t]||st.lesson[g.t])) return false;
+    return true;
+  });
+  var cnt=0; for(var k in st.assigned){ if(st.assigned[k]) cnt++; }
+  var cEl=document.getElementById('hwCount'); if(cEl) cEl.textContent = cnt+(cnt===1?' ćwiczenie zadane':' ćwiczeń zadanych')+' do domu';
+  document.getElementById('exList').innerHTML = rows.map(function(g){
+    var picked=st.assigned[g.t], mark = st.lesson[g.t]?'lesson':(st.self[g.t]?'self':'');
+    var badge = st.lesson[g.t]?'<span class="tag lesson mk">📖 robiliście na lekcji</span>':(st.self[g.t]?'<span class="tag self mk">✓ uczeń zrobił sam</span>':'');
+    return '<div class="ex '+(picked?'picked ':'')+mark+'" data-t="'+g.t.replace(/"/g,'&quot;')+'">'
+      +'<div class="cb">'+(picked?'✓':'')+'</div>'
+      +'<div class="thumb" style="background:'+g.color+'"></div>'
+      +'<div class="t"><b>'+g.t+'</b><span>'+g.l+' · '+g.c+'</span></div>'+badge+'</div>';
+  }).join('') || '<p class="muted">Brak ćwiczeń dla tych filtrów.</p>';
+  document.querySelectorAll('#exList .ex').forEach(function(e){
+    e.addEventListener('click',function(){
+      var t=e.dataset.t; st.assigned[t]=!st.assigned[t]; renderEx();
+      toast(st.assigned[t]?'Zadano do domu':'Cofnięto');
+    });
+  });
+}
+// stan Postępów per uczeń: {tytuł: {status:'todo'|'prog'|'done', note:'', l, c, cat, color, own:bool}}
+var pstate={};
+function ensureP(mail){
+  if(pstate[mail]) return pstate[mail];
+  var p={}; 
+  // zasiej kilka pozycji, żeby liczniki nie były zerowe
+  library.forEach(function(g){ p[g.t]={status:'todo',note:'',l:g.l,c:g.c,cat:g.cat,color:g.color,own:false}; });
+  pstate[mail]=p; return p;
+}
+var pmMail=null, pmTab='todo';
+function renderProg(){
+  document.getElementById('progList').innerHTML = students.map(function(s,i){
+    var p=ensureP(s.mail);
+    var d=0,w=0,t=0; for(var k in p){ if(p[k].status==='done')d++; else if(p[k].status==='prog')w++; else t++; }
+    return '<div class="stud prog-open" data-m="'+s.mail+'"><span class="em" style="flex:1;min-width:0">'+s.mail+'</span>'
+      +'<span class="sp">✓ '+d+' zrobione · ◔ '+w+' w trakcie · ○ '+t+' niezrobione</span>'
+      +'<span class="sact">Otwórz →</span></div>';
+  }).join('');
+  document.querySelectorAll('.prog-open').forEach(function(r){ r.addEventListener('click',function(){ pmOpen(r.dataset.m); }); });
+}
+function pmOpen(mail){
+  pmMail=mail; pmTab='todo'; ensureP(mail);
+  document.getElementById('pmTitle').textContent='Postępy — '+mail;
+  document.querySelectorAll('.pm-tab').forEach(function(x){ x.classList.toggle('on', x.dataset.s==='todo'); });
+  fillPmSelect(); pmRender();
+  document.getElementById('pmOverlay').classList.add('on');
+}
+function pmClose(){ document.getElementById('pmOverlay').classList.remove('on'); renderProg(); }
+document.getElementById('pmOverlay').addEventListener('click',function(e){ if(e.target===this) pmClose(); });
+function fillPmSelect(){
+  var p=pstate[pmMail]; var opts='<option value="">— wybierz ćwiczenie —</option>';
+  library.forEach(function(g){ if(!p[g.t]) opts+='<option>'+g.t+'</option>'; });
+  document.getElementById('pmSelect').innerHTML=opts;
+}
+document.querySelectorAll('.pm-tab').forEach(function(b){ b.addEventListener('click',function(){
+  document.querySelectorAll('.pm-tab').forEach(function(x){x.classList.remove('on');}); b.classList.add('on'); pmTab=b.dataset.s; pmRender();
+}); });
+['pmSearch','pmCat','pmLvl'].forEach(function(id){ document.getElementById(id).addEventListener('input',pmRender); document.getElementById(id).addEventListener('change',pmRender); });
+document.getElementById('pmAddBase').addEventListener('click',function(){
+  var t=document.getElementById('pmSelect').value; if(!t) return;
+  var g=library.filter(function(x){return x.t===t;})[0];
+  pstate[pmMail][t]={status:'todo',note:'',l:g.l,c:g.c,cat:g.cat,color:g.color,own:false};
+  fillPmSelect(); pmRender(); toast('Dodano: '+t);
+});
+document.getElementById('pmAddOwn').addEventListener('click',function(){
+  var t=document.getElementById('pmOwn').value.trim(); if(!t) return;
+  pstate[pmMail][t]={status:'todo',note:'',l:'',c:'własna pozycja',cat:'',color:'#a78dd9',own:true};
+  document.getElementById('pmOwn').value=''; pmRender(); toast('Dodano własną pozycję');
+});
+function pmRender(){
+  var p=pstate[pmMail]; var q=(document.getElementById('pmSearch').value||'').toLowerCase();
+  var cat=document.getElementById('pmCat').value, lvl=document.getElementById('pmLvl').value;
+  var nT=0,nP=0,nD=0;
+  for(var k in p){ if(p[k].status==='done')nD++; else if(p[k].status==='prog')nP++; else nT++; }
+  document.getElementById('pmNTodo').textContent=nT; document.getElementById('pmNProg').textContent=nP; document.getElementById('pmNDone').textContent=nD;
+  var keys=Object.keys(p).filter(function(k){
+    if(p[k].status!==pmTab) return false;
+    if(q && k.toLowerCase().indexOf(q)<0) return false;
+    if(cat!=='Wszystkie' && p[k].cat!==cat) return false;
+    if(lvl!=='Wszystkie' && p[k].l!==lvl) return false;
+    return true;
+  });
+  document.getElementById('pmGrid').innerHTML = keys.map(function(k){
+    var it=p[k]; var meta=(it.l?it.l+' · ':'')+it.c;
+    return '<div class="pm-card"><div class="top"><div class="th" style="background:'+it.color+'"></div>'
+      +'<div><b>'+k+'</b><span class="meta">'+meta+'</span></div></div>'
+      +'<div class="pm-acts">'
+      +'<button class="pm-b prog '+(it.status==='prog'?'':'off')+'" data-k="'+k.replace(/"/g,'&quot;')+'" data-st="prog">→ W trakcie</button>'
+      +'<button class="pm-b done '+(it.status==='done'?'':'off')+'" data-k="'+k.replace(/"/g,'&quot;')+'" data-st="done">→ Zrobione</button></div>'
+      +'<input class="pm-note" data-k="'+k.replace(/"/g,'&quot;')+'" placeholder="Notatka…" value="'+(it.note||'').replace(/"/g,'&quot;')+'">'
+      +'<button class="pm-savenote" data-k="'+k.replace(/"/g,'&quot;')+'">Zapisz notatkę</button></div>';
+  }).join('') || '<p class="muted" style="grid-column:1/-1">Brak ćwiczeń w tej zakładce.</p>';
+  document.querySelectorAll('#pmGrid .pm-b').forEach(function(b){ b.addEventListener('click',function(){
+    var k=b.dataset.k; p[k].status = (p[k].status===b.dataset.st)?'todo':b.dataset.st; pmRender();
+    toast(p[k].status==='done'?'Oznaczone: zrobione':p[k].status==='prog'?'Oznaczone: w trakcie':'Cofnięto');
+  }); });
+  document.querySelectorAll('#pmGrid .pm-savenote').forEach(function(b){ b.addEventListener('click',function(){
+    var inp=document.querySelector('.pm-note[data-k="'+b.dataset.k.replace(/"/g,'\\"')+'"]');
+    if(inp){ p[b.dataset.k].note=inp.value; toast('Notatka zapisana'); }
+  }); });
+}
+var teachers=[
+  { mail:'anna.lektor@przyklad.pl', name:'Anna', used:5, limit:5 },
+  { mail:'basia.lektor@przyklad.pl', name:'', used:1, limit:3 },
+];
+function renderTeachers(){
+  var given=teachers.reduce(function(a,t){return a+t.limit;},0);
+  document.getElementById('tGiven').textContent=given;
+  document.getElementById('tFree').textContent=100-given;
+  document.getElementById('tList').innerHTML=teachers.map(function(t,i){
+    return '<div class="tch"><div class="tch-top">'
+      +'<div class="tch-nm"><b>'+(t.name?t.name+' · ':'')+t.mail+'</b><span>Uczniowie: '+t.used+' / '+t.limit+'</span></div>'
+      +'<button class="sact">'+(t.name?'Zmień imię':'Nadaj imię')+'</button>'
+      +'<input class="inp tch-lim" value="'+t.limit+'" data-lim="'+i+'">'
+      +'<button class="sact">Zapisz limit</button>'
+      +'<button class="sact del" data-tdel="'+i+'">Usuń</button></div>'
+      +'<button class="tch-show">Pokaż uczniów ('+t.used+'/'+t.limit+')</button></div>';
+  }).join('');
+  document.querySelectorAll('[data-tdel]').forEach(function(b){ b.addEventListener('click',function(){ teachers.splice(+b.dataset.tdel,1); renderTeachers(); toast('Lektor usunięty (demo)'); }); });
+}
+document.getElementById('tInvite').addEventListener('click',function(){
+  var m=document.getElementById('tMail').value.trim(), s=+document.getElementById('tSeats').value||1;
+  if(!m){ toast('Podaj e-mail lektora'); return; }
+  teachers.push({mail:m,name:'',used:0,limit:s});
+  document.getElementById('tMail').value=''; document.getElementById('tSeats').value='';
+  renderTeachers(); toast('Zaproszenie wysłane (demo)');
+});
+function cta(){ try{ if(window.parent&&window.parent!==window){ window.parent.location.href='/oferta'; return; } }catch(e){} window.location.href='/oferta'; }
+renderStudents();
+</script>
+</body></html>
