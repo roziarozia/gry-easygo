@@ -3049,8 +3049,13 @@ function startArtgap(){
         var inp = document.createElement('input');
         inp.type = 'text';
         inp.className = 'ag-input';
-        inp.autocomplete = 'off';
+        // twardo wyłącz autouzupełnianie przeglądarki (adresy/maile) w lukach:
+        // 'off' bywa ignorowane, więc dokładamy niestandardową wartość + wyłączamy podpowiedzi/korektę
+        inp.setAttribute('autocomplete','off');
+        inp.setAttribute('autocorrect','off');
         inp.setAttribute('autocapitalize','off');
+        inp.setAttribute('spellcheck','false');
+        inp.setAttribute('name', 'gap-' + i + '-' + Math.random().toString(36).slice(2,8));
         inp.spellcheck = false;
         inp.setAttribute('data-ans', (ans[i] || '').trim());
         // luka rośnie razem z wpisywanym słowem (dłuższe odpowiedzi w open cloze się nie ucinają)
