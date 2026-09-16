@@ -1311,6 +1311,12 @@
   .eg-demo-btn{ display:inline-flex; align-items:center; gap:9px; background:linear-gradient(135deg,#a78dd9,#ca4490); color:#fff; border:none; border-radius:999px; padding:14px 30px; font-family:'Quicksand',sans-serif; font-weight:700; font-size:16px; cursor:pointer; box-shadow:0 6px 18px rgba(202,68,144,.32); transition:transform .15s, box-shadow .15s; }
   .eg-demo-btn:hover{ transform:translateY(-2px); box-shadow:0 10px 26px rgba(202,68,144,.42); }
   html.eg-dark .eg-demo-btn{ box-shadow:0 6px 18px rgba(0,0,0,.4); }
+
+  .eg-section-break{ display:flex; align-items:center; justify-content:center; gap:12px; max-width:420px; margin:44px auto 34px; }
+  .eg-section-break-line{ flex:1; height:1px; background:var(--eg-line); }
+  .eg-section-break-dot{ width:8px; height:8px; border-radius:50%; background:var(--eg-law); flex:none; }
+  .eg-how-text{ margin-bottom:8px; }
+  @media(max-width:640px){ .eg-section-break{ margin:40px auto 30px; } .eg-how-text{ font-size:14px; } }
 </style>
 
 <div class="eg-games">
@@ -1472,6 +1478,7 @@
         </div>
         <p class="eg-how-text" data-i18n="Uczysz się w swoim tempie, kiedy tylko masz ochotę - rano z kawą czy wieczorem po pracy. Wybierasz poziom i temat, rozwiązujesz ćwiczenie, a od razu widzisz wynik i wyjaśnienie każdego błędu - bo najwięcej uczymy się właśnie na własnych pomyłkach. Nie musisz niczego drukować ani na nikogo czekać: wystarczy telefon, tablet lub komputer. Możesz śledzić własne postępy i wracać do zagadnień, które sprawiają Ci trudność, aż wejdą w krew - bo trening czyni mistrza!">Uczysz się w swoim tempie, kiedy tylko masz ochotę - rano z kawą czy wieczorem po pracy. Wybierasz poziom i temat, rozwiązujesz ćwiczenie, a od razu widzisz wynik i wyjaśnienie każdego błędu - bo najwięcej uczymy się właśnie na własnych pomyłkach. Nie musisz niczego drukować ani na nikogo czekać: wystarczy telefon, tablet lub komputer. Możesz śledzić własne postępy i wracać do zagadnień, które sprawiają Ci trudność, aż wejdą w krew - bo trening czyni mistrza!</p>
       </div>
+      <div class="eg-section-break" aria-hidden="true"><span class="eg-section-break-line"></span><span class="eg-section-break-dot"></span><span class="eg-section-break-line"></span></div>
       <div class="eg-browse">
         <p class="eg-browse-eyebrow" data-i18n="Wszystko w jednym miejscu">Wszystko w jednym miejscu</p>
         <p class="eg-browse-main">
