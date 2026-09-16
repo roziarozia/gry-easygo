@@ -82,6 +82,9 @@ export default function PanelWlascicielki() {
   }
 
   const s = data.summary;
+  const st = data.stats || {};
+  const hl = data.health || {};
+  const pct = (a, b) => (b ? Math.round(a / b * 100) + '%' : '—');
   const active = data.teachers.filter((t) => t.activeThisWeek > 0);
   const sleeping = data.teachers.filter((t) => t.activeThisWeek === 0);
   const ranking = rankTab === 'access' ? data.rankingWithAccess : data.rankingOutside;
@@ -185,10 +188,27 @@ export default function PanelWlascicielki() {
         <SectionTitle>Nowe konta (30 dni)</SectionTitle>
         <p style={{ fontSize: 13, color: C.muted, margin: '0 0 12px' }}>Ile kont dziennie. <b style={{ color: C.law }}>Lawendowy</b> = lektorzy, <b style={{ color: C.magenta }}>różowy</b> = uczniowie. Widać, jak dowozi reklama.</p>
         <BarChart data={data.signupsByDay} stacked />
+        <Trend avg={st.avgAcctPerDay30} unit="kont/dzień" last={st.acctLast7} prev={st.acctPrev7} what="nowych kont" />
 
         <SectionTitle>Aktywność (30 dni)</SectionTitle>
         <p style={{ fontSize: 13, color: C.muted, margin: '0 0 12px' }}>Ile ćwiczeń dziennie ukończono na całej platformie.</p>
         <BarChart data={data.activityByDay.map((d) => ({ date: d.date, teachers: d.n, students: 0 }))} color={C.gold} />
+        <Trend avg={st.avgExPerDay30} unit="ćwiczeń/dzień" last={st.exLast7} prev={st.exPrev7} what="ćwiczeń" />
+
+        {/* ZDROWIE PLATFORMY */}
+        <SectionTitle>Zdrowie platformy</SectionTitle>
+        <p style={{ fontSize: 13, color: C.muted, margin: '0 0 12px' }}>Nie „ilu jest", tylko „ilu naprawdę korzysta" — to mówi, czy platforma żyje, czy tylko ma konta.</p>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(200px,1fr))', gap: 12, marginBottom: 14 }}>
+          <Health big={hl.studentsWhoPractice + ' z ' + hl.studentsTotal} label="uczniów w ogóle ćwiczy" hint={pct(hl.studentsWhoPractice, hl.studentsTotal) + ' zrobiło choć jedno ćwiczenie'} color={C.magenta} />
+          <Health big={hl.activeStudents7} label="uczniów aktywnych w 7 dni" hint={pct(hl.activeStudents7, hl.studentsTotal) + ' wszystkich uczniów'} color={C.green} />
+          <Health big={hl.avgExPerActiveStudent} label="ćwiczeń na aktywnego ucznia" hint={'czy wciąga, czy tylko zajrzeli'} color={C.gold} />
+          <Health big={hl.teachersWithStudents + ' z ' + hl.teachersTotal} label="lektorów ma uczniów" hint={hl.teachersWhoAssign + ' zadaje prace domowe'} color={C.law} />
+        </div>
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 6 }}>
+          <TopList title="Najczęstsze poziomy (płacący)" items={hl.topLevels} />
+          <TopList title="Najczęstsze kategorie (płacący)" items={hl.topCategories} label={(k) => ({ gramatyka: 'Gramatyka', slownictwo: 'Słownictwo', reading: 'Reading', listening: 'Listening', speaking: 'Speaking' }[k] || k)} />
+        </div>
+        <p style={{ fontSize: 12.5, color: C.muted, margin: '0 0 6px' }}>Liczone tylko dla osób z dostępem (płacący i uczniowie lektorów) — w to warto inwestować przy tworzeniu nowych ćwiczeń.</p>
 
         {/* AKTYWNI LEKTORZY */}
         <SectionTitle>Aktywni lektorzy ({active.length})</SectionTitle>
@@ -310,6 +330,51 @@ function BarChart({ data, stacked, color }) {
           </div>
         </div>
       </div>
+    </div>
+  );
+}
+
+// Pasek pod wykresem: średnia dzienna + trend 7 vs poprzednie 7 dni
+function Trend({ avg, unit, last, prev, what }) {
+  let arrow = '→', color = C.muted, txt = 'bez zmian';
+  if (prev === 0 && last > 0) { arrow = '↑'; color = C.green; txt = 'start od zera'; }
+  else if (prev > 0) {
+    const ch = Math.round((last - prev) / prev * 100);
+    if (ch > 5) { arrow = '↑'; color = C.green; txt = '+' + ch + '%'; }
+    else if (ch < -5) { arrow = '↓'; color = C.red; txt = ch + '%'; }
+  }
+  return (
+    <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap', margin: '8px 0 4px' }}>
+      <span style={{ background: C.card, border: '1.5px solid ' + C.line, borderRadius: 999, padding: '6px 14px', fontSize: 12.5, fontWeight: 800 }}>
+        średnio <b style={{ color: C.ink }}>{avg}</b> {unit}
+      </span>
+      <span style={{ background: C.card, border: '1.5px solid ' + C.line, borderRadius: 999, padding: '6px 14px', fontSize: 12.5, fontWeight: 800, color }}>
+        {arrow} {txt} <span style={{ color: C.muted, fontWeight: 700 }}>· ostatnie 7 dni: {last} {what} vs {prev} wcześniej</span>
+      </span>
+    </div>
+  );
+}
+function Health({ big, label, hint, color }) {
+  return (
+    <div style={{ background: C.card, border: '1.5px solid ' + C.line, borderLeft: '5px solid ' + color, borderRadius: 14, padding: '13px 15px' }}>
+      <div style={{ fontFamily: "'Quicksand',sans-serif", fontSize: 22, fontWeight: 700 }}>{big}</div>
+      <div style={{ fontSize: 13, fontWeight: 800 }}>{label}</div>
+      <div style={{ fontSize: 11.5, color: C.muted }}>{hint}</div>
+    </div>
+  );
+}
+function TopList({ title, items, label }) {
+  const max = Math.max(1, ...(items || []).map((i) => i.n));
+  return (
+    <div style={{ background: C.card, border: '1.5px solid ' + C.line, borderRadius: 14, padding: '13px 15px' }}>
+      <div style={{ fontSize: 13, fontWeight: 800, marginBottom: 8 }}>{title}</div>
+      {(items || []).length === 0 ? <div style={{ fontSize: 12.5, color: C.muted }}>brak danych</div> : (items || []).map((it, i) => (
+        <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 5, fontSize: 12.5 }}>
+          <span style={{ minWidth: 78, fontWeight: 700 }}>{label ? label(it.k) : it.k}</span>
+          <div style={{ flex: 1, height: 7, background: C.line, borderRadius: 999, overflow: 'hidden' }}><div style={{ width: (it.n / max * 100) + '%', height: '100%', background: C.law }} /></div>
+          <span style={{ color: C.muted, minWidth: 28, textAlign: 'right' }}>{it.n}</span>
+        </div>
+      ))}
     </div>
   );
 }
