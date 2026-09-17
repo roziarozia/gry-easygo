@@ -3092,7 +3092,9 @@ document.getElementById('agCheck').addEventListener('click', function(){
     });
     inp.readOnly = true;
     if(good){
-      inp.value = agMainAnswer(correct);
+      // pokaż to, co UCZEŃ wpisał (jego poprawny wariant), a nie pierwszy z klucza;
+      // tylko przytnij białe znaki, żeby wyglądało czysto
+      inp.value = (typed && typed.trim()) ? typed.trim() : agMainAnswer(correct);
       inp.classList.add('ag-ok');
       agFitInput(inp);
       ok++;
@@ -3625,7 +3627,10 @@ async function egShowAnswerDetails(gameSlug, userId, opts){
           if(idx < agParts.length - 1){
             var g = agGaps[idx] || {};
             if(g.ok){
-              agTxt += '<span class="eg-agf-ok">' + esc(g.correct_text || '') + '</span>';
+              // przy poprawnej luce pokaż wariant, KTÓRY UCZEŃ WPISAŁ (np. though),
+              // a nie pierwszy z klucza (although); gdy brak zapisu — pierwszy z klucza
+              var okWord = (g.typed != null && g.typed !== '') ? g.typed : (g.correct_text || '');
+              agTxt += '<span class="eg-agf-ok">' + esc(okWord) + '</span>';
             } else {
               var wrote = (g.typed == null || g.typed === '') ? '\u2014' : g.typed;
               agTxt += '<span class="eg-agf-bad">' + esc(wrote) + '</span>';

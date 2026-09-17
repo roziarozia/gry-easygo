@@ -3754,7 +3754,8 @@
             if(idx < parts.length - 1){
               var g = gaps[idx] || {};
               if(g.ok){
-                txt += '<span class="eg-agf-ok">' + esc(g.correct_text || '') + '</span>';
+                var okWord = (g.typed != null && g.typed !== '') ? g.typed : (g.correct_text || '');
+                txt += '<span class="eg-agf-ok">' + esc(okWord) + '</span>';
               } else {
                 var wrote = (g.typed == null || g.typed === '') ? '—' : g.typed;
                 txt += '<span class="eg-agf-bad">' + esc(wrote) + '</span>';
