@@ -944,6 +944,14 @@
   html.eg-dark .ag-input.ag-bad{ color:#f08a80; border-bottom-color:#f08a80; }
   .ag-score{ font-family:'Quicksand',sans-serif; font-weight:700; font-size:15px; color:var(--ink); margin-left:14px; }
   .ag-expl{ max-width:720px; margin:14px auto 0; padding:12px 16px; background:rgba(183,164,232,.1); border-left:3px solid #a78dd9; border-radius:8px; font-family:'Nunito',sans-serif; font-size:13.5px; line-height:1.5; color:var(--ink); }
+  .eg-ansd-locked{ text-align:center; padding:26px 12px 18px; color:var(--ink); }
+  .eg-ansd-locked svg{ color:#a78dd9; margin-bottom:8px; }
+  .eg-ansd-locked h3{ font-family:'Quicksand',sans-serif; font-size:20px; margin:0 0 6px; color:var(--ink); }
+  .eg-ansd-locked-score{ font-weight:800; color:#a78dd9; margin:0 0 10px; font-size:15px; }
+  .eg-ansd-locked p{ font-size:14.5px; line-height:1.55; color:var(--muted); max-width:380px; margin:0 auto 18px; }
+  .eg-ansd-locked-btn{ display:inline-block; background:var(--magenta,#ca4490); color:#fff; border-radius:999px; padding:12px 26px; font-family:'Quicksand',sans-serif; font-weight:700; font-size:15px; text-decoration:none; box-shadow:0 6px 16px rgba(202,68,144,.3); }
+  .eg-ansd-locked-btn:hover{ transform:translateY(-1px); }
+  html.eg-dark .eg-ansd-locked h3{ color:#e8e6ef; }
   html.eg-dark .ag-expl{ background:rgba(183,164,232,.14); }
   .ag-expl-list{ list-style:none; margin:2px 0 0; padding:0; display:grid; grid-template-columns:1fr 1fr; gap:9px 22px; text-align:left; }
   .ag-expl-list li{ line-height:1.4; }
@@ -3596,10 +3604,25 @@ async function egShowAnswerDetails(gameSlug, userId, opts){
   })();
   try{
     // 1) pobierz zapisane odpowiedzi ucznia dla tej gry
-    var compQ = await _db.from('game_completions')
-      .select('answers, score, score_max')
-      .eq('game_slug', gameSlug).eq('user_id', userId).maybeSingle();
-    var comp = compQ && compQ.data ? compQ.data : null;
+    // Pełne odpowiedzi wydaje tylko chroniona funkcja w bazie (sprawdza dostęp do premium).
+    var rpcQ = await _db.rpc('get_completion_answers', { p_game_slug: gameSlug, p_owner_id: userId });
+    var rpc = rpcQ && rpcQ.data ? rpcQ.data : null;
+    if(rpc && rpc.locked){
+      // Osoba bez dostępu (np. wygasła subskrypcja): ładny, wyśrodkowany komunikat
+      var en = (window.EG_LANG === 'en');
+      content.innerHTML =
+        '<div class="eg-ansd-locked">' +
+          '<svg viewBox="0 0 24 24" width="40" height="40" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>' +
+          '<h3>' + (en ? 'Your access has expired' : 'Twój dostęp wygasł') + '</h3>' +
+          (rpc.score != null ? '<p class="eg-ansd-locked-score">' + (en ? 'Your score: ' : 'Twój wynik: ') + rpc.score + ' / ' + rpc.score_max + '</p>' : '') +
+          '<p>' + (en
+            ? 'To see the full exercise with your exact answers and explanations, renew your subscription.'
+            : 'Aby zobaczyć treść ćwiczenia razem ze swoimi dokładnymi odpowiedziami i wyjaśnieniami, wykup dostęp i przywróć subskrypcję.') + '</p>' +
+          '<a class="eg-ansd-locked-btn" href="/oferta" target="_top">' + (en ? 'Renew access' : 'Wykup dostęp') + '</a>' +
+        '</div>';
+      return;
+    }
+    var comp = rpc && !rpc.locked ? { answers: rpc.answers, score: rpc.score, score_max: rpc.score_max } : null;
     if(!comp || !Array.isArray(comp.answers) || !comp.answers.length){
       content.innerHTML = '<h3>Szczegóły odpowiedzi</h3><p class="eg-ansd-sub" style="text-align:center;padding:20px 0 8px">Szczegóły pojawią się przy ponownym rozwiązaniu ćwiczenia.</p>';
       return;
