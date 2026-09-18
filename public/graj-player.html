@@ -1846,16 +1846,19 @@ async function markCompleted(score, scoreMax, answers){
     // uczeń faktycznie przeszedł ćwiczenie — zapisz jako 'self' (nadpisuje ewentualne zaliczenie lektora,
     // bo prawdziwe ukończenie przez ucznia ma pierwszeństwo)
     // wynik (score/scoreMax) zapisujemy tylko dla ćwiczeń punktowanych; ostatnie podejście nadpisuje poprzednie
-    const row = { user_id: session.user.id, game_slug: currentSlug, source: 'self', marked_by: null, completed_at: new Date().toISOString() };
-    if(typeof score === 'number' && typeof scoreMax === 'number' && scoreMax > 0){
-      row.score = score; row.score_max = scoreMax;
-    }
-    if(Array.isArray(answers) && answers.length){
-      row.answers = answers; // szczegółowe odpowiedzi (które dobrze/źle) - dla wglądu lektora i ucznia
-    }
-    await _db.from('game_completions')
-      .upsert(row, { onConflict: 'user_id,game_slug' });
-  }catch(e){}
+    // Zapis przez chronioną funkcję w bazie (save_completion): kolumna answers jest zablokowana
+    // do odczytu z przeglądarki, więc zwykły upsert by się nie udał. Funkcja zapisuje ZAWSZE
+    // pod kontem zalogowanego (auth.uid()) - nie da się zapisać wyniku za kogoś innego.
+    const hasScore = (typeof score === 'number' && typeof scoreMax === 'number' && scoreMax > 0);
+    const hasAnswers = (Array.isArray(answers) && answers.length > 0);
+    const res = await _db.rpc('save_completion', {
+      p_game_slug: currentSlug,
+      p_score: hasScore ? score : null,
+      p_score_max: hasScore ? scoreMax : null,
+      p_answers: hasAnswers ? answers : null
+    });
+    if(res && res.error){ console.warn('Zapis wyniku nie powiódł się:', res.error.message); }
+  }catch(e){ console.warn('Zapis wyniku - wyjątek:', e && e.message); }
 }
 
 /* Wczytanie gry z bazy */
