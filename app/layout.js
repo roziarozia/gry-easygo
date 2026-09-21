@@ -1,5 +1,4 @@
 import './globals.css';
-import Script from 'next/script';
 import ConsentPixel from './ConsentPixel';
 // Adres serwisu. Zmiana domeny = jedna zmienna NEXT_PUBLIC_SITE_URL w Vercel.
 const SITE = process.env.NEXT_PUBLIC_SITE_URL || 'https://gry.easygo-english.pl';
@@ -53,21 +52,8 @@ export default function RootLayout({ children }) {
       </head>
       <body>
         {children}
+        {/* Zgoda na cookies (RODO) — Google Analytics i Meta Pixel ładują się DOPIERO po zgodzie użytkownika, wewnątrz ConsentPixel */}
         <ConsentPixel />
-
-        {/* Google Analytics (GA4) — mierzy ruch na stronie */}
-        <Script
-          src="https://www.googletagmanager.com/gtag/js?id=G-KWQVZY8YED"
-          strategy="afterInteractive"
-        />
-        <Script id="google-analytics" strategy="afterInteractive">
-          {`
-            window.dataLayer = window.dataLayer || [];
-            function gtag(){dataLayer.push(arguments);}
-            gtag('js', new Date());
-            gtag('config', 'G-KWQVZY8YED');
-          `}
-        </Script>
       </body>
     </html>
   );
