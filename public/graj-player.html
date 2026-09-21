@@ -1004,6 +1004,12 @@
   .reading-pop.pop-left::after{ left:18px; }
   .reading-pop.pop-right{ left:auto; right:0; transform:translate(0, -8px); }
   .reading-pop.pop-right::after{ left:auto; right:18px; }
+  /* gdy nad słowem brak miejsca (pierwsza linijka) - chmurka otwiera się W DÓŁ */
+  .reading-pop.pop-below{ bottom:auto; top:100%; transform:translate(-50%, 8px); }
+  .reading-pop.pop-below.pop-left{ transform:translate(0, 8px); }
+  .reading-pop.pop-below.pop-right{ transform:translate(0, 8px); }
+  .reading-pop.pop-below::after{ top:auto; bottom:100%; border-top-color:transparent; border-bottom-color:#2e2a33; }
+  html.eg-dark .reading-pop.pop-below::after{ border-bottom-color:#4a4458; }
   html.eg-dark .reading-pop{ background:#4a4458; }
   html.eg-dark .reading-pop::after{ border-top-color:#4a4458; }
   .reading-hint{
@@ -3323,6 +3329,9 @@ function renderReading(){
     var popRect = pop.getBoundingClientRect();
     if(popRect.left < boxRect.left + 4){ pop.classList.add('pop-left'); }
     else if(popRect.right > boxRect.right - 4){ pop.classList.add('pop-right'); }
+    // pion: jeśli chmurka wychodzi ponad górę widocznego obszaru, otwórz ją POD słowem
+    popRect = pop.getBoundingClientRect();
+    if(popRect.top < 8){ pop.classList.add('pop-below'); }
   }
   function hidePop(el){
     var p = el.querySelector('.reading-pop');
