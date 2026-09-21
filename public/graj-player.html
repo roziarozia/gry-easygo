@@ -1042,7 +1042,6 @@
   .reading-say:hover{ background:rgba(202,68,144,.16); transform:translateY(-1px); }
   html.eg-dark .reading-say{ color:#f4a8d0; background:rgba(244,168,208,.12); border-color:rgba(244,168,208,.35); }
   html.eg-dark .reading-word{ color:#f4a8d0; border-bottom-color:#f4a8d0; }
-  html.eg-dark .reading-pop{ color:#a8c0f4; background:rgba(104,133,219,.2); }
   .q-options{
     display:flex;
     flex-direction:column;
@@ -3330,11 +3329,13 @@ function renderReading(){
     var popRect = pop.getBoundingClientRect();
     if(popRect.left < boxRect.left + 4){ pop.classList.add('pop-left'); }
     else if(popRect.right > boxRect.right - 4){ pop.classList.add('pop-right'); }
-    // pion: mierz względem KARTY czytanki (rodzic z tłem), nie okna - żeby nie ucinało w górnej linijce
+    // pion: karta ma overflow:hidden, więc dymek NAD słowem w górnej linijce zostałby ucięty.
+    // Liczymy: czy między górą karty a górą słowa jest miejsce na dymek (jego wysokość + margines)?
     var card = box.closest('.frame') || box.parentElement;
     var cardTop = card ? card.getBoundingClientRect().top : 0;
-    popRect = pop.getBoundingClientRect();
-    if(popRect.top < cardTop + 6){ pop.classList.add('pop-below'); }
+    var wordTop = el.getBoundingClientRect().top;
+    var popH = pop.getBoundingClientRect().height + 14; // dymek + odstęp + strzałka
+    if(wordTop - cardTop < popH){ pop.classList.add('pop-below'); }
   }
   function hidePop(el){
     var p = el.querySelector('.reading-pop');
