@@ -983,12 +983,14 @@
     line-height:1.3;
     color:#fff;
     background:#2e2a33;
-    padding:6px 11px;
+    border:1px solid rgba(255,255,255,.12);
+    padding:6px 12px;
     border-radius:10px;
     white-space:nowrap;
-    max-width:240px;
-    box-shadow:0 6px 20px rgba(46,42,51,.28);
+    max-width:260px;
+    box-shadow:0 8px 24px rgba(0,0,0,.45);
     pointer-events:none;
+    opacity:1;
   }
   .reading-pop::after{
     content:"";
@@ -1009,9 +1011,9 @@
   .reading-pop.pop-below.pop-left{ transform:translate(0, 8px); }
   .reading-pop.pop-below.pop-right{ transform:translate(0, 8px); }
   .reading-pop.pop-below::after{ top:auto; bottom:100%; border-top-color:transparent; border-bottom-color:#2e2a33; }
-  html.eg-dark .reading-pop.pop-below::after{ border-bottom-color:#4a4458; }
-  html.eg-dark .reading-pop{ background:#4a4458; }
-  html.eg-dark .reading-pop::after{ border-top-color:#4a4458; }
+  html.eg-dark .reading-pop.pop-below::after{ border-bottom-color:#5a5470; }
+  html.eg-dark .reading-pop{ background:#5a5470; border-color:rgba(255,255,255,.22); }
+  html.eg-dark .reading-pop::after{ border-top-color:#5a5470; }
   .reading-hint{
     margin-top:16px;
     font-family:'Quicksand',sans-serif;
