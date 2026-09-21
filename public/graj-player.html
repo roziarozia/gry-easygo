@@ -931,6 +931,8 @@
     flex:1 1 auto;
     min-height:0;
     padding:4px 2px;
+  
+    overflow-x:hidden;
   }
   .reading-text p{ margin:0 0 14px; }
   /* ARTICLE-GAP: tekst z lukami */
@@ -3338,6 +3340,7 @@ function renderReading(){
     var pop = document.createElement('span');
     pop.className = 'reading-pop';
     pop.textContent = el.dataset.pl;
+    pop.style.visibility = 'hidden';   // najpierw zmierz, potem pokaż - bez skoków układu
     el.appendChild(pop);          // WEWNĄTRZ słowa - chmurka unosi się nad nim, tekst się nie rusza
     el.classList.add('open');
     // jeśli chmurka wychodzi poza obszar tekstu, przyklej ją do krawędzi słowa
@@ -3353,6 +3356,7 @@ function renderReading(){
     var wordTop = el.getBoundingClientRect().top;
     var popH = pop.getBoundingClientRect().height + 14; // dymek + odstęp + strzałka
     if(wordTop - boxTop < popH){ pop.classList.add('pop-below'); }
+    pop.style.visibility = '';   // pozycja ustalona - pokaż
   }
   function hidePop(el){
     var p = el.querySelector('.reading-pop');
