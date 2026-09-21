@@ -3347,11 +3347,12 @@ function renderReading(){
     else if(popRect.right > boxRect.right - 4){ pop.classList.add('pop-right'); }
     // pion: karta ma overflow:hidden, więc dymek NAD słowem w górnej linijce zostałby ucięty.
     // Liczymy: czy między górą karty a górą słowa jest miejsce na dymek (jego wysokość + margines)?
-    var card = box.closest('.frame') || box.parentElement;
-    var cardTop = card ? card.getBoundingClientRect().top : 0;
+    // tekst czytanki jest w PRZEWIJANYM polu (#readingText) - to ONO ucina, nie karta.
+    // Mierz miejsce od górnej krawędzi widocznego obszaru tego pola do słowa.
+    var boxTop = box.getBoundingClientRect().top;
     var wordTop = el.getBoundingClientRect().top;
     var popH = pop.getBoundingClientRect().height + 14; // dymek + odstęp + strzałka
-    if(wordTop - cardTop < popH){ pop.classList.add('pop-below'); }
+    if(wordTop - boxTop < popH){ pop.classList.add('pop-below'); }
   }
   function hidePop(el){
     var p = el.querySelector('.reading-pop');
