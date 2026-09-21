@@ -2742,7 +2742,8 @@ function renderGap(){
     else { task.classList.add('hidden'); }
     if(gapBoxEl){
       if(boxTxt){
-        gapBoxEl.innerHTML = boxTxt.split('·').map(function(w){ w = w.trim(); return w ? '<span class="gap-chip">' + esc(w) + '</span>' : ''; }).join('');
+        var escChip = function(s){ var d=document.createElement('div'); d.textContent=(s==null?'':s); return d.innerHTML; };
+        gapBoxEl.innerHTML = boxTxt.split('·').map(function(w){ w = w.trim(); return w ? '<span class="gap-chip">' + escChip(w) + '</span>' : ''; }).join('');
         gapBoxEl.classList.remove('hidden');
       } else { gapBoxEl.classList.add('hidden'); gapBoxEl.innerHTML = ''; }
     }
