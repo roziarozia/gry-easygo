@@ -970,18 +970,42 @@
   }
   .reading-word:hover{ background:rgba(202,68,144,.08); }
   .reading-word.open{ background:rgba(202,68,144,.14); }
+  /* Chmurka z tłumaczeniem - unosi się NAD słowem, nie przesuwa tekstu */
   .reading-pop{
-    display:inline-block;
-    margin-left:6px;
+    position:absolute;
+    z-index:50;
+    left:50%;
+    bottom:100%;
+    transform:translate(-50%, -8px);
     font-family:'Quicksand',sans-serif;
     font-weight:700;
-    font-size:.82em;
-    color:var(--violet);
-    background:rgba(104,133,219,.12);
-    padding:1px 8px;
-    border-radius:8px;
+    font-size:13.5px;
+    line-height:1.3;
+    color:#fff;
+    background:#2e2a33;
+    padding:6px 11px;
+    border-radius:10px;
     white-space:nowrap;
+    max-width:240px;
+    box-shadow:0 6px 20px rgba(46,42,51,.28);
+    pointer-events:none;
   }
+  .reading-pop::after{
+    content:"";
+    position:absolute;
+    top:100%;
+    left:50%;
+    transform:translateX(-50%);
+    border:6px solid transparent;
+    border-top-color:#2e2a33;
+  }
+  /* gdy słowo jest blisko lewej/prawej krawędzi, chmurka nie może wyjść poza tekst - JS doda klasy */
+  .reading-pop.pop-left{ left:0; transform:translate(0, -8px); }
+  .reading-pop.pop-left::after{ left:18px; }
+  .reading-pop.pop-right{ left:auto; right:0; transform:translate(0, -8px); }
+  .reading-pop.pop-right::after{ left:auto; right:18px; }
+  html.eg-dark .reading-pop{ background:#4a4458; }
+  html.eg-dark .reading-pop::after{ border-top-color:#4a4458; }
   .reading-hint{
     margin-top:16px;
     font-family:'Quicksand',sans-serif;
@@ -3286,19 +3310,23 @@ function renderReading(){
   // wykryj dotyk: telefon/tablet → klikanie; komputer → najeżdżanie (klik też działa)
   var isTouch = ('ontouchstart' in window) || (navigator.maxTouchPoints > 0);
   function showPop(el){
-    if(el.nextElementSibling && el.nextElementSibling.classList.contains('reading-pop')) return;
+    if(el.querySelector('.reading-pop')) return;
     box.querySelectorAll('.reading-pop').forEach(function(p){ p.remove(); });
     box.querySelectorAll('.reading-word.open').forEach(function(w){ w.classList.remove('open'); });
     var pop = document.createElement('span');
     pop.className = 'reading-pop';
     pop.textContent = el.dataset.pl;
-    el.after(pop);
+    el.appendChild(pop);          // WEWNĄTRZ słowa - chmurka unosi się nad nim, tekst się nie rusza
     el.classList.add('open');
+    // jeśli chmurka wychodzi poza obszar tekstu, przyklej ją do krawędzi słowa
+    var boxRect = box.getBoundingClientRect();
+    var popRect = pop.getBoundingClientRect();
+    if(popRect.left < boxRect.left + 4){ pop.classList.add('pop-left'); }
+    else if(popRect.right > boxRect.right - 4){ pop.classList.add('pop-right'); }
   }
   function hidePop(el){
-    if(el.nextElementSibling && el.nextElementSibling.classList.contains('reading-pop')){
-      el.nextElementSibling.remove();
-    }
+    var p = el.querySelector('.reading-pop');
+    if(p){ p.remove(); }
     el.classList.remove('open');
   }
   box.querySelectorAll('.reading-word').forEach(function(el){
