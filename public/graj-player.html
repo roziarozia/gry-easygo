@@ -94,6 +94,12 @@
   html.eg-dark .word-count,
   html.eg-dark .slide-hint{ background:rgba(45,47,71,.92) !important; color:var(--ink) !important; }
   html.eg-dark .gap-task{ background:rgba(104,133,219,.20); }
+  /* Ramka ze zwrotami (word bank) pod poleceniem - osobna, z pigułkami */
+  .gap-box{ display:flex; flex-wrap:wrap; justify-content:center; gap:6px 8px; max-width:640px; margin:10px auto 14px; padding:10px 12px; background:rgba(255,255,255,.7); border:1.5px solid rgba(104,133,219,.35); border-radius:14px; }
+  .gap-chip{ display:inline-block; font-family:'Quicksand',sans-serif; font-weight:700; font-size:13.5px; color:#4a4458; background:#fff; border:1.5px solid #ddd3f0; border-radius:999px; padding:5px 12px; white-space:nowrap; }
+  html.eg-dark .gap-box{ background:rgba(255,255,255,.06); border-color:rgba(167,141,217,.4); }
+  html.eg-dark .gap-chip{ background:#2b2436; color:#d9d2ea; border-color:#4a3f5e; }
+  @media(max-width:560px){ .gap-chip{ font-size:12.5px; padding:4px 10px; } }
   /* .say (głośniczek) i .dial (AmE/BrE) NIE należą do listy wyżej: siedzą wyłącznie
      na ZŁOTYM pasku odpowiedzi, który w trybie ciemnym się nie zmienia. Przyciemnianie
      ich robiło brzydkie granatowe plamy na złocie — biały tekst na złocie jest czytelny
@@ -1679,6 +1685,7 @@
       <div class="q-bar-track"><div class="q-bar" id="gBar"></div></div>
       <span class="q-progress" id="gProgress"></span>
       <div class="gap-task hidden" id="gapTask"></div>
+      <div class="gap-box hidden" id="gapBox"></div>
       <div class="q-prompt" id="gPrompt"></div>
       <div class="gap-input-row">
         <input id="gapInput" type="text" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="Wpisz brakujące słowo" data-i18n-ph="Wpisz brakujące słowo">
@@ -2718,18 +2725,26 @@ function renderGap(){
   // (czyli został celowo napisany jako polecenie na dwa tryby). Dzięki temu istniejące
   // ćwiczenia, których opis to hasło z okładki, NIE dostają paska na slajdach.
   var task = document.getElementById('gapTask');
+  var gapBoxEl = document.getElementById('gapBox');
   if(task){
     var opis = (GAME.instruction || '').trim();
     if(opis.indexOf('||') !== -1){
       var czesci = opis.split('||');
       opis = (gapMode === 'pl' ? (czesci[1] || czesci[0]) : czesci[0]).trim();
-      task.textContent = t(opis);   // t() tłumaczy na EN gdy język = en (polecenie w słowniku)
-      task.classList.remove('hidden');
-    } else if(opis){
-      task.textContent = t(opis);
-      task.classList.remove('hidden');
-    } else {
-      task.classList.add('hidden');
+    }
+    // "##" oddziela POLECENIE od RAMKI ZE ZWROTAMI (word bank): "Wpisz zwrot...##a · b · c"
+    var boxTxt = '';
+    if(opis.indexOf('##') !== -1){
+      var pp = opis.split('##');
+      opis = pp[0].trim(); boxTxt = (pp[1] || '').trim();
+    }
+    if(opis){ task.textContent = t(opis); task.classList.remove('hidden'); }
+    else { task.classList.add('hidden'); }
+    if(gapBoxEl){
+      if(boxTxt){
+        gapBoxEl.innerHTML = boxTxt.split('·').map(function(w){ w = w.trim(); return w ? '<span class="gap-chip">' + esc(w) + '</span>' : ''; }).join('');
+        gapBoxEl.classList.remove('hidden');
+      } else { gapBoxEl.classList.add('hidden'); gapBoxEl.innerHTML = ''; }
     }
   }
   gAnswered = (given !== null && given !== undefined);
