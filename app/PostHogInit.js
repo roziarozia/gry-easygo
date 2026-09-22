@@ -2,20 +2,18 @@
 
 import posthog from 'posthog-js';
 
-const projectToken = process.env.NEXT_PUBLIC_POSTHOG_PROJECT_TOKEN;
-const posthogHost = process.env.NEXT_PUBLIC_POSTHOG_HOST;
+// Token projektu PostHog (phc_) jest publiczny z założenia, jak klucz Supabase w lib/supabase.js,
+// więc trzymamy go w kodzie: Vercel nie ma zmiennych NEXT_PUBLIC_POSTHOG_*, a bez nich
+// Next.js wycinał PostHoga z produkcyjnego buildu. Zmienne środowiskowe nadal mogą to nadpisać.
+// Te same wartości są w public/eg-analytics.js (strony HTML otwierane bez ramki).
+const projectToken = process.env.NEXT_PUBLIC_POSTHOG_PROJECT_TOKEN || 'phc_mvddXpdXGjUDxYmt7F6BqUmrDFNCfPsLSNoFABpJLn4f';
+const posthogHost = process.env.NEXT_PUBLIC_POSTHOG_HOST || 'https://eu.i.posthog.com';
 // Ten sam klucz decyzji co w ConsentPixel.js i public/eg-analytics.js
 const CONSENT_KEY = 'easygo_zgoda_cookies';
 
-if (!projectToken && process.env.NODE_ENV !== 'production') {
-  throw new Error('NEXT_PUBLIC_POSTHOG_PROJECT_TOKEN variable required by PostHog is missing or un-configured, this causes events to be silently missed. This error stops appearing once NEXT_PUBLIC_POSTHOG_PROJECT_TOKEN is configured');
-}
+export const analyticsEnabled = Boolean(projectToken && posthogHost);
 
-if (!posthogHost && process.env.NODE_ENV !== 'production') {
-  throw new Error('NEXT_PUBLIC_POSTHOG_HOST variable required by PostHog is missing or un-configured, this causes events to be silently missed. This error stops appearing once NEXT_PUBLIC_POSTHOG_HOST is configured');
-}
-
-const enabled = typeof window !== 'undefined' && Boolean(projectToken && posthogHost);
+const enabled = typeof window !== 'undefined' && analyticsEnabled;
 
 // Zgoda z banera (RODO): PostHog nic nie wysyła ani nie zapisuje, dopóki użytkownik
 // nie kliknie "Zaakceptuj wszystkie". Wołane przy starcie i po każdej zmianie decyzji
@@ -36,6 +34,7 @@ if (enabled) {
   posthog.init(projectToken, {
     api_host: posthogHost,
     defaults: '2026-05-30',
+    person_profiles: 'identified_only',
     capture_exceptions: true,
     debug: process.env.NODE_ENV === 'development',
     opt_out_capturing_by_default: true,

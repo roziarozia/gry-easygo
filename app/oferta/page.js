@@ -1,10 +1,7 @@
 'use client';
 import { useEffect } from 'react';
 import posthog from 'posthog-js';
-
-const analyticsEnabled = Boolean(
-  process.env.NEXT_PUBLIC_POSTHOG_PROJECT_TOKEN && process.env.NEXT_PUBLIC_POSTHOG_HOST
-);
+import { analyticsEnabled } from '../PostHogInit';
 
 // OFERTA / checkout — przeniesiona z easygo-english.pl/oferta.html na TĘ domenę.
 // To kluczowe: sesja Supabase zapisuje się osobno dla każdej domeny, więc strona

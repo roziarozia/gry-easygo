@@ -1,10 +1,7 @@
 'use client';
 import { useEffect, useRef, useState } from 'react';
 import posthog from 'posthog-js';
-
-const analyticsEnabled = Boolean(
-  process.env.NEXT_PUBLIC_POSTHOG_PROJECT_TOKEN && process.env.NEXT_PUBLIC_POSTHOG_HOST
-);
+import { analyticsEnabled } from '../PostHogInit';
 
 function identifyUser(user, fallbackRole) {
   if (!analyticsEnabled || !user || !user.id) return;
