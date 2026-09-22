@@ -1,11 +1,13 @@
 'use client';
 import { useEffect, useState } from 'react';
+import { syncPostHogConsent } from './PostHogInit';
 
 // ───────────────────────────────────────────────────────────────────────────
 // Zgoda na cookies (RODO) z WYBOREM kategorii.
 // - Wymagane: zawsze (logowanie, ustawienia) — bez zgody, nie da się wyłączyć.
-// - Analityka i marketing: Google Analytics (GA4) + Meta Pixel — TYLKO po zgodzie.
-// Zalogowani uczniowie nie są śledzeni (katalog w ramce wysyła {egLoggedIn:true}).
+// - Analityka i marketing: Google Analytics (GA4) + Meta Pixel + PostHog — TYLKO po zgodzie.
+// GA i Pixel pomijają zalogowanych (katalog w ramce wysyła {egLoggedIn:true}).
+// PostHog po zgodzie śledzi też zalogowanych (logowanie, konto, checkout), patrz PostHogInit.js.
 // Decyzja w localStorage 'easygo_zgoda_cookies': 'all' | 'necessary'.
 // (stare wartości 'accepted'/'rejected' są rozumiane jako all/necessary)
 // ───────────────────────────────────────────────────────────────────────────
@@ -80,6 +82,7 @@ export default function ConsentPixel() {
 
   function save(kind) {
     try { localStorage.setItem(KEY, kind); } catch (e) {}
+    syncPostHogConsent();
     setDecision(kind);
     setManage(false);
     if (kind === 'all') { setAnalytics(true); loadOptional(); }
@@ -100,7 +103,7 @@ export default function ConsentPixel() {
           <p style={{ margin: '0 0 14px', fontSize: 14, color: '#7a7484', lineHeight: 1.5 }}>Tutaj możesz wybrać, na jakie opcjonalne ciasteczka wyrażasz zgodę.</p>
 
           <Row title="Wymagane" desc="Logowanie, zapamiętanie ustawień (język, motyw) i działanie ćwiczeń. Bez nich strona nie działa - nie da się ich wyłączyć." locked on />
-          <Row title="Analityka i marketing" desc="Google Analytics (statystyki odwiedzin) i Meta Pixel (dopasowanie reklam). Pomagają nam rozwijać EasyWonders. Nie śledzimy zalogowanych uczniów." on={analytics} onToggle={() => setAnalytics(!analytics)} badge="2 usługi" />
+          <Row title="Analityka i marketing" desc="Google Analytics i PostHog (statystyki odwiedzin i korzystania z ćwiczeń) oraz Meta Pixel (dopasowanie reklam). Pomagają nam rozwijać EasyWonders." on={analytics} onToggle={() => setAnalytics(!analytics)} badge="3 usługi" />
 
           <p style={{ fontSize: 13, color: '#7a7484', margin: '14px 0 16px', background: '#faf8fd', border: '1px solid #eae6f2', borderRadius: 10, padding: '10px 12px' }}>
             Więcej informacji znajdziesz w{' '}
@@ -133,7 +136,7 @@ export default function ConsentPixel() {
         fontFamily: "'Nunito', sans-serif",
       }}>
         <p style={{ margin: 0, fontSize: '14px', color: '#2e2a33', maxWidth: '560px', lineHeight: 1.55 }}>
-          Używamy ciasteczek niezbędnych do działania strony oraz - za Twoją zgodą - analitycznych i marketingowych (Google Analytics, Meta Pixel).
+          Używamy ciasteczek niezbędnych do działania strony oraz - za Twoją zgodą - analitycznych i marketingowych (Google Analytics, PostHog, Meta Pixel).
           Możesz zaakceptować wszystkie, tylko niezbędne, albo wybrać samodzielnie.
         </p>
         <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>

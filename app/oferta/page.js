@@ -1,5 +1,10 @@
 'use client';
 import { useEffect } from 'react';
+import posthog from 'posthog-js';
+
+const analyticsEnabled = Boolean(
+  process.env.NEXT_PUBLIC_POSTHOG_PROJECT_TOKEN && process.env.NEXT_PUBLIC_POSTHOG_HOST
+);
 
 // OFERTA / checkout — przeniesiona z easygo-english.pl/oferta.html na TĘ domenę.
 // To kluczowe: sesja Supabase zapisuje się osobno dla każdej domeny, więc strona
@@ -31,6 +36,26 @@ export default function Oferta() {
     const mount = document.getElementById('oferta-mount');
     if (mount) mount.innerHTML = b64decode(BODY_B64);
 
+    function trackCheckout(e) {
+      const button = e.target && e.target.closest ? e.target.closest('#buyInd,#buyLek,#resumeBtn') : null;
+      if (!button || !analyticsEnabled) return;
+      let plan = button.id === 'buyLek' ? 'teacher' : 'individual';
+      if (button.id === 'resumeBtn') {
+        try {
+          const savedPlan = (localStorage.getItem('eg_plan_choice') || '').split(',')[0];
+          if (savedPlan === 'teacher' || savedPlan === 'individual') plan = savedPlan;
+        } catch (err) {}
+      }
+      const yearly = document.getElementById('btnYearly');
+      const seats = document.getElementById('seatsVal');
+      posthog.capture('checkout_started', {
+        plan,
+        billing_cycle: yearly && yearly.classList.contains('active') ? 'yearly' : 'monthly',
+        seats: plan === 'teacher' && seats ? Number(seats.textContent) : 1,
+      });
+    }
+    document.addEventListener('click', trackCheckout);
+
     // Supabase z CDN, potem oryginalny skrypt oferty
     const sdk = document.createElement('script');
     sdk.src = 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2';
@@ -40,6 +65,8 @@ export default function Oferta() {
       document.body.appendChild(s);
     };
     document.body.appendChild(sdk);
+
+    return () => document.removeEventListener('click', trackCheckout);
   }, []);
 
   return <div id="oferta-mount" />;

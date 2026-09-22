@@ -1,5 +1,18 @@
 'use client';
 import { useEffect, useRef, useState } from 'react';
+import posthog from 'posthog-js';
+
+const analyticsEnabled = Boolean(
+  process.env.NEXT_PUBLIC_POSTHOG_PROJECT_TOKEN && process.env.NEXT_PUBLIC_POSTHOG_HOST
+);
+
+function identifyUser(user, fallbackRole) {
+  if (!analyticsEnabled || !user || !user.id) return;
+  posthog.identify(user.id, {
+    email: user.email,
+    role: user.user_metadata && user.user_metadata.role ? user.user_metadata.role : fallbackRole,
+  });
+}
 
 // Logowanie na TEJ domenie — sesja zapisuje się pod nią,
 // dzięki czemu katalog (na tej samej domenie) widzi zalogowanego użytkownika.
@@ -23,14 +36,25 @@ export default function Logowanie() {
     function init() {
       if (window.supabase && !sbRef.current) {
         sbRef.current = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+        function handleSession(session) {
+          identifyUser(session.user);
+          try {
+            const oauthFlow = sessionStorage.getItem('eg_oauth_flow');
+            if (oauthFlow) {
+              sessionStorage.removeItem('eg_oauth_flow');
+              if (analyticsEnabled) posthog.capture('user_logged_in', { auth_method: 'google' });
+            }
+          } catch (err) {}
+          window.location.href = REDIRECT_AFTER;
+        }
         // jeśli już zalogowany — przekieruj od razu
         sbRef.current.auth.getSession().then(function (r) {
-          if (r && r.data && r.data.session) window.location.href = REDIRECT_AFTER;
+          if (r && r.data && r.data.session) handleSession(r.data.session);
         });
         // po powrocie z Google token przychodzi w URL i Supabase zapisuje sesję asynchronicznie —
         // nasłuchuj zmiany stanu i przekieruj gdy sesja się pojawi (SIGNED_IN)
         sbRef.current.auth.onAuthStateChange(function (event, session) {
-          if (session) { window.location.href = REDIRECT_AFTER; }
+          if (session) handleSession(session);
         });
       }
     }
@@ -71,16 +95,31 @@ export default function Logowanie() {
     setBusy(true); setMsg({ text: '', type: '' });
     try {
       if (mode === 'login') {
-        const { error } = await sb.auth.signInWithPassword({ email, password });
+        const { data, error } = await sb.auth.signInWithPassword({ email, password });
         if (error) throw error;
+        identifyUser(data && data.user);
+        if (analyticsEnabled) {
+          posthog.capture('user_logged_in', {
+            auth_method: 'password',
+            returned_to_offer: backTarget() === '/oferta',
+          });
+        }
         setMsg({ text: 'Zalogowano! Przekierowuję…', type: 'ok' });
         setTimeout(() => { window.location.href = backTarget(); }, 800);
       } else {
-        const { error } = await sb.auth.signUp({
+        const { data, error } = await sb.auth.signUp({
           email, password,
           options: { data: { role: role }, emailRedirectTo: backTarget() },
         });
         if (error) throw error;
+        identifyUser(data && data.user, role);
+        if (analyticsEnabled) {
+          posthog.capture('user_signed_up', {
+            auth_method: 'password',
+            account_role: role,
+            returned_to_offer: backTarget() === '/oferta',
+          });
+        }
         setMsg({ text: 'Konto utworzone! Sprawdź e-mail, żeby potwierdzić adres.', type: 'ok' });
       }
     } catch (err) {
@@ -89,6 +128,7 @@ export default function Logowanie() {
       if (/already registered/i.test(m)) m = 'To konto już istnieje. Zaloguj się.';
       if (/Email not confirmed/i.test(m)) m = 'Potwierdź najpierw e-mail (sprawdź skrzynkę).';
       setMsg({ text: m, type: 'err' });
+      if (analyticsEnabled) posthog.captureException(err, { auth_flow: mode });
     } finally { setBusy(false); }
   }
 
@@ -99,10 +139,13 @@ export default function Logowanie() {
     try {
       // Google musi wrócić na /logowanie (tu jest klient Supabase, który przechwyci token z URL
       // i zapisze sesję pod gry.easygo); stąd useEffect przekieruje dalej na stronę główną.
+      try { sessionStorage.setItem('eg_oauth_flow', mode); } catch (err) {}
+      if (analyticsEnabled) posthog.capture('oauth_login_started', { auth_provider: 'google', auth_flow: mode });
       const { error } = await sb.auth.signInWithOAuth({ provider: 'google', options: { redirectTo: window.location.origin + '/logowanie' } });
       if (error) throw error;
     } catch (err) {
       setMsg({ text: 'Logowanie Google nie jest jeszcze skonfigurowane.', type: 'err' });
+      if (analyticsEnabled) posthog.captureException(err, { auth_flow: 'google_oauth' });
     }
   }
 
@@ -113,7 +156,12 @@ export default function Logowanie() {
     const email = (emailRef.current.value || '').trim();
     if (!email) { setMsg({ text: 'Wpisz najpierw swój adres e-mail powyżej, a wyślemy link do zmiany hasła.', type: 'err' }); emailRef.current.focus(); return; }
     const r = await sb.auth.resetPasswordForEmail(email, { redirectTo: window.location.origin + '/konto?reset=1' });
-    if (r.error) { setMsg({ text: 'Nie udało się wysłać linku: ' + r.error.message, type: 'err' }); return; }
+    if (r.error) {
+      setMsg({ text: 'Nie udało się wysłać linku: ' + r.error.message, type: 'err' });
+      if (analyticsEnabled) posthog.captureException(r.error, { auth_flow: 'password_reset' });
+      return;
+    }
+    if (analyticsEnabled) posthog.capture('password_reset_requested');
     setMsg({ text: 'Wysłaliśmy link do zmiany hasła na ' + email + '. Sprawdź skrzynkę (także spam).', type: 'ok' });
   }
 

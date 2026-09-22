@@ -1,5 +1,10 @@
 'use client';
 import { useEffect } from 'react';
+import posthog from 'posthog-js';
+
+const analyticsEnabled = Boolean(
+  process.env.NEXT_PUBLIC_POSTHOG_PROJECT_TOKEN && process.env.NEXT_PUBLIC_POSTHOG_HOST
+);
 
 // Konto na TEJ SAMEJ domenie co logowanie, oferta i katalog —
 // więc sesja jest widoczna. Cała logika (status subskrypcji, Stripe portal,
@@ -36,6 +41,7 @@ export default function Konto() {
           return;
         }
         me = session.user;
+        if(analyticsEnabled){ posthog.identify(me.id, { email: me.email }); }
         $('account').classList.remove('hidden');
         $('whoEmail').textContent = me.email;
         if(isReset){
@@ -50,6 +56,7 @@ export default function Konto() {
           .select('access, access_source, role, seats, subscription_status, subscription_cancel_at, subscription_period_end, comp_expires_at')
           .eq('id', me.id).single();
         myProfile = pr && pr.data ? pr.data : null;
+        if(analyticsEnabled && myProfile){ posthog.identify(me.id, { role: myProfile.role }); }
         if(myProfile && myProfile.access_source === 'own_sub'){ $('subCard').classList.remove('hidden'); }
         if(myProfile){ await renderSubStatus(myProfile); }
       })();
@@ -137,9 +144,16 @@ export default function Konto() {
         try{
           var r = await sb.functions.invoke('stripe-portal', {});
           var url = r && r.data ? r.data.url : null;
-          if(url){ window.location.href = url; }
+          if(url){
+            if(analyticsEnabled){ posthog.capture('subscription_portal_opened', { account_role: myProfile && myProfile.role }); }
+            window.location.href = url;
+          }
           else { $('manageSub').textContent = 'Zarządzaj subskrypcją'; msg($('subMsg'), 'Nie udało się otworzyć panelu. Spróbuj ponownie.', 'err'); }
-        }catch(err){ $('manageSub').textContent = 'Zarządzaj subskrypcją'; msg($('subMsg'), 'Nie udało się otworzyć panelu.', 'err'); }
+        }catch(err){
+          $('manageSub').textContent = 'Zarządzaj subskrypcją';
+          msg($('subMsg'), 'Nie udało się otworzyć panelu.', 'err');
+          if(analyticsEnabled){ posthog.captureException(err, { account_flow: 'subscription_portal' }); }
+        }
       });
 
       $('delBtn').addEventListener('click', async function(){
@@ -153,14 +167,25 @@ export default function Konto() {
         if(emailToNotify){ try{ await sb.functions.invoke('notify-account-deleted', { body: { user_email: emailToNotify } }); }catch(e){} }
         var r = await sb.rpc('delete_my_account');
         if(r.error || (r.data && String(r.data).startsWith('error'))){ $('delBtn').disabled = false; msg($('delMsg'), 'Nie udało się usunąć konta. Spróbuj ponownie.', 'err'); return; }
+        if(analyticsEnabled){
+          posthog.capture('account_deleted', {
+            account_role: myProfile && myProfile.role,
+            access_source: myProfile && myProfile.access_source,
+            subscription_status: myProfile && myProfile.subscription_status,
+          });
+        }
         await sb.auth.signOut();
+        if(analyticsEnabled){ posthog.reset(); }
         alert('Twoje konto zostało usunięte.');
         window.location.href = '/';
       });
 
       $('logoutLink').addEventListener('click', function(e){
         e.preventDefault();
-        sb.auth.signOut().then(function(){ window.location.href = '/'; });
+        sb.auth.signOut().then(function(){
+          if(analyticsEnabled){ posthog.reset(); }
+          window.location.href = '/';
+        });
       });
 
       // przełącznik trybu

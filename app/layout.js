@@ -1,5 +1,6 @@
 import './globals.css';
 import ConsentPixel from './ConsentPixel';
+import PostHogInit from './PostHogInit';
 // Adres serwisu. Zmiana domeny = jedna zmienna NEXT_PUBLIC_SITE_URL w Vercel.
 const SITE = process.env.NEXT_PUBLIC_SITE_URL || 'https://gry.easygo-english.pl';
 
@@ -51,8 +52,9 @@ export default function RootLayout({ children }) {
         />
       </head>
       <body>
+        <PostHogInit />
         {children}
-        {/* Zgoda na cookies (RODO) — Google Analytics i Meta Pixel ładują się DOPIERO po zgodzie użytkownika, wewnątrz ConsentPixel */}
+        {/* Zgoda na cookies (RODO) — Google Analytics, Meta Pixel i PostHog działają DOPIERO po zgodzie użytkownika z banera w ConsentPixel */}
         <ConsentPixel />
       </body>
     </html>

@@ -1,5 +1,10 @@
 'use client';
 import { useState, useEffect } from 'react';
+import posthog from 'posthog-js';
+
+const analyticsEnabled = Boolean(
+  process.env.NEXT_PUBLIC_POSTHOG_PROJECT_TOKEN && process.env.NEXT_PUBLIC_POSTHOG_HOST
+);
 
 // Osadza istniejący, dopracowany odtwarzacz (graj-player.html) 1:1 — nietknięty.
 // Okładka z przyciskami trybu ładuje się od razu; granie startuje po kliknięciu.
@@ -19,6 +24,30 @@ export default function GameEmbed({ slug }) {
     } catch (err) {}
 
     function onMsg(e) {
+      if (e.origin !== window.location.origin) return;
+      if (analyticsEnabled && e.data && e.data.egExerciseStarted) {
+        const modes = {
+          startShowBtn: 'show_answers',
+          startTypeBtn: 'type_answers',
+          startQuizBtn: 'quiz',
+          startGapPlBtn: 'translation_hint',
+          startGapBaseBtn: 'base_form_hint',
+          startSpeakBtn: 'single_mode',
+        };
+        posthog.capture('exercise_started', {
+          exercise_slug: slug,
+          exercise_mode: modes[e.data.egExerciseStarted.mode] || 'unknown',
+        });
+      }
+      if (analyticsEnabled && e.data && e.data.egExerciseCompleted) {
+        const result = e.data.egExerciseCompleted;
+        posthog.capture('exercise_completed', {
+          exercise_slug: slug,
+          score: result.score,
+          score_max: result.scoreMax,
+          score_percent: result.scoreMax ? Math.round((result.score / result.scoreMax) * 100) : null,
+        });
+      }
       if (e.data && typeof e.data.egPlayerHeight === 'number') {
         setHeight(Math.max(520, e.data.egPlayerHeight));
       }
@@ -34,7 +63,7 @@ export default function GameEmbed({ slug }) {
     }
     window.addEventListener('message', onMsg);
     return () => window.removeEventListener('message', onMsg);
-  }, []);
+  }, [slug]);
 
   return (
     <div style={{ maxWidth: 1120, margin: '0 auto', padding: '20px 16px 0' }}>
