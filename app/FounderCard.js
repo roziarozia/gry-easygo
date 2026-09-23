@@ -3,46 +3,44 @@ import { useEffect, useState } from 'react';
 
 // ───────────────────────────────────────────────────────────────────────────
 // Sekcja "Poznaj mnie" — Rózia jako założycielka i lektorka.
-// Pokazuje się TYLKO NIEZALOGOWANYM odwiedzającym (nowym gościom).
-// Zalogowany uczeń już Cię zna, więc karta się dla niego nie renderuje.
+// Pokazuje się gościom; chowa się, gdy uda się potwierdzić, że ktoś jest zalogowany.
+// Domyślnie WIDOCZNA (strona jest dla nowych gości) — chowamy tylko przy pewności.
 //
-// Sprawdzenie logowania: ta sama sesja Supabase, z której korzysta katalog.
-// ZDJĘCIE: wrzuć plik rozia.png do folderu public/ na GitHubie.
+// Sprawdzenie logowania: token sesji Supabase trzymany jest w localStorage
+// przeglądarki pod kluczem zaczynającym się od "sb-...-auth-token". Jeśli taki
+// klucz istnieje i ma w środku dane sesji — użytkownik jest zalogowany.
 // ───────────────────────────────────────────────────────────────────────────
 
-const SUPA_URL = 'https://svjrdyxwqznbzxqeytdn.supabase.co';
-const SUPA_KEY = 'sb_publishable_TNCq1UAMAvLO0Z5Mt8QOig_OvsxhhyJ';
-
-export default function FounderCard() {
-  // stan: null = jeszcze nie wiadomo, true = zalogowany, false = gość
-  const [loggedIn, setLoggedIn] = useState(null);
-
-  useEffect(() => {
-    let alive = true;
-    async function check() {
-      try {
-        // użyj klienta katalogu jeśli już jest, inaczej stwórz własny
-        let sb = (typeof window !== 'undefined' && window._egSb) ? window._egSb : null;
-        if (!sb && typeof window !== 'undefined' && window.supabase) {
-          sb = window.supabase.createClient(SUPA_URL, SUPA_KEY);
+function isUserLoggedIn() {
+  try {
+    for (let i = 0; i < localStorage.length; i++) {
+      const key = localStorage.key(i);
+      if (key && key.startsWith('sb-') && key.endsWith('-auth-token')) {
+        const val = localStorage.getItem(key);
+        if (val && val.length > 20 && val.indexOf('access_token') !== -1) {
+          return true;
         }
-        if (!sb) {
-          // katalog jeszcze nie załadował klienta — spróbuj ponownie za chwilę
-          setTimeout(check, 600);
-          return;
-        }
-        const { data } = await sb.auth.getSession();
-        if (alive) setLoggedIn(!!(data && data.session));
-      } catch (e) {
-        if (alive) setLoggedIn(false); // w razie błędu pokaż (bezpieczniej dla nowych gości)
       }
     }
-    check();
-    return () => { alive = false; };
+  } catch (e) {}
+  return false;
+}
+
+export default function FounderCard() {
+  // domyślnie pokazujemy (false = niezalogowany-gość); chowamy tylko gdy wykryjemy sesję
+  const [hidden, setHidden] = useState(false);
+  const [ready, setReady] = useState(false);
+
+  useEffect(() => {
+    // krótkie opóźnienie, aż przeglądarka wczyta localStorage/sesję
+    const t = setTimeout(() => {
+      setHidden(isUserLoggedIn());
+      setReady(true);
+    }, 150);
+    return () => clearTimeout(t);
   }, []);
 
-  // dopóki nie wiadomo, albo gdy zalogowany — nic nie pokazuj
-  if (loggedIn === null || loggedIn === true) return null;
+  if (ready && hidden) return null;
 
   return (
     <section
@@ -66,8 +64,7 @@ export default function FounderCard() {
           flexWrap: 'wrap',
         }}
       >
-        {/* ZDJĘCIE — okrągłe okienko pokazuje sam środek zdjęcia (osobę),
-            różowe tło i biała obwódka wypadają poza kołem dzięki powiększeniu. */}
+        {/* ZDJĘCIE — okrągłe okienko pokazuje sam środek zdjęcia (osobę) */}
         <div
           style={{
             flex: '0 0 auto',
