@@ -1,5 +1,6 @@
 import { getPublishedGames } from '../lib/supabase';
 import CatalogEmbed from './CatalogEmbed';
+import FounderCard from './FounderCard';
 export const revalidate = 300; // odśwież listę z bazy co 5 min
 const CAT_LABEL = { gramatyka: 'Gramatyka', slownictwo: 'Słownictwo', speaking: 'Speaking', reading: 'Reading' };
 export default async function HomePage() {
@@ -34,6 +35,8 @@ export default async function HomePage() {
       </div>
       {/* Twój katalog 1:1 (wygląd, filtry, serie, ulubione, tryb ciemny, pyłek) */}
       <CatalogEmbed />
+      {/* Sekcja "Poznaj mnie" — pokazuje się TYLKO niezalogowanym gościom (sama to sprawdza) */}
+      <FounderCard />
     </>
   );
 }
