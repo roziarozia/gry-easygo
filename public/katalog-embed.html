@@ -1110,6 +1110,11 @@
   html.eg-dark .eg-type-listening{ background:#43301f; color:#e8b183; }
   .eg-premium-open{ display:inline-flex; align-items:center; margin-left:6px; color:#b8b2c0; }
   /* znacznik ukończenia na kafelku */
+  /* Pełny dostęp: filtry darmowe/płatne są zbędne (wszystko odblokowane) — chowamy je */
+  body.eg-has-access .eg-free-filter,
+  body.eg-has-access .eg-premium-filter,
+  body.eg-has-access [data-cat="darmowe"],
+  body.eg-has-access [data-cat="platne"]{ display:none !important; }
   .eg-done-badge{ position:absolute; bottom:8px; left:50%; transform:translateX(-50%); z-index:3; display:inline-flex; align-items:center; gap:3px; background:#1e7e50; color:#fff; font-family:'Quicksand',sans-serif; font-weight:700; font-size:10.5px; padding:3px 8px 3px 6px; border-radius:999px; box-shadow:0 2px 8px rgba(30,126,80,.3); }
   .eg-done-badge.eg-done-teacher{ background:#6885db; box-shadow:0 2px 8px rgba(104,133,219,.3); }
   #egFilters button.eg-hw-filter{ position:relative; overflow:visible; }
@@ -3285,6 +3290,8 @@
           var p = pr && pr.data ? pr.data : null;
           // czy użytkownik ma pełny dostęp (własna subskrypcja, przez lektora, lub komplementarny)?
           userHasAccess = !!(p && p.access === 'full');
+          // pełny dostęp → schowaj filtry darmowe/płatne (są zbędne)
+          try{ if(userHasAccess){ document.body.classList.add('eg-has-access'); if(curStatus==='platne'||curStatus==='darmowe'){ curStatus='wszystkie'; } } else { document.body.classList.remove('eg-has-access'); } }catch(e){}
           // praca domowa tylko dla ucznia przypisanego do lektora
           var isTeacherStudent = !!(p && p.access_source === 'teacher');
           applyLoginUI(true, isTeacherStudent);
