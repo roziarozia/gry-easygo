@@ -1,4 +1,9 @@
-// Baner cookies + GA4 + PostHog dla plików HTML z public/ otwieranych BEZPOŚREDNIO (np. /graj-player.html?g=…
+// Serwuje /eg-analytics.js (dawniej statyczny plik w public/), żeby token PostHoga
+// brać ze zmiennej środowiskowej POSTHOG_PROJECT_TOKEN zamiast trzymać go w kodzie.
+// Generowane raz przy buildzie.
+export const dynamic = 'force-static';
+
+const script = `// Baner cookies + GA4 + PostHog dla plików HTML z public/ otwieranych BEZPOŚREDNIO (np. /graj-player.html?g=…
 // z wyszukiwarki albo /demo-panelu.html w nowej karcie). Strony Next.js mają to
 // z app/ConsentPixel.js, tutaj te same zasady:
 // - w ramce nic nie robimy: baner i odsłony obsługuje strona nadrzędna (inaczej byłyby podwójne),
@@ -7,10 +12,11 @@
 //   dlatego baner wymienia te same usługi co główny,
 // - GA4 tylko po zgodzie 'all' i nie dla zalogowanych (sesja Supabase w localStorage),
 // - PostHog tylko po zgodzie 'all', także dla zalogowanych (tak jak w app/PostHogInit.js).
-// GA_ID musi być taki sam jak w app/ConsentPixel.js, token i host PostHoga jak w app/PostHogInit.js.
+// GA_ID musi być taki sam jak w app/ConsentPixel.js, host PostHoga jak w app/PostHogInit.js.
+// Token PostHoga wstawia app/eg-analytics.js/route.js ze zmiennej POSTHOG_PROJECT_TOKEN.
 (function () {
   var GA_ID = 'G-KWQVZY8YED';
-  var POSTHOG_TOKEN = 'phc_mvddXpdXGjUDxYmt7F6BqUmrDFNCfPsLSNoFABpJLn4f';
+  var POSTHOG_TOKEN = ${JSON.stringify(process.env.POSTHOG_PROJECT_TOKEN || '')};
   var POSTHOG_HOST = 'https://eu.i.posthog.com';
   var KEY = 'easygo_zgoda_cookies';
   var SB_SESSION_KEY = 'sb-svjrdyxwqznbzxqeytdn-auth-token';
@@ -41,7 +47,7 @@
 
   // Oficjalny snippet PostHoga (ładuje SDK z CDN). Wołane tylko po zgodzie.
   function loadPostHog() {
-    if (window.__egPostHogLoaded) return;
+    if (window.__egPostHogLoaded || !POSTHOG_TOKEN) return;
     window.__egPostHogLoaded = true;
     !function(t,e){var o,n,p,r;e.__SV||(window.posthog && window.posthog.__loaded)||(window.posthog=e,e._i=[],e.init=function(i,s,a){function g(t,e){var o=e.split(".");2==o.length&&(t=t[o[0]],e=o[1]),t[e]=function(){t.push([e].concat(Array.prototype.slice.call(arguments,0)))}}p||((p=t.createElement("script")).type="text/javascript",p.crossOrigin="anonymous",p.async=!0,p.src=s.api_host.replace(".i.posthog.com","-assets.i.posthog.com")+"/static/array.js",p.onerror=function(){p=null},(r=t.getElementsByTagName("script")[0]).parentNode.insertBefore(p,r));var u=e;for(void 0!==a?u=e[a]=[]:a="posthog",u.people=u.people||[],Object.defineProperty(u,"toString",{configurable:!0,enumerable:!0,writable:!0,value:function(t){var e="posthog";return"posthog"!==a&&(e+="."+a),t||(e+=" (stub)"),e}}),Object.defineProperty(u.people,"toString",{configurable:!0,enumerable:!0,writable:!0,value:function(){return u.toString(1)+".people (stub)"}}),o="vu fu pu gu bu init Hu zu qu ju Gu Xa Bu Qu Du eh ih nh sh rh oh capture getExtension Uu cu hh calculateEventProperties uh register register_once register_for_session unregister unregister_for_session gh Nu dh getFeatureFlag getFeatureFlagPayload getFeatureFlagResult getAllFeatureFlags isFeatureEnabled reloadFeatureFlags updateFlags updateEarlyAccessFeatureEnrollment getEarlyAccessFeatures on onFeatureFlags onSurveysLoaded onSessionId getSurveys getActiveMatchingSurveys renderSurvey displaySurvey cancelPendingSurvey canRenderSurvey canRenderSurveyAsync mh identify setPersonProperties unsetPersonProperties group resetGroups setPersonPropertiesForFlags resetPersonPropertiesForFlags setGroupPropertiesForFlags resetGroupPropertiesForFlags reset yh shutdown setIdentity clearIdentity get_distinct_id getGroups get_session_id get_session_replay_url alias set_config startSessionRecording stopSessionRecording sessionRecordingStarted captureException addExceptionStep captureLog startExceptionAutocapture stopExceptionAutocapture loadToolbar get_property getSessionProperty fh Xu createPersonProfile setInternalOrTestUser ph wu opt_in_capturing opt_out_capturing has_opted_in_capturing has_opted_out_capturing get_explicit_consent_status is_capturing clear_opt_in_out_capturing Ju debug Ya Os getPageViewId captureTraceFeedback captureTraceMetric Ru".split(" "),n=0;n<o.length;n++)g(u,o[n]);e._i.push([i,s,a])},e.__SV=1)}(document,window.posthog||[]);
     window.posthog.init(POSTHOG_TOKEN, {
@@ -121,3 +127,10 @@
     else showBanner();
   }
 })();
+`;
+
+export function GET() {
+  return new Response(script, {
+    headers: { 'Content-Type': 'application/javascript; charset=utf-8' },
+  });
+}

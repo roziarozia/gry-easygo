@@ -2,13 +2,12 @@
 
 import posthog from 'posthog-js';
 
-// Token projektu PostHog (phc_) jest publiczny z założenia, jak klucz Supabase w lib/supabase.js,
-// więc trzymamy go w kodzie: Vercel nie ma zmiennych NEXT_PUBLIC_POSTHOG_*, a bez nich
-// Next.js wycinał PostHoga z produkcyjnego buildu. Zmienne środowiskowe nadal mogą to nadpisać.
-// Te same wartości są w public/eg-analytics.js (strony HTML otwierane bez ramki).
-const projectToken = process.env.NEXT_PUBLIC_POSTHOG_PROJECT_TOKEN || 'phc_mvddXpdXGjUDxYmt7F6BqUmrDFNCfPsLSNoFABpJLn4f';
+// Token projektu PostHog ze zmiennej POSTHOG_PROJECT_TOKEN (Vercel), udostępnianej
+// w przeglądarce przez next.config.js. Ten sam token trafia do /eg-analytics.js
+// (app/eg-analytics.js/route.js, strony HTML otwierane bez ramki).
+const projectToken = process.env.POSTHOG_PROJECT_TOKEN;
 const posthogHost = process.env.NEXT_PUBLIC_POSTHOG_HOST || 'https://eu.i.posthog.com';
-// Ten sam klucz decyzji co w ConsentPixel.js i public/eg-analytics.js
+// Ten sam klucz decyzji co w ConsentPixel.js i app/eg-analytics.js/route.js
 const CONSENT_KEY = 'easygo_zgoda_cookies';
 
 export const analyticsEnabled = Boolean(projectToken && posthogHost);
