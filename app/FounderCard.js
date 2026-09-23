@@ -1,15 +1,49 @@
 'use client';
+import { useEffect, useState } from 'react';
 
 // ───────────────────────────────────────────────────────────────────────────
-// Sekcja "Poznaj mnie" do stopki EasyWonders.
-// Rózia jako założycielka i lektorka — twarz projektu, ale bez sugerowania,
-// że robi wszystko sama (końcówka w liczbie mnogiej: "chcemy").
+// Sekcja "Poznaj mnie" — Rózia jako założycielka i lektorka.
+// Pokazuje się TYLKO NIEZALOGOWANYM odwiedzającym (nowym gościom).
+// Zalogowany uczeń już Cię zna, więc karta się dla niego nie renderuje.
 //
+// Sprawdzenie logowania: ta sama sesja Supabase, z której korzysta katalog.
 // ZDJĘCIE: wrzuć plik rozia.png do folderu public/ na GitHubie.
-// (Plik jest gotowy — dostarczony razem z tym komponentem.)
 // ───────────────────────────────────────────────────────────────────────────
+
+const SUPA_URL = 'https://svjrdyxwqznbzxqeytdn.supabase.co';
+const SUPA_KEY = 'sb_publishable_TNCq1UAMAvLO0Z5Mt8QOig_OvsxhhyJ';
 
 export default function FounderCard() {
+  // stan: null = jeszcze nie wiadomo, true = zalogowany, false = gość
+  const [loggedIn, setLoggedIn] = useState(null);
+
+  useEffect(() => {
+    let alive = true;
+    async function check() {
+      try {
+        // użyj klienta katalogu jeśli już jest, inaczej stwórz własny
+        let sb = (typeof window !== 'undefined' && window._egSb) ? window._egSb : null;
+        if (!sb && typeof window !== 'undefined' && window.supabase) {
+          sb = window.supabase.createClient(SUPA_URL, SUPA_KEY);
+        }
+        if (!sb) {
+          // katalog jeszcze nie załadował klienta — spróbuj ponownie za chwilę
+          setTimeout(check, 600);
+          return;
+        }
+        const { data } = await sb.auth.getSession();
+        if (alive) setLoggedIn(!!(data && data.session));
+      } catch (e) {
+        if (alive) setLoggedIn(false); // w razie błędu pokaż (bezpieczniej dla nowych gości)
+      }
+    }
+    check();
+    return () => { alive = false; };
+  }, []);
+
+  // dopóki nie wiadomo, albo gdy zalogowany — nic nie pokazuj
+  if (loggedIn === null || loggedIn === true) return null;
+
   return (
     <section
       style={{
@@ -87,24 +121,17 @@ export default function FounderCard() {
             Rózia
           </h3>
 
-          <div
-            style={{
-              fontSize: 14.5,
-              fontWeight: 800,
-              color: '#ca4490',
-              marginBottom: 12,
-            }}
-          >
+          <div style={{ fontSize: 14.5, fontWeight: 800, color: '#ca4490', marginBottom: 12 }}>
             Założycielka i lektorka
           </div>
 
           <p style={{ fontSize: 15, lineHeight: 1.65, color: '#4a4458', margin: 0 }}>
-            Hej! Angielskiego uczę od ponad 10 lat i wiem,
-            jak trudno znaleźć ćwiczenia, które są jednocześnie skuteczne
-            i przyjemne. Dlatego powstało EasyWonders. Sama układam i sprawdzam
-            każdą czytankę, słuchankę i ćwiczenie — tak, żeby naprawdę
-            pomagały w nauce, a nie tylko wypełniały czas. Chcemy dać Ci
-            materiały, które pokochasz, więc zostań z nami na dłużej{' '}
+            Hej! Angielskiego uczę od ponad 10 lat i wiem, jak trudno znaleźć
+            ćwiczenia, które są jednocześnie skuteczne i przyjemne. Dlatego
+            powstało EasyWonders. Sama układam i sprawdzam każdą czytankę,
+            słuchankę i ćwiczenie — tak, żeby naprawdę pomagały w nauce,
+            a nie tylko wypełniały czas. Chcemy dać Ci materiały, które
+            pokochasz, więc zostań z nami na dłużej{' '}
             <span style={{ color: '#ff5fa2' }}>♥</span>
           </p>
         </div>
