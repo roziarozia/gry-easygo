@@ -2,7 +2,6 @@
 <html lang="pl">
 <head>
 <meta charset="UTF-8">
-<script src="/eg-analytics.js" async></script>
 <script>
   // zastosuj tryb ciemny od razu (wspólny przez localStorage z katalogiem)
   try{ if(localStorage.getItem('easygo_tryb') === 'dark'){ document.documentElement.classList.add('eg-dark'); } }catch(e){}
@@ -1876,29 +1875,8 @@ let hintUsed = false;   // czy na tym slajdzie użyto podpowiedzi (wtedy bez pun
 let coverHasImage = false;
 let currentSlug = null; // slug bieżącego ćwiczenia — do zapisu ukończenia
 
-// Raportuj rozpoczęcie do strony nadrzędnej, która obsługuje SDK analityczne.
-document.getElementById('cover').addEventListener('click', function(e){
-  var start = e.target && e.target.closest ? e.target.closest('#startShowBtn,#startTypeBtn,#startQuizBtn,#startGapPlBtn,#startGapBaseBtn,#startSpeakBtn') : null;
-  if(!start) return;
-  try{
-    if(window.parent && window.parent !== window){
-      window.parent.postMessage({ egExerciseStarted: { mode: start.id } }, location.origin);
-    }
-  }catch(err){}
-});
-
 /* zapisuje ukończenie ćwiczenia (Wariant B) — tylko dla zalogowanego ucznia */
 async function markCompleted(score, scoreMax, answers){
-  try{
-    if(window.parent && window.parent !== window){
-      window.parent.postMessage({
-        egExerciseCompleted: {
-          score: typeof score === 'number' ? score : null,
-          scoreMax: typeof scoreMax === 'number' ? scoreMax : null
-        }
-      }, location.origin);
-    }
-  }catch(err){}
   if(!_db || !currentSlug) return;
   try{
     const r = await _db.auth.getSession();
@@ -2873,6 +2851,18 @@ function finishGap(){
   markCompleted(gScore, GAPS.length, gapAnswersDetail);
   setScoreText(gScore, GAPS.length);
   scoreEl.classList.remove('hidden');
+  // wynik klikalny - uczeń zobaczy szczegóły (co wpisał vs poprawna odpowiedź)
+  scoreEl.style.cursor = 'pointer';
+  scoreEl.style.textDecoration = 'underline';
+  scoreEl.style.textDecorationStyle = 'dotted';
+  scoreEl.title = t('Kliknij, aby zobaczyć szczegóły');
+  scoreEl.onclick = async function(){
+    try{
+      var r = await _db.auth.getSession();
+      var s = r && r.data ? r.data.session : null;
+      if(s && currentSlug) egShowAnswerDetails(currentSlug, s.user.id);
+    }catch(e){}
+  };
   document.querySelector('#end .end-title .underline').textContent =
     (gScore === GAPS.length) ? 'Perfekcyjnie!' : 'Dobra robota!';
   endSub.textContent = (gScore === GAPS.length)
