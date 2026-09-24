@@ -3626,8 +3626,16 @@
 (function(){
   function reportH(){
     try{
-      var el=document.querySelector('.eg-games')||document.body;
-      var hh=Math.max(el.scrollHeight, document.body.scrollHeight);
+      // Mierz dokładny dół ostatniego realnego elementu (stopka), żeby nie było pustej przestrzeni.
+      var foot = document.querySelector('.eg-footer');
+      var hh;
+      if(foot){
+        var r = foot.getBoundingClientRect();
+        hh = Math.ceil(r.bottom + (window.scrollY||window.pageYOffset||0)) + 16;
+      } else {
+        var el=document.querySelector('.eg-games')||document.body;
+        hh=el.scrollHeight;
+      }
       if(window.parent&&window.parent!==window) window.parent.postMessage({egCatalogHeight:hh},'*');
     }catch(e){}
   }
