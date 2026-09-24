@@ -3626,15 +3626,14 @@
 (function(){
   function reportH(){
     try{
-      // Mierz dokładny dół ostatniego realnego elementu (stopka), żeby nie było pustej przestrzeni.
+      // Dół stopki = offsetTop stopki + jej wysokość. Nie zależy od scrolla (getBoundingClientRect zawodził).
       var foot = document.querySelector('.eg-footer');
       var hh;
-      if(foot){
-        var r = foot.getBoundingClientRect();
-        hh = Math.ceil(r.bottom + (window.scrollY||window.pageYOffset||0)) + 16;
+      if(foot && foot.offsetParent !== null){
+        hh = foot.offsetTop + foot.offsetHeight + 20;
       } else {
         var el=document.querySelector('.eg-games')||document.body;
-        hh=el.scrollHeight;
+        hh = Math.max(el.scrollHeight, document.body.scrollHeight);
       }
       if(window.parent&&window.parent!==window) window.parent.postMessage({egCatalogHeight:hh},'*');
     }catch(e){}
