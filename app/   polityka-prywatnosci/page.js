@@ -1,18 +1,14 @@
-import Link from 'next/link';
+'use client';
+
 
 // Polityka prywatności — podstrona easywonders (Next.js).
 // Treść 1:1 z wersji WordPress + zmiany dot. PostHog (§3: lista odbiorców i akapit o transferze).
 // Styl marki: Quicksand (nagłówki) + Nunito (tekst), lawenda/magenta.
 
-export const metadata = {
-  title: 'Polityka prywatności',
-  description: 'Polityka prywatności serwisu easygo-english.pl oraz platformy easywonders.pl.',
-};
-
 export default function PolitykaPrywatnosci() {
   return (
     <main style={{ minHeight: '100vh', background: '#faf7fc', padding: '0 0 60px' }}>
-      <style>{`
+      <style dangerouslySetInnerHTML={{ __html: `
         .pp-wrap{max-width:760px;margin:0 auto;padding:0 20px;font-family:'Nunito',sans-serif;color:#3a3448;line-height:1.7;}
         .pp-hero{background:linear-gradient(135deg,#a78dd9 0%,#ca4490 100%);padding:44px 20px 40px;text-align:center;margin-bottom:36px;}
         .pp-hero h1{font-family:'Quicksand',sans-serif;font-weight:700;font-size:34px;color:#fff;margin:0 0 6px;}
@@ -31,12 +27,12 @@ export default function PolitykaPrywatnosci() {
         .pp-contact{background:#fff;border-radius:14px;padding:18px 22px;margin:28px 0 0;text-align:center;box-shadow:0 4px 16px rgba(202,68,144,.06);}
         .pp-contact a{color:#ca4490;font-weight:700;}
         @media(max-width:560px){.pp-hero h1{font-size:27px;}.pp-wrap h2{font-size:19px;}}
-      `}</style>
+      ` }} />
 
       <div className="pp-hero">
         <h1>Polityka prywatności</h1>
         <p>easygo-english.pl · easywonders.pl</p>
-        <Link href="/" className="pp-back">← Wróć do EasyWonders</Link>
+        <a href="/" className="pp-back">← Wróć do EasyWonders</a>
       </div>
 
       <div className="pp-wrap">
