@@ -2695,6 +2695,13 @@ function normGap(s){
 }
 function gapCorrect(item, typed){
   const t = normGap(typed);
+  // Obsługa odpowiedzi "brak słowa": jeśli poprawna odpowiedź to myślnik/kreska
+  // (normalizuje się do pustej), a uczeń też wpisał sam myślnik/kreskę - zaliczamy.
+  const rawTyped = (typed || '').toString().trim();
+  const typedIsDash = /^[-–—]+$/.test(rawTyped);
+  if(typedIsDash){
+    return item.answers.some(a => /^[-–—]+$/.test((a||'').toString().trim()));
+  }
   if(!t) return false;
   return item.answers.some(a => normGap(a) === t);
 }
