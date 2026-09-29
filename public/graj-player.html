@@ -1461,12 +1461,21 @@
   .np-tool svg{ width:19px; height:19px; }
   .np-sep{ width:1px; height:26px; background:var(--line); margin:0 3px; }
   .np-swatches{ display:flex; gap:6px; align-items:center; }
-  .np-swatch{ width:24px; height:24px; border-radius:50%; cursor:pointer; border:2px solid transparent; transition:transform .12s; }
+  .np-swatch{ width:24px; height:24px; border-radius:50%; cursor:pointer; border:2px solid transparent; transition:transform .12s, box-shadow .12s; position:relative; }
   .np-swatch:hover{ transform:scale(1.15); }
-  .np-swatch.np-on{ border-color:var(--ink); }
+  /* wybrany kolor: wyraźny pierścień wokół + powiększenie, żeby było jasne który jest aktywny */
+  .np-swatch.np-on{ transform:scale(1.15); box-shadow:0 0 0 2px var(--card), 0 0 0 4px var(--magenta,#ca4490); }
   /* biały kolor potrzebuje obwódki, żeby był widoczny na jasnym tle */
   .np-swatch.np-white{ border:2px solid var(--line); }
-  .np-swatch.np-white.np-on{ border-color:var(--ink); }
+  .np-swatch.np-white.np-on{ border-color:transparent; box-shadow:0 0 0 2px var(--card), 0 0 0 4px var(--magenta,#ca4490); }
+  /* przycisk własnego koloru (+) */
+  .np-swatch.np-custom{
+    background:conic-gradient(#ff004c,#ffbe0b,#3ba05a,#3aa3d0,#a78dd9,#ca4490,#ff004c);
+    border:2px solid var(--line); color:#fff; font-weight:800; font-size:16px; line-height:1;
+    display:flex; align-items:center; justify-content:center; padding:0;
+    text-shadow:0 1px 2px rgba(0,0,0,.5);
+  }
+  .np-swatch.np-custom.np-on{ box-shadow:0 0 0 2px var(--card), 0 0 0 4px var(--magenta,#ca4490); }
   /* przycisk undo (cofnij) */
   .np-tool.np-undo{ font-size:18px; }
   .np-tool.np-undo:disabled{ opacity:.35; cursor:default; }
@@ -1482,12 +1491,16 @@
   html.eg-dark .np-surface{ background-image:radial-gradient(#363a52 1.1px, transparent 1.1px); }
   .np-text{
     display:block; width:100%; min-height:120px;
-    border:none; outline:none; resize:none; background:transparent;
+    border:none; outline:none; background:transparent;
     font-family:'Nunito',sans-serif; font-size:16px; line-height:22px;
-    color:var(--ink); padding:14px 16px; overflow:hidden;
+    color:var(--ink); padding:14px 16px;
     position:relative; z-index:1;
+    white-space:pre-wrap; word-break:break-word;
   }
-  .np-text::placeholder{ color:var(--muted); opacity:.65; }
+  .np-text:empty::before{
+    content:attr(data-placeholder);
+    color:var(--muted); opacity:.65; pointer-events:none;
+  }
   /* canvas ZAWSZE widoczny (nakładka nad tekstem); tryb decyduje tylko czy łapie kliknięcia */
   .np-canvas{ position:absolute; inset:0; width:100%; height:100%; touch-action:none; z-index:2; pointer-events:none; }
   .np-panel.np-draw .np-canvas{ pointer-events:auto; }
@@ -1638,7 +1651,9 @@
     // placeholdery z [data-i18n-ph]
     var phs = document.querySelectorAll('[data-i18n-ph]');
     for(var pi=0;pi<phs.length;pi++){
-      phs[pi].setAttribute('placeholder', window.t(phs[pi].getAttribute('data-i18n-ph')));
+      var phTxt = window.t(phs[pi].getAttribute('data-i18n-ph'));
+      if(phs[pi].isContentEditable){ phs[pi].setAttribute('data-placeholder', phTxt); }
+      else { phs[pi].setAttribute('placeholder', phTxt); }
     }
     // przycisk pokazuje język, NA KTÓRY przełączy (odwrotność aktualnego)
     var lt = document.getElementById('grajLangTxt');
@@ -1903,9 +1918,11 @@
       </button>
       <span class="np-sep"></span>
       <div class="np-swatches" id="npSwatches"></div>
+      <button type="button" class="np-swatch np-custom" id="npCustomBtn" title="Własny kolor / Custom color">+</button>
+      <input type="color" id="npCustomColor" style="position:absolute;width:0;height:0;opacity:0;pointer-events:none;">
     </div>
     <div class="np-surface">
-      <textarea class="np-text" id="npText" data-i18n-ph="Pisz tutaj notatki…" placeholder="Pisz tutaj notatki…"></textarea>
+      <div class="np-text" id="npText" contenteditable="true" role="textbox" aria-multiline="true" data-i18n-ph="Pisz tutaj notatki…" data-placeholder="Pisz tutaj notatki…"></div>
       <canvas class="np-canvas" id="npCanvas"></canvas>
     </div>
     <div class="np-foot">
@@ -3977,20 +3994,22 @@ async function egShowAnswerDetails(gameSlug, userId, opts){
 (function(){
   var toggle = document.getElementById('npToggle');
   var panel  = document.getElementById('npPanel');
-  var ta     = document.getElementById('npText');
+  var ta     = document.getElementById('npText');       // teraz contenteditable div
   var cv     = document.getElementById('npCanvas');
   var modeTextBtn = document.getElementById('npModeText');
   var modeDrawBtn = document.getElementById('npModeDraw');
   var clearBtn = document.getElementById('npClear');
   var undoBtn = document.getElementById('npUndo');
   var swBox  = document.getElementById('npSwatches');
+  var customBtn = document.getElementById('npCustomBtn');
+  var customInput = document.getElementById('npCustomColor');
   if(!toggle || !panel || !ta || !cv) return; // bezpiecznik
 
   var ctx = cv.getContext('2d');
   var mode = 'text';
   var COLORS = ['#2e2a33','#ffffff','#ca4490','#a78dd9','#3aa3d0','#3ba05a','#e8a33a'];
-  var textColor = COLORS[0];  // kolor tekstu (Tt)
   var drawColor = '#ca4490';  // kolor rysika — domyślnie różowy
+  var textColor = null;       // wybrany kolor tekstu (null = domyślny motywu)
   var strokes = [];
   var drawing = false;
 
@@ -4014,34 +4033,54 @@ async function egShowAnswerDetails(gameSlug, userId, opts){
   modeTextBtn.addEventListener('click', function(){ setMode('text'); });
   modeDrawBtn.addEventListener('click', function(){ setMode('draw'); });
 
-  // kolory
-  COLORS.forEach(function(c,i){
+  // ustaw kolor tekstu dla ZAZNACZENIA / dalszego pisania (wielokolorowo)
+  function applyTextColor(c){
+    ta.focus();
+    try{ document.execCommand('styleWithCSS', false, true); }catch(e){}
+    try{ document.execCommand('foreColor', false, c); }catch(e){}
+  }
+
+  // wybór koloru z palety — dla trybu tekst koloruje zaznaczenie/dalsze pisanie,
+  // dla trybu rysik ustawia kolor rysika
+  function chooseColor(c){
+    if(mode==='draw'){ drawColor = c; }
+    else { textColor = c; applyTextColor(c); }
+    highlightSwatch(c);
+  }
+
+  // paleta
+  COLORS.forEach(function(c){
     var s = document.createElement('div');
     var isWhite = (c.toLowerCase()==='#ffffff');
     s.className = 'np-swatch' + (isWhite ? ' np-white' : '');
     s.setAttribute('data-color', c);
     s.style.background = c;
-    s.addEventListener('click', function(){
-      if(mode==='draw'){ drawColor = c; }
-      else { textColor = c; ta.style.color = c; }
-      highlightSwatch();
-    });
+    s.addEventListener('mousedown', function(e){ e.preventDefault(); }); // nie gub zaznaczenia
+    s.addEventListener('click', function(){ chooseColor(c); });
     swBox.appendChild(s);
   });
-  // podświetla w palecie kolor AKTUALNEGO trybu (tekst albo rysik)
-  function highlightSwatch(){
-    var active = (mode==='draw') ? drawColor : textColor;
-    var all = swBox.querySelectorAll('.np-swatch');
-    for(var k=0;k<all.length;k++){
-      all[k].classList.toggle('np-on', all[k].getAttribute('data-color').toLowerCase()===active.toLowerCase());
-    }
-  }
-  ta.style.color = textColor;
-  highlightSwatch();
 
-  // textarea rośnie z tekstem
-  function grow(){ ta.style.height='auto'; ta.style.height = Math.max(120, ta.scrollHeight)+'px'; resize(); }
-  ta.addEventListener('input', grow);
+  // własny kolor (color picker)
+  if(customBtn && customInput){
+    customBtn.addEventListener('mousedown', function(e){ e.preventDefault(); });
+    customBtn.addEventListener('click', function(){ customInput.click(); });
+    customInput.addEventListener('input', function(){ chooseColor(customInput.value); });
+  }
+
+  // podświetla w palecie kolor AKTUALNEGO trybu
+  function highlightSwatch(activeOverride){
+    var active = activeOverride || ((mode==='draw') ? drawColor : textColor);
+    var all = swBox.querySelectorAll('.np-swatch');
+    var found = false;
+    for(var k=0;k<all.length;k++){
+      var match = active && all[k].getAttribute('data-color').toLowerCase()===active.toLowerCase();
+      if(match) found = true;
+      all[k].classList.toggle('np-on', !!match);
+    }
+    // jeśli kolor spoza palety (własny), podświetl przycisk "+"
+    if(customBtn){ customBtn.classList.toggle('np-on', !!active && !found); }
+  }
+  highlightSwatch();
 
   // rysowanie
   function resize(){
@@ -4064,6 +4103,9 @@ async function egShowAnswerDetails(gameSlug, userId, opts){
       ctx.stroke();
     }
   }
+  // tekst rośnie sam (div), ale canvas trzeba przeskalować gdy wysokość się zmieni
+  ta.addEventListener('input', function(){ setTimeout(resize, 0); });
+
   function pos(e){
     var r = cv.getBoundingClientRect();
     var t = e.touches ? e.touches[0] : e;
@@ -4075,7 +4117,7 @@ async function egShowAnswerDetails(gameSlug, userId, opts){
   cv.addEventListener('mousedown', start); cv.addEventListener('mousemove', move); window.addEventListener('mouseup', end);
   cv.addEventListener('touchstart', start, {passive:false}); cv.addEventListener('touchmove', move, {passive:false}); cv.addEventListener('touchend', end);
 
-  // cofanie ostatniej kreski
+  // cofanie ostatniej kreski rysika
   function updateUndo(){ if(undoBtn){ undoBtn.disabled = (strokes.length===0); } }
   if(undoBtn){
     undoBtn.addEventListener('click', function(){
@@ -4083,7 +4125,8 @@ async function egShowAnswerDetails(gameSlug, userId, opts){
     });
   }
 
-  clearBtn.addEventListener('click', function(){ ta.value=''; grow(); strokes=[]; redraw(); updateUndo(); });
+  // wyczyść: tekst i rysunek
+  clearBtn.addEventListener('click', function(){ ta.innerHTML=''; strokes=[]; redraw(); updateUndo(); setTimeout(resize,0); ta.focus(); });
   window.addEventListener('resize', resize);
 })();
 </script>
