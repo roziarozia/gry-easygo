@@ -1450,7 +1450,7 @@
     padding:16px;
     box-shadow:0 6px 24px rgba(120,90,180,.08);
   }
-  .np-head{ display:flex; align-items:center; gap:8px; margin-bottom:12px; flex-wrap:wrap; }
+  .np-head{ display:flex; align-items:center; gap:8px; margin-bottom:12px; flex-wrap:wrap; position:relative; }
   .np-tool{
     width:40px; height:36px; border-radius:10px;
     border:1.5px solid var(--line); background:transparent; color:var(--ink);
@@ -1461,13 +1461,13 @@
   .np-tool svg{ width:19px; height:19px; }
   .np-sep{ width:1px; height:26px; background:var(--line); margin:0 3px; }
   .np-swatches{ display:flex; gap:6px; align-items:center; }
-  .np-swatch{ width:24px; height:24px; border-radius:50%; cursor:pointer; border:2px solid transparent; transition:transform .12s, box-shadow .12s; position:relative; }
-  .np-swatch:hover{ transform:scale(1.15); }
-  /* wybrany kolor: wyraźny pierścień wokół + powiększenie, żeby było jasne który jest aktywny */
-  .np-swatch.np-on{ transform:scale(1.15); box-shadow:0 0 0 2px var(--card), 0 0 0 4px var(--magenta,#ca4490); }
+  .np-swatch{ width:24px; height:24px; border-radius:50%; cursor:pointer; border:2px solid transparent; transition:box-shadow .15s; position:relative; }
+  .np-swatch:hover{ box-shadow:0 0 0 3px rgba(202,68,144,.18); }
+  /* wybrany kolor: miękka poświata wokół (bez powiększania) */
+  .np-swatch.np-on{ box-shadow:0 0 8px 2px currentColor, 0 0 0 2px var(--card), 0 0 0 3px var(--magenta,#ca4490); }
   /* biały kolor potrzebuje obwódki, żeby był widoczny na jasnym tle */
   .np-swatch.np-white{ border:2px solid var(--line); }
-  .np-swatch.np-white.np-on{ border-color:transparent; box-shadow:0 0 0 2px var(--card), 0 0 0 4px var(--magenta,#ca4490); }
+  .np-swatch.np-white.np-on{ border-color:transparent; box-shadow:0 0 8px 2px rgba(255,255,255,.6), 0 0 0 2px var(--card), 0 0 0 3px var(--magenta,#ca4490); }
   /* przycisk własnego koloru (+) */
   .np-swatch.np-custom{
     background:conic-gradient(#ff004c,#ffbe0b,#3ba05a,#3aa3d0,#a78dd9,#ca4490,#ff004c);
@@ -1475,7 +1475,28 @@
     display:flex; align-items:center; justify-content:center; padding:0;
     text-shadow:0 1px 2px rgba(0,0,0,.5);
   }
-  .np-swatch.np-custom.np-on{ box-shadow:0 0 0 2px var(--card), 0 0 0 4px var(--magenta,#ca4490); }
+  .np-swatch.np-custom.np-on{ box-shadow:0 0 8px 2px rgba(202,68,144,.5), 0 0 0 2px var(--card), 0 0 0 3px var(--magenta,#ca4490); }
+  /* własne okienko wyboru koloru — zaokrąglone, dopasowane do trybu */
+  .np-cpop{
+    position:absolute; z-index:30; top:100%; right:0; margin-top:8px;
+    background:var(--card); border:1.5px solid var(--line); border-radius:16px;
+    box-shadow:0 12px 32px rgba(60,40,90,.22);
+    padding:14px; max-width:calc(100vw - 40px);
+  }
+  html.eg-dark .np-cpop{ box-shadow:0 12px 32px rgba(0,0,0,.5); }
+  .np-cpop-grid{ display:grid; grid-template-columns:repeat(8, 22px); gap:7px; }
+  @media (max-width:560px){ .np-cpop-grid{ grid-template-columns:repeat(6, 26px); gap:8px; } }
+  .np-cpop-cell{ width:22px; height:22px; border-radius:50%; cursor:pointer; border:1.5px solid rgba(125,119,136,.25); transition:box-shadow .15s; }
+  .np-cpop-cell:hover{ box-shadow:0 0 0 3px rgba(202,68,144,.22); }
+  .np-cpop-foot{ display:flex; align-items:center; gap:9px; margin-top:12px; padding-top:11px; border-top:1px solid var(--line); }
+  .np-cpop-native{
+    width:30px; height:30px; padding:0; border:1.5px solid var(--line); border-radius:9px;
+    background:var(--card); cursor:pointer;
+  }
+  .np-cpop-native::-webkit-color-swatch-wrapper{ padding:2px; }
+  .np-cpop-native::-webkit-color-swatch{ border:none; border-radius:6px; }
+  .np-cpop-native::-moz-color-swatch{ border:none; border-radius:6px; }
+  .np-cpop-hint{ font-family:'Nunito',sans-serif; font-size:12.5px; color:var(--muted); font-weight:600; }
   /* przycisk undo (cofnij) */
   .np-tool.np-undo{ font-size:18px; }
   .np-tool.np-undo:disabled{ opacity:.35; cursor:default; }
@@ -1577,6 +1598,7 @@
     'Pisz tutaj notatki…': 'Write your notes here…',
     'Notatka się nie zapisuje — zrób zrzut ekranu, jeśli chcesz ją zachować.': 'Notes are not saved — take a screenshot if you want to keep them.',
     'Wyczyść': 'Clear',
+    'Własny kolor': 'Custom color',
     '‹ poprzednie': '‹ previous',
     'Gramatyka': 'Grammar',
     'Słownictwo': 'Vocabulary',
@@ -1919,7 +1941,13 @@
       <span class="np-sep"></span>
       <div class="np-swatches" id="npSwatches"></div>
       <button type="button" class="np-swatch np-custom" id="npCustomBtn" title="Własny kolor / Custom color">+</button>
-      <input type="color" id="npCustomColor" style="position:absolute;width:0;height:0;opacity:0;pointer-events:none;">
+      <div class="np-cpop" id="npCpop" hidden>
+        <div class="np-cpop-grid" id="npCpopGrid"></div>
+        <div class="np-cpop-foot">
+          <input type="color" id="npCustomColor" class="np-cpop-native">
+          <span class="np-cpop-hint" data-i18n="Własny kolor">Własny kolor</span>
+        </div>
+      </div>
     </div>
     <div class="np-surface">
       <div class="np-text" id="npText" contenteditable="true" role="textbox" aria-multiline="true" data-i18n-ph="Pisz tutaj notatki…" data-placeholder="Pisz tutaj notatki…"></div>
@@ -4060,11 +4088,44 @@ async function egShowAnswerDetails(gameSlug, userId, opts){
     swBox.appendChild(s);
   });
 
-  // własny kolor (color picker)
-  if(customBtn && customInput){
+  // własne okienko wyboru koloru (popover)
+  var cpop = document.getElementById('npCpop');
+  var cpopGrid = document.getElementById('npCpopGrid');
+  if(customBtn && cpop && cpopGrid){
+    // bogatsza siatka kolorów (8 kolumn)
+    var GRID = [
+      '#2e2a33','#5b5566','#8a8397','#b7b0c2','#ffffff','#f4a8d0','#ca4490','#8e2b62',
+      '#ff004c','#ff6b6b','#ff9f1c','#ffbe0b','#ffe66d','#c3f73a','#3ba05a','#1b7f4c',
+      '#3aa3d0','#2d6fb3','#4361ee','#7b2ff7','#a78dd9','#c77dff','#6d4c41','#3e2723'
+    ];
+    GRID.forEach(function(c){
+      var cell = document.createElement('div');
+      cell.className = 'np-cpop-cell';
+      cell.style.background = c;
+      cell.setAttribute('data-color', c);
+      cell.addEventListener('mousedown', function(e){ e.preventDefault(); });
+      cell.addEventListener('click', function(){ chooseColor(c); closeCpop(); });
+      cpopGrid.appendChild(cell);
+    });
+    function openCpop(){ cpop.hidden = false; }
+    function closeCpop(){ cpop.hidden = true; }
     customBtn.addEventListener('mousedown', function(e){ e.preventDefault(); });
-    customBtn.addEventListener('click', function(){ customInput.click(); });
-    customInput.addEventListener('input', function(){ chooseColor(customInput.value); });
+    customBtn.addEventListener('click', function(e){
+      e.stopPropagation();
+      if(cpop.hidden) openCpop(); else closeCpop();
+    });
+    // natywny picker (dowolny kolor) — jako opcja w stopce popovera
+    if(customInput){
+      // NIE blokujemy zdarzeń na inpucie — na telefonie dotyk musi otworzyć systemowy picker
+      customInput.addEventListener('input', function(){ chooseColor(customInput.value); });
+      customInput.addEventListener('change', function(){ chooseColor(customInput.value); closeCpop(); });
+    }
+    // klik poza popoverem zamyka (ale nie gdy klikamy sam input koloru)
+    document.addEventListener('click', function(e){
+      if(cpop.hidden) return;
+      if(cpop.contains(e.target) || e.target === customBtn) return;
+      closeCpop();
+    });
   }
 
   // podświetla w palecie kolor AKTUALNEGO trybu
