@@ -1519,17 +1519,18 @@
     background-image:radial-gradient(#ece6f7 1.1px, transparent 1.1px);
     background-size:22px 22px; background-position:12px 14px;
     border:1.5px solid var(--line);
-    min-height:120px; overflow:hidden;
+    min-height:120px; max-height:1400px; overflow:hidden;
     display:flex; flex-direction:column;
   }
   html.eg-dark .np-surface{ background-image:radial-gradient(#363a52 1.1px, transparent 1.1px); }
   .np-text{
-    display:block; width:100%; min-height:120px; flex:1 1 auto;
+    display:block; width:100%; min-height:120px; max-height:1400px; flex:1 1 auto;
     border:none; outline:none; background:transparent;
     font-family:'Nunito',sans-serif; font-size:16px; line-height:22px;
     color:var(--ink); padding:14px 16px;
     position:relative; z-index:1;
     white-space:pre-wrap; word-break:break-word;
+    overflow-y:auto; overflow-x:hidden;
   }
   .np-text:empty::before{
     content:attr(data-placeholder);
@@ -4256,11 +4257,14 @@ async function egShowAnswerDetails(gameSlug, userId, opts){
 
   // powiększanie pola (dla rysowania — gdy ktoś nie pisze tekstu)
   var expandBtn = document.getElementById('npExpand');
+  var NP_MAX_H = 1400; // górny limit wysokości pola, żeby nie rosło w nieskończoność
   if(expandBtn){
     var surf = cv.parentElement;
     expandBtn.addEventListener('click', function(){
       var cur = surf.getBoundingClientRect().height;
-      surf.style.minHeight = (cur + 100) + 'px';
+      var next = Math.min(cur + 100, NP_MAX_H);
+      surf.style.minHeight = next + 'px';
+      expandBtn.disabled = (next >= NP_MAX_H); // po osiągnięciu limitu przycisk się blokuje
       setTimeout(resize, 0); // przeskaluj canvas, zachowując rysunek (redraw z strokes)
     });
   }
