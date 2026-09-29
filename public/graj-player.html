@@ -262,7 +262,7 @@
     gap:12px;
     position:absolute;
     left:0;right:0;bottom:0;
-    padding:24px 20px 26px;
+    padding:24px 20px 14px;
     z-index:2;
   }
   .mode-label{
@@ -766,7 +766,7 @@
     display:flex;
     justify-content:center;
     gap:12px;
-    padding:0 24px 22px;
+    padding:20px 24px 22px;
   }
   .bottom-bar a,
   .bottom-bar button{
@@ -1464,6 +1464,12 @@
   .np-swatch{ width:24px; height:24px; border-radius:50%; cursor:pointer; border:2px solid transparent; transition:transform .12s; }
   .np-swatch:hover{ transform:scale(1.15); }
   .np-swatch.np-on{ border-color:var(--ink); }
+  /* biały kolor potrzebuje obwódki, żeby był widoczny na jasnym tle */
+  .np-swatch.np-white{ border:2px solid var(--line); }
+  .np-swatch.np-white.np-on{ border-color:var(--ink); }
+  /* przycisk undo (cofnij) */
+  .np-tool.np-undo{ font-size:18px; }
+  .np-tool.np-undo:disabled{ opacity:.35; cursor:default; }
 
   .np-surface{
     position:relative; border-radius:14px;
@@ -1553,6 +1559,7 @@
     'Strona główna': 'Home',
     'Inne ćwiczenia': 'Other exercises',
     'Pełny ekran': 'Fullscreen',
+    'Zamknij pełny ekran': 'Exit fullscreen',
     'Notatnik': 'Notes',
     'Pisz tutaj notatki…': 'Write your notes here…',
     'Notatka się nie zapisuje — zrób zrzut ekranu, jeśli chcesz ją zachować.': 'Notes are not saved — take a screenshot if you want to keep them.',
@@ -1890,6 +1897,9 @@
       <button type="button" class="np-tool np-on" id="npModeText" title="Pisanie / Text">Tt</button>
       <button type="button" class="np-tool" id="npModeDraw" title="Rysowanie / Draw">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>
+      </button>
+      <button type="button" class="np-tool np-undo" id="npUndo" title="Cofnij / Undo" disabled>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 14 4 9l5-5"/><path d="M4 9h11a5 5 0 0 1 5 5v0a5 5 0 0 1-5 5H9"/></svg>
       </button>
       <span class="np-sep"></span>
       <div class="np-swatches" id="npSwatches"></div>
@@ -3699,6 +3709,21 @@ document.getElementById('fullBtn').addEventListener('click', () => {
   }
 });
 
+/* Przycisk zmienia nazwę: poza pełnym ekranem "Pełny ekran", w pełnym ekranie "Zamknij pełny ekran".
+   Aktualizuje data-i18n, żeby działało też po zmianie języka. */
+(function(){
+  var fb = document.getElementById('fullBtn');
+  if(!fb) return;
+  function syncFsLabel(){
+    var inFs = !!document.fullscreenElement;
+    var key = inFs ? 'Zamknij pełny ekran' : 'Pełny ekran';
+    fb.setAttribute('data-i18n', key);
+    fb.textContent = (window.t ? window.t(key) : key);
+  }
+  document.addEventListener('fullscreenchange', syncFsLabel);
+  syncFsLabel();
+})();
+
 /* Na pełnym ekranie karta jest mała (sztywne 980px), więc skalujemy ją
    proporcjonalnie do rozmiaru ekranu; poza fullscreen — bez zmian. */
 (function(){
@@ -3954,12 +3979,13 @@ async function egShowAnswerDetails(gameSlug, userId, opts){
   var modeTextBtn = document.getElementById('npModeText');
   var modeDrawBtn = document.getElementById('npModeDraw');
   var clearBtn = document.getElementById('npClear');
+  var undoBtn = document.getElementById('npUndo');
   var swBox  = document.getElementById('npSwatches');
   if(!toggle || !panel || !ta || !cv) return; // bezpiecznik
 
   var ctx = cv.getContext('2d');
   var mode = 'text';
-  var COLORS = ['#2e2a33','#ca4490','#a78dd9','#3aa3d0','#3ba05a','#e8a33a'];
+  var COLORS = ['#2e2a33','#ffffff','#ca4490','#a78dd9','#3aa3d0','#3ba05a','#e8a33a'];
   var curColor = COLORS[0];
   var strokes = [];
   var drawing = false;
@@ -3986,7 +4012,8 @@ async function egShowAnswerDetails(gameSlug, userId, opts){
   // kolory
   COLORS.forEach(function(c,i){
     var s = document.createElement('div');
-    s.className = 'np-swatch' + (i===0 ? ' np-on' : '');
+    var isWhite = (c.toLowerCase()==='#ffffff');
+    s.className = 'np-swatch' + (i===0 ? ' np-on' : '') + (isWhite ? ' np-white' : '');
     s.style.background = c;
     s.addEventListener('click', function(){
       curColor = c;
@@ -4030,11 +4057,19 @@ async function egShowAnswerDetails(gameSlug, userId, opts){
   }
   function start(e){ if(mode!=='draw')return; drawing=true; strokes.push({color:curColor, pts:[pos(e)]}); e.preventDefault(); }
   function move(e){ if(!drawing)return; strokes[strokes.length-1].pts.push(pos(e)); redraw(); e.preventDefault(); }
-  function end(){ drawing=false; }
+  function end(){ if(drawing){ drawing=false; updateUndo(); } }
   cv.addEventListener('mousedown', start); cv.addEventListener('mousemove', move); window.addEventListener('mouseup', end);
   cv.addEventListener('touchstart', start, {passive:false}); cv.addEventListener('touchmove', move, {passive:false}); cv.addEventListener('touchend', end);
 
-  clearBtn.addEventListener('click', function(){ ta.value=''; grow(); strokes=[]; redraw(); });
+  // cofanie ostatniej kreski
+  function updateUndo(){ if(undoBtn){ undoBtn.disabled = (strokes.length===0); } }
+  if(undoBtn){
+    undoBtn.addEventListener('click', function(){
+      if(strokes.length){ strokes.pop(); redraw(); updateUndo(); }
+    });
+  }
+
+  clearBtn.addEventListener('click', function(){ ta.value=''; grow(); strokes=[]; redraw(); updateUndo(); });
   window.addEventListener('resize', resize);
 })();
 </script>
