@@ -1520,10 +1520,11 @@
     background-size:22px 22px; background-position:12px 14px;
     border:1.5px solid var(--line);
     min-height:120px; overflow:hidden;
+    display:flex; flex-direction:column;
   }
   html.eg-dark .np-surface{ background-image:radial-gradient(#363a52 1.1px, transparent 1.1px); }
   .np-text{
-    display:block; width:100%; min-height:120px;
+    display:block; width:100%; min-height:120px; flex:1 1 auto;
     border:none; outline:none; background:transparent;
     font-family:'Nunito',sans-serif; font-size:16px; line-height:22px;
     color:var(--ink); padding:14px 16px;
@@ -1949,6 +1950,9 @@
       </button>
       <button type="button" class="np-tool np-undo" id="npUndo" title="Cofnij / Undo" disabled>
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 14 4 9l5-5"/><path d="M4 9h11a5 5 0 0 1 5 5v0a5 5 0 0 1-5 5H9"/></svg>
+      </button>
+      <button type="button" class="np-tool" id="npExpand" title="Powiększ pole / Make bigger">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3H5a2 2 0 0 0-2 2v3"/><path d="M16 3h3a2 2 0 0 1 2 2v3"/><path d="M12 8v10"/><path d="m8 14 4 4 4-4"/></svg>
       </button>
       <span class="np-sep"></span>
       <div class="np-swatches" id="npSwatches"></div>
@@ -4247,6 +4251,17 @@ async function egShowAnswerDetails(gameSlug, userId, opts){
   if(undoBtn){
     undoBtn.addEventListener('click', function(){
       if(strokes.length){ strokes.pop(); redraw(); updateUndo(); }
+    });
+  }
+
+  // powiększanie pola (dla rysowania — gdy ktoś nie pisze tekstu)
+  var expandBtn = document.getElementById('npExpand');
+  if(expandBtn){
+    var surf = cv.parentElement;
+    expandBtn.addEventListener('click', function(){
+      var cur = surf.getBoundingClientRect().height;
+      surf.style.minHeight = (cur + 100) + 'px';
+      setTimeout(resize, 0); // przeskaluj canvas, zachowując rysunek (redraw z strokes)
     });
   }
 
