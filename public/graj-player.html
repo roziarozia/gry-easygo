@@ -1476,27 +1476,39 @@
     text-shadow:0 1px 2px rgba(0,0,0,.5);
   }
   .np-swatch.np-custom.np-on{ box-shadow:0 0 8px 2px rgba(202,68,144,.5), 0 0 0 2px var(--card), 0 0 0 3px var(--magenta,#ca4490); }
-  /* własne okienko wyboru koloru — zaokrąglone, dopasowane do trybu */
+  /* własny selektor koloru — zaokrąglony, dopasowany do trybu, otwiera się od razu */
   .np-cpop{
     position:absolute; z-index:30; top:100%; right:0; margin-top:8px;
     background:var(--card); border:1.5px solid var(--line); border-radius:16px;
     box-shadow:0 12px 32px rgba(60,40,90,.22);
-    padding:14px; max-width:calc(100vw - 40px);
+    padding:14px; width:200px; max-width:calc(100vw - 40px);
   }
   html.eg-dark .np-cpop{ box-shadow:0 12px 32px rgba(0,0,0,.5); }
-  .np-cpop-grid{ display:grid; grid-template-columns:repeat(8, 22px); gap:7px; }
-  @media (max-width:560px){ .np-cpop-grid{ grid-template-columns:repeat(6, 26px); gap:8px; } }
-  .np-cpop-cell{ width:22px; height:22px; border-radius:50%; cursor:pointer; border:1.5px solid rgba(125,119,136,.25); transition:box-shadow .15s; }
-  .np-cpop-cell:hover{ box-shadow:0 0 0 3px rgba(202,68,144,.22); }
-  .np-cpop-foot{ display:flex; align-items:center; gap:9px; margin-top:12px; padding-top:11px; border-top:1px solid var(--line); }
-  .np-cpop-native{
-    width:30px; height:30px; padding:0; border:1.5px solid var(--line); border-radius:9px;
-    background:var(--card); cursor:pointer;
+  /* pole kolor + jasność (saturation/value) */
+  .np-cp-sat{
+    position:relative; width:100%; height:120px; border-radius:12px; cursor:crosshair;
+    background:hsl(320, 100%, 50%); overflow:hidden; touch-action:none;
   }
-  .np-cpop-native::-webkit-color-swatch-wrapper{ padding:2px; }
-  .np-cpop-native::-webkit-color-swatch{ border:none; border-radius:6px; }
-  .np-cpop-native::-moz-color-swatch{ border:none; border-radius:6px; }
-  .np-cpop-hint{ font-family:'Nunito',sans-serif; font-size:12.5px; color:var(--muted); font-weight:600; }
+  .np-cp-sat-white{ position:absolute; inset:0; background:linear-gradient(to right, #fff, transparent); border-radius:12px; }
+  .np-cp-sat-black{ position:absolute; inset:0; background:linear-gradient(to top, #000, transparent); border-radius:12px; }
+  .np-cp-knob{
+    position:absolute; width:16px; height:16px; border-radius:50%;
+    border:2.5px solid #fff; box-shadow:0 0 0 1.5px rgba(0,0,0,.35), 0 1px 3px rgba(0,0,0,.4);
+    transform:translate(-50%,-50%); pointer-events:none; top:0; left:100%;
+  }
+  /* pasek odcienia (hue) */
+  .np-cp-hue{
+    position:relative; width:100%; height:16px; border-radius:8px; margin-top:12px; cursor:pointer; touch-action:none;
+    background:linear-gradient(to right,#ff0000,#ffff00,#00ff00,#00ffff,#0000ff,#ff00ff,#ff0000);
+  }
+  .np-cp-hue-knob{
+    position:absolute; top:50%; width:16px; height:16px; border-radius:50%; background:#fff;
+    border:2px solid rgba(0,0,0,.2); box-shadow:0 1px 3px rgba(0,0,0,.35);
+    transform:translate(-50%,-50%); pointer-events:none; left:88%;
+  }
+  .np-cp-foot{ display:flex; align-items:center; gap:9px; margin-top:12px; }
+  .np-cp-preview{ width:28px; height:28px; border-radius:8px; border:1.5px solid var(--line); flex:none; background:#ca4490; }
+  .np-cp-hex{ font-family:'Nunito',sans-serif; font-size:13px; font-weight:700; color:var(--ink); letter-spacing:.02em; }
   /* przycisk undo (cofnij) */
   .np-tool.np-undo{ font-size:18px; }
   .np-tool.np-undo:disabled{ opacity:.35; cursor:default; }
@@ -1942,10 +1954,17 @@
       <div class="np-swatches" id="npSwatches"></div>
       <button type="button" class="np-swatch np-custom" id="npCustomBtn" title="Własny kolor / Custom color">+</button>
       <div class="np-cpop" id="npCpop" hidden>
-        <div class="np-cpop-grid" id="npCpopGrid"></div>
-        <div class="np-cpop-foot">
-          <input type="color" id="npCustomColor" class="np-cpop-native">
-          <span class="np-cpop-hint" data-i18n="Własny kolor">Własny kolor</span>
+        <div class="np-cp-sat" id="npCpSat">
+          <div class="np-cp-sat-white"></div>
+          <div class="np-cp-sat-black"></div>
+          <div class="np-cp-knob" id="npCpSatKnob"></div>
+        </div>
+        <div class="np-cp-hue" id="npCpHue">
+          <div class="np-cp-hue-knob" id="npCpHueKnob"></div>
+        </div>
+        <div class="np-cp-foot">
+          <span class="np-cp-preview" id="npCpPreview"></span>
+          <span class="np-cp-hex" id="npCpHex">#ca4490</span>
         </div>
       </div>
     </div>
@@ -4030,7 +4049,6 @@ async function egShowAnswerDetails(gameSlug, userId, opts){
   var undoBtn = document.getElementById('npUndo');
   var swBox  = document.getElementById('npSwatches');
   var customBtn = document.getElementById('npCustomBtn');
-  var customInput = document.getElementById('npCustomColor');
   if(!toggle || !panel || !ta || !cv) return; // bezpiecznik
 
   var ctx = cv.getContext('2d');
@@ -4088,44 +4106,90 @@ async function egShowAnswerDetails(gameSlug, userId, opts){
     swBox.appendChild(s);
   });
 
-  // własne okienko wyboru koloru (popover)
+  // własny selektor koloru (HSV) — otwiera się od razu po kliknięciu "+"
   var cpop = document.getElementById('npCpop');
-  var cpopGrid = document.getElementById('npCpopGrid');
-  if(customBtn && cpop && cpopGrid){
-    // bogatsza siatka kolorów (8 kolumn)
-    var GRID = [
-      '#2e2a33','#5b5566','#8a8397','#b7b0c2','#ffffff','#f4a8d0','#ca4490','#8e2b62',
-      '#ff004c','#ff6b6b','#ff9f1c','#ffbe0b','#ffe66d','#c3f73a','#3ba05a','#1b7f4c',
-      '#3aa3d0','#2d6fb3','#4361ee','#7b2ff7','#a78dd9','#c77dff','#6d4c41','#3e2723'
-    ];
-    GRID.forEach(function(c){
-      var cell = document.createElement('div');
-      cell.className = 'np-cpop-cell';
-      cell.style.background = c;
-      cell.setAttribute('data-color', c);
-      cell.addEventListener('mousedown', function(e){ e.preventDefault(); });
-      cell.addEventListener('click', function(){ chooseColor(c); closeCpop(); });
-      cpopGrid.appendChild(cell);
-    });
-    function openCpop(){ cpop.hidden = false; }
+  var cpSat = document.getElementById('npCpSat');
+  var cpSatKnob = document.getElementById('npCpSatKnob');
+  var cpHue = document.getElementById('npCpHue');
+  var cpHueKnob = document.getElementById('npCpHueKnob');
+  var cpPreview = document.getElementById('npCpPreview');
+  var cpHex = document.getElementById('npCpHex');
+  if(customBtn && cpop && cpSat && cpHue){
+    var hsv = { h:320, s:1, v:0.85 };  // start: różowy zbliżony do marki
+
+    function hsv2rgb(h,s,v){
+      var c=v*s, x=c*(1-Math.abs((h/60)%2-1)), m=v-c, r=0,g=0,b=0;
+      if(h<60){r=c;g=x;} else if(h<120){r=x;g=c;} else if(h<180){g=c;b=x;}
+      else if(h<240){g=x;b=c;} else if(h<300){r=x;b=c;} else {r=c;b=x;}
+      return [Math.round((r+m)*255),Math.round((g+m)*255),Math.round((b+m)*255)];
+    }
+    function toHex(rgb){ return '#'+rgb.map(function(n){ return ('0'+n.toString(16)).slice(-2); }).join(''); }
+
+    function render(){
+      // tło pola saturacji = czysty odcień
+      cpSat.style.background = 'hsl('+hsv.h+', 100%, 50%)';
+      // knoby
+      cpSatKnob.style.left = (hsv.s*100)+'%';
+      cpSatKnob.style.top = ((1-hsv.v)*100)+'%';
+      cpHueKnob.style.left = (hsv.h/360*100)+'%';
+      // kolor
+      var rgb = hsv2rgb(hsv.h, hsv.s, hsv.v);
+      var hex = toHex(rgb);
+      cpPreview.style.background = hex;
+      cpHex.textContent = hex;
+      return hex;
+    }
+    function apply(){ chooseColor(render()); }
+
+    // przeciąganie po polu saturacji
+    function satFromEvent(e){
+      var r = cpSat.getBoundingClientRect();
+      var t = e.touches ? e.touches[0] : e;
+      var x = Math.min(Math.max(t.clientX - r.left, 0), r.width);
+      var y = Math.min(Math.max(t.clientY - r.top, 0), r.height);
+      hsv.s = x / r.width;
+      hsv.v = 1 - (y / r.height);
+      apply();
+    }
+    var satDrag = false;
+    cpSat.addEventListener('mousedown', function(e){ satDrag=true; satFromEvent(e); e.preventDefault(); });
+    cpSat.addEventListener('touchstart', function(e){ satDrag=true; satFromEvent(e); e.preventDefault(); }, {passive:false});
+    window.addEventListener('mousemove', function(e){ if(satDrag) satFromEvent(e); });
+    window.addEventListener('touchmove', function(e){ if(satDrag) satFromEvent(e); }, {passive:false});
+    window.addEventListener('mouseup', function(){ satDrag=false; });
+    window.addEventListener('touchend', function(){ satDrag=false; });
+
+    // pasek odcienia
+    function hueFromEvent(e){
+      var r = cpHue.getBoundingClientRect();
+      var t = e.touches ? e.touches[0] : e;
+      var x = Math.min(Math.max(t.clientX - r.left, 0), r.width);
+      hsv.h = (x / r.width) * 360;
+      apply();
+    }
+    var hueDrag = false;
+    cpHue.addEventListener('mousedown', function(e){ hueDrag=true; hueFromEvent(e); e.preventDefault(); });
+    cpHue.addEventListener('touchstart', function(e){ hueDrag=true; hueFromEvent(e); e.preventDefault(); }, {passive:false});
+    window.addEventListener('mousemove', function(e){ if(hueDrag) hueFromEvent(e); });
+    window.addEventListener('touchmove', function(e){ if(hueDrag) hueFromEvent(e); }, {passive:false});
+    window.addEventListener('mouseup', function(){ hueDrag=false; });
+    window.addEventListener('touchend', function(){ hueDrag=false; });
+
+    // otwieranie/zamykanie
+    function openCpop(){ cpop.hidden = false; render(); }
     function closeCpop(){ cpop.hidden = true; }
     customBtn.addEventListener('mousedown', function(e){ e.preventDefault(); });
     customBtn.addEventListener('click', function(e){
       e.stopPropagation();
       if(cpop.hidden) openCpop(); else closeCpop();
     });
-    // natywny picker (dowolny kolor) — jako opcja w stopce popovera
-    if(customInput){
-      // NIE blokujemy zdarzeń na inpucie — na telefonie dotyk musi otworzyć systemowy picker
-      customInput.addEventListener('input', function(){ chooseColor(customInput.value); });
-      customInput.addEventListener('change', function(){ chooseColor(customInput.value); closeCpop(); });
-    }
-    // klik poza popoverem zamyka (ale nie gdy klikamy sam input koloru)
+    // klik/dotyk poza okienkiem zamyka
     document.addEventListener('click', function(e){
       if(cpop.hidden) return;
       if(cpop.contains(e.target) || e.target === customBtn) return;
       closeCpop();
     });
+    render();
   }
 
   // podświetla w palecie kolor AKTUALNEGO trybu
