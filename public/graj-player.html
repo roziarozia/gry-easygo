@@ -3675,6 +3675,9 @@ answerInput.addEventListener('keydown', (e) => {
 });
 
 document.addEventListener('keydown', (e) => {
+  // gdy piszesz w notatniku, klawisze (spacja, strzałki) mają działać normalnie w polu,
+  // a nie sterować nawigacją ćwiczenia
+  if(document.activeElement && document.activeElement.id === 'npText') return;
   if(!gapSec.classList.contains('hidden')){
     // gdy fokus w polu input, jego własny handler obsługuje Enter
     if(document.activeElement === gapInput) return;
