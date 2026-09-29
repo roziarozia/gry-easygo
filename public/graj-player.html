@@ -3986,7 +3986,8 @@ async function egShowAnswerDetails(gameSlug, userId, opts){
   var ctx = cv.getContext('2d');
   var mode = 'text';
   var COLORS = ['#2e2a33','#ffffff','#ca4490','#a78dd9','#3aa3d0','#3ba05a','#e8a33a'];
-  var curColor = COLORS[0];
+  var textColor = COLORS[0];  // kolor tekstu (Tt)
+  var drawColor = '#ca4490';  // kolor rysika — domyślnie różowy
   var strokes = [];
   var drawing = false;
 
@@ -4004,6 +4005,7 @@ async function egShowAnswerDetails(gameSlug, userId, opts){
     panel.classList.toggle('np-draw', m==='draw');
     modeTextBtn.classList.toggle('np-on', m==='text');
     modeDrawBtn.classList.toggle('np-on', m==='draw');
+    highlightSwatch();
     if(m==='draw'){ setTimeout(resize, 20); } else { ta.focus(); }
   }
   modeTextBtn.addEventListener('click', function(){ setMode('text'); });
@@ -4013,17 +4015,26 @@ async function egShowAnswerDetails(gameSlug, userId, opts){
   COLORS.forEach(function(c,i){
     var s = document.createElement('div');
     var isWhite = (c.toLowerCase()==='#ffffff');
-    s.className = 'np-swatch' + (i===0 ? ' np-on' : '') + (isWhite ? ' np-white' : '');
+    s.className = 'np-swatch' + (isWhite ? ' np-white' : '');
+    s.setAttribute('data-color', c);
     s.style.background = c;
     s.addEventListener('click', function(){
-      curColor = c;
-      var all = swBox.querySelectorAll('.np-swatch');
-      for(var k=0;k<all.length;k++){ all[k].classList.remove('np-on'); }
-      s.classList.add('np-on');
-      ta.style.color = c;
+      if(mode==='draw'){ drawColor = c; }
+      else { textColor = c; ta.style.color = c; }
+      highlightSwatch();
     });
     swBox.appendChild(s);
   });
+  // podświetla w palecie kolor AKTUALNEGO trybu (tekst albo rysik)
+  function highlightSwatch(){
+    var active = (mode==='draw') ? drawColor : textColor;
+    var all = swBox.querySelectorAll('.np-swatch');
+    for(var k=0;k<all.length;k++){
+      all[k].classList.toggle('np-on', all[k].getAttribute('data-color').toLowerCase()===active.toLowerCase());
+    }
+  }
+  ta.style.color = textColor;
+  highlightSwatch();
 
   // textarea rośnie z tekstem
   function grow(){ ta.style.height='auto'; ta.style.height = Math.max(120, ta.scrollHeight)+'px'; resize(); }
@@ -4055,7 +4066,7 @@ async function egShowAnswerDetails(gameSlug, userId, opts){
     var t = e.touches ? e.touches[0] : e;
     return { x:t.clientX - r.left, y:t.clientY - r.top };
   }
-  function start(e){ if(mode!=='draw')return; drawing=true; strokes.push({color:curColor, pts:[pos(e)]}); e.preventDefault(); }
+  function start(e){ if(mode!=='draw')return; drawing=true; strokes.push({color:drawColor, pts:[pos(e)]}); e.preventDefault(); }
   function move(e){ if(!drawing)return; strokes[strokes.length-1].pts.push(pos(e)); redraw(); e.preventDefault(); }
   function end(){ if(drawing){ drawing=false; updateUndo(); } }
   cv.addEventListener('mousedown', start); cv.addEventListener('mousemove', move); window.addEventListener('mouseup', end);
