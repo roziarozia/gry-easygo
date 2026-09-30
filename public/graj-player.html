@@ -331,18 +331,25 @@
     position:absolute;
     left:0;right:0;bottom:0;
     z-index:2;
-    padding:70px 20px 18px;
-    gap:12px;
+    padding:70px 20px 10px;
+    gap:10px;
     background:linear-gradient(to top, rgba(0,0,0,.45), rgba(0,0,0,0));
   }
   #cover.has-image .mode-label{
     color:#fff;
     text-shadow:0 1px 4px rgba(0,0,0,.4);
     margin-top:0;
-    margin-bottom:18px;
+    margin-bottom:12px;
     display:block;
   }
   #cover.has-image .btn{box-shadow:0 8px 22px rgba(0,0,0,.28);}
+  /* mniejsze przyciski na okładce, żeby mniej zasłaniały grafikę */
+  .cover-actions .btn{
+    font-size:14px;
+    padding:11px 18px;
+    min-width:145px;
+  }
+  .cover-actions .mode-label{ font-size:14px; }
 
   /* ===== PRZYCISKI ===== */
   .btn{
