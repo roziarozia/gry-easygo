@@ -2597,6 +2597,54 @@ function shuffleInPlace(arr){
   return arr;
 }
 
+/* ===== WSPÓLNY komentarz końcowy wg wyniku (quiz, gap-fill, open cloze) ===== */
+/* Ustawia tytuł (#end .underline) i podtytuł (endSub) zależnie od % wyniku i języka interfejsu. */
+function egSetEndComment(score, max){
+  var pct = max > 0 ? (score / max) * 100 : 0;
+  var pool;
+  if(pct < 30){
+    pool = [
+      { t:'Try again!', s:'Nie poddawaj się - spróbuj jeszcze raz!', e:'Don\u2019t give up - try again!' },
+      { t:'Keep going!', s:'Każda próba to postęp. Do dzieła!', e:'Every try is progress. Keep going!' },
+      { t:'Don\u2019t give up!', s:'Jeszcze raz i pójdzie lepiej!', e:'One more go and it\u2019ll click!' }
+    ];
+  } else if(pct < 50){
+    pool = [
+      { t:'Keep practising!', s:'Jeszcze trochę pracy - jesteś na dobrej drodze.', e:'A bit more practice - you\u2019re on the right track.' },
+      { t:'Almost there!', s:'Powtórz zasady i spróbuj ponownie.', e:'Review the rules and try again.' },
+      { t:'Getting warmer!', s:'Coraz lepiej! Zagraj jeszcze raz.', e:'Getting better! Play again.' }
+    ];
+  } else if(pct < 75){
+    pool = [
+      { t:'Good job!', s:'Nieźle! Popraw kilka luk i będzie idealnie.', e:'Nice! Fix a few gaps and you\u2019re golden.' },
+      { t:'Nice work!', s:'Dobra robota - jesteś blisko.', e:'Nice work - you\u2019re close.' },
+      { t:'Well done!', s:'Solidny wynik! Spróbuj pobić rekord.', e:'Solid score! Try to beat it.' }
+    ];
+  } else if(pct < 90){
+    pool = [
+      { t:'Great job!', s:'Świetnie ci poszło!', e:'You did really well!' },
+      { t:'You rock!', s:'Kawał dobrej roboty!', e:'Great effort!' },
+      { t:'Impressive!', s:'Bardzo dobry wynik!', e:'A very good score!' }
+    ];
+  } else if(score < max){
+    pool = [
+      { t:'Almost perfect!', s:'Prawie perfekcyjnie - tylko drobiazgi!', e:'Almost perfect - just a tiny slip!' },
+      { t:'So close!', s:'Jeszcze chwila i będzie komplet!', e:'So close to the full score!' },
+      { t:'Excellent!', s:'Świetny wynik - o włos od perfekcji!', e:'Excellent - a hair from perfect!' }
+    ];
+  } else {
+    pool = [
+      { t:'Perfect!', s:'Bezbłędnie! Mistrzostwo.', e:'Flawless! Mastery.' },
+      { t:'You nailed it!', s:'Trafione w punkt - rewelacja!', e:'You nailed it - brilliant!' },
+      { t:'Flawless!', s:'Perfekcyjny wynik, zero błędów. Brawo!', e:'Perfect score, zero mistakes. Bravo!' }
+    ];
+  }
+  var pick = pool[Math.floor(Math.random() * pool.length)];
+  var under = document.querySelector('#end .end-title .underline');
+  if(under) under.textContent = pick.t;   // tytuł zawsze po angielsku (motywujące hasło)
+  endSub.textContent = (window.EG_LANG === 'en') ? pick.e : pick.s;  // podtytuł wg interfejsu
+}
+
 function startQuiz(){
   // domyślnie kolejność jak w podglądzie lektora (po position); mieszamy tylko na życzenie ucznia
   const sh = document.getElementById('shuffleQuiz');
@@ -2700,11 +2748,7 @@ function finishQuiz(){
       if(s && currentSlug) egShowAnswerDetails(currentSlug, s.user.id);
     }catch(e){}
   };
-  document.querySelector('#end .end-title .underline').textContent =
-    (qScore === QUESTIONS.length) ? 'Perfekcyjnie!' : 'Dobra robota!';
-  endSub.textContent = (qScore === QUESTIONS.length)
-    ? 'Wszystkie odpowiedzi poprawne.'
-    : 'Zagraj jeszcze raz i popraw swój wynik.';
+  egSetEndComment(qScore, QUESTIONS.length);
 }
 
 /* ===== SŁUCHANKA (nagranie + pytania na jednym ekranie) ===== */
@@ -2815,11 +2859,15 @@ function sprawdzListening(){
   // chowamy przycisk sprawdzania, pokazujemy porzadne zakonczenie z wyjsciem
   document.getElementById('lsActions').classList.add('hidden');
   const komplet = (punkty === QUESTIONS.length);
-  document.getElementById('lsScore').innerHTML =
-    '<u>' + (komplet ? 'Perfekcyjnie!' : 'Trening czyni mistrza!') + '</u>';
-  document.getElementById('lsEn').textContent = komplet ? 'Nailed it!' : 'Practice makes perfect';
+  if(window.EG_LANG === 'en'){
+    document.getElementById('lsScore').innerHTML = '<u>' + (komplet ? 'Nailed it!' : 'Practice makes perfect') + '</u>';
+    document.getElementById('lsEn').textContent = '';
+  } else {
+    document.getElementById('lsScore').innerHTML = '<u>' + (komplet ? 'Perfekcyjnie!' : 'Trening czyni mistrza!') + '</u>';
+    document.getElementById('lsEn').textContent = komplet ? 'Nailed it!' : 'Practice makes perfect';
+  }
   document.getElementById('lsSub').textContent =
-    t('Twój wynik: ') + punkty + ' / ' + QUESTIONS.length;
+    (window.EG_LANG === 'en' ? 'Your score: ' : t('Twój wynik: ')) + punkty + ' / ' + QUESTIONS.length;
   // wynik listeningu klikalny - szczegóły odpowiedzi
   (function(){
     var lss = document.getElementById('lsSub');
@@ -3068,11 +3116,7 @@ function finishGap(){
       if(s && currentSlug) egShowAnswerDetails(currentSlug, s.user.id);
     }catch(e){}
   };
-  document.querySelector('#end .end-title .underline').textContent =
-    (gScore === GAPS.length) ? 'Perfekcyjnie!' : 'Dobra robota!';
-  endSub.textContent = (gScore === GAPS.length)
-    ? 'Wszystkie odpowiedzi poprawne.'
-    : 'Zagraj jeszcze raz i popraw swój wynik.';
+  egSetEndComment(gScore, GAPS.length);
 }
 
 /* ===== PODGLĄD DLA LEKTORA =====
@@ -3432,64 +3476,8 @@ function finishArtgap(){
       if(s && currentSlug) egShowAnswerDetails(currentSlug, s.user.id);
     }catch(e){}
   };
-  // wynik w % decyduje o tonie zakończenia; w każdym progu losowa wersja (PL/EN)
-  var pct = agFinalMax > 0 ? (agFinalScore / agFinalMax) * 100 : 0;
-  var pool;
-  if(pct < 30){
-    pool = [
-      { t:'Try again!', s:'Nie poddawaj się - spróbuj jeszcze raz!' },
-      { t:'Keep going!', s:'Każda próba to postęp. Do dzieła!' },
-      { t:'Don\u2019t give up!', s:'Jeszcze raz i pójdzie lepiej!' }
-    ];
-  } else if(pct < 50){
-    pool = [
-      { t:'Keep practising!', s:'Jeszcze trochę pracy - jesteś na dobrej drodze.' },
-      { t:'Almost there!', s:'Powtórz zasady i spróbuj ponownie.' },
-      { t:'Getting warmer!', s:'Coraz lepiej! Zagraj jeszcze raz.' }
-    ];
-  } else if(pct < 75){
-    pool = [
-      { t:'Good job!', s:'Nieźle! Popraw kilka luk i będzie idealnie.' },
-      { t:'Nice work!', s:'Dobra robota - jesteś blisko.' },
-      { t:'Well done!', s:'Solidny wynik! Spróbuj pobić rekord.' }
-    ];
-  } else if(pct < 90){
-    pool = [
-      { t:'Great job!', s:'Świetnie ci poszło!' },
-      { t:'You rock!', s:'Kawał dobrej roboty!' },
-      { t:'Impressive!', s:'Bardzo dobry wynik!' }
-    ];
-  } else if(agFinalScore < agFinalMax){
-    // 90-99% - bardzo wysoko, ale NIE bezbłędnie (bo były błędy)
-    pool = [
-      { t:'Almost perfect!', s:'Prawie perfekcyjnie - tylko drobiazgi!' },
-      { t:'So close!', s:'Jeszcze chwila i będzie komplet!' },
-      { t:'Excellent!', s:'Świetny wynik - o włos od perfekcji!' }
-    ];
-  } else {
-    // 100% - zero błędów
-    pool = [
-      { t:'Perfect!', s:'Bezbłędnie! Mistrzostwo.' },
-      { t:'You nailed it!', s:'Trafione w punkt - rewelacja!' },
-      { t:'Flawless!', s:'Perfekcyjny wynik, zero błędów. Brawo!' }
-    ];
-  }
-  var pick = pool[Math.floor(Math.random() * pool.length)];
-  var agUnder = document.querySelector('#end .end-title .underline');
-  // tytuł zawsze po angielsku (motywujące hasło), podtytuł wg języka interfejsu
-  if(agUnder) agUnder.textContent = pick.t;
-  endSub.textContent = (window.EG_LANG === 'en') ? '' : pick.s;
-  // gdy interfejs EN, podtytuł też po angielsku (krótki wariant)
-  if(window.EG_LANG === 'en'){
-    var enSub;
-    if(pct < 30) enSub = 'Don\u2019t give up - try again!';
-    else if(pct < 50) enSub = 'Keep practising - you\u2019re getting there.';
-    else if(pct < 75) enSub = 'Nice! Fix a few gaps and you\u2019re golden.';
-    else if(pct < 90) enSub = 'Really well done!';
-    else if(agFinalScore < agFinalMax) enSub = 'So close to perfect - just a tiny slip!';
-    else enSub = 'Flawless - not a single mistake!';
-    endSub.textContent = enSub;
-  }
+  // wspólny komentarz końcowy wg wyniku (ta sama logika co quiz i gap-fill)
+  egSetEndComment(agFinalScore, agFinalMax);
 }
 
 function startReading(){
