@@ -762,6 +762,9 @@
   html:fullscreen .bottom-bar a,
   html:fullscreen .bottom-bar button{ font-size:17px; padding:12px 26px; }
   html:fullscreen .bottom-bar{ padding-bottom:30px; gap:16px; }
+  /* w trybie pełnoekranowym pokazujemy tylko slajd — bez notatnika */
+  html:fullscreen .np-bar,
+  html:fullscreen .np-panel{ display:none !important; }
   .bottom-bar{
     display:flex;
     justify-content:center;
@@ -3794,6 +3797,15 @@ document.getElementById('fullBtn').addEventListener('click', () => {
   }
   document.addEventListener('fullscreenchange', syncFsLabel);
   syncFsLabel();
+  // wchodząc w pełny ekran, zamknij notatnik (w fullscreen pokazujemy tylko slajd)
+  document.addEventListener('fullscreenchange', function(){
+    if(document.fullscreenElement){
+      var np = document.getElementById('npPanel');
+      var nt = document.getElementById('npToggle');
+      if(np) np.classList.remove('np-open');
+      if(nt){ nt.classList.remove('np-on'); nt.setAttribute('aria-expanded','false'); }
+    }
+  });
 })();
 
 /* Na pełnym ekranie karta jest mała (sztywne 980px), więc skalujemy ją
@@ -4085,10 +4097,32 @@ async function egShowAnswerDetails(gameSlug, userId, opts){
   modeDrawBtn.addEventListener('click', function(){ setMode('draw'); });
 
   // ustaw kolor tekstu dla ZAZNACZENIA / dalszego pisania (wielokolorowo)
+  // zapamiętane zaznaczenie w polu tekstowym (żeby dotknięcie pickera go nie zgubiło)
+  var savedRange = null;
+  function saveSelection(){
+    var sel = window.getSelection && window.getSelection();
+    if(sel && sel.rangeCount && ta.contains(sel.anchorNode)){
+      savedRange = sel.getRangeAt(0).cloneRange();
+    }
+  }
+  function restoreSelection(){
+    if(!savedRange) return false;
+    var sel = window.getSelection && window.getSelection();
+    if(sel){ sel.removeAllRanges(); sel.addRange(savedRange); return true; }
+    return false;
+  }
+  // zapamiętuj zaznaczenie na bieżąco, gdy piszesz/zaznaczasz w polu
+  ta.addEventListener('keyup', saveSelection);
+  ta.addEventListener('mouseup', saveSelection);
+  ta.addEventListener('touchend', saveSelection);
+  ta.addEventListener('input', saveSelection);
+
   function applyTextColor(c){
     ta.focus();
+    restoreSelection();            // przywróć kursor/zaznaczenie sprzed dotknięcia pickera
     try{ document.execCommand('styleWithCSS', false, true); }catch(e){}
     try{ document.execCommand('foreColor', false, c); }catch(e){}
+    saveSelection();               // zapisz nową pozycję kursora
   }
 
   // wybór koloru z palety — dla trybu tekst koloruje zaznaczenie/dalsze pisanie,
@@ -4149,36 +4183,36 @@ async function egShowAnswerDetails(gameSlug, userId, opts){
     // przeciąganie po polu saturacji
     function satFromEvent(e){
       var r = cpSat.getBoundingClientRect();
-      var t = e.touches ? e.touches[0] : e;
+      var t = (e.touches && e.touches[0]) ? e.touches[0] : e;
       var x = Math.min(Math.max(t.clientX - r.left, 0), r.width);
       var y = Math.min(Math.max(t.clientY - r.top, 0), r.height);
       hsv.s = x / r.width;
       hsv.v = 1 - (y / r.height);
-      apply();
+      render(); // podczas przeciągania tylko podgląd
     }
     var satDrag = false;
     cpSat.addEventListener('mousedown', function(e){ satDrag=true; satFromEvent(e); e.preventDefault(); });
     cpSat.addEventListener('touchstart', function(e){ satDrag=true; satFromEvent(e); e.preventDefault(); }, {passive:false});
     window.addEventListener('mousemove', function(e){ if(satDrag) satFromEvent(e); });
     window.addEventListener('touchmove', function(e){ if(satDrag) satFromEvent(e); }, {passive:false});
-    window.addEventListener('mouseup', function(){ satDrag=false; });
-    window.addEventListener('touchend', function(){ satDrag=false; });
+    window.addEventListener('mouseup', function(){ if(satDrag){ satDrag=false; apply(); } });
+    window.addEventListener('touchend', function(){ if(satDrag){ satDrag=false; apply(); } });
 
     // pasek odcienia
     function hueFromEvent(e){
       var r = cpHue.getBoundingClientRect();
-      var t = e.touches ? e.touches[0] : e;
+      var t = (e.touches && e.touches[0]) ? e.touches[0] : e;
       var x = Math.min(Math.max(t.clientX - r.left, 0), r.width);
       hsv.h = (x / r.width) * 360;
-      apply();
+      render(); // podczas przeciągania tylko podgląd
     }
     var hueDrag = false;
     cpHue.addEventListener('mousedown', function(e){ hueDrag=true; hueFromEvent(e); e.preventDefault(); });
     cpHue.addEventListener('touchstart', function(e){ hueDrag=true; hueFromEvent(e); e.preventDefault(); }, {passive:false});
     window.addEventListener('mousemove', function(e){ if(hueDrag) hueFromEvent(e); });
     window.addEventListener('touchmove', function(e){ if(hueDrag) hueFromEvent(e); }, {passive:false});
-    window.addEventListener('mouseup', function(){ hueDrag=false; });
-    window.addEventListener('touchend', function(){ hueDrag=false; });
+    window.addEventListener('mouseup', function(){ if(hueDrag){ hueDrag=false; apply(); } });
+    window.addEventListener('touchend', function(){ if(hueDrag){ hueDrag=false; apply(); } });
 
     // otwieranie/zamykanie
     function openCpop(){ cpop.hidden = false; render(); }
