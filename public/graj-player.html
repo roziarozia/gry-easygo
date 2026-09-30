@@ -3594,8 +3594,45 @@ function nextReading(){
 function prevReading(){ if(rIdx > 0){ rIdx--; renderReading(); } }
 function showReadingEnd(){
   document.getElementById('score').classList.add('hidden');
-  document.querySelector('#end .end-title .underline').textContent = t('Świetna robota!');
-  endSub.innerHTML = t('Zapraszam po więcej czytanek na różnych poziomach ') + '<span style="color:#ca4490">&#10084;</span>';
+  var en = (window.EG_LANG === 'en');
+  var heart = ' <span style="color:#ca4490">&#10084;</span>';
+  var series = (GAME && GAME.series ? GAME.series : '').toLowerCase();
+  var kids = !!(GAME && GAME.for_kids);
+  var pool;
+  if(kids){
+    // czytanki dla dzieci — ciepłe, proste
+    pool = [
+      { t: en?'The end!':'Koniec!', s: (en?'What a lovely story! See you next time':'Ładna historyjka! Do zobaczenia następnym razem') + heart },
+      { t: en?'Well done!':'Brawo!', s: (en?'You read the whole story! You are amazing':'Przeczytałeś całą historyjkę! Jesteś super') + heart },
+      { t: en?'Yay!':'Hurra!', s: (en?'Story time is the best. Come back for more':'Czytanie jest super. Wróć po więcej') + heart }
+    ];
+  } else if(series.indexOf('wonders of science') !== -1){
+    // wonders of science — odkrywcze, ciekawość
+    pool = [
+      { t: en?'Fascinating, right?':'Fascynujące, prawda?', s: en?'The world is full of wonders. Keep exploring!':'Świat jest pełen cudów. Odkrywaj dalej!' },
+      { t: en?'Curious mind!':'Ciekawski umysł!', s: en?'Every reading teaches you something new about our world.':'Każda czytanka uczy czegoś nowego o naszym świecie.' },
+      { t: en?'Keep wondering!':'Bądź ciekawy świata!', s: en?'Science is everywhere - explore more wonders!':'Nauka jest wszędzie - odkrywaj kolejne cuda!' }
+    ];
+  } else if(series.indexOf('cities') !== -1 || series.indexOf('countries') !== -1 || series.indexOf('traveling') !== -1 || series.indexOf('travel') !== -1){
+    // podróże (Travel with EasyWonders) — klimat wędrówki, odkrywania miejsc
+    pool = [
+      { t: en?'Bon voyage!':'Szerokiej drogi!', s: en?'So many places to discover. Where to next?':'Tyle miejsc do odkrycia. Dokąd teraz?' },
+      { t: en?'Wanderlust!':'Dusza podróżnika!', s: en?'The world is a book - keep turning the pages.':'Świat to książka - czytaj ją dalej.' },
+      { t: en?'Pack your bags!':'Pakuj walizki!', s: en?'Your next adventure is just a reading away.':'Kolejna przygoda o jedną czytankę dalej.' }
+    ];
+  } else {
+    // pozostałe czytanki — ogólny, zachęcający (kilka losowych wariantów)
+    pool = [
+      { t: en?'Great reading!':'Świetna robota!', s: (en?'More readings at every level are waiting for you':'Zapraszam po więcej czytanek na różnych poziomach') + heart },
+      { t: en?'Nicely done!':'Dobra robota!', s: (en?'Reading is the best way to learn. See you again':'Czytanie to najlepszy sposób nauki. Do zobaczenia') + heart },
+      { t: en?'Well read!':'Pięknie przeczytane!', s: (en?'Come back for more stories and articles':'Wróć po więcej historii i artykułów') + heart },
+      { t: en?'Good one!':'Kawał dobrej lektury!', s: (en?'Every text makes your English a little stronger':'Każdy tekst wzmacnia twój angielski') + heart },
+      { t: en?'That\u2019s a wrap!':'To by było na tyle!', s: (en?'See you in the next reading':'Do zobaczenia przy kolejnej czytance') + heart }
+    ];
+  }
+  var pick = pool[Math.floor(Math.random() * pool.length)];
+  document.querySelector('#end .end-title .underline').textContent = pick.t;
+  endSub.innerHTML = pick.s;
 }
 // głośniczek — odtwarza ładny głos Google (plik nagrany per slajd).
 // Fallback: gdy slajd nie ma nagrania (stare czytanki), czyta głosem przeglądarki jak dawniej.
