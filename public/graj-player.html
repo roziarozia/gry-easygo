@@ -2937,7 +2937,7 @@ function renderGap(){
     var opis = (GAME.instruction || '').trim();
     if(opis.indexOf('||') !== -1){
       var czesci = opis.split('||');
-      opis = (gapMode === 'pl' ? (czesci[1] || czesci[0]) : czesci[0]).trim();
+      opis = (window.EG_LANG === 'en' ? czesci[0] : (czesci[1] || czesci[0])).trim();
     }
     // "##" oddziela POLECENIE od RAMKI ZE ZWROTAMI (word bank): "Wpisz zwrot...##a · b · c"
     var boxTxt = '';
