@@ -1084,15 +1084,15 @@
   .eg-body h3{
     font-family:'Quicksand',sans-serif !important;
     font-weight:700 !important;
-    font-size:19px !important;
+    font-size:17px !important;
     color:var(--eg-ink) !important;
     margin:0 !important;
     line-height:1.25 !important;
-    min-height:2.5em;                 /* zawsze miejsce na 2 linie tytułu */
-    max-height:2.5em;                 /* i najwyżej 2 linie — plakietka typu zawsze na tej samej wysokości */
+    min-height:3.75em;                 /* zawsze miejsce na 3 linie tytułu */
+    max-height:3.75em;                /* i najwyżej 3 linie — plakietka typu zawsze na tej samej wysokości */
     overflow:hidden;
     display:-webkit-box;
-    -webkit-line-clamp:2;             /* przytnij długie tytuły do 2 linii z „…" */
+    -webkit-line-clamp:3;             /* przytnij bardzo długie tytuły do 3 linii z „…" */
     -webkit-box-orient:vertical;
   }
   .eg-body p{ font-size:15px; color:var(--eg-muted); line-height:1.55; flex:1; }
@@ -1298,7 +1298,7 @@
     .eg-cols-label{ font-size:15.5px; }
     .eg-cols button{ width:41px; height:41px; font-size:16.5px; }
     .eg-progress-show{ font-size:16px; padding:10px 24px; }
-    .eg-body h3{ font-size:22px !important; }
+    .eg-body h3{ font-size:20px !important; }
     .eg-body p{ font-size:17px; }
     .eg-meta{ font-size:15px; }
     .eg-type{ font-size:13.5px; }
@@ -3626,15 +3626,8 @@
 (function(){
   function reportH(){
     try{
-      // Dół stopki = offsetTop stopki + jej wysokość. Nie zależy od scrolla (getBoundingClientRect zawodził).
-      var foot = document.querySelector('.eg-footer');
-      var hh;
-      if(foot && foot.offsetParent !== null){
-        hh = foot.offsetTop + foot.offsetHeight + 20;
-      } else {
-        var el=document.querySelector('.eg-games')||document.body;
-        hh = Math.max(el.scrollHeight, document.body.scrollHeight);
-      }
+      var el=document.querySelector('.eg-games')||document.body;
+      var hh=Math.max(el.scrollHeight, document.body.scrollHeight);
       if(window.parent&&window.parent!==window) window.parent.postMessage({egCatalogHeight:hh},'*');
     }catch(e){}
   }
