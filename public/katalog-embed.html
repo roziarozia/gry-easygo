@@ -2647,7 +2647,7 @@
       return '<article class="eg-card' + (g.is_premium ? ' eg-premium' : '') + (homeworkSet[g.slug] ? ' eg-hw-card' : '') + (homeworkDone[g.slug] ? ' eg-hw-done' : '') + (completedSet[g.slug] ? ' eg-completed' : '') + svClass + '">' +
         '<div class="eg-thumb">' + thumb + heart + lockOverlay + homework + doneBadge + bearBadge + '</div>' +
         '<div class="eg-body">' +
-          '<h3>' + esc(g.title) + '</h3>' +
+          '<h3>' + esc(g.title).replace(/ \(/g, '\u00A0(') + '</h3>' +
           typeBadge +
           scoreLine +
           '<p>' + esc(g.description || '') + '</p>' +
