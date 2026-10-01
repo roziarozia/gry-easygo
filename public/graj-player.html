@@ -2586,6 +2586,12 @@ let qGiven = [];   // co uczeń zaznaczył przy każdym pytaniu (null = brak odp
 const LETTERS = ['A','B','C','D','E','F'];
 
 function escapeHtml(t){ const d=document.createElement('div'); d.textContent=t==null?'':t; return d.innerHTML; }
+// Wybór języka wyjaśnienia (PL||EN): interfejs EN→część[1], PL→część[0]. Bez || zwraca całość.
+function pickExplLang(txt){
+  if(!txt || txt.indexOf('||') === -1) return txt || '';
+  var p = txt.split('||');
+  return (window.EG_LANG === 'en' ? (p[1] || p[0]) : p[0]).trim();
+}
 function promptWithGap(t){ return escapeHtml(t).replace(/_/g, '<u>&nbsp;&nbsp;&nbsp;&nbsp;</u>'); }
 
 // tasowanie tablicy w miejscu (Fisher-Yates) - dla opcji "Pomieszaj kolejność pytań"
@@ -2692,7 +2698,12 @@ function showAnswered(picked){
     if(i === picked && picked !== q.correct) b.classList.add('wrong');
   });
   if(q.explanation){
-    qExplain.innerHTML = '<b>' + (picked === q.correct ? t('Dobrze! ') : t('Poprawnie: ') + escapeHtml(q.options[q.correct]) + '. ') + '</b>' + escapeHtml(q.explanation);
+    var qExpl = q.explanation;
+    if(qExpl.indexOf('||') !== -1){
+      var qeParts = qExpl.split('||');
+      qExpl = (window.EG_LANG === 'en' ? (qeParts[1] || qeParts[0]) : qeParts[0]).trim();
+    }
+    qExplain.innerHTML = '<b>' + (picked === q.correct ? t('Dobrze! ') : t('Poprawnie: ') + escapeHtml(q.options[q.correct]) + '. ') + '</b>' + escapeHtml(qExpl);
     qExplain.classList.remove('hidden');
   }
   qBar.style.width = ((qIndex + 1) / QUESTIONS.length * 100) + '%';
@@ -2843,7 +2854,7 @@ function sprawdzListening(){
     });
     if(q.explanation){
       const exp = document.getElementById('lsExp' + i);
-      exp.textContent = q.explanation;
+      exp.textContent = pickExplLang(q.explanation);
       exp.classList.remove('hidden');
     }
   });
@@ -3152,7 +3163,7 @@ function buildPreviewItems(){
       (q.options || []).forEach((opt, i) => {
         html += '<div class="pv-opt' + (i === q.correct ? ' correct' : '') + '">' + pvEsc(opt) + '</div>';
       });
-      if(q.explanation) html += '<div class="pv-expl"><b>' + t('Wyjaśnienie: ') + '</b>' + pvEsc(q.explanation) + '</div>';
+      if(q.explanation) html += '<div class="pv-expl"><b>' + t('Wyjaśnienie: ') + '</b>' + pvEsc(pickExplLang(q.explanation)) + '</div>';
       items.push(html);
     });
   } else if(tpl === 'speaking'){
@@ -3174,7 +3185,7 @@ function buildPreviewItems(){
       (q.options || []).forEach((opt, i) => {
         html += '<div class="pv-opt' + (i === q.correct ? ' correct' : '') + '">' + pvEsc(opt) + '</div>';
       });
-      if(q.explanation) html += '<div class="pv-expl"><b>' + t('Wyjaśnienie: ') + '</b>' + pvEsc(q.explanation) + '</div>';
+      if(q.explanation) html += '<div class="pv-expl"><b>' + t('Wyjaśnienie: ') + '</b>' + pvEsc(pickExplLang(q.explanation)) + '</div>';
       items.push(html);
     });
   } else if(tpl === 'reading'){
