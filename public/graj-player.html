@@ -3998,8 +3998,14 @@ async function egShowAnswerDetails(gameSlug, userId, opts){
         });
         html += '<div class="eg-agf-text">' + agTxt.replace(/\n/g,'<br>') + '</div>';
         if(a.explanation){
-          var agFmt = formatAgExpl(a.explanation);
-          html += '<div class="eg-ansd-expl">' + (agFmt || esc(a.explanation)) + '</div>';
+          // wybór języka wg interfejsu (PL||EN): EN→część[1], PL→część[0]
+          var agExpl = a.explanation;
+          if(agExpl.indexOf('||') !== -1){
+            var agParts = agExpl.split('||');
+            agExpl = (window.EG_LANG === 'en' ? (agParts[1] || agParts[0]) : agParts[0]).trim();
+          }
+          var agFmt = formatAgExpl(agExpl);
+          html += '<div class="eg-ansd-expl">' + (agFmt || esc(agExpl)) + '</div>';
         }
         return;
       }
