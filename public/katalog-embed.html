@@ -3295,8 +3295,10 @@
           // praca domowa tylko dla ucznia przypisanego do lektora
           var isTeacherStudent = !!(p && p.access_source === 'teacher');
           applyLoginUI(true, isTeacherStudent);
-          // uczeń podpięty pod lektora (access_source='teacher') widzi Speaking tylko gdy lektor włączył
-          if(p && p.access_source === 'teacher' && !p.speaking_enabled){
+          // uczeń podpięty pod lektora (access_source='teacher') widzi Speaking tylko gdy lektor włączył.
+          // UWAGA: pod-lektor też ma access_source='teacher', ale jest lektorem (role='teacher') —
+          // ukrywamy Speaking TYLKO uczniom (role != 'teacher'), nie pod-lektorom.
+          if(p && p.role !== 'teacher' && p.access_source === 'teacher' && !p.speaking_enabled){
             hideSpeaking = true;
           }
           render();
