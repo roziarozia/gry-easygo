@@ -3433,6 +3433,11 @@ document.getElementById('agCheck').addEventListener('click', function(){
   // wyjaśnienie
   var expl = document.getElementById('agText')._expl;
   if(expl){
+    // wybór języka wg interfejsu (PL||EN): EN→część[1], PL→część[0]
+    if(expl.indexOf('||') !== -1){
+      var explParts = expl.split('||');
+      expl = (window.EG_LANG === 'en' ? (explParts[1] || explParts[0]) : explParts[0]).trim();
+    }
     var e = document.getElementById('agExpl');
     var _fmt = formatAgExpl(expl);
     if(_fmt){ e.innerHTML = _fmt; } else { e.textContent = expl; }
