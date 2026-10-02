@@ -1711,10 +1711,10 @@
           <img src="/rozia.png" alt="Rózia, założycielka EasyWonders" style="width:148%;height:148%;object-fit:cover;object-position:50% 42%;transform:translate(-16%,-14%);display:block;">
         </div>
         <div style="flex:1 1 320px;min-width:260px;">
-          <div style="font-family:'Quicksand',sans-serif;font-size:12.5px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:#a78dd9;margin-bottom:4px;">Poznaj mnie</div>
+          <div data-i18n="Poznaj mnie" style="font-family:'Quicksand',sans-serif;font-size:12.5px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:#a78dd9;margin-bottom:4px;">Poznaj mnie</div>
           <h3 style="font-family:'Quicksand',sans-serif;font-size:24px;font-weight:700;margin:0 0 2px;color:var(--eg-ink,#2e2a33);">Rózia</h3>
-          <div style="font-size:14.5px;font-weight:800;color:#ca4490;margin-bottom:12px;">Założycielka i lektorka</div>
-          <p style="font-size:15px;line-height:1.65;color:var(--eg-muted,#4a4458);margin:0;">Hej! Angielskiego uczę od ponad 10 lat i wiem, jak trudno znaleźć ćwiczenia, które są jednocześnie skuteczne i przyjemne. Dlatego powstało EasyWonders. Sama układam i sprawdzam każdą czytankę, słuchankę i ćwiczenie — tak, żeby naprawdę pomagały w nauce, a nie tylko wypełniały czas. Chcemy dać Ci materiały, które pokochasz, więc zostań z nami na dłużej <span style="color:#ff5fa2;">&#9829;</span></p>
+          <div data-i18n="Założycielka i lektorka" style="font-size:14.5px;font-weight:800;color:#ca4490;margin-bottom:12px;">Założycielka i lektorka</div>
+          <p style="font-size:15px;line-height:1.65;color:var(--eg-muted,#4a4458);margin:0;"><span data-i18n="Hej! Angielskiego uczę od ponad 10 lat i wiem, jak trudno znaleźć ćwiczenia, które są jednocześnie skuteczne i przyjemne. Dlatego powstało EasyWonders. Sama układam i sprawdzam każdą czytankę, słuchankę i ćwiczenie — tak, żeby naprawdę pomagały w nauce, a nie tylko wypełniały czas. Chcemy dać Ci materiały, które pokochasz, więc zostań z nami na dłużej">Hej! Angielskiego uczę od ponad 10 lat i wiem, jak trudno znaleźć ćwiczenia, które są jednocześnie skuteczne i przyjemne. Dlatego powstało EasyWonders. Sama układam i sprawdzam każdą czytankę, słuchankę i ćwiczenie — tak, żeby naprawdę pomagały w nauce, a nie tylko wypełniały czas. Chcemy dać Ci materiały, które pokochasz, więc zostań z nami na dłużej</span> <span style="color:#ff5fa2;">&#9829;</span></p>
         </div>
         <div style="flex:1 1 100%;text-align:center;margin-top:4px;">
           <a href="/opinie.html" style="display:inline-flex;align-items:center;gap:8px;background:var(--eg-magenta,#ca4490);color:#fff;text-decoration:none;font-family:'Quicksand',sans-serif;font-weight:700;font-size:14.5px;padding:11px 26px;border-radius:999px;box-shadow:0 6px 18px rgba(202,68,144,.26);transition:background .18s, transform .18s;" onmouseover="this.style.background='#b33a7e';this.style.transform='translateY(-1px)'" onmouseout="this.style.background='var(--eg-magenta,#ca4490)';this.style.transform='none'">
@@ -2384,6 +2384,19 @@
     if(pathT) pathT.addEventListener('click', function(){ egScrollToHow('egHowTutor'); });
     var pathS = document.getElementById('egPathStudent');
     if(pathS) pathS.addEventListener('click', function(){ egScrollToHow('egHowStudent'); });
+
+    // Przewiń do sekcji ćwiczeń, gdy ktoś przyszedł z "Zobacz ćwiczenia" (?widok=cwiczenia albo #cwiczenia)
+    (function(){
+      try{
+        var wantScroll = (window.location.search.indexOf('widok=cwiczenia') !== -1)
+                      || (window.location.hash === '#cwiczenia');
+        if(!wantScroll){
+          try{ if(window.parent && window.parent !== window
+                && String(window.parent.location.search||'').indexOf('widok=cwiczenia') !== -1){ wantScroll = true; } }catch(e){}
+        }
+        if(wantScroll){ setTimeout(function(){ egScrollToHow('egFilters'); }, 500); }
+      }catch(e){}
+    })();
     
     // Demo panelu lektora — pop-up otwiera STRONA-RODZIC (żeby był na ekranie, nie na całą stronę)
     (function(){
@@ -3433,6 +3446,15 @@
   // Tłumaczy TYLKO interfejs (przyciski, filtry, etykiety, kategorie). Opisowe akapity
   // i treść zadań pozostają po polsku.
   window.EG_I18N = {
+    // nagłówek, hero, wizytówka
+    'Jak to działa?': 'How it works?',
+    'Opinie': 'Reviews',
+    'Przeczytaj opinie': 'Read reviews',
+    'Wypróbuj za darmo przez 7 dni': 'Try it free for 7 days',
+    'Zaufało nam już ponad 100 osób': 'Trusted by 100+ learners',
+    'Poznaj mnie': 'About me',
+    'Założycielka i lektorka': 'Founder & English teacher',
+    'Hej! Angielskiego uczę od ponad 10 lat i wiem, jak trudno znaleźć ćwiczenia, które są jednocześnie skuteczne i przyjemne. Dlatego powstało EasyWonders. Sama układam i sprawdzam każdą czytankę, słuchankę i ćwiczenie — tak, żeby naprawdę pomagały w nauce, a nie tylko wypełniały czas. Chcemy dać Ci materiały, które pokochasz, więc zostań z nami na dłużej': 'Hi! I\u2019ve been teaching English for over 10 years, and I know how hard it is to find exercises that are both effective and enjoyable. That\u2019s why EasyWonders was created. I design and check every reading, listening and exercise myself \u2014 so they truly help you learn, not just fill time. We want to give you materials you\u2019ll love, so stay with us a little longer',
     // filtry / statusy
     'Wszystkie': 'All',
     'Wszystkie poziomy': 'All levels',
