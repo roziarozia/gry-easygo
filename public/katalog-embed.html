@@ -147,19 +147,30 @@
   /* Wyróżniony przycisk OFERTA — wypełniony magenta (pigułka), żeby prowadził wzrok do oferty */
   .eg-nav-oferta{
     color:#fff !important; background:var(--eg-magenta);
-    padding:5px 15px; border-radius:999px; font-weight:700 !important;
+    padding:4px 12px; border-radius:999px; font-weight:700 !important; font-size:11.5px;
     letter-spacing:.02em; transition:background .18s, transform .18s;
   }
   .eg-nav-oferta:hover{ opacity:1 !important; background:#b33a7e; transform:translateY(-1px); }
   /* Przycisk "Jak to działa?" — pigułka z obramowaniem, obok OFERTY; widoczny dla wszystkich, także bez subskrypcji */
   .eg-nav-how{
-    display:inline-flex; align-items:center; gap:5px;
+    display:inline-flex; align-items:center; gap:4px;
     color:var(--eg-magenta); background:transparent;
-    border:1.5px solid var(--eg-magenta); padding:3px 10px;
-    border-radius:999px; font-family:'Nunito',sans-serif; font-size:12.5px; font-weight:700;
+    border:1.5px solid var(--eg-magenta); padding:3px 9px;
+    border-radius:999px; font-family:'Nunito',sans-serif; font-size:11.5px; font-weight:700;
     white-space:nowrap; cursor:pointer; transition:background .18s, color .18s, transform .18s;
   }
   .eg-nav-how:hover{ background:var(--eg-magenta); color:#fff; transform:translateY(-1px); }
+  .eg-nav-how svg{ width:12px; height:12px; }
+  /* Przycisk "Opinie" — pigułka z obramowaniem, obok "Jak to działa"; tylko dla niezalogowanych */
+  .eg-nav-op{
+    display:inline-flex; align-items:center; gap:4px;
+    color:var(--eg-magenta); background:transparent;
+    border:1.5px solid var(--eg-magenta); padding:3px 9px;
+    border-radius:999px; font-family:'Nunito',sans-serif; font-size:11.5px; font-weight:700;
+    white-space:nowrap; text-decoration:none; transition:background .18s, color .18s, transform .18s;
+  }
+  .eg-nav-op:hover{ background:var(--eg-magenta); color:#fff !important; transform:translateY(-1px); opacity:1 !important; }
+  .eg-nav-op svg{ width:12px; height:12px; flex:0 0 auto; }
   .eg-topbar-right{ display:flex; align-items:center; gap:14px; }
   .eg-social{ display:flex; align-items:center; gap:10px; }
   .eg-social a{ color:var(--eg-magenta); display:inline-flex; transition:transform .18s, opacity .18s; }
@@ -1342,6 +1353,10 @@
         <svg width="13" height="13" viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.7"/><path d="M9.3 9.2a2.7 2.7 0 015.2 1c0 1.8-2.5 2-2.5 3.5" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/><circle cx="12" cy="17" r="0.4" fill="currentColor" stroke="currentColor" stroke-width="0.8"/></svg>
         <span data-i18n="Jak to działa?">Jak to działa?</span>
       </button>
+      <a class="eg-nav-op" id="egOpinieNav" href="/opinie.html" title="Opinie uczniów i poznaj Rózię">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 3.5l2.6 5.3 5.9.86-4.25 4.14 1 5.86L12 17.1l-5.25 2.76 1-5.86L3.5 9.66l5.9-.86L12 3.5z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></svg>
+        <span data-i18n="Opinie">Opinie</span>
+      </a>
       <a href="https://fiszki.easygo-english.pl/" target="_blank" rel="noopener" title="Aplikacja z fiszkami">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true"><rect x="3" y="6" width="14" height="12" rx="2" stroke="currentColor" stroke-width="1.7"/><path d="M7 3.5h11A2.5 2.5 0 0120.5 6v11" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg><span>fiszki!</span>
       </a>
@@ -1701,6 +1716,12 @@
           <div style="font-size:14.5px;font-weight:800;color:#ca4490;margin-bottom:12px;">Założycielka i lektorka</div>
           <p style="font-size:15px;line-height:1.65;color:var(--eg-muted,#4a4458);margin:0;">Hej! Angielskiego uczę od ponad 10 lat i wiem, jak trudno znaleźć ćwiczenia, które są jednocześnie skuteczne i przyjemne. Dlatego powstało EasyWonders. Sama układam i sprawdzam każdą czytankę, słuchankę i ćwiczenie — tak, żeby naprawdę pomagały w nauce, a nie tylko wypełniały czas. Chcemy dać Ci materiały, które pokochasz, więc zostań z nami na dłużej <span style="color:#ff5fa2;">&#9829;</span></p>
         </div>
+        <div style="flex:1 1 100%;text-align:center;margin-top:4px;">
+          <a href="/opinie.html" style="display:inline-flex;align-items:center;gap:8px;background:var(--eg-magenta,#ca4490);color:#fff;text-decoration:none;font-family:'Quicksand',sans-serif;font-weight:700;font-size:14.5px;padding:11px 26px;border-radius:999px;box-shadow:0 6px 18px rgba(202,68,144,.26);transition:background .18s, transform .18s;" onmouseover="this.style.background='#b33a7e';this.style.transform='translateY(-1px)'" onmouseout="this.style.background='var(--eg-magenta,#ca4490)';this.style.transform='none'">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 3.5l2.6 5.3 5.9.86-4.25 4.14 1 5.86L12 17.1l-5.25 2.76 1-5.86L3.5 9.66l5.9-.86L12 3.5z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></svg>
+            <span data-i18n="Przeczytaj opinie">Przeczytaj opinie</span>
+          </a>
+        </div>
       </div>
     </section>
 
@@ -1743,7 +1764,10 @@
           if(v&&v.indexOf('access_token')!==-1){loggedIn=true;break;}
         }
       }
-      if(loggedIn){var el=document.getElementById('egFounder');if(el)el.style.display='none';}
+      if(loggedIn){
+        var el=document.getElementById('egFounder');if(el)el.style.display='none';
+        var opNav=document.getElementById('egOpinieNav');if(opNav)opNav.style.display='none';
+      }
     }catch(e){}
   })();
   // Po potwierdzeniu maila (link z Supabase) token sesji wraca w adresie jako #access_token=…
@@ -1760,6 +1784,10 @@
     if(how) how.style.display = loggedIn ? 'none' : '';
     var about = document.querySelector('.eg-about');
     if(about) about.style.display = loggedIn ? 'none' : '';
+    var opNav = document.getElementById('egOpinieNav');
+    if(opNav) opNav.style.display = loggedIn ? 'none' : '';
+    var founder = document.getElementById('egFounder');
+    if(founder) founder.style.display = loggedIn ? 'none' : '';
   }
   if(_sb){
     _sb.auth.onAuthStateChange(function(event, session){
