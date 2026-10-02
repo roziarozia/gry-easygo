@@ -3,6 +3,7 @@ import { notFound } from 'next/navigation';
 import Link from 'next/link';
 import GameEmbed from './GameEmbed';
 import ExerciseMeta from './ExerciseMeta';
+import { SITE, ORGANIZATION } from '../../../lib/site';
 
 export async function generateStaticParams() {
   const games = await getPublishedGames();
@@ -24,6 +25,7 @@ export async function generateMetadata({ params }) {
     alternates: { canonical: `/cwiczenie/${game.slug}` },
     openGraph: {
       title: game.title, description: opis,
+      url: `/cwiczenie/${game.slug}`,
       images: game.cover_url ? [game.cover_url] : [], type: 'article',
     },
   };
@@ -99,8 +101,8 @@ export default async function CwiczeniePage({ params }) {
     name: game.title, description: game.description || '',
     educationalLevel: game.level || '', inLanguage: 'en', teaches: 'English',
     learningResourceType: 'Interactive exercise', isAccessibleForFree: !game.is_premium,
-    provider: { '@type': 'Organization', name: 'EasyGo English', url: 'https://easygo-english.pl' },
-    url: `https://gry.easygo-english.pl/cwiczenie/${game.slug}`,
+    provider: ORGANIZATION,
+    url: `${SITE}/cwiczenie/${game.slug}`,
   };
 
   return (
