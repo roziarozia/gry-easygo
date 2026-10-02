@@ -3678,8 +3678,20 @@
 (function(){
   function reportH(){
     try{
-      var el=document.querySelector('.eg-games')||document.body;
-      var hh=Math.max(el.scrollHeight, document.body.scrollHeight);
+      // Mierz DÓŁ realnej zawartości (stopka / ostatni widoczny blok), a nie scrollHeight body —
+      // scrollHeight nie maleje poprawnie przy filtrze serii (zostaje pusta przestrzeń przed stopką).
+      var hh = 0;
+      var foot = document.querySelector('.eg-footer') || document.querySelector('footer');
+      if(foot){
+        var r = foot.getBoundingClientRect();
+        hh = Math.ceil(r.bottom + (window.scrollY || window.pageYOffset || 0));
+      }
+      var el = document.querySelector('.eg-games');
+      if(el){
+        var r2 = el.getBoundingClientRect();
+        hh = Math.max(hh, Math.ceil(r2.bottom + (window.scrollY || window.pageYOffset || 0)));
+      }
+      if(!hh) hh = document.body.scrollHeight;
       if(window.parent&&window.parent!==window) window.parent.postMessage({egCatalogHeight:hh},'*');
     }catch(e){}
   }
