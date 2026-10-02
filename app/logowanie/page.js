@@ -2,6 +2,7 @@
 import { useEffect, useRef, useState } from 'react';
 import posthog from 'posthog-js';
 import { analyticsEnabled } from '../PostHogInit';
+import { gaEvent } from '../ConsentPixel';
 
 function identifyUser(user, fallbackRole) {
   if (!analyticsEnabled || !user || !user.id) return;
@@ -40,6 +41,7 @@ export default function Logowanie() {
             if (oauthFlow) {
               sessionStorage.removeItem('eg_oauth_flow');
               if (analyticsEnabled) posthog.capture('user_logged_in', { auth_method: 'google' });
+              if (oauthFlow === 'signup') gaEvent('sign_up', { method: 'google' });
             }
           } catch (err) {}
           window.location.href = REDIRECT_AFTER;
@@ -110,6 +112,7 @@ export default function Logowanie() {
         });
         if (error) throw error;
         identifyUser(data && data.user, role);
+        gaEvent('sign_up', { method: 'password', account_role: role });
         if (analyticsEnabled) {
           posthog.capture('user_signed_up', {
             auth_method: 'password',

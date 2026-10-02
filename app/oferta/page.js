@@ -2,6 +2,7 @@
 import { useEffect } from 'react';
 import posthog from 'posthog-js';
 import { analyticsEnabled } from '../PostHogInit';
+import { gaEvent } from '../ConsentPixel';
 
 // OFERTA / checkout — przeniesiona z easygo-english.pl/oferta.html na TĘ domenę.
 // To kluczowe: sesja Supabase zapisuje się osobno dla każdej domeny, więc strona
@@ -35,7 +36,7 @@ export default function Oferta() {
 
     function trackCheckout(e) {
       const button = e.target && e.target.closest ? e.target.closest('#buyInd,#buyLek,#resumeBtn') : null;
-      if (!button || !analyticsEnabled) return;
+      if (!button) return;
       let plan = button.id === 'buyLek' ? 'teacher' : 'individual';
       if (button.id === 'resumeBtn') {
         try {
@@ -45,11 +46,13 @@ export default function Oferta() {
       }
       const yearly = document.getElementById('btnYearly');
       const seats = document.getElementById('seatsVal');
-      posthog.capture('checkout_started', {
+      const props = {
         plan,
         billing_cycle: yearly && yearly.classList.contains('active') ? 'yearly' : 'monthly',
         seats: plan === 'teacher' && seats ? Number(seats.textContent) : 1,
-      });
+      };
+      gaEvent('begin_checkout', props);
+      if (analyticsEnabled) posthog.capture('checkout_started', props);
     }
     document.addEventListener('click', trackCheckout);
 

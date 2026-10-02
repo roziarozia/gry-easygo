@@ -42,6 +42,11 @@ function loadAnalytics() {
   gtag('config', GA_ID, { anonymize_ip: true });
 }
 
+// Zdarzenie GA4 (konwersje: sign_up, begin_checkout). Bez zgody gtag nie istnieje, więc nic nie wysyła.
+export function gaEvent(name, params) {
+  try { if (typeof window.gtag === 'function') window.gtag('event', name, params || {}); } catch (e) {}
+}
+
 function loadOptional() {
   // małe opóźnienie: poczekaj na sygnał z ramki, czy użytkownik nie jest zalogowany
   setTimeout(function(){ loadAnalytics(); loadPixel(); }, 1200);
