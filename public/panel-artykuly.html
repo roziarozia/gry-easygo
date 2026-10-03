@@ -122,7 +122,7 @@
         <div class="field">
           <label>Slug (adres URL — tylko małe litery, myślniki)</label>
           <input type="text" id="fSlug" placeholder="present-simple-czy-continuous">
-          <div class="hint">Artykuł będzie pod: /nauka.html?a=<span id="slugPrev">slug</span></div>
+          <div class="hint">Artykuł będzie pod: /nauka?a=<span id="slugPrev">slug</span></div>
         </div>
 
         <div class="row2">
@@ -335,7 +335,7 @@
     $('deleteBtn').style.display='';
     clearMsg($('saveMsg')); clearMsg($('coverMsg'));
     $('editForm').classList.remove('hidden');
-    $('previewBtn').setAttribute('href','/nauka.html?a='+encodeURIComponent(a.slug||''));
+    $('previewBtn').setAttribute('href','/nauka?a='+encodeURIComponent(a.slug||''));
     renderList();
   }
   function renderCover(url){
@@ -436,7 +436,7 @@
       $('coverSlot').removeAttribute('data-url');
       $('deleteBtn').style.display='';
       $('editTitle').textContent='Edytujesz artykuł';
-      $('previewBtn').setAttribute('href','/nauka.html?a='+encodeURIComponent(res.data.slug||''));
+      $('previewBtn').setAttribute('href','/nauka?a='+encodeURIComponent(res.data.slug||''));
       loadList();
     });
   });
