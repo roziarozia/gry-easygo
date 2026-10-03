@@ -425,5 +425,24 @@
     });
 })();
 </script>
+<!-- Google Analytics — tylko gdy jest zgoda na cookies (RODO), ten sam klucz co strona główna -->
+<script>
+(function(){
+  try{
+    var v = localStorage.getItem('easygo_zgoda_cookies');
+    if(v !== 'all' && v !== 'accepted') return; // bez zgody na analitykę — nie ładuj GA
+  }catch(e){ return; }
+  var GA_ID = 'G-KWQVZY8YED';
+  var s = document.createElement('script');
+  s.async = true;
+  s.src = 'https://www.googletagmanager.com/gtag/js?id=' + GA_ID;
+  document.head.appendChild(s);
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){ window.dataLayer.push(arguments); }
+  window.gtag = gtag;
+  gtag('js', new Date());
+  gtag('config', GA_ID);
+})();
+</script>
 </body>
 </html>
