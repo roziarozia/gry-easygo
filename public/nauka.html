@@ -109,20 +109,33 @@
   .art-content .ex .good{ color:#2e9e6b; font-weight:800; }
   .art-content .ex .bad{ color:#d14b6a; font-weight:800; text-decoration:line-through; }
 
+  /* sekcja "Wypróbuj na ćwiczeniu" — zachęta + prawdziwy kafelek ćwiczenia */
   .practice{
     background:linear-gradient(135deg, rgba(167,141,217,.1), rgba(202,68,144,.07));
-    border:1px solid var(--line); border-radius:16px; padding:22px; margin:34px 0 0;
-    display:flex; align-items:center; gap:16px; flex-wrap:wrap;
+    border:1px solid var(--line); border-radius:18px; padding:24px; margin:38px 0 0;
+    display:flex; align-items:center; gap:22px; flex-wrap:wrap;
   }
-  .practice-txt{ flex:1 1 240px; }
-  .practice-txt strong{ font-family:'Quicksand',sans-serif; font-size:16px; color:var(--ink); display:block; margin-bottom:2px; }
-  .practice-txt span{ font-size:14px; color:var(--muted); }
-  .practice a{
-    flex:0 0 auto; display:inline-flex; align-items:center; gap:7px; background:var(--magenta); color:#fff; text-decoration:none;
-    font-family:'Quicksand',sans-serif; font-weight:700; font-size:14.5px; padding:11px 24px; border-radius:999px;
-    box-shadow:0 5px 16px rgba(202,68,144,.22); transition:background .18s, transform .18s;
+  .practice .pr-txt{ flex:1 1 220px; }
+  .practice .pr-txt strong{ font-family:'Quicksand',sans-serif; font-size:19px; color:var(--ink); display:block; margin-bottom:6px; }
+  .practice .pr-txt span{ font-size:14.5px; color:var(--muted); line-height:1.6; }
+  /* kafelek ćwiczenia — jak w katalogu */
+  .ex-tile{
+    flex:0 0 220px; max-width:220px; text-decoration:none; color:inherit;
+    background:var(--card); border:1px solid var(--line); border-radius:16px; overflow:hidden;
+    box-shadow:0 4px 16px rgba(120,90,180,.1); transition:transform .18s, box-shadow .18s;
   }
-  .practice a:hover{ background:var(--magenta-dk); transform:translateY(-1px); }
+  .ex-tile:hover{ transform:translateY(-3px); box-shadow:0 12px 26px rgba(120,90,180,.18); }
+  .ex-tile .et-cover{ width:100%; aspect-ratio:1/1; object-fit:cover; display:block; background:var(--soft); }
+  .ex-tile .et-body{ padding:12px 14px 14px; }
+  .ex-tile .et-title{ font-family:'Quicksand',sans-serif; font-weight:700; font-size:14px; line-height:1.3; color:var(--ink); margin-bottom:8px;
+    display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; min-height:2.6em; }
+  .ex-tile .et-play{
+    display:flex; align-items:center; justify-content:center; gap:7px;
+    background:var(--magenta); color:#fff; font-family:'Quicksand',sans-serif; font-weight:700; font-size:14px;
+    padding:9px 0; border-radius:999px; transition:background .16s;
+  }
+  .ex-tile:hover .et-play{ background:var(--magenta-dk); }
+  @media (max-width:560px){ .ex-tile{ flex:1 1 100%; max-width:none; } }
 
   .art-author{ display:flex; align-items:center; gap:13px; margin:40px 0 0; padding-top:24px; border-top:1px solid var(--line); }
   .art-author img{ width:50px; height:50px; border-radius:50%; object-fit:cover; object-position:50% 40%; background:var(--soft); }
@@ -173,13 +186,7 @@
     <h1 id="artTitle"></h1>
     <div class="art-content" id="artContent"></div>
 
-    <div class="practice" id="artPractice">
-      <div class="practice-txt">
-        <strong>Przećwicz to</strong>
-        <span>Utrwal wiedzę interaktywnymi ćwiczeniami z wyjaśnieniami.</span>
-      </div>
-      <a id="artCta" href="/?widok=cwiczenia">Przejdź do ćwiczeń</a>
-    </div>
+    <div class="practice" id="artPractice"></div>
 
     <div class="art-author">
       <img src="/rozia.png" alt="Rózia">
@@ -296,6 +303,54 @@
     showArticle(a, push);
   }
 
+  var exCache = {};
+  function renderPractice(a){
+    var box = document.getElementById('artPractice');
+    var exSlug = (a.exercise_slug||'').trim();
+    if(!exSlug){
+      // brak powiązanego ćwiczenia → ogólna zachęta z przyciskiem do katalogu
+      box.innerHTML = '<div class="pr-txt"><strong>Teraz Twoja kolej!</strong>'
+        + '<span>Utrwal wiedzę interaktywnymi ćwiczeniami z wyjaśnieniami.</span></div>'
+        + '<a class="ex-tile" href="'+esc(a.cta_link||'/?widok=cwiczenia')+'" style="flex:0 0 auto;max-width:none;" '
+        + 'data-ext="1"><div class="et-body" style="padding:14px 22px;"><div class="et-play" style="padding:11px 22px;">'
+        + esc(a.cta_label||'Przejdź do ćwiczeń')+'</div></div></a>';
+      bindPracticeLinks(box);
+      return;
+    }
+    function draw(g){
+      var cover = g && g.cover_url
+        ? '<img class="et-cover" src="'+esc(g.cover_url)+'" alt="'+esc(g.title)+'">'
+        : '<div class="et-cover" style="display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#a78dd9,#ca4490);color:#fff;font-family:Quicksand,sans-serif;font-weight:700;">EasyWonders</div>';
+      var title = g ? esc(g.title) : 'Ćwiczenie';
+      box.innerHTML =
+        '<div class="pr-txt"><strong>Teraz Twoja kolej!</strong>'
+        + '<span>Wypróbuj to, czego się nauczyłeś, na ćwiczeniu &#8594;</span></div>'
+        + '<a class="ex-tile" href="/cwiczenie/'+encodeURIComponent(exSlug)+'" data-ext="1">'
+        +   cover
+        +   '<div class="et-body"><div class="et-title">'+title+'</div>'
+        +     '<div class="et-play"><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg> Wypróbuj!</div></div>'
+        + '</a>';
+      bindPracticeLinks(box);
+    }
+    if(exCache[exSlug]){ draw(exCache[exSlug]); return; }
+    // pobierz dane ćwiczenia z bazy (okładka, tytuł)
+    sb.from('games').select('slug,title,cover_url,level').eq('slug',exSlug).eq('published',true).single().then(function(res){
+      var g = res.data || null;
+      exCache[exSlug] = g || {slug:exSlug};
+      draw(g);
+    });
+  }
+  // linki do ćwiczeń: w iframe routujemy do rodzica; samodzielnie zwykła nawigacja
+  function bindPracticeLinks(box){
+    box.querySelectorAll('a[data-ext]').forEach(function(lnk){
+      lnk.addEventListener('click', function(ev){
+        var href = lnk.getAttribute('href');
+        // ta strona NIE jest w iframe (to pełna podstrona), więc zwykła nawigacja wystarcza
+        // (zostawiamy domyślne zachowanie <a>)
+      });
+    });
+  }
+
   function showArticle(a, push){
     document.getElementById('artTitle').textContent = a.title;
     document.getElementById('artContent').innerHTML = a.body || '';
@@ -303,9 +358,7 @@
     if(a.category) badges += '<span class="badge badge-cat">'+esc(catLabel(a.category))+'</span>';
     document.getElementById('artBadges').innerHTML = badges;
     document.getElementById('artCoverSlot').innerHTML = a.cover_url ? ('<img class="art-cover" src="'+esc(a.cover_url)+'" alt="'+esc(a.title)+'">') : '';
-    var cta = document.getElementById('artCta');
-    cta.setAttribute('href', a.cta_link || '/?widok=cwiczenia');
-    cta.textContent = a.cta_label || 'Przejdź do ćwiczeń';
+    renderPractice(a);
     document.title = a.title + ' | EasyWonders';
     listView.classList.add('hidden');
     articleView.classList.remove('hidden');
@@ -334,7 +387,7 @@
   });
 
   sb.from('articles')
-    .select('slug,title,excerpt,body,cover_url,level,category,keywords,cta_link,cta_label,published_at,sort_order')
+    .select('slug,title,excerpt,body,cover_url,level,category,keywords,cta_link,cta_label,exercise_slug,published_at,sort_order')
     .eq('published', true)
     .order('sort_order', { ascending:false })
     .order('published_at', { ascending:false })
