@@ -158,7 +158,8 @@ export default function CatalogEmbed() {
       ref={ref}
       src={src}
       title="Katalog ćwiczeń"
-      style={{ width: '100%', height: 900, border: 'none', display: 'block' }}
+      scrolling="no"
+      style={{ width: '100%', height: 900, border: 'none', display: 'block', overflow: 'hidden' }}
     />
       {demoUrl && (
         <div onClick={() => setDemoUrl(null)} style={{ position: 'fixed', inset: 0, background: 'rgba(46,42,51,.55)', zIndex: 9999, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 16 }}>
