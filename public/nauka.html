@@ -10,7 +10,410 @@
 <meta property="og:type" content="website">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.<!DOCTYPE html>
+<html lang="pl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Nauka angielskiego — poradniki i wyjaśnienia | EasyWonders</title>
+<meta name="description" content="Jasne, praktyczne wyjaśnienia gramatyki i słownictwa angielskiego od lektorki z wieloletnim doświadczeniem. Przeczytaj, zrozum, a potem utrwal wiedzę ćwiczeniami.">
+<meta property="og:title" content="Nauka angielskiego — poradniki EasyWonders">
+<meta property="og:description" content="Praktyczne wyjaśnienia gramatyki angielskiej, które naprawdę pomagają zrozumieć.">
+<meta property="og:type" content="website">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@500;600;700&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --magenta:#ca4490; --magenta-dk:#b33a7e; --lavender:#a78dd9; --gold:#f4c94c;
+    --ink:#2a2730; --muted:#6a6475; --line:#eceaf0; --card:#fff; --bg:#ffffff; --soft:#f7f5fa;
+    box-sizing:border-box; padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
+  }
+  *,*::before,*::after{ box-sizing:border-box; }
+  html{ scroll-behavior:smooth; }
+  @media (prefers-color-scheme:dark){
+    :root:not([data-theme="light"]){ --ink:#ece9f2; --muted:#b0aabd; --line:#2f2938; --card:#221d2b; --bg:#17131f; --soft:#1e1927; }
+  }
+  :root[data-theme="dark"]{ --ink:#ece9f2; --muted:#b0aabd; --line:#2f2938; --card:#221d2b; --bg:#17131f; --soft:#1e1927; }
+  body{ margin:0; background:var(--bg); color:var(--ink); font-family:'Nunito',sans-serif; line-height:1.65; -webkit-font-smoothing:antialiased; }
+  .wrap{ max-width:900px; margin:0 auto; padding:0 20px 64px; }
+
+  .topbar{
+    position:sticky; top:0; z-index:10; display:flex; align-items:center; justify-content:space-between;
+    padding:14px 20px; margin:0 -20px 8px;
+    background:color-mix(in srgb, var(--bg) 88%, transparent);
+    backdrop-filter:blur(10px); -webkit-backdrop-filter:blur(10px); border-bottom:1px solid var(--line);
+  }
+  .home-btn{
+    display:inline-flex; align-items:center; gap:8px; font-family:'Quicksand',sans-serif; font-weight:700; font-size:14.5px;
+    color:var(--magenta); text-decoration:none; padding:8px 16px 8px 13px; border-radius:999px;
+    border:1.5px solid var(--magenta); background:transparent; transition:background .18s, color .18s, transform .18s;
+  }
+  .home-btn:hover{ background:var(--magenta); color:#fff; transform:translateY(-1px); }
+  .topbar-brand{ font-family:'Quicksand',sans-serif; font-weight:700; font-size:15px; }
+  .topbar-brand .b-easy{ color:var(--magenta); } .topbar-brand .b-wonders{ color:var(--gold); }
+
+  .hero{ text-align:center; padding:42px 0 6px; }
+  .hero h1{ font-family:'Quicksand',sans-serif; font-weight:700; font-size:clamp(28px,5vw,40px); margin:0 0 14px; }
+  .hero h1 .hl{ background:linear-gradient(180deg, transparent 78%, rgba(183,164,232,.42) 78%); padding:0 6px; }
+  .hero h1 .b-easy{ color:var(--magenta); } .hero h1 .b-wonders{ color:var(--gold); }
+  .hero p{ font-size:17px; color:var(--ink); max-width:540px; margin:0 auto; font-weight:700; }
+  .hero .hero-sub{ font-size:15.5px; color:var(--muted); font-weight:400; margin-top:8px; }
+  .pink-heart{ color:#ff5fa2; }
+
+  .searchbar{ margin:30px auto 10px; max-width:520px; position:relative; }
+  .searchbar input{
+    width:100%; font-family:'Nunito',sans-serif; font-size:15.5px; color:var(--ink);
+    background:var(--soft); border:1.5px solid var(--line); border-radius:999px;
+    padding:13px 18px 13px 46px; outline:none; transition:border-color .18s, background .18s;
+  }
+  .searchbar input:focus{ border-color:var(--lavender); background:var(--card); }
+  .searchbar input::placeholder{ color:var(--muted); }
+  .searchbar .s-ic{ position:absolute; left:17px; top:50%; transform:translateY(-50%); color:var(--muted); pointer-events:none; }
+
+  .lvlbar{ display:flex; gap:8px; justify-content:center; flex-wrap:wrap; margin:14px 0 6px; }
+  .lvl-chip{
+    font-family:'Quicksand',sans-serif; font-weight:700; font-size:13px; color:var(--muted);
+    background:transparent; border:1.5px solid var(--line); border-radius:999px; padding:5px 14px;
+    cursor:pointer; transition:all .16s;
+  }
+  .lvl-chip:hover{ border-color:var(--lavender); color:var(--ink); }
+  .lvl-chip.active{ background:var(--magenta); border-color:var(--magenta); color:#fff; }
+
+  .grid{ display:grid; grid-template-columns:repeat(2,1fr); gap:24px; margin:30px 0 0; }
+  @media (max-width:620px){ .grid{ grid-template-columns:1fr; gap:20px; } }
+  .post{
+    display:flex; flex-direction:column; text-decoration:none; color:inherit;
+    background:var(--card); border:1px solid var(--line); border-radius:18px; overflow:hidden;
+    box-shadow:0 2px 12px rgba(80,60,120,.05); transition:transform .18s, box-shadow .18s, border-color .18s;
+  }
+  .post:hover{ transform:translateY(-3px); box-shadow:0 12px 28px rgba(120,90,180,.14); border-color:var(--lavender); }
+  .post-cover{ aspect-ratio:16/9; width:100%; object-fit:cover; display:block; background:var(--soft); }
+  .post-cover-ph{ aspect-ratio:16/9; width:100%; display:flex; align-items:center; justify-content:center; background:linear-gradient(135deg,#a78dd9,#ca4490); }
+  .post-cover-ph span{ font-family:'Quicksand',sans-serif; font-weight:700; color:#fff; font-size:19px; opacity:.9; letter-spacing:.02em; }
+  .post-body{ padding:18px 20px 20px; display:flex; flex-direction:column; flex:1; }
+  .post-badges{ display:flex; gap:8px; margin-bottom:10px; }
+  .badge{ font-family:'Quicksand',sans-serif; font-weight:700; font-size:11px; letter-spacing:.04em; text-transform:uppercase; padding:3px 10px; border-radius:999px; }
+  .badge-lvl{ color:var(--magenta); background:rgba(202,68,144,.09); }
+  .badge-cat{ color:var(--lavender); background:rgba(167,141,217,.12); }
+  .post-body h2{ font-family:'Quicksand',sans-serif; font-weight:700; font-size:18.5px; line-height:1.3; margin:0 0 8px; color:var(--ink); }
+  .post-body p{ font-size:14.5px; color:var(--muted); margin:0 0 14px; flex:1; }
+  .post-more{ font-family:'Quicksand',sans-serif; font-weight:700; font-size:13.5px; color:var(--magenta); display:inline-flex; align-items:center; gap:6px; }
+
+  .empty{ text-align:center; color:var(--muted); padding:50px 20px; font-size:15.5px; }
+  .loading{ text-align:center; color:var(--muted); padding:50px 20px; font-size:15px; }
+
+  .article{ max-width:720px; margin:0 auto; }
+  .art-back{ margin:24px 0 6px; }
+  .art-back a{ display:inline-flex; align-items:center; gap:7px; font-family:'Quicksand',sans-serif; font-weight:700; font-size:14px; color:var(--magenta); text-decoration:none; }
+  .art-back a:hover{ text-decoration:underline; }
+  .art-cover{ width:100%; aspect-ratio:16/8; object-fit:cover; border-radius:18px; margin:16px 0 26px; background:var(--soft); }
+  .art-badges{ display:flex; gap:8px; margin-bottom:14px; }
+  .article h1{ font-family:'Quicksand',sans-serif; font-weight:700; font-size:clamp(25px,4vw,34px); line-height:1.22; margin:0 0 22px; color:var(--ink); }
+  .art-content .lead{ font-size:18px; color:var(--muted); line-height:1.75; margin:0 0 22px; }
+  .art-content p{ font-size:16.5px; line-height:1.8; margin:0 0 18px; color:var(--ink); }
+  .art-content h3{ font-family:'Quicksand',sans-serif; font-weight:700; font-size:20px; margin:32px 0 12px; color:var(--ink); }
+  .art-content b{ font-weight:800; }
+  .art-content em{ color:var(--magenta); font-style:normal; font-weight:700; }
+  .art-content .ex{ background:var(--soft); border-left:4px solid var(--lavender); border-radius:0 12px 12px 0; padding:16px 20px; margin:18px 0; font-size:15.5px; line-height:1.95; }
+  .art-content .ex .en{ font-weight:700; color:var(--ink); }
+  .art-content .ex .pl{ color:var(--muted); }
+  .art-content .ex .good{ color:#2e9e6b; font-weight:800; }
+  .art-content .ex .bad{ color:#d14b6a; font-weight:800; text-decoration:line-through; }
+
+  /* sekcja "Wypróbuj na ćwiczeniu" — zachęta + prawdziwy kafelek ćwiczenia */
+  .practice{
+    background:linear-gradient(135deg, rgba(167,141,217,.1), rgba(202,68,144,.07));
+    border:1px solid var(--line); border-radius:18px; padding:24px; margin:38px 0 0;
+    display:flex; align-items:center; gap:22px; flex-wrap:wrap;
+  }
+  .practice .pr-txt{ flex:1 1 220px; }
+  .practice .pr-txt strong{ font-family:'Quicksand',sans-serif; font-size:19px; color:var(--ink); display:block; margin-bottom:6px; }
+  .practice .pr-txt span{ font-size:14.5px; color:var(--muted); line-height:1.6; }
+  /* kafelek ćwiczenia — jak w katalogu */
+  .ex-tile{
+    flex:0 0 220px; max-width:220px; text-decoration:none; color:inherit;
+    background:var(--card); border:1px solid var(--line); border-radius:16px; overflow:hidden;
+    box-shadow:0 4px 16px rgba(120,90,180,.1); transition:transform .18s, box-shadow .18s;
+  }
+  .ex-tile:hover{ transform:translateY(-3px); box-shadow:0 12px 26px rgba(120,90,180,.18); }
+  .ex-tile .et-cover{ width:100%; aspect-ratio:1/1; object-fit:cover; display:block; background:var(--soft); }
+  .ex-tile .et-body{ padding:12px 14px 14px; }
+  .ex-tile .et-title{ font-family:'Quicksand',sans-serif; font-weight:700; font-size:14px; line-height:1.3; color:var(--ink); margin-bottom:8px;
+    display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; min-height:2.6em; }
+  .ex-tile .et-play{
+    display:flex; align-items:center; justify-content:center; gap:7px;
+    background:var(--magenta); color:#fff; font-family:'Quicksand',sans-serif; font-weight:700; font-size:14px;
+    padding:9px 0; border-radius:999px; transition:background .16s;
+  }
+  .ex-tile:hover .et-play{ background:var(--magenta-dk); }
+  @media (max-width:560px){ .ex-tile{ flex:1 1 100%; max-width:none; } }
+
+  .art-author{ display:flex; align-items:center; gap:13px; margin:40px 0 0; padding-top:24px; border-top:1px solid var(--line); }
+  .art-author img{ width:50px; height:50px; border-radius:50%; object-fit:cover; object-position:50% 40%; background:var(--soft); }
+  .art-author .aa-name{ font-family:'Quicksand',sans-serif; font-weight:700; font-size:15px; color:var(--ink); }
+  .art-author .aa-role{ font-size:13px; color:var(--muted); }
+
+  .foot{ text-align:center; margin:48px auto 0; padding-top:24px; border-top:1px solid var(--line); max-width:420px; }
+  .foot a{ color:var(--magenta); font-family:'Quicksand',sans-serif; font-weight:700; text-decoration:none; font-size:13.5px; }
+  .foot .foot-links{ font-size:12px; color:var(--muted); margin-top:8px; }
+  .foot .foot-links a{ font-family:'Nunito',sans-serif; font-weight:600; font-size:12px; color:var(--muted); }
+
+  .hidden{ display:none !important; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="topbar">
+    <a class="home-btn" href="/" aria-label="Powrót do strony głównej">
+      <svg width="17" height="17" viewBox="0 0 24 24" fill="none"><path d="M3 11.5 12 4l9 7.5" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/><path d="M5.5 10v9.5h5V14h3v5.5h5V10" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      Strona główna
+    </a>
+    <div class="topbar-brand"><span class="b-easy">Easy</span><span class="b-wonders">Wonders</span></div>
+  </div>
+
+  <div id="listView">
+    <header class="hero">
+      <h1><span class="hl">Teoria z <span class="b-easy">Easy</span><span class="b-wonders">Wonders</span></span></h1>
+      <p>Wyjaśnienia w formie, jakiej potrzebujesz <span class="pink-heart">&#9829;</span></p>
+      <p class="hero-sub">Przeczytaj, a potem utrwal wiedzę, korzystając z naszych ćwiczeń!</p>
+    </header>
+
+    <div class="searchbar">
+      <svg class="s-ic" width="19" height="19" viewBox="0 0 24 24" fill="none"><circle cx="11" cy="11" r="7" stroke="currentColor" stroke-width="1.8"/><path d="m20 20-3.5-3.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+      <input type="text" id="search" placeholder="Szukaj artykułu, np. Present Simple..." autocomplete="off">
+    </div>
+
+    <div class="lvlbar" id="catbar"></div>
+
+    <div id="grid" class="grid"></div>
+    <div id="listMsg" class="loading">Ładuję artykuły…</div>
+  </div>
+
+  <article id="articleView" class="article hidden">
+    <div class="art-back"><a href="#" id="backToList">&#8592; Wszystkie artykuły</a></div>
+    <div id="artCoverSlot"></div>
+    <div class="art-badges" id="artBadges"></div>
+    <h1 id="artTitle"></h1>
+    <div class="art-content" id="artContent"></div>
+
+    <div class="practice" id="artPractice"></div>
+
+    <div class="art-author">
+      <img src="/rozia.png" alt="Rózia">
+      <div>
+        <div class="aa-name">Rózia</div>
+        <div class="aa-role">Lektorka i założycielka EasyWonders</div>
+      </div>
+    </div>
+  </article>
+
+  <footer class="foot">
+    <a href="https://easygo-english.pl/">EasyGo English</a>
+    <div class="foot-links">
+      <a href="/regulamin">Regulamin</a> ·
+      <a href="/polityka-prywatnosci">Polityka prywatności</a>
+    </div>
+  </footer>
+
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+(function(){
+  try{
+    var t = localStorage.getItem('easygo_tryb');
+    if(t === 'dark') document.documentElement.setAttribute('data-theme','dark');
+    else if(t === 'light') document.documentElement.setAttribute('data-theme','light');
+  }catch(e){}
+
+  var SUPA_URL = 'https://svjrdyxwqznbzxqeytdn.supabase.co';
+  var SUPA_KEY = 'sb_publishable_TNCq1UAMAvLO0Z5Mt8QOig_OvsxhhyJ';
+  var sb = window.supabase.createClient(SUPA_URL, SUPA_KEY);
+
+  var ALL = [];
+  var curCat = 'all';
+  var curSearch = '';
+
+  var grid = document.getElementById('grid');
+  var listMsg = document.getElementById('listMsg');
+  var listView = document.getElementById('listView');
+  var articleView = document.getElementById('articleView');
+  var searchInput = document.getElementById('search');
+  var catbar = document.getElementById('catbar');
+
+  function esc(s){ var d=document.createElement('div'); d.textContent=s==null?'':s; return d.innerHTML; }
+  function norm(s){ return (s||'').toLowerCase()
+    .replace(/ą/g,'a').replace(/ć/g,'c').replace(/ę/g,'e').replace(/ł/g,'l').replace(/ń/g,'n')
+    .replace(/ó/g,'o').replace(/ś/g,'s').replace(/ź/g,'z').replace(/ż/g,'z'); }
+  function catLabel(c){ var m={gramatyka:'Gramatyka',slownictwo:'Słownictwo',porady:'Porady',inne:'Inne'}; return m[c]||c; }
+
+  function renderCatBar(){
+    // zbierz kategorie faktycznie obecne w artykułach (kolejność: gramatyka, porady, reszta)
+    var order = ['gramatyka','porady','slownictwo','inne'];
+    var cats = [];
+    ALL.forEach(function(a){ if(a.category && cats.indexOf(a.category)===-1) cats.push(a.category); });
+    cats.sort(function(x,y){ var ix=order.indexOf(x), iy=order.indexOf(y); return (ix<0?99:ix)-(iy<0?99:iy); });
+    if(cats.length<2){ catbar.innerHTML=''; return; }  // 1 kategoria = brak sensu filtrować
+    var html = '<button class="lvl-chip'+(curCat==='all'?' active':'')+'" data-cat="all">Wszystkie</button>';
+    cats.forEach(function(c){ html += '<button class="lvl-chip'+(curCat===c?' active':'')+'" data-cat="'+esc(c)+'">'+esc(catLabel(c))+'</button>'; });
+    catbar.innerHTML = html;
+    catbar.querySelectorAll('.lvl-chip').forEach(function(b){
+      b.addEventListener('click', function(){ curCat=b.getAttribute('data-cat'); renderCatBar(); renderGrid(); });
+    });
+  }
+
+  function renderGrid(){
+    var items = ALL.filter(function(a){
+      if(curCat!=='all' && a.category!==curCat) return false;
+      if(curSearch){
+        var hay = norm(a.title)+' '+norm(a.excerpt)+' '+norm(a.keywords)+' '+norm(a.body);
+        if(hay.indexOf(norm(curSearch))===-1) return false;
+      }
+      return true;
+    });
+    if(!items.length){
+      grid.innerHTML='';
+      listMsg.className='empty';
+      listMsg.textContent = curSearch ? ('Nie znaleziono artykułów dla „'+curSearch+'".') : 'Wkrótce pojawią się tu pierwsze artykuły.';
+      listMsg.classList.remove('hidden');
+      return;
+    }
+    listMsg.classList.add('hidden');
+    grid.innerHTML = items.map(function(a){
+      var cover = a.cover_url
+        ? '<img class="post-cover" src="'+esc(a.cover_url)+'" alt="'+esc(a.title)+'" loading="lazy">'
+        : '<div class="post-cover-ph"><span>EasyWonders</span></div>';
+      var cat = a.category ? '<span class="badge badge-cat">'+esc(catLabel(a.category))+'</span>' : '';
+      return '<a class="post" href="?a='+encodeURIComponent(a.slug)+'" data-slug="'+esc(a.slug)+'">'
+        + cover
+        + '<div class="post-body">'
+        +   '<div class="post-badges">'+cat+'</div>'
+        +   '<h2>'+esc(a.title)+'</h2>'
+        +   '<p>'+esc(a.excerpt)+'</p>'
+        +   '<span class="post-more">Czytaj dalej <svg width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="M9 6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>'
+        + '</div></a>';
+    }).join('');
+    grid.querySelectorAll('.post').forEach(function(card){
+      card.addEventListener('click', function(ev){
+        ev.preventDefault();
+        openArticle(card.getAttribute('data-slug'), true);
+      });
+    });
+  }
+
+  function openArticle(slug, push){
+    var a = ALL.find(function(x){ return x.slug===slug; });
+    if(!a){
+      sb.from('articles').select('*').eq('slug',slug).eq('published',true).single().then(function(res){
+        if(res.data){ ALL.push(res.data); showArticle(res.data, push); }
+        else showList(push);
+      });
+      return;
+    }
+    showArticle(a, push);
+  }
+
+  var exCache = {};
+  function renderPractice(a){
+    var box = document.getElementById('artPractice');
+    var exSlug = (a.exercise_slug||'').trim();
+    if(!exSlug){
+      // brak powiązanego ćwiczenia → ogólna zachęta z przyciskiem do katalogu
+      box.innerHTML = '<div class="pr-txt"><strong>Teraz Twoja kolej!</strong>'
+        + '<span>Utrwal wiedzę interaktywnymi ćwiczeniami z wyjaśnieniami.</span></div>'
+        + '<a class="ex-tile" href="'+esc(a.cta_link||'/?widok=cwiczenia')+'" style="flex:0 0 auto;max-width:none;" '
+        + 'data-ext="1"><div class="et-body" style="padding:14px 22px;"><div class="et-play" style="padding:11px 22px;">'
+        + esc(a.cta_label||'Przejdź do ćwiczeń')+'</div></div></a>';
+      bindPracticeLinks(box);
+      return;
+    }
+    function draw(g){
+      var cover = g && g.cover_url
+        ? '<img class="et-cover" src="'+esc(g.cover_url)+'" alt="'+esc(g.title)+'">'
+        : '<div class="et-cover" style="display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#a78dd9,#ca4490);color:#fff;font-family:Quicksand,sans-serif;font-weight:700;">EasyWonders</div>';
+      var title = g ? esc(g.title) : 'Ćwiczenie';
+      box.innerHTML =
+        '<div class="pr-txt"><strong>Teraz Twoja kolej!</strong>'
+        + '<span>Wypróbuj to, czego się nauczyłeś, na ćwiczeniu &#8594;</span></div>'
+        + '<a class="ex-tile" href="/cwiczenie/'+encodeURIComponent(exSlug)+'" data-ext="1">'
+        +   cover
+        +   '<div class="et-body"><div class="et-title">'+title+'</div>'
+        +     '<div class="et-play"><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg> Wypróbuj!</div></div>'
+        + '</a>';
+      bindPracticeLinks(box);
+    }
+    if(exCache[exSlug]){ draw(exCache[exSlug]); return; }
+    // pobierz dane ćwiczenia z bazy (okładka, tytuł)
+    sb.from('games').select('slug,title,cover_url,level').eq('slug',exSlug).eq('published',true).single().then(function(res){
+      var g = res.data || null;
+      exCache[exSlug] = g || {slug:exSlug};
+      draw(g);
+    });
+  }
+  // linki do ćwiczeń: w iframe routujemy do rodzica; samodzielnie zwykła nawigacja
+  function bindPracticeLinks(box){
+    box.querySelectorAll('a[data-ext]').forEach(function(lnk){
+      lnk.addEventListener('click', function(ev){
+        var href = lnk.getAttribute('href');
+        // ta strona NIE jest w iframe (to pełna podstrona), więc zwykła nawigacja wystarcza
+        // (zostawiamy domyślne zachowanie <a>)
+      });
+    });
+  }
+
+  function showArticle(a, push){
+    document.getElementById('artTitle').textContent = a.title;
+    document.getElementById('artContent').innerHTML = a.body || '';
+    var badges='';
+    if(a.category) badges += '<span class="badge badge-cat">'+esc(catLabel(a.category))+'</span>';
+    document.getElementById('artBadges').innerHTML = badges;
+    document.getElementById('artCoverSlot').innerHTML = a.cover_url ? ('<img class="art-cover" src="'+esc(a.cover_url)+'" alt="'+esc(a.title)+'">') : '';
+    renderPractice(a);
+    document.title = a.title + ' | EasyWonders';
+    listView.classList.add('hidden');
+    articleView.classList.remove('hidden');
+    window.scrollTo(0,0);
+    if(push){ history.pushState({slug:a.slug}, '', '?a='+encodeURIComponent(a.slug)); }
+  }
+
+  function showList(push){
+    articleView.classList.add('hidden');
+    listView.classList.remove('hidden');
+    document.title = 'Nauka angielskiego — poradniki i wyjaśnienia | EasyWonders';
+    if(push){ history.pushState({}, '', location.pathname); }
+  }
+
+  document.getElementById('backToList').addEventListener('click', function(ev){ ev.preventDefault(); showList(true); });
+
+  window.addEventListener('popstate', function(){
+    var slug = new URLSearchParams(location.search).get('a');
+    if(slug) openArticle(slug, false); else showList(false);
+  });
+
+  var sT;
+  searchInput.addEventListener('input', function(){
+    clearTimeout(sT);
+    sT = setTimeout(function(){ curSearch = searchInput.value.trim(); renderGrid(); }, 200);
+  });
+
+  sb.from('articles')
+    .select('slug,title,excerpt,body,cover_url,level,category,keywords,cta_link,cta_label,exercise_slug,published_at,sort_order')
+    .eq('published', true)
+    .order('sort_order', { ascending:false })
+    .order('published_at', { ascending:false })
+    .then(function(res){
+      if(res.error){ listMsg.className='empty'; listMsg.textContent='Nie udało się wczytać artykułów. Spróbuj odświeżyć stronę.'; return; }
+      ALL = res.data || [];
+      renderCatBar();
+      var slug = new URLSearchParams(location.search).get('a');
+      if(slug){ openArticle(slug, false); } else { renderGrid(); }
+    });
+})();
+</script>
+</body>
+</html>com/css2?family=Quicksand:wght@500;600;700&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
 <style>
   :root{
     --magenta:#ca4490; --magenta-dk:#b33a7e; --lavender:#a78dd9; --gold:#f4c94c;
