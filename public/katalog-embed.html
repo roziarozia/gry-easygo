@@ -145,32 +145,23 @@
   }
   .eg-topbar-left a:hover{ opacity:.72; }
   /* Wyróżniony przycisk OFERTA — wypełniony magenta (pigułka), żeby prowadził wzrok do oferty */
-  .eg-nav-oferta{
-    color:#fff !important; background:var(--eg-magenta);
-    padding:4px 12px; border-radius:999px; font-weight:700 !important; font-size:11.5px;
-    letter-spacing:.02em; transition:background .18s, transform .18s;
+  /* Przyciski nawigacji — jednakowy rozmiar (pigułki): Oferta (magenta), Opinie (żółte), Nauka (lawenda) */
+  .eg-nav-oferta, .eg-nav-op, .eg-nav-nauka{
+    display:inline-flex; align-items:center; gap:4px;
+    padding:5px 14px; border-radius:999px; font-family:'Nunito',sans-serif; font-size:12px; font-weight:700 !important;
+    letter-spacing:.01em; white-space:nowrap; text-decoration:none; cursor:pointer;
+    border:1.5px solid transparent; transition:background .18s, color .18s, transform .18s, border-color .18s;
   }
+  .eg-nav-oferta svg, .eg-nav-op svg, .eg-nav-nauka svg{ width:12px; height:12px; flex:0 0 auto; }
+  /* Oferta — wypełniona magenta */
+  .eg-nav-oferta{ color:#fff !important; background:var(--eg-magenta); }
   .eg-nav-oferta:hover{ opacity:1 !important; background:#b33a7e; transform:translateY(-1px); }
-  /* Przycisk "Jak to działa?" — pigułka z obramowaniem, obok OFERTY; widoczny dla wszystkich, także bez subskrypcji */
-  .eg-nav-how{
-    display:inline-flex; align-items:center; gap:4px;
-    color:var(--eg-magenta); background:transparent;
-    border:1.5px solid var(--eg-magenta); padding:3px 9px;
-    border-radius:999px; font-family:'Nunito',sans-serif; font-size:11.5px; font-weight:700;
-    white-space:nowrap; cursor:pointer; transition:background .18s, color .18s, transform .18s;
-  }
-  .eg-nav-how:hover{ background:var(--eg-magenta); color:#fff; transform:translateY(-1px); }
-  .eg-nav-how svg{ width:12px; height:12px; }
-  /* Przycisk "Opinie" — pigułka z obramowaniem, obok "Jak to działa"; tylko dla niezalogowanych */
-  .eg-nav-op{
-    display:inline-flex; align-items:center; gap:4px;
-    color:var(--eg-magenta); background:transparent;
-    border:1.5px solid var(--eg-magenta); padding:3px 9px;
-    border-radius:999px; font-family:'Nunito',sans-serif; font-size:11.5px; font-weight:700;
-    white-space:nowrap; text-decoration:none; transition:background .18s, color .18s, transform .18s;
-  }
-  .eg-nav-op:hover{ background:var(--eg-magenta); color:#fff !important; transform:translateY(-1px); opacity:1 !important; }
-  .eg-nav-op svg{ width:12px; height:12px; flex:0 0 auto; }
+  /* Opinie — żółte tło (złoty kolor marki), białe litery */
+  .eg-nav-op{ color:#fff !important; background:var(--eg-gold,#f4c94c); }
+  .eg-nav-op:hover{ background:#eab827; color:#fff !important; transform:translateY(-1px); opacity:1 !important; }
+  /* Nauka — lawendowe tło, białe litery */
+  .eg-nav-nauka{ color:#fff !important; background:var(--eg-lavender,#a78dd9); }
+  .eg-nav-nauka:hover{ background:#9578cf; color:#fff !important; transform:translateY(-1px); opacity:1 !important; }
   .eg-topbar-right{ display:flex; align-items:center; gap:14px; }
   .eg-social{ display:flex; align-items:center; gap:10px; }
   .eg-social a{ color:var(--eg-magenta); display:inline-flex; transition:transform .18s, opacity .18s; }
@@ -1296,8 +1287,7 @@
     .eg-topbar, .eg-hero, .eg-sort-wrap, .eg-wrap,
     .eg-active-filters, .eg-series-banner{ max-width:1320px; }
     .eg-topbar-left a{ font-size:16px; }
-    .eg-nav-how{ font-size:14.5px; padding:5px 14px; }
-    .eg-nav-oferta{ padding:7px 19px; }
+    .eg-nav-oferta, .eg-nav-op, .eg-nav-nauka{ font-size:13.5px; padding:6px 16px; }
     .eg-account{ font-size:16px; }
     .eg-hero-title .eg-logo{ width:min(660px,84vw); }
     .eg-hero-tagline{ font-size:19px; }
@@ -1349,15 +1339,11 @@
       <a class="eg-nav-oferta" id="egOfertaNav" href="/oferta" title="Oferta i cennik EasyWonders">
         <span data-i18n="OFERTA">OFERTA</span>
       </a>
-      <button type="button" class="eg-nav-how" id="egHowNav" title="Jak działa EasyWonders">
-        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.7"/><path d="M9.3 9.2a2.7 2.7 0 015.2 1c0 1.8-2.5 2-2.5 3.5" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/><circle cx="12" cy="17" r="0.4" fill="currentColor" stroke="currentColor" stroke-width="0.8"/></svg>
-        <span data-i18n="Jak to działa?">Jak to działa?</span>
-      </button>
       <a class="eg-nav-op" id="egOpinieNav" href="/opinie" title="Opinie uczniów i poznaj Rózię">
         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 3.5l2.6 5.3 5.9.86-4.25 4.14 1 5.86L12 17.1l-5.25 2.76 1-5.86L3.5 9.66l5.9-.86L12 3.5z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></svg>
         <span data-i18n="Opinie">Opinie</span>
       </a>
-      <a class="eg-nav-op" id="egNaukaNav" href="/nauka" title="Nauka angielskiego — poradniki i wyjaśnienia">
+      <a class="eg-nav-nauka" id="egNaukaNav" href="/nauka" title="Nauka angielskiego — poradniki i wyjaśnienia">
         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M3 6.5C3 5.7 3.7 5 4.5 5H11v13.5H4.5c-.8 0-1.5-.7-1.5-1.5V6.5zM21 6.5C21 5.7 20.3 5 19.5 5H13v13.5h6.5c.8 0 1.5-.7 1.5-1.5V6.5z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></svg>
         <span data-i18n="Nauka">Nauka</span>
       </a>
