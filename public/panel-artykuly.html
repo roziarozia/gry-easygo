@@ -183,13 +183,19 @@
           </div>
         </div>
 
+        <div class="field">
+          <label>Powiązane ćwiczenie (slug) — pokaże się jako kafelek „Wypróbuj!"</label>
+          <input type="text" id="fExSlug" placeholder="np. present-simple-vs-continuous-a2">
+          <div class="hint">Wpisz slug ćwiczenia z katalogu (adres po /cwiczenie/). Zostaw puste, by pokazać ogólny przycisk do ćwiczeń.</div>
+        </div>
+
         <div class="row2">
           <div class="field">
-            <label>Link przycisku „Przećwicz to"</label>
+            <label>Link zapasowy (gdy brak ćwiczenia powyżej)</label>
             <input type="text" id="fCtaLink" value="/?widok=cwiczenia">
           </div>
           <div class="field">
-            <label>Tekst przycisku</label>
+            <label>Tekst przycisku zapasowego</label>
             <input type="text" id="fCtaLabel" value="Przejdź do ćwiczeń">
           </div>
         </div>
@@ -305,6 +311,7 @@
     $('fTitle').value=''; $('fSlug').value=''; $('fLevel').value=''; $('fCat').value='gramatyka';
     $('fExcerpt').value=''; $('fBody').value=''; $('fKeywords').value=''; $('fSort').value='0';
     $('fCtaLink').value='/?widok=cwiczenia'; $('fCtaLabel').value='Przejdź do ćwiczeń';
+    $('fExSlug').value='';
     $('fPub').checked=false;
     renderCover('');
     $('slugPrev').textContent='slug';
@@ -321,6 +328,7 @@
     $('fTitle').value=a.title||''; $('fSlug').value=a.slug||''; $('fLevel').value=a.level||''; $('fCat').value=a.category||'gramatyka';
     $('fExcerpt').value=a.excerpt||''; $('fBody').value=a.body||''; $('fKeywords').value=a.keywords||''; $('fSort').value=a.sort_order||0;
     $('fCtaLink').value=a.cta_link||'/?widok=cwiczenia'; $('fCtaLabel').value=a.cta_label||'Przejdź do ćwiczeń';
+    $('fExSlug').value=a.exercise_slug||'';
     $('fPub').checked=!!a.published;
     renderCover(a.cover_url||'');
     $('slugPrev').textContent=a.slug||'slug';
@@ -404,6 +412,7 @@
       keywords:$('fKeywords').value.trim(),
       cta_link:$('fCtaLink').value.trim()||'/?widok=cwiczenia',
       cta_label:$('fCtaLabel').value.trim()||'Przejdź do ćwiczeń',
+      exercise_slug:$('fExSlug').value.trim(),
       sort_order:parseInt($('fSort').value,10)||0,
       published:$('fPub').checked,
       updated_at:new Date().toISOString()
