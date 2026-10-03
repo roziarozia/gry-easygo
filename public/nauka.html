@@ -95,7 +95,11 @@
   .art-back{ margin:24px 0 6px; }
   .art-back a{ display:inline-flex; align-items:center; gap:7px; font-family:'Quicksand',sans-serif; font-weight:700; font-size:14px; color:var(--magenta); text-decoration:none; }
   .art-back a:hover{ text-decoration:underline; }
-  .art-cover{ width:100%; aspect-ratio:16/8; object-fit:cover; border-radius:18px; margin:16px 0 26px; background:var(--soft); }
+  .art-cover{ width:100%; aspect-ratio:16/9; object-fit:cover; border-radius:18px; margin:16px 0 26px; background:var(--soft); }
+  /* placeholder okładki w artykule (gdy brak grafiki) — żeby zawsze było miejsce na okładkę */
+  .art-cover-ph{ width:100%; aspect-ratio:16/9; border-radius:18px; margin:16px 0 26px;
+    background:linear-gradient(135deg,#a78dd9,#ca4490); display:flex; align-items:center; justify-content:center;
+    color:#fff; font-family:'Quicksand',sans-serif; font-weight:700; font-size:22px; letter-spacing:.02em; }
   .art-badges{ display:flex; gap:8px; margin-bottom:14px; }
   .article h1{ font-family:'Quicksand',sans-serif; font-weight:700; font-size:clamp(25px,4vw,34px); line-height:1.22; margin:0 0 22px; color:var(--ink); }
   .art-content .lead{ font-size:18px; color:var(--muted); line-height:1.75; margin:0 0 22px; }
@@ -376,7 +380,9 @@
     var badges='';
     if(a.category) badges += '<span class="badge badge-cat">'+esc(catLabel(a.category))+'</span>';
     document.getElementById('artBadges').innerHTML = badges;
-    document.getElementById('artCoverSlot').innerHTML = a.cover_url ? ('<img class="art-cover" src="'+esc(a.cover_url)+'" alt="'+esc(a.title)+'">') : '';
+    document.getElementById('artCoverSlot').innerHTML = a.cover_url
+      ? ('<img class="art-cover" src="'+esc(a.cover_url)+'" alt="'+esc(a.title)+'">')
+      : '<div class="art-cover-ph">EasyWonders</div>';
     renderPractice(a);
     document.title = a.title + ' | EasyWonders';
     listView.classList.add('hidden');
