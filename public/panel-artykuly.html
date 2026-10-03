@@ -1,0 +1,450 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Panel artykułów — EasyWonders</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@500;600;700&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --magenta:#ca4490; --magenta-dk:#b33a7e; --lavender:#a78dd9; --gold:#f4c94c;
+    --ink:#2a2730; --muted:#6a6475; --line:#e6e2ec; --card:#fff; --bg:#f6f4fa; --soft:#f0edf6;
+    --green:#2e9e6b; --red:#d14b6a;
+    box-sizing:border-box;
+  }
+  *,*::before,*::after{ box-sizing:border-box; }
+  body{ margin:0; background:var(--bg); color:var(--ink); font-family:'Nunito',sans-serif; line-height:1.55; }
+  a{ color:var(--magenta); }
+  .wrap{ max-width:1100px; margin:0 auto; padding:24px 20px 80px; }
+
+  h1{ font-family:'Quicksand',sans-serif; font-weight:700; font-size:24px; margin:0; }
+  .brand .e{ color:var(--magenta); } .brand .w{ color:var(--gold); }
+  .topbar{ display:flex; align-items:center; justify-content:space-between; gap:16px; margin-bottom:24px; flex-wrap:wrap; }
+  .topbar .who{ font-size:13.5px; color:var(--muted); }
+  .btn{ font-family:'Quicksand',sans-serif; font-weight:700; font-size:14px; border:none; border-radius:999px; padding:10px 20px; cursor:pointer; transition:background .16s, transform .16s, opacity .16s; text-decoration:none; display:inline-flex; align-items:center; gap:7px; }
+  .btn-pri{ background:var(--magenta); color:#fff; } .btn-pri:hover{ background:var(--magenta-dk); transform:translateY(-1px); }
+  .btn-ghost{ background:transparent; color:var(--magenta); border:1.5px solid var(--magenta); } .btn-ghost:hover{ background:var(--magenta); color:#fff; }
+  .btn-soft{ background:var(--soft); color:var(--ink); border:1px solid var(--line); } .btn-soft:hover{ background:#e7e2f0; }
+  .btn-danger{ background:transparent; color:var(--red); border:1.5px solid var(--red); } .btn-danger:hover{ background:var(--red); color:#fff; }
+  .btn:disabled{ opacity:.5; cursor:not-allowed; }
+
+  /* logowanie */
+  #loginBox{ max-width:380px; margin:60px auto; background:var(--card); border:1px solid var(--line); border-radius:18px; padding:30px 28px; box-shadow:0 6px 24px rgba(120,90,180,.08); }
+  #loginBox h2{ font-family:'Quicksand',sans-serif; margin:0 0 6px; font-size:20px; }
+  #loginBox p{ font-size:13.5px; color:var(--muted); margin:0 0 20px; }
+  .field{ margin-bottom:14px; }
+  .field label{ display:block; font-weight:700; font-size:13px; margin-bottom:5px; color:var(--ink); }
+  .field input, .field textarea, .field select{
+    width:100%; font-family:'Nunito',sans-serif; font-size:14.5px; color:var(--ink);
+    background:var(--soft); border:1.5px solid var(--line); border-radius:10px; padding:10px 12px; outline:none; transition:border-color .16s;
+  }
+  .field input:focus, .field textarea:focus, .field select:focus{ border-color:var(--lavender); background:#fff; }
+  .field textarea{ resize:vertical; line-height:1.6; }
+  .field .hint{ font-size:12px; color:var(--muted); margin-top:4px; }
+  .msg{ font-size:13.5px; padding:10px 14px; border-radius:10px; margin:12px 0 0; }
+  .msg-err{ background:rgba(209,75,106,.1); color:var(--red); }
+  .msg-ok{ background:rgba(46,158,107,.12); color:var(--green); }
+
+  /* layout panelu */
+  .panel{ display:grid; grid-template-columns:340px 1fr; gap:24px; align-items:start; }
+  @media (max-width:860px){ .panel{ grid-template-columns:1fr; } }
+
+  .listcol h2, .editcol h2{ font-family:'Quicksand',sans-serif; font-size:16px; margin:0 0 12px; }
+  .alist{ display:flex; flex-direction:column; gap:10px; }
+  .acard{ background:var(--card); border:1px solid var(--line); border-radius:12px; padding:12px 14px; cursor:pointer; transition:border-color .14s, box-shadow .14s; }
+  .acard:hover{ border-color:var(--lavender); box-shadow:0 3px 12px rgba(120,90,180,.08); }
+  .acard.sel{ border-color:var(--magenta); box-shadow:0 0 0 1px var(--magenta); }
+  .acard .at{ font-family:'Quicksand',sans-serif; font-weight:700; font-size:14px; margin-bottom:4px; line-height:1.3; }
+  .acard .am{ font-size:12px; color:var(--muted); display:flex; gap:8px; align-items:center; flex-wrap:wrap; }
+  .pill{ font-size:10.5px; font-weight:700; padding:2px 8px; border-radius:999px; text-transform:uppercase; letter-spacing:.03em; }
+  .pill-pub{ background:rgba(46,158,107,.14); color:var(--green); }
+  .pill-draft{ background:rgba(106,100,117,.14); color:var(--muted); }
+  .pill-lvl{ background:rgba(202,68,144,.1); color:var(--magenta); }
+
+  .editcol{ background:var(--card); border:1px solid var(--line); border-radius:16px; padding:22px 24px; }
+  .row2{ display:grid; grid-template-columns:1fr 1fr; gap:14px; }
+  @media (max-width:520px){ .row2{ grid-template-columns:1fr; } }
+  .cover-prev{ width:100%; aspect-ratio:16/9; object-fit:cover; border-radius:12px; background:var(--soft); border:1px solid var(--line); margin-bottom:10px; display:block; }
+  .cover-prev-ph{ width:100%; aspect-ratio:16/9; border-radius:12px; background:linear-gradient(135deg,#a78dd9,#ca4490); display:flex; align-items:center; justify-content:center; color:#fff; font-family:'Quicksand',sans-serif; font-weight:700; margin-bottom:10px; }
+  .editcol .actions{ display:flex; gap:10px; flex-wrap:wrap; margin-top:20px; padding-top:18px; border-top:1px solid var(--line); }
+  .toolbar{ display:flex; gap:6px; flex-wrap:wrap; margin-bottom:6px; }
+  .tbtn{ font-family:'Nunito',sans-serif; font-size:12px; font-weight:700; background:var(--soft); border:1px solid var(--line); border-radius:7px; padding:5px 9px; cursor:pointer; color:var(--ink); }
+  .tbtn:hover{ background:#e7e2f0; }
+  .hidden{ display:none !important; }
+  .spin{ display:inline-block; width:14px; height:14px; border:2px solid rgba(255,255,255,.4); border-top-color:#fff; border-radius:50%; animation:sp .7s linear infinite; }
+  @keyframes sp{ to{ transform:rotate(360deg); } }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="topbar">
+    <h1 class="brand"><span class="e">Easy</span><span class="w">Wonders</span> — panel artykułów</h1>
+    <div id="userInfo" class="hidden"><span class="who" id="whoTxt"></span> &nbsp; <button class="btn btn-soft" id="logoutBtn">Wyloguj</button></div>
+  </div>
+
+  <!-- LOGOWANIE -->
+  <div id="loginBox">
+    <h2>Zaloguj się</h2>
+    <p>Panel dostępny tylko dla administratora EasyWonders.</p>
+    <div class="field"><label>E-mail</label><input type="email" id="logEmail" autocomplete="username"></div>
+    <div class="field"><label>Hasło</label><input type="password" id="logPass" autocomplete="current-password"></div>
+    <button class="btn btn-pri" id="loginBtn" style="width:100%;justify-content:center;">Zaloguj</button>
+    <div id="loginMsg"></div>
+  </div>
+
+  <!-- PANEL -->
+  <div id="panel" class="panel hidden">
+
+    <!-- LISTA -->
+    <div class="listcol">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
+        <h2 style="margin:0;">Artykuły</h2>
+        <button class="btn btn-pri" id="newBtn">+ Nowy</button>
+      </div>
+      <div class="field" style="margin-bottom:12px;"><input type="text" id="listSearch" placeholder="Szukaj…" autocomplete="off"></div>
+      <div class="alist" id="alist"></div>
+    </div>
+
+    <!-- EDYTOR -->
+    <div class="editcol" id="editcol">
+      <h2 id="editTitle">Wybierz artykuł lub dodaj nowy</h2>
+      <div id="editForm" class="hidden">
+
+        <div class="field">
+          <label>Tytuł</label>
+          <input type="text" id="fTitle" placeholder="np. Present Simple czy Continuous?">
+        </div>
+
+        <div class="field">
+          <label>Slug (adres URL — tylko małe litery, myślniki)</label>
+          <input type="text" id="fSlug" placeholder="present-simple-czy-continuous">
+          <div class="hint">Artykuł będzie pod: /nauka.html?a=<span id="slugPrev">slug</span></div>
+        </div>
+
+        <div class="row2">
+          <div class="field">
+            <label>Poziom</label>
+            <select id="fLevel">
+              <option value="">— brak —</option>
+              <option>A1</option><option>A2</option><option>B1</option><option>B2</option><option>C1</option><option>C2</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>Kategoria</label>
+            <select id="fCat">
+              <option value="gramatyka">Gramatyka</option>
+              <option value="slownictwo">Słownictwo</option>
+              <option value="porady">Porady</option>
+              <option value="inne">Inne</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="field">
+          <label>Okładka</label>
+          <div id="coverSlot"></div>
+          <input type="file" id="fCoverFile" accept="image/*" style="font-size:13px;">
+          <div class="hint">Zalecane proporcje 16:9 (np. 1200×675). Po wybraniu pliku kliknij „Wgraj okładkę".</div>
+          <button class="btn btn-soft" id="uploadCoverBtn" style="margin-top:8px;">Wgraj okładkę</button>
+          <span id="coverMsg" style="font-size:12.5px;margin-left:8px;"></span>
+        </div>
+
+        <div class="field">
+          <label>Zajawka (krótki opis na liście)</label>
+          <textarea id="fExcerpt" rows="2" placeholder="1–2 zdania, które zachęcą do kliknięcia."></textarea>
+        </div>
+
+        <div class="field">
+          <label>Treść artykułu</label>
+          <div class="toolbar">
+            <button type="button" class="tbtn" data-wrap="h3">Nagłówek</button>
+            <button type="button" class="tbtn" data-wrap="p">Akapit</button>
+            <button type="button" class="tbtn" data-wrap="b">Pogrubienie</button>
+            <button type="button" class="tbtn" data-wrap="em">Wyróżnienie</button>
+            <button type="button" class="tbtn" data-ex="1">Przykład (en/pl)</button>
+            <button type="button" class="tbtn" data-lead="1">Wstęp (lead)</button>
+          </div>
+          <textarea id="fBody" rows="16" placeholder="Pisz treść. Możesz używać prostych znaczników HTML: &lt;p&gt;, &lt;h3&gt;, &lt;b&gt;, &lt;em&gt;. Przyciski powyżej wstawiają gotowe fragmenty."></textarea>
+          <div class="hint">Wskazówka: zaznacz tekst i kliknij przycisk, żeby go otoczyć znacznikiem. „Przykład" wstawia gotowy box z tłumaczeniem.</div>
+        </div>
+
+        <div class="row2">
+          <div class="field">
+            <label>Słowa kluczowe (do wyszukiwarki, po przecinku)</label>
+            <input type="text" id="fKeywords" placeholder="present simple, czas teraźniejszy">
+          </div>
+          <div class="field">
+            <label>Kolejność (większa = wyżej na liście)</label>
+            <input type="number" id="fSort" value="0">
+          </div>
+        </div>
+
+        <div class="row2">
+          <div class="field">
+            <label>Link przycisku „Przećwicz to"</label>
+            <input type="text" id="fCtaLink" value="/?widok=cwiczenia">
+          </div>
+          <div class="field">
+            <label>Tekst przycisku</label>
+            <input type="text" id="fCtaLabel" value="Przejdź do ćwiczeń">
+          </div>
+        </div>
+
+        <div class="field">
+          <label style="display:flex;align-items:center;gap:8px;cursor:pointer;">
+            <input type="checkbox" id="fPub" style="width:auto;"> Opublikowany (widoczny na stronie)
+          </label>
+        </div>
+
+        <div id="saveMsg"></div>
+
+        <div class="actions">
+          <button class="btn btn-pri" id="saveBtn">Zapisz</button>
+          <a class="btn btn-ghost" id="previewBtn" href="#" target="_blank">Podgląd na stronie</a>
+          <button class="btn btn-danger" id="deleteBtn" style="margin-left:auto;">Usuń</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+(function(){
+  var SUPA_URL = 'https://svjrdyxwqznbzxqeytdn.supabase.co';
+  var SUPA_KEY = 'sb_publishable_TNCq1UAMAvLO0Z5Mt8QOig_OvsxhhyJ';
+  var BUCKET = 'game-images';
+  var sb = window.supabase.createClient(SUPA_URL, SUPA_KEY);
+
+  var $ = function(id){ return document.getElementById(id); };
+  var ALL = [];
+  var cur = null;        // aktualnie edytowany (null = nowy)
+  var curId = null;
+
+  function esc(s){ var d=document.createElement('div'); d.textContent=s==null?'':s; return d.innerHTML; }
+  function slugify(s){
+    return (s||'').toLowerCase()
+      .replace(/ą/g,'a').replace(/ć/g,'c').replace(/ę/g,'e').replace(/ł/g,'l').replace(/ń/g,'n')
+      .replace(/ó/g,'o').replace(/ś/g,'s').replace(/ź/g,'z').replace(/ż/g,'z')
+      .replace(/[^a-z0-9]+/g,'-').replace(/^-+|-+$/g,'');
+  }
+  function showMsg(el, text, ok){ el.innerHTML = '<div class="msg '+(ok?'msg-ok':'msg-err')+'">'+esc(text)+'</div>'; }
+  function clearMsg(el){ el.innerHTML=''; }
+
+  // ===== AUTH =====
+  function onLoggedIn(user){
+    $('loginBox').classList.add('hidden');
+    $('panel').classList.remove('hidden');
+    $('userInfo').classList.remove('hidden');
+    $('whoTxt').textContent = user.email;
+    loadList();
+  }
+  function onLoggedOut(){
+    $('panel').classList.add('hidden');
+    $('userInfo').classList.add('hidden');
+    $('loginBox').classList.remove('hidden');
+  }
+
+  $('loginBtn').addEventListener('click', function(){
+    clearMsg($('loginMsg'));
+    var email = $('logEmail').value.trim(), pass = $('logPass').value;
+    if(!email || !pass){ showMsg($('loginMsg'),'Podaj e-mail i hasło.',false); return; }
+    $('loginBtn').disabled=true;
+    sb.auth.signInWithPassword({ email:email, password:pass }).then(function(res){
+      $('loginBtn').disabled=false;
+      if(res.error){ showMsg($('loginMsg'), 'Błąd logowania: '+res.error.message, false); return; }
+      onLoggedIn(res.data.user);
+    });
+  });
+  $('logPass').addEventListener('keydown', function(e){ if(e.key==='Enter') $('loginBtn').click(); });
+
+  $('logoutBtn').addEventListener('click', function(){
+    sb.auth.signOut().then(function(){ onLoggedOut(); });
+  });
+
+  // sesja przy starcie
+  sb.auth.getSession().then(function(res){
+    if(res.data && res.data.session && res.data.session.user){ onLoggedIn(res.data.session.user); }
+    else { onLoggedOut(); }
+  });
+
+  // ===== LISTA =====
+  function loadList(){
+    sb.from('articles').select('*').order('sort_order',{ascending:false}).order('created_at',{ascending:false})
+      .then(function(res){
+        if(res.error){ $('alist').innerHTML = '<div class="msg msg-err">Nie udało się wczytać: '+esc(res.error.message)+'</div>'; return; }
+        ALL = res.data || [];
+        renderList();
+      });
+  }
+  function renderList(){
+    var q = ($('listSearch').value||'').toLowerCase();
+    var items = ALL.filter(function(a){ return !q || (a.title||'').toLowerCase().indexOf(q)>-1 || (a.slug||'').toLowerCase().indexOf(q)>-1; });
+    if(!items.length){ $('alist').innerHTML = '<div class="hint" style="padding:10px;">Brak artykułów.</div>'; return; }
+    $('alist').innerHTML = items.map(function(a){
+      var pub = a.published ? '<span class="pill pill-pub">opublikowany</span>' : '<span class="pill pill-draft">szkic</span>';
+      var lvl = a.level ? '<span class="pill pill-lvl">'+esc(a.level)+'</span>' : '';
+      return '<div class="acard'+(curId===a.id?' sel':'')+'" data-id="'+a.id+'">'
+        + '<div class="at">'+esc(a.title||'(bez tytułu)')+'</div>'
+        + '<div class="am">'+pub+lvl+'<span>'+esc(a.slug||'')+'</span></div></div>';
+    }).join('');
+    $('alist').querySelectorAll('.acard').forEach(function(c){
+      c.addEventListener('click', function(){ openEdit(c.getAttribute('data-id')); });
+    });
+  }
+  $('listSearch').addEventListener('input', renderList);
+
+  // ===== EDYTOR =====
+  function blankForm(){
+    cur = null; curId = null;
+    $('editTitle').textContent = 'Nowy artykuł';
+    $('fTitle').value=''; $('fSlug').value=''; $('fLevel').value=''; $('fCat').value='gramatyka';
+    $('fExcerpt').value=''; $('fBody').value=''; $('fKeywords').value=''; $('fSort').value='0';
+    $('fCtaLink').value='/?widok=cwiczenia'; $('fCtaLabel').value='Przejdź do ćwiczeń';
+    $('fPub').checked=false;
+    renderCover('');
+    $('slugPrev').textContent='slug';
+    $('deleteBtn').style.display='none';
+    clearMsg($('saveMsg')); clearMsg($('coverMsg'));
+    $('editForm').classList.remove('hidden');
+    renderList();
+  }
+  function openEdit(id){
+    var a = ALL.find(function(x){ return x.id===id; });
+    if(!a) return;
+    cur = a; curId = id;
+    $('editTitle').textContent = 'Edytujesz artykuł';
+    $('fTitle').value=a.title||''; $('fSlug').value=a.slug||''; $('fLevel').value=a.level||''; $('fCat').value=a.category||'gramatyka';
+    $('fExcerpt').value=a.excerpt||''; $('fBody').value=a.body||''; $('fKeywords').value=a.keywords||''; $('fSort').value=a.sort_order||0;
+    $('fCtaLink').value=a.cta_link||'/?widok=cwiczenia'; $('fCtaLabel').value=a.cta_label||'Przejdź do ćwiczeń';
+    $('fPub').checked=!!a.published;
+    renderCover(a.cover_url||'');
+    $('slugPrev').textContent=a.slug||'slug';
+    $('deleteBtn').style.display='';
+    clearMsg($('saveMsg')); clearMsg($('coverMsg'));
+    $('editForm').classList.remove('hidden');
+    $('previewBtn').setAttribute('href','/nauka.html?a='+encodeURIComponent(a.slug||''));
+    renderList();
+  }
+  function renderCover(url){
+    $('coverSlot').innerHTML = url
+      ? '<img class="cover-prev" src="'+esc(url)+'" alt="okładka">'
+      : '<div class="cover-prev-ph">Brak okładki</div>';
+  }
+
+  $('newBtn').addEventListener('click', blankForm);
+
+  // auto-slug z tytułu (tylko gdy slug pusty lub nowy artykuł)
+  $('fTitle').addEventListener('input', function(){
+    if(!curId && (!$('fSlug').value || $('fSlug').value===$('fSlug').getAttribute('data-auto'))){
+      var s = slugify($('fTitle').value);
+      $('fSlug').value=s; $('fSlug').setAttribute('data-auto',s); $('slugPrev').textContent=s||'slug';
+    }
+  });
+  $('fSlug').addEventListener('input', function(){ $('slugPrev').textContent=$('fSlug').value||'slug'; });
+
+  // toolbar: owijanie zaznaczenia
+  document.querySelectorAll('.tbtn').forEach(function(b){
+    b.addEventListener('click', function(){
+      var ta = $('fBody'); var s=ta.selectionStart, e=ta.selectionEnd;
+      var sel = ta.value.substring(s,e);
+      var ins='';
+      if(b.getAttribute('data-wrap')){
+        var tag=b.getAttribute('data-wrap');
+        ins='<'+tag+'>'+(sel||'tekst')+'</'+tag+'>';
+      } else if(b.getAttribute('data-lead')){
+        ins='<p class="lead">'+(sel||'Wstęp artykułu — jedno-dwa zdania wprowadzenia.')+'</p>';
+      } else if(b.getAttribute('data-ex')){
+        ins='<div class="ex">\n  <span class="en">English example.</span> <span class="pl">— Polskie tłumaczenie.</span>\n</div>';
+      }
+      ta.value = ta.value.substring(0,s)+ins+ta.value.substring(e);
+      ta.focus();
+    });
+  });
+
+  // upload okładki
+  $('uploadCoverBtn').addEventListener('click', function(){
+    var f = $('fCoverFile').files[0];
+    if(!f){ showMsg($('coverMsg'),'Wybierz plik.',false); return; }
+    var slug = slugify($('fSlug').value) || ('art-'+Date.now());
+    var ext = (f.name.split('.').pop()||'jpg').toLowerCase();
+    var path = 'articles/'+slug+'-'+Date.now()+'.'+ext;
+    $('uploadCoverBtn').disabled=true;
+    $('coverMsg').innerHTML='<span style="color:var(--muted)">Wgrywam…</span>';
+    sb.storage.from(BUCKET).upload(path, f, { upsert:true, contentType:f.type }).then(function(res){
+      $('uploadCoverBtn').disabled=false;
+      if(res.error){ $('coverMsg').innerHTML='<span style="color:var(--red)">Błąd: '+esc(res.error.message)+'</span>'; return; }
+      var pub = sb.storage.from(BUCKET).getPublicUrl(path);
+      var url = pub.data.publicUrl;
+      renderCover(url);
+      $('coverSlot').setAttribute('data-url', url);
+      $('coverMsg').innerHTML='<span style="color:var(--green)">Wgrano. Pamiętaj zapisać artykuł.</span>';
+    });
+  });
+
+  // zapis
+  $('saveBtn').addEventListener('click', function(){
+    clearMsg($('saveMsg'));
+    var title=$('fTitle').value.trim();
+    var slug=slugify($('fSlug').value);
+    if(!title){ showMsg($('saveMsg'),'Podaj tytuł.',false); return; }
+    if(!slug){ showMsg($('saveMsg'),'Podaj slug (adres).',false); return; }
+    var coverUrl = $('coverSlot').getAttribute('data-url');
+    if(coverUrl===null || coverUrl===undefined){ coverUrl = cur ? (cur.cover_url||'') : ''; }
+    var rec = {
+      slug:slug, title:title,
+      excerpt:$('fExcerpt').value.trim(),
+      body:$('fBody').value,
+      level:$('fLevel').value||null,
+      category:$('fCat').value,
+      keywords:$('fKeywords').value.trim(),
+      cta_link:$('fCtaLink').value.trim()||'/?widok=cwiczenia',
+      cta_label:$('fCtaLabel').value.trim()||'Przejdź do ćwiczeń',
+      sort_order:parseInt($('fSort').value,10)||0,
+      published:$('fPub').checked,
+      updated_at:new Date().toISOString()
+    };
+    if(coverUrl!==null && coverUrl!==undefined) rec.cover_url=coverUrl;
+    // published_at ustaw przy pierwszej publikacji
+    if(rec.published && (!cur || !cur.published_at)) rec.published_at=new Date().toISOString();
+    $('saveBtn').disabled=true;
+    var op;
+    if(curId){ op = sb.from('articles').update(rec).eq('id',curId).select().single(); }
+    else { op = sb.from('articles').insert(rec).select().single(); }
+    op.then(function(res){
+      $('saveBtn').disabled=false;
+      if(res.error){
+        var m = res.error.message||'';
+        if(m.indexOf('duplicate')>-1 || m.indexOf('unique')>-1) m='Slug już istnieje — zmień go na inny.';
+        showMsg($('saveMsg'),'Błąd zapisu: '+m,false); return;
+      }
+      showMsg($('saveMsg'),'Zapisano.',true);
+      curId=res.data.id; cur=res.data;
+      $('coverSlot').removeAttribute('data-url');
+      $('deleteBtn').style.display='';
+      $('editTitle').textContent='Edytujesz artykuł';
+      $('previewBtn').setAttribute('href','/nauka.html?a='+encodeURIComponent(res.data.slug||''));
+      loadList();
+    });
+  });
+
+  // usuwanie
+  $('deleteBtn').addEventListener('click', function(){
+    if(!curId) return;
+    if(!confirm('Na pewno usunąć ten artykuł? Tej operacji nie można cofnąć.')) return;
+    sb.from('articles').delete().eq('id',curId).then(function(res){
+      if(res.error){ showMsg($('saveMsg'),'Błąd usuwania: '+res.error.message,false); return; }
+      $('editForm').classList.add('hidden');
+      $('editTitle').textContent='Wybierz artykuł lub dodaj nowy';
+      curId=null; cur=null;
+      loadList();
+    });
+  });
+})();
+</script>
+</body>
+</html>
