@@ -192,7 +192,7 @@
       padding:12px 14px;
       position:relative;
     }
-    .eg-topbar-left{ order:1; gap:18px; }
+    .eg-topbar-left{ order:1; gap:8px 10px; flex-wrap:wrap; justify-content:center; }
     .eg-topbar-left a span{ display:inline; }
     .eg-topbar-left a{ font-size:13.5px; }
     .eg-social{ order:2; margin-left:0; gap:16px; padding-left:14px; border-left:1px solid var(--eg-line); }
@@ -1357,8 +1357,9 @@
         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 3.5l2.6 5.3 5.9.86-4.25 4.14 1 5.86L12 17.1l-5.25 2.76 1-5.86L3.5 9.66l5.9-.86L12 3.5z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></svg>
         <span data-i18n="Opinie">Opinie</span>
       </a>
-      <a href="https://fiszki.easygo-english.pl/" target="_blank" rel="noopener" title="Aplikacja z fiszkami">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true"><rect x="3" y="6" width="14" height="12" rx="2" stroke="currentColor" stroke-width="1.7"/><path d="M7 3.5h11A2.5 2.5 0 0120.5 6v11" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg><span>fiszki!</span>
+      <a class="eg-nav-op" id="egNaukaNav" href="/nauka.html" title="Nauka angielskiego — poradniki i wyjaśnienia">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M3 6.5C3 5.7 3.7 5 4.5 5H11v13.5H4.5c-.8 0-1.5-.7-1.5-1.5V6.5zM21 6.5C21 5.7 20.3 5 19.5 5H13v13.5h6.5c.8 0 1.5-.7 1.5-1.5V6.5z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></svg>
+        <span data-i18n="Nauka">Nauka</span>
       </a>
     </div>
     <div class="eg-social">
@@ -3449,6 +3450,7 @@
     // nagłówek, hero, wizytówka
     'Jak to działa?': 'How it works?',
     'Opinie': 'Reviews',
+    'Nauka': 'Learn',
     'Przeczytaj opinie': 'Read reviews',
     'Wypróbuj za darmo przez 7 dni': 'Try it free for 7 days',
     'Zaufało nam już ponad 100 osób': 'Trusted by 100+ learners',
