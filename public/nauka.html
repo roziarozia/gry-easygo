@@ -131,6 +131,7 @@
   .art-badges{ margin-bottom:12px; }
   .art-badges .badge-cat{ font-size:12px; }
   .article h1{ font-family:'Fraunces',Georgia,serif; font-weight:600; font-size:clamp(26px,4vw,36px); line-height:1.2; margin:0 0 22px; color:var(--ink); letter-spacing:-.01em; text-wrap:balance; }
+  .article h1 .art-subtitle{ display:block; font-size:.62em; font-weight:400; color:var(--muted); margin-top:8px; letter-spacing:0; font-style:italic; }
   .art-content .lead{ font-size:18.5px; color:var(--muted); line-height:1.7; margin:0 0 22px; }
   .art-content p{ font-size:17px; line-height:1.8; margin:0 0 18px; color:var(--ink); }
   .art-content h3{ font-family:'Fraunces',Georgia,serif; font-weight:600; font-size:22px; margin:34px 0 12px; color:var(--ink); }
@@ -446,7 +447,19 @@
   }
 
   function showArticle(a, push){
-    document.getElementById('artTitle').textContent = a.title;
+    // Tytuł: jeśli ma myślnik " — ", rozbij na nazwę (1. linia) + podtytuł (2. linia, mniejszy)
+    (function(){
+      var h1 = document.getElementById('artTitle');
+      var t = a.title || '';
+      var idx = t.indexOf(' — ');
+      if(idx > -1){
+        var main = t.slice(0, idx);
+        var sub = t.slice(idx + 3); // bez " — "
+        h1.innerHTML = esc(main) + '<span class="art-subtitle">' + esc(sub) + '</span>';
+      } else {
+        h1.textContent = t;
+      }
+    })();
     document.getElementById('artContent').innerHTML = a.body || '';
     var badges='';
     if(a.category) badges += '<span class="badge-cat">'+esc(catLabel(a.category))+'</span>';
