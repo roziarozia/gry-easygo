@@ -458,6 +458,8 @@
     articleView.classList.add('hidden');
     listView.classList.remove('hidden');
     if(listFoot) listFoot.classList.remove('hidden');
+    renderCatBar();   // zbuduj filtr kategorii (gdyby wejście było prosto na artykuł)
+    renderGrid();     // ZAWSZE wyrenderuj listę — inaczej po wejściu prosto na artykuł grid jest pusty i wisi "Ładuję…"
     document.title = 'Nauka angielskiego — poradniki i wyjaśnienia | EasyWonders';
     if(push){ history.pushState({}, '', location.pathname); }
   }
