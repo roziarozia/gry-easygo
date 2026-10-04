@@ -361,7 +361,7 @@
     var items = ALL.filter(function(a){
       if(curCat!=='all' && a.category!==curCat) return false;
       if(curSearch){
-        var hay = norm(a.title)+' '+norm(a.excerpt)+' '+norm(a.keywords)+' '+norm(a.body);
+        var hay = norm(a.title)+' '+norm(a.excerpt)+' '+norm(a.keywords);
         if(hay.indexOf(norm(curSearch))===-1) return false;
       }
       return true;
