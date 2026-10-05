@@ -353,7 +353,7 @@
     <div id="foundersTab" class="hidden">
       <div class="panel">
         <h3>Przydziel dostęp founderowi</h3>
-        <div class="hint-i">Przydzielasz darmowy dostęp na określoną liczbę miesięcy i miejsc (uczniów). Lektor dostaje miejsca dla swoich uczniów; uczeń indywidualny — dostęp dla siebie.</div>
+        <div class="hint-i">Przydzielasz darmowy dostęp na określoną liczbę dni i miejsc (uczniów). Lektor dostaje miejsca dla swoich uczniów; uczeń indywidualny — dostęp dla siebie.</div>
         <div class="grid2">
           <div class="field"><label>E-mail</label><input type="email" id="fndEmail" placeholder="osoba@example.com"></div>
           <div class="field"><label>Rodzaj</label>
@@ -361,7 +361,7 @@
           </div>
         </div>
         <div class="grid2">
-          <div class="field"><label>Na ile miesięcy</label><input type="number" id="fndMonths" value="2" min="1"></div>
+          <div class="field"><label>Na ile dni</label><input type="number" id="fndDays" value="14" min="1"></div>
           <div class="field"><label>Ile miejsc (uczniów)</label><input type="number" id="fndSeats" value="6" min="1"></div>
         </div>
         <button class="btn" id="grantBtn">Przydziel dostęp</button>
@@ -466,14 +466,15 @@
   $('grantBtn').addEventListener('click', function(){
     clearMsg($('grantMsg'));
     var email=($('fndEmail').value||'').trim();
-    var months=parseInt($('fndMonths').value,10);
+    var days=parseInt($('fndDays').value,10);
     var seats=parseInt($('fndSeats').value,10);
     var kind=$('fndKind').value;
     if(!email){ showMsg($('grantMsg'),'Podaj e-mail.',false); return; }
-    if(!months||months<1){ showMsg($('grantMsg'),'Podaj liczbę miesięcy.',false); return; }
-    if(!seats||seats<1){ showMsg($('grantMsg'),'Podaj liczbę miejsc.',false); return; }
+    if(!days||days<1){ showMsg($('grantMsg'),'Podaj liczbę dni.',false); return; }
+    if(kind==='lektor' && (!seats||seats<1)){ showMsg($('grantMsg'),'Podaj liczbę miejsc.',false); return; }
     $('grantBtn').disabled=true;
-    sb.rpc('grant_founder_access', { p_email:email, p_months:months, p_seats:seats, p_kind:kind }).then(function(res){
+    // UWAGA: parametr funkcji nazywa się p_months, ale baza traktuje go jako DNI
+    sb.rpc('grant_founder_access', { p_email:email, p_months:days, p_seats:seats, p_kind:kind }).then(function(res){
       $('grantBtn').disabled=false;
       if(res.error){ showMsg($('grantMsg'),'Błąd: '+res.error.message,false); return; }
       var r=res.data||'';
