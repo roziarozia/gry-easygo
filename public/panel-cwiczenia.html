@@ -56,6 +56,11 @@
   .backbar .btn-back:hover{ background:#e8e1f2; }
   .stickybar{ position:sticky; bottom:0; z-index:50; background:rgba(255,255,255,.96); backdrop-filter:blur(6px); border-top:1px solid var(--line); margin:20px -16px -16px; padding:12px 16px; display:flex; align-items:center; gap:10px; flex-wrap:wrap; box-shadow:0 -4px 16px rgba(42,39,48,.06); }
   .stickybar .spacer{ flex:1; }
+  .stickybar .btn-back{ background:#fff; border:1.5px solid var(--line); color:var(--ink); border-radius:10px; padding:9px 16px; font-family:'Quicksand',sans-serif; font-weight:700; font-size:14px; cursor:pointer; }
+  .stickybar .btn-back:hover{ border-color:var(--lavender); background:var(--soft); }
+  .save-inline{ font-size:13px; font-weight:700; padding:6px 12px; border-radius:8px; }
+  .save-inline.ok{ background:#e9f7f0; color:var(--green); }
+  .save-inline.err{ background:#fdeaee; color:var(--red); }
   @media(max-width:560px){ .stickybar{ margin:16px -16px -16px; } }
 
   .panel{ background:var(--card); border:1px solid var(--line); border-radius:14px; padding:16px; }
@@ -96,6 +101,10 @@
   .grid2{ display:grid; grid-template-columns:1fr 1fr; gap:12px; } @media(max-width:600px){ .grid2{ grid-template-columns:1fr; } }
   .grid3{ display:grid; grid-template-columns:1fr 1fr 1fr; gap:12px; } @media(max-width:600px){ .grid3{ grid-template-columns:1fr; } }
 
+  /* ładniejsze pola wyboru pliku */
+  input[type=file]{ font-size:12.5px; color:var(--muted); }
+  input[type=file]::file-selector-button{ font-family:'Quicksand',sans-serif; font-weight:700; font-size:12.5px; border:1.5px solid var(--line); background:#fff; color:var(--ink); border-radius:8px; padding:6px 12px; margin-right:10px; cursor:pointer; transition:border-color .12s, background .12s; }
+  input[type=file]::file-selector-button:hover{ border-color:var(--lavender); background:var(--soft); }
   .cover-prev{ width:100%; max-width:220px; aspect-ratio:3/2; object-fit:cover; border-radius:10px; border:1px solid var(--line); }
   .cover-prev-ph{ width:100%; max-width:220px; aspect-ratio:3/2; border-radius:10px; border:1px dashed var(--line); display:flex; align-items:center; justify-content:center; color:var(--muted); font-size:13px; background:var(--soft); }
 
@@ -336,14 +345,14 @@
 
           <hr class="sep">
           <div class="section-title">Głosy (do 4 postaci)</div>
-          <div class="hint-i">Przypisz głosy kolejnym postaciom — głos A dla pierwszej osoby, która się odezwie, B dla drugiej, itd. Mieszaj damskie z męskimi.</div>
+          <div class="hint-i">Przy każdym głosie widać imię postaci (odczytane z dialogu). Głos A = pierwsza osoba, która się odzywa, B = druga, itd. Mieszaj damskie z męskimi, żeby się różniły.</div>
           <div class="grid2">
-            <div class="field"><label>Głos A (1. postać)</label><select id="voiceA"></select></div>
-            <div class="field"><label>Głos B (2. postać)</label><select id="voiceB"></select></div>
+            <div class="field"><label>Głos A <span id="vALabel" style="color:var(--magenta);">(1. postać)</span></label><select id="voiceA"></select></div>
+            <div class="field"><label>Głos B <span id="vBLabel" style="color:var(--magenta);">(2. postać)</span></label><select id="voiceB"></select></div>
           </div>
           <div class="grid2">
-            <div class="field"><label>Głos C (3. postać)</label><select id="voiceC"></select></div>
-            <div class="field"><label>Głos D (4. postać)</label><select id="voiceD"></select></div>
+            <div class="field"><label>Głos C <span id="vCLabel" style="color:var(--magenta);">(3. postać)</span></label><select id="voiceC"></select></div>
+            <div class="field"><label>Głos D <span id="vDLabel" style="color:var(--magenta);">(4. postać)</span></label><select id="voiceD"></select></div>
           </div>
           <button class="btn" id="genListenBtn" style="width:100%; margin-top:6px;">Generuj audio dialogu</button>
           <div id="listenAudioMsg"></div>
@@ -380,13 +389,12 @@
           <div class="hint-i" id="audioStatus"></div>
         </div>
 
-        <div id="saveMsg" style="margin-top:12px;"></div>
-
         <div class="stickybar">
-          <button class="btn-back" id="backBtn2"><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M15 18l-6-6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg> Powrót</button>
+          <button class="btn-back" id="backBtn2">&#8592; Powrót do ćwiczeń</button>
           <a class="btn btn-soft" id="previewBtn" href="#" target="_blank">Podgląd</a>
           <button class="btn btn-danger" id="deleteBtn" style="display:none;">Usuń</button>
           <span class="spacer"></span>
+          <span id="saveMsg" class="save-inline"></span>
           <button class="btn" id="saveBtn">Zapisz</button>
         </div>
       </div>
@@ -436,8 +444,17 @@
   function slugify(s){ return (s||'').toLowerCase().trim()
     .replace(/ą/g,'a').replace(/ć/g,'c').replace(/ę/g,'e').replace(/ł/g,'l').replace(/ń/g,'n').replace(/ó/g,'o').replace(/ś/g,'s').replace(/ź/g,'z').replace(/ż/g,'z')
     .replace(/[^a-z0-9]+/g,'-').replace(/^-+|-+$/g,''); }
-  function showMsg(el,txt,ok){ el.innerHTML='<div class="msg '+(ok?'msg-ok':'msg-err')+'">'+esc(txt)+'</div>'; }
-  function clearMsg(el){ el.innerHTML=''; }
+  function showMsg(el,txt,ok){
+    // saveMsg to span inline w pasku — inny styl
+    if(el && el.id==='saveMsg'){
+      el.className='save-inline '+(ok?'ok':'err');
+      el.textContent=txt;
+      if(ok){ setTimeout(function(){ if(el.textContent===txt){ el.className='save-inline'; el.textContent=''; } }, 4000); }
+      return;
+    }
+    el.innerHTML='<div class="msg '+(ok?'msg-ok':'msg-err')+'">'+esc(txt)+'</div>';
+  }
+  function clearMsg(el){ if(el && el.id==='saveMsg'){ el.className='save-inline'; el.textContent=''; } else { el.innerHTML=''; } }
 
   var ALL=[], curId=null, cur=null, curType='all', curPage=1, PER_PAGE=20;
 
@@ -968,7 +985,26 @@
     div.querySelector('.rm').addEventListener('click', function(){ div.remove(); renumberGeneric('linesList','Linia'); });
     return div;
   }
-  $('addLineBtn').addEventListener('click', function(){ $('linesList').appendChild(lineRow()); renumberGeneric('linesList','Linia'); });
+  $('addLineBtn').addEventListener('click', function(){ $('linesList').appendChild(lineRow()); renumberGeneric('linesList','Linia'); updateVoiceLabels(); });
+
+  // podpisz pola głosów imionami mówców (wg kolejności pierwszego odezwania się)
+  function updateVoiceLabels(){
+    var seen=[], order=[];
+    $('linesList').querySelectorAll('.item').forEach(function(it){
+      var sp=(it.querySelector('.ln-speaker').value||'').trim();
+      if(sp && seen.indexOf(sp.toLowerCase())===-1){ seen.push(sp.toLowerCase()); order.push(sp); }
+    });
+    var labels=['vALabel','vBLabel','vCLabel','vDLabel'];
+    labels.forEach(function(lid, i){
+      var el=$(lid); if(!el) return;
+      if(order[i]) el.textContent='→ '+order[i];
+      else el.textContent='('+(i+1)+'. postać)';
+    });
+  }
+  // aktualizuj etykiety gdy zmieniasz speakera (delegacja)
+  $('linesList').addEventListener('input', function(e){
+    if(e.target && e.target.classList.contains('ln-speaker')) updateVoiceLabels();
+  });
   $('addListenQBtn').addEventListener('click', function(){ $('listenQList').appendChild(qRow()); renumberGeneric('listenQList','Pytanie'); });
 
   // dropdowny głosów listening (A-D) + pusta opcja
@@ -1112,6 +1148,7 @@
           if(!rows.length){ $('linesList').appendChild(lineRow()); }
           else rows.forEach(function(row){ $('linesList').appendChild(lineRow(row)); });
           renumberGeneric('linesList','Linia');
+          updateVoiceLabels();
         });
         sb.from('questions').select('*').eq('game_id',id).order('position').then(function(r){
           (r.data||[]).forEach(function(row){ $('listenQList').appendChild(qRow(row)); });
