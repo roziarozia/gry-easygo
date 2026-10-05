@@ -1,0 +1,556 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Panel ćwiczeń — EasyWonders</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@500;600;700&family=Nunito:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{ --magenta:#ca4490; --magenta-dk:#b33a7e; --lavender:#a78dd9; --gold:#f4c94c; --ink:#2a2730; --muted:#6a6475; --line:#e7e3ee; --bg:#f6f4fa; --card:#fff; --green:#2e9e6b; --red:#d14b6a; --soft:#f3eff8; }
+  *{ box-sizing:border-box; }
+  body{ margin:0; background:var(--bg); color:var(--ink); font-family:'Nunito',sans-serif; font-size:15px; line-height:1.5; }
+  a{ color:var(--magenta); }
+  .wrap{ max-width:1100px; margin:0 auto; padding:18px 16px 80px; }
+  h1{ font-family:'Quicksand',sans-serif; font-size:22px; margin:0 0 4px; }
+  h1 .e{ color:var(--magenta); } h1 .w{ color:var(--gold); }
+  .top{ display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:18px; flex-wrap:wrap; }
+  .muted{ color:var(--muted); font-size:13px; }
+  .btn{ font-family:'Quicksand',sans-serif; font-weight:700; font-size:14px; border:none; border-radius:10px; padding:9px 16px; cursor:pointer; background:var(--magenta); color:#fff; transition:background .15s, transform .1s; text-decoration:none; display:inline-flex; align-items:center; gap:6px; }
+  .btn:hover{ background:var(--magenta-dk); } .btn:active{ transform:translateY(1px); }
+  .btn-soft{ background:var(--soft); color:var(--ink); } .btn-soft:hover{ background:#e8e1f2; }
+  .btn-ghost{ background:transparent; color:var(--magenta); border:1.5px solid var(--magenta); } .btn-ghost:hover{ background:var(--soft); }
+  .btn-danger{ background:transparent; color:var(--red); border:1.5px solid var(--red); } .btn-danger:hover{ background:#fff0f3; }
+  .btn-sm{ padding:5px 11px; font-size:13px; border-radius:8px; }
+  .hidden{ display:none !important; }
+
+  /* login */
+  .loginbox{ max-width:360px; margin:60px auto; background:var(--card); border:1px solid var(--line); border-radius:16px; padding:28px 26px; }
+  .loginbox h2{ font-family:'Quicksand',sans-serif; margin:0 0 16px; font-size:18px; }
+  .field{ margin-bottom:12px; }
+  .field label{ display:block; font-size:13px; font-weight:700; margin-bottom:5px; color:var(--muted); }
+  .field input, .field select, .field textarea{ width:100%; border:1px solid var(--line); border-radius:9px; padding:9px 12px; font-family:'Nunito',sans-serif; font-size:14px; color:var(--ink); background:#fff; }
+  .field input:focus, .field select:focus, .field textarea:focus{ outline:none; border-color:var(--lavender); }
+  .field textarea{ resize:vertical; min-height:60px; line-height:1.5; }
+
+  .msg{ font-size:13px; padding:7px 11px; border-radius:8px; margin-top:8px; }
+  .msg-err{ background:#fdeaee; color:var(--red); } .msg-ok{ background:#e9f7f0; color:var(--green); }
+
+  .layout{ display:grid; grid-template-columns:300px 1fr; gap:20px; align-items:start; }
+  @media(max-width:820px){ .layout{ grid-template-columns:1fr; } }
+
+  .panel{ background:var(--card); border:1px solid var(--line); border-radius:14px; padding:16px; }
+  .panel h3{ font-family:'Quicksand',sans-serif; font-size:15px; margin:0 0 12px; }
+
+  .list-head{ display:flex; gap:8px; margin-bottom:10px; }
+  .list-head input{ flex:1; border:1px solid var(--line); border-radius:9px; padding:8px 11px; font-size:13px; }
+  .typefilter{ display:flex; gap:6px; margin-bottom:12px; flex-wrap:wrap; }
+  .typechip{ font-size:12px; font-weight:700; padding:4px 11px; border-radius:999px; border:1.5px solid var(--line); background:transparent; color:var(--muted); cursor:pointer; }
+  .typechip.active{ background:var(--magenta); border-color:var(--magenta); color:#fff; }
+
+  .glist{ max-height:560px; overflow-y:auto; display:flex; flex-direction:column; gap:7px; }
+  .gcard{ border:1px solid var(--line); border-radius:10px; padding:9px 11px; cursor:pointer; transition:border-color .12s, background .12s; }
+  .gcard:hover{ border-color:var(--lavender); } .gcard.sel{ border-color:var(--magenta); background:var(--soft); }
+  .gt{ font-weight:700; font-size:14px; margin-bottom:3px; }
+  .gm{ display:flex; gap:5px; flex-wrap:wrap; align-items:center; }
+  .pill{ font-size:10.5px; font-weight:700; padding:2px 8px; border-radius:999px; letter-spacing:.02em; }
+  .pill-pub{ background:#e9f7f0; color:var(--green); } .pill-draft{ background:#f3eff8; color:var(--muted); }
+  .pill-lvl{ background:#fbeaf3; color:var(--magenta); } .pill-type{ background:#ede7f7; color:var(--lavender); }
+  .gm span.slug{ font-size:11px; color:var(--muted); }
+
+  .grid2{ display:grid; grid-template-columns:1fr 1fr; gap:12px; } @media(max-width:600px){ .grid2{ grid-template-columns:1fr; } }
+  .grid3{ display:grid; grid-template-columns:1fr 1fr 1fr; gap:12px; } @media(max-width:600px){ .grid3{ grid-template-columns:1fr; } }
+
+  .cover-prev{ width:100%; max-width:220px; aspect-ratio:3/2; object-fit:cover; border-radius:10px; border:1px solid var(--line); }
+  .cover-prev-ph{ width:100%; max-width:220px; aspect-ratio:3/2; border-radius:10px; border:1px dashed var(--line); display:flex; align-items:center; justify-content:center; color:var(--muted); font-size:13px; background:var(--soft); }
+
+  .check{ display:flex; align-items:center; gap:8px; }
+  .check input{ width:auto; }
+
+  .sep{ border:none; border-top:1px solid var(--line); margin:18px 0; }
+  .section-title{ font-family:'Quicksand',sans-serif; font-weight:700; font-size:16px; margin:0 0 4px; color:var(--magenta); }
+
+  /* pozycje (luki / pytania) */
+  .item{ border:1px solid var(--line); border-radius:12px; padding:13px; margin-bottom:11px; background:#fdfcff; position:relative; }
+  .item-head{ display:flex; align-items:center; justify-content:space-between; margin-bottom:9px; }
+  .item-no{ font-family:'Quicksand',sans-serif; font-weight:700; font-size:13px; color:var(--lavender); }
+  .opt-row{ display:flex; align-items:center; gap:8px; margin-bottom:6px; }
+  .opt-row input[type=text]{ flex:1; }
+  .opt-row .corr{ display:flex; align-items:center; gap:5px; font-size:12px; font-weight:700; color:var(--muted); white-space:nowrap; }
+  .addbtn{ margin-top:4px; }
+  .slug-prev{ font-size:12px; color:var(--muted); }
+  .hint-i{ font-size:12px; color:var(--muted); margin:2px 0 6px; }
+  code{ background:var(--soft); padding:1px 5px; border-radius:4px; font-size:12.5px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="top">
+    <div>
+      <h1><span class="e">Easy</span><span class="w">Wonders</span> — panel ćwiczeń</h1>
+      <div class="muted">Twórz i edytuj ćwiczenia bez WordPressa. Etap 1: gap-fill i quiz.</div>
+    </div>
+    <button class="btn btn-soft hidden" id="logoutBtn">Wyloguj</button>
+  </div>
+
+  <!-- LOGOWANIE -->
+  <div class="loginbox" id="loginBox">
+    <h2>Zaloguj się</h2>
+    <div class="field"><label>E-mail</label><input type="email" id="logEmail" autocomplete="username"></div>
+    <div class="field"><label>Hasło</label><input type="password" id="logPass" autocomplete="current-password"></div>
+    <button class="btn" id="loginBtn" style="width:100%;">Zaloguj</button>
+    <div id="loginMsg"></div>
+  </div>
+
+  <!-- APLIKACJA -->
+  <div class="layout hidden" id="app">
+    <!-- LISTA -->
+    <div class="panel">
+      <h3>Ćwiczenia</h3>
+      <div class="list-head">
+        <input type="text" id="listSearch" placeholder="Szukaj…">
+        <button class="btn btn-sm" id="newBtn">+ Nowe</button>
+      </div>
+      <div class="typefilter" id="typeFilter">
+        <button class="typechip active" data-type="all">Wszystkie</button>
+        <button class="typechip" data-type="gap-fill">gap-fill</button>
+        <button class="typechip" data-type="quiz">quiz</button>
+      </div>
+      <div class="glist" id="glist"></div>
+    </div>
+
+    <!-- EDYTOR -->
+    <div class="panel">
+      <h3 id="editTitle">Wybierz ćwiczenie lub dodaj nowe</h3>
+      <div id="editForm" class="hidden">
+
+        <!-- NAGŁÓWEK -->
+        <div class="grid2">
+          <div class="field"><label>Tytuł</label><input type="text" id="fTitle"></div>
+          <div class="field"><label>Slug (adres) <span class="slug-prev" id="slugPrev"></span></label><input type="text" id="fSlug"></div>
+        </div>
+        <div class="grid3">
+          <div class="field"><label>Typ</label>
+            <select id="fTemplate">
+              <option value="gap-fill">gap-fill (uzupełnianie luk)</option>
+              <option value="quiz">quiz (wybór odpowiedzi)</option>
+            </select>
+          </div>
+          <div class="field"><label>Kategoria</label>
+            <select id="fCat">
+              <option value="gramatyka">gramatyka</option>
+              <option value="slownictwo">słownictwo</option>
+              <option value="speaking">speaking</option>
+              <option value="reading">reading</option>
+              <option value="listening">listening</option>
+            </select>
+          </div>
+          <div class="field"><label>Poziom</label>
+            <select id="fLevel">
+              <option value="">—</option>
+              <option>A1</option><option>A2</option><option>B1</option><option>B2</option><option>C1</option>
+            </select>
+          </div>
+        </div>
+        <div class="grid2">
+          <div class="field"><label>Seria (opcjonalnie)</label><input type="text" id="fSeries" placeholder="np. present simple"></div>
+          <div class="field"><label>Nr w serii (exercise_no)</label><input type="number" id="fExNo" value="1"></div>
+        </div>
+        <div class="field"><label>Instrukcja <span class="hint-i">format: English||Polski (angielski przed ||)</span></label><input type="text" id="fInstruction" placeholder="Type the missing word.||Wpisz brakujące słowo."></div>
+        <div class="field"><label>Opis (krótki, pod tytułem)</label><textarea id="fDesc"></textarea></div>
+
+        <div class="grid2">
+          <div class="field"><label>Słowa kluczowe</label><input type="text" id="fKeywords" placeholder="grammar, present simple, a1"></div>
+          <div class="field"><label>Kolejność (sort_order)</label><input type="number" id="fSort" value="0"></div>
+        </div>
+        <div class="grid3">
+          <div class="check field"><input type="checkbox" id="fPremium"><label style="margin:0;">Premium (płatne)</label></div>
+          <div class="check field"><input type="checkbox" id="fKids"><label style="margin:0;">Dla dzieci</label></div>
+          <div class="check field"><input type="checkbox" id="fPub"><label style="margin:0;">Opublikowane</label></div>
+        </div>
+
+        <!-- OKŁADKA -->
+        <div class="field">
+          <label>Okładka</label>
+          <div id="coverSlot"></div>
+          <input type="file" id="fCoverFile" accept="image/*" style="margin-top:8px;">
+          <button class="btn btn-soft btn-sm" id="uploadCoverBtn" style="margin-top:6px;">Wgraj okładkę</button>
+          <div id="coverMsg"></div>
+        </div>
+
+        <hr class="sep">
+
+        <!-- SEKCJA GAP-FILL -->
+        <div id="gapSection">
+          <div class="section-title">Luki (gap-fill)</div>
+          <div class="hint-i">W zdaniu wstaw <code>_</code> w miejscu luki. Poprawne odpowiedzi oddziel <code>|</code> (np. <code>There is|There's</code>). Wyjaśnienie: <code>Polski||English</code>.</div>
+          <div id="gapsList"></div>
+          <button class="btn btn-ghost btn-sm addbtn" id="addGapBtn">+ Dodaj lukę</button>
+        </div>
+
+        <!-- SEKCJA QUIZ -->
+        <div id="quizSection" class="hidden">
+          <div class="section-title">Pytania (quiz)</div>
+          <div class="hint-i">Wpisz pytanie (możesz użyć <code>_</code> na lukę), podaj opcje i zaznacz poprawną.</div>
+          <div id="questionsList"></div>
+          <button class="btn btn-ghost btn-sm addbtn" id="addQBtn">+ Dodaj pytanie</button>
+        </div>
+
+        <hr class="sep">
+
+        <div style="display:flex; gap:10px; flex-wrap:wrap; align-items:center;">
+          <button class="btn" id="saveBtn">Zapisz</button>
+          <a class="btn btn-soft" id="previewBtn" href="#" target="_blank">Podgląd</a>
+          <button class="btn btn-danger" id="deleteBtn" style="display:none;">Usuń ćwiczenie</button>
+        </div>
+        <div id="saveMsg"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+(function(){
+  var SUPA_URL = 'https://svjrdyxwqznbzxqeytdn.supabase.co';
+  var SUPA_KEY = 'sb_publishable_TNCq1UAMAvLO0Z5Mt8QOig_OvsxhhyJ';
+  var BUCKET = 'game-images';
+  var sb = window.supabase.createClient(SUPA_URL, SUPA_KEY);
+  function $(id){ return document.getElementById(id); }
+  function esc(s){ var d=document.createElement('div'); d.textContent=s==null?'':s; return d.innerHTML; }
+  function slugify(s){ return (s||'').toLowerCase().trim()
+    .replace(/ą/g,'a').replace(/ć/g,'c').replace(/ę/g,'e').replace(/ł/g,'l').replace(/ń/g,'n').replace(/ó/g,'o').replace(/ś/g,'s').replace(/ź/g,'z').replace(/ż/g,'z')
+    .replace(/[^a-z0-9]+/g,'-').replace(/^-+|-+$/g,''); }
+  function showMsg(el,txt,ok){ el.innerHTML='<div class="msg '+(ok?'msg-ok':'msg-err')+'">'+esc(txt)+'</div>'; }
+  function clearMsg(el){ el.innerHTML=''; }
+
+  var ALL=[], curId=null, cur=null, curType='all';
+
+  // ===== LOGOWANIE =====
+  function onLoggedIn(){ $('loginBox').classList.add('hidden'); $('app').classList.remove('hidden'); $('logoutBtn').classList.remove('hidden'); loadList(); }
+  function onLoggedOut(){ $('app').classList.add('hidden'); $('logoutBtn').classList.add('hidden'); $('loginBox').classList.remove('hidden'); }
+  $('loginBtn').addEventListener('click', function(){
+    clearMsg($('loginMsg'));
+    var email=$('logEmail').value.trim(), pass=$('logPass').value;
+    if(!email||!pass){ showMsg($('loginMsg'),'Podaj e-mail i hasło.',false); return; }
+    $('loginBtn').disabled=true;
+    sb.auth.signInWithPassword({email:email,password:pass}).then(function(res){
+      $('loginBtn').disabled=false;
+      if(res.error){ showMsg($('loginMsg'),'Błąd logowania: '+res.error.message,false); return; }
+      onLoggedIn();
+    });
+  });
+  $('logPass').addEventListener('keydown', function(e){ if(e.key==='Enter') $('loginBtn').click(); });
+  $('logoutBtn').addEventListener('click', function(){ sb.auth.signOut().then(onLoggedOut); });
+  sb.auth.getSession().then(function(res){
+    if(res.data && res.data.session && res.data.session.user) onLoggedIn();
+    else onLoggedOut();
+  });
+
+  // ===== LISTA =====
+  function loadList(){
+    sb.from('games').select('id,slug,title,template,level,published,sort_order,created_at')
+      .in('template',['gap-fill','quiz'])
+      .order('sort_order',{ascending:false}).order('created_at',{ascending:false})
+      .then(function(res){
+        if(res.error){ $('glist').innerHTML='<div class="msg msg-err">Nie udało się wczytać: '+esc(res.error.message)+'</div>'; return; }
+        ALL=res.data||[]; renderList();
+      });
+  }
+  function renderList(){
+    var q=($('listSearch').value||'').toLowerCase();
+    var items=ALL.filter(function(g){
+      if(curType!=='all' && g.template!==curType) return false;
+      if(q && (g.title||'').toLowerCase().indexOf(q)===-1 && (g.slug||'').toLowerCase().indexOf(q)===-1) return false;
+      return true;
+    });
+    if(!items.length){ $('glist').innerHTML='<div class="muted" style="padding:10px;">Brak ćwiczeń.</div>'; return; }
+    $('glist').innerHTML=items.map(function(g){
+      var pub=g.published?'<span class="pill pill-pub">opublikowane</span>':'<span class="pill pill-draft">szkic</span>';
+      var lvl=g.level?'<span class="pill pill-lvl">'+esc(g.level)+'</span>':'';
+      var typ='<span class="pill pill-type">'+esc(g.template)+'</span>';
+      return '<div class="gcard'+(curId===g.id?' sel':'')+'" data-id="'+g.id+'">'
+        +'<div class="gt">'+esc(g.title||'(bez tytułu)')+'</div>'
+        +'<div class="gm">'+pub+typ+lvl+'<span class="slug">'+esc(g.slug||'')+'</span></div></div>';
+    }).join('');
+    $('glist').querySelectorAll('.gcard').forEach(function(c){
+      c.addEventListener('click', function(){ openEdit(c.getAttribute('data-id')); });
+    });
+  }
+  $('listSearch').addEventListener('input', renderList);
+  $('typeFilter').querySelectorAll('.typechip').forEach(function(b){
+    b.addEventListener('click', function(){
+      curType=b.getAttribute('data-type');
+      $('typeFilter').querySelectorAll('.typechip').forEach(function(x){ x.classList.remove('active'); });
+      b.classList.add('active'); renderList();
+    });
+  });
+
+  // ===== PRZEŁĄCZANIE SEKCJI wg typu =====
+  function syncSections(){
+    var t=$('fTemplate').value;
+    $('gapSection').classList.toggle('hidden', t!=='gap-fill');
+    $('quizSection').classList.toggle('hidden', t!=='quiz');
+  }
+  $('fTemplate').addEventListener('change', syncSections);
+
+  // ===== LUKI (gap-fill) =====
+  function gapRow(data){
+    data=data||{};
+    var div=document.createElement('div'); div.className='item';
+    div.innerHTML=''
+      +'<div class="item-head"><span class="item-no">Luka</span><button class="btn btn-danger btn-sm rm">Usuń</button></div>'
+      +'<div class="field"><label>Zdanie (z _ jako luką)</label><input type="text" class="g-sent" value="'+esc(data.sentence||'')+'" placeholder="_ a book on the table."></div>'
+      +'<div class="grid2">'
+      +'<div class="field"><label>Poprawne odpowiedzi (oddziel |)</label><input type="text" class="g-ans" value="'+esc(data.answers||'')+'" placeholder="There is|There\'s"></div>'
+      +'<div class="field"><label>Podpowiedź PL (opcjonalnie)</label><input type="text" class="g-hint" value="'+esc(data.pl_hint||'')+'"></div>'
+      +'</div>'
+      +'<div class="field"><label>Wyjaśnienie (Polski||English — polski przed ||)</label><textarea class="g-expl">'+esc(data.explanation||'')+'</textarea></div>';
+    div.querySelector('.rm').addEventListener('click', function(){ div.remove(); renumber(); });
+    return div;
+  }
+  function renumber(){
+    $('gapsList').querySelectorAll('.item .item-no').forEach(function(el,i){ el.textContent='Luka '+(i+1); });
+    $('questionsList').querySelectorAll('.item .item-no').forEach(function(el,i){ el.textContent='Pytanie '+(i+1); });
+  }
+  $('addGapBtn').addEventListener('click', function(){ $('gapsList').appendChild(gapRow()); renumber(); });
+
+  // ===== PYTANIA (quiz) =====
+  function qRow(data){
+    data=data||{}; var opts=data.options||['','','',''];
+    var correct=(typeof data.correct==='number')?data.correct:0;
+    var div=document.createElement('div'); div.className='item';
+    var optsHtml='';
+    for(var i=0;i<opts.length;i++){
+      optsHtml+='<div class="opt-row">'
+        +'<input type="text" class="q-opt" value="'+esc(opts[i])+'" placeholder="Opcja '+(i+1)+'">'
+        +'<span class="corr"><input type="radio" name="corr-'+Math.random().toString(36).slice(2)+'" class="q-corr"'+(i===correct?' checked':'')+'> poprawna</span>'
+        +'<button class="btn btn-danger btn-sm rm-opt">×</button>'
+        +'</div>';
+    }
+    div.innerHTML=''
+      +'<div class="item-head"><span class="item-no">Pytanie</span><button class="btn btn-danger btn-sm rm">Usuń</button></div>'
+      +'<div class="field"><label>Pytanie / zdanie</label><input type="text" class="q-prompt" value="'+esc(data.prompt||'')+'" placeholder="Someone _ the milk."></div>'
+      +'<div class="field"><label>Opcje (zaznacz poprawną)</label><div class="q-opts">'+optsHtml+'</div>'
+      +'<button class="btn btn-soft btn-sm add-opt" style="margin-top:4px;">+ Opcja</button></div>'
+      +'<div class="field"><label>Wyjaśnienie</label><textarea class="q-expl">'+esc(data.explanation||'')+'</textarea></div>';
+    // radio name wspólny w obrębie pytania
+    var rname='corr-'+Math.random().toString(36).slice(2);
+    div.querySelectorAll('.q-corr').forEach(function(r){ r.name=rname; });
+    div.querySelector('.rm').addEventListener('click', function(){ div.remove(); renumber(); });
+    div.querySelectorAll('.rm-opt').forEach(function(b){ b.addEventListener('click', function(){ b.closest('.opt-row').remove(); }); });
+    div.querySelector('.add-opt').addEventListener('click', function(){
+      var row=document.createElement('div'); row.className='opt-row';
+      row.innerHTML='<input type="text" class="q-opt" placeholder="Opcja">'
+        +'<span class="corr"><input type="radio" name="'+rname+'" class="q-corr"> poprawna</span>'
+        +'<button class="btn btn-danger btn-sm rm-opt">×</button>';
+      row.querySelector('.rm-opt').addEventListener('click', function(){ row.remove(); });
+      div.querySelector('.q-opts').appendChild(row);
+    });
+    return div;
+  }
+  $('addQBtn').addEventListener('click', function(){ $('questionsList').appendChild(qRow()); renumber(); });
+
+  // ===== OKŁADKA =====
+  function renderCover(url){
+    $('coverSlot').innerHTML=url?'<img class="cover-prev" src="'+esc(url)+'" alt="okładka">':'<div class="cover-prev-ph">Brak okładki</div>';
+  }
+  $('uploadCoverBtn').addEventListener('click', function(){
+    var f=$('fCoverFile').files[0];
+    if(!f){ showMsg($('coverMsg'),'Wybierz plik.',false); return; }
+    var slug=slugify($('fSlug').value)||('cw-'+Date.now());
+    var ext=(f.name.split('.').pop()||'jpg').toLowerCase();
+    var path='covers/'+slug+'-'+Date.now()+'.'+ext;
+    $('uploadCoverBtn').disabled=true;
+    $('coverMsg').innerHTML='<span class="muted">Wgrywam…</span>';
+    sb.storage.from(BUCKET).upload(path,f,{upsert:true,contentType:f.type}).then(function(res){
+      $('uploadCoverBtn').disabled=false;
+      if(res.error){ $('coverMsg').innerHTML='<span style="color:var(--red)">Błąd: '+esc(res.error.message)+'</span>'; return; }
+      var url=sb.storage.from(BUCKET).getPublicUrl(path).data.publicUrl;
+      renderCover(url); $('coverSlot').setAttribute('data-url',url);
+      $('coverMsg').innerHTML='<span style="color:var(--green)">Wgrano. Pamiętaj zapisać ćwiczenie.</span>';
+    });
+  });
+
+  // ===== EDYTOR: nowy / otwórz =====
+  function blankForm(){
+    cur=null; curId=null;
+    $('editTitle').textContent='Nowe ćwiczenie';
+    $('fTitle').value=''; $('fSlug').value=''; $('fTemplate').value='gap-fill'; $('fCat').value='gramatyka'; $('fLevel').value='';
+    $('fSeries').value=''; $('fExNo').value='1'; $('fInstruction').value=''; $('fDesc').value='';
+    $('fKeywords').value=''; $('fSort').value='0';
+    $('fPremium').checked=false; $('fKids').checked=false; $('fPub').checked=false;
+    renderCover(''); $('coverSlot').removeAttribute('data-url');
+    $('slugPrev').textContent='slug';
+    $('gapsList').innerHTML=''; $('questionsList').innerHTML='';
+    $('gapsList').appendChild(gapRow()); renumber();
+    syncSections();
+    $('deleteBtn').style.display='none';
+    clearMsg($('saveMsg')); clearMsg($('coverMsg'));
+    $('editForm').classList.remove('hidden');
+    $('previewBtn').setAttribute('href','#');
+    renderList();
+  }
+  function openEdit(id){
+    var g=ALL.find(function(x){ return x.id===id; });
+    if(!g) return;
+    // pobierz pełny rekord + pozycje
+    sb.from('games').select('*').eq('id',id).single().then(function(res){
+      if(res.error||!res.data){ showMsg($('saveMsg'),'Nie udało się wczytać ćwiczenia.',false); return; }
+      var a=res.data; cur=a; curId=id;
+      $('editTitle').textContent='Edytujesz ćwiczenie';
+      $('fTitle').value=a.title||''; $('fSlug').value=a.slug||''; $('fTemplate').value=a.template||'gap-fill';
+      $('fCat').value=a.category||'gramatyka'; $('fLevel').value=a.level||'';
+      $('fSeries').value=a.series||''; $('fExNo').value=(a.exercise_no!=null?a.exercise_no:1);
+      $('fInstruction').value=a.instruction||''; $('fDesc').value=a.description||'';
+      $('fKeywords').value=a.keywords||''; $('fSort').value=a.sort_order||0;
+      $('fPremium').checked=!!a.is_premium; $('fKids').checked=!!a.for_kids; $('fPub').checked=!!a.published;
+      renderCover(a.cover_url||''); $('coverSlot').removeAttribute('data-url');
+      $('slugPrev').textContent=a.slug||'slug';
+      $('deleteBtn').style.display='';
+      syncSections();
+      clearMsg($('saveMsg')); clearMsg($('coverMsg'));
+      $('editForm').classList.remove('hidden');
+      $('previewBtn').setAttribute('href','/cwiczenie/'+encodeURIComponent(a.slug||''));
+      // wczytaj pozycje
+      $('gapsList').innerHTML=''; $('questionsList').innerHTML='';
+      if(a.template==='gap-fill'){
+        sb.from('gaps').select('*').eq('game_id',id).order('position').then(function(r){
+          var rows=r.data||[];
+          if(!rows.length){ $('gapsList').appendChild(gapRow()); }
+          else rows.forEach(function(row){ $('gapsList').appendChild(gapRow(row)); });
+          renumber();
+        });
+      } else {
+        sb.from('questions').select('*').eq('game_id',id).order('position').then(function(r){
+          var rows=r.data||[];
+          if(!rows.length){ $('questionsList').appendChild(qRow()); }
+          else rows.forEach(function(row){ $('questionsList').appendChild(qRow(row)); });
+          renumber();
+        });
+      }
+      renderList();
+    });
+  }
+  $('newBtn').addEventListener('click', blankForm);
+
+  // auto-slug
+  $('fTitle').addEventListener('input', function(){
+    if(!curId && (!$('fSlug').value || $('fSlug').value===$('fSlug').getAttribute('data-auto'))){
+      var s=slugify($('fTitle').value);
+      $('fSlug').value=s; $('fSlug').setAttribute('data-auto',s); $('slugPrev').textContent=s||'slug';
+    }
+  });
+  $('fSlug').addEventListener('input', function(){ $('slugPrev').textContent=$('fSlug').value||'slug'; });
+
+  // ===== ZAPIS =====
+  $('saveBtn').addEventListener('click', function(){
+    clearMsg($('saveMsg'));
+    var title=$('fTitle').value.trim();
+    var slug=slugify($('fSlug').value);
+    var template=$('fTemplate').value;
+    if(!title){ showMsg($('saveMsg'),'Podaj tytuł.',false); return; }
+    if(!slug){ showMsg($('saveMsg'),'Podaj slug (adres).',false); return; }
+
+    // zbierz pozycje
+    var gapData=[], qData=[], err='';
+    if(template==='gap-fill'){
+      $('gapsList').querySelectorAll('.item').forEach(function(it,i){
+        var sent=it.querySelector('.g-sent').value.trim();
+        var ans=it.querySelector('.g-ans').value.trim();
+        if(!sent && !ans) return; // pomiń puste
+        if(!sent || !ans){ err='Luka '+(i+1)+': uzupełnij zdanie i odpowiedź.'; }
+        gapData.push({ position:gapData.length+1, sentence:sent, answers:ans,
+          pl_hint:it.querySelector('.g-hint').value.trim(),
+          explanation:it.querySelector('.g-expl').value.trim() });
+      });
+      if(!gapData.length) err='Dodaj przynajmniej jedną lukę.';
+    } else {
+      $('questionsList').querySelectorAll('.item').forEach(function(it,i){
+        var prompt=it.querySelector('.q-prompt').value.trim();
+        var opts=[]; var correctIdx=-1;
+        it.querySelectorAll('.opt-row').forEach(function(row){
+          var v=row.querySelector('.q-opt').value.trim();
+          if(v!==''){ if(row.querySelector('.q-corr').checked) correctIdx=opts.length; opts.push(v); }
+        });
+        if(!prompt && !opts.length) return;
+        if(!prompt){ err='Pytanie '+(i+1)+': wpisz treść.'; }
+        if(opts.length<2){ err='Pytanie '+(i+1)+': podaj co najmniej 2 opcje.'; }
+        if(correctIdx<0){ err='Pytanie '+(i+1)+': zaznacz poprawną odpowiedź.'; }
+        qData.push({ position:qData.length+1, prompt:prompt, options:opts, correct:correctIdx<0?0:correctIdx,
+          explanation:it.querySelector('.q-expl').value.trim() });
+      });
+      if(!qData.length) err='Dodaj przynajmniej jedno pytanie.';
+    }
+    if(err){ showMsg($('saveMsg'),err,false); return; }
+
+    var coverUrl=$('coverSlot').getAttribute('data-url');
+    if(coverUrl===null||coverUrl===undefined){ coverUrl=cur?(cur.cover_url||''):''; }
+
+    var rec={
+      slug:slug, title:title, template:template,
+      description:$('fDesc').value.trim(),
+      category:$('fCat').value, level:$('fLevel').value||null,
+      series:$('fSeries').value.trim()||null,
+      exercise_no:parseInt($('fExNo').value,10)||null,
+      instruction:$('fInstruction').value.trim()||null,
+      keywords:$('fKeywords').value.trim(),
+      sort_order:parseInt($('fSort').value,10)||0,
+      is_premium:$('fPremium').checked, for_kids:$('fKids').checked,
+      published:$('fPub').checked, cover_url:coverUrl
+    };
+    if(rec.published && (!cur||!cur.published_at)) rec.published_at=new Date().toISOString();
+
+    $('saveBtn').disabled=true;
+    var op = curId ? sb.from('games').update(rec).eq('id',curId).select().single()
+                   : sb.from('games').insert(rec).select().single();
+    op.then(function(res){
+      if(res.error){
+        $('saveBtn').disabled=false;
+        var m=res.error.message||'';
+        if(m.indexOf('duplicate')>-1||m.indexOf('unique')>-1) m='Slug już istnieje — zmień go.';
+        showMsg($('saveMsg'),'Błąd zapisu: '+m,false); return;
+      }
+      var gid=res.data.id; curId=gid; cur=res.data;
+      // zapisz pozycje: usuń stare, wstaw nowe
+      var childTable=template==='gap-fill'?'gaps':'questions';
+      sb.from(childTable).delete().eq('game_id',gid).then(function(){
+        var rows=(template==='gap-fill'?gapData:qData).map(function(r){ r.game_id=gid; return r; });
+        if(!rows.length){ finishSave(res.data); return; }
+        sb.from(childTable).insert(rows).then(function(r2){
+          $('saveBtn').disabled=false;
+          if(r2.error){ showMsg($('saveMsg'),'Ćwiczenie zapisane, ale błąd przy pozycjach: '+r2.error.message,false); return; }
+          finishSave(res.data);
+        });
+      });
+    });
+  });
+  function finishSave(data){
+    $('saveBtn').disabled=false;
+    showMsg($('saveMsg'),'Zapisano.',true);
+    $('coverSlot').removeAttribute('data-url');
+    $('deleteBtn').style.display='';
+    $('editTitle').textContent='Edytujesz ćwiczenie';
+    $('previewBtn').setAttribute('href','/cwiczenie/'+encodeURIComponent(data.slug||''));
+    loadList();
+  }
+
+  // ===== USUWANIE =====
+  $('deleteBtn').addEventListener('click', function(){
+    if(!curId) return;
+    if(!confirm('Na pewno usunąć to ćwiczenie? Tej operacji nie można cofnąć.')) return;
+    var t=$('fTemplate').value, childTable=t==='gap-fill'?'gaps':'questions';
+    sb.from(childTable).delete().eq('game_id',curId).then(function(){
+      sb.from('games').delete().eq('id',curId).then(function(res){
+        if(res.error){ showMsg($('saveMsg'),'Błąd usuwania: '+res.error.message,false); return; }
+        $('editForm').classList.add('hidden');
+        $('editTitle').textContent='Wybierz ćwiczenie lub dodaj nowe';
+        curId=null; cur=null; loadList();
+      });
+    });
+  });
+})();
+</script>
+</body>
+</html>
