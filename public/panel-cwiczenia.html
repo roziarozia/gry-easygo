@@ -48,6 +48,10 @@
   .typefilter{ display:flex; gap:6px; margin-bottom:12px; flex-wrap:wrap; }
   .typechip{ font-size:12px; font-weight:700; padding:4px 11px; border-radius:999px; border:1.5px solid var(--line); background:transparent; color:var(--muted); cursor:pointer; }
   .typechip.active{ background:var(--magenta); border-color:var(--magenta); color:#fff; }
+  .filterrow{ display:flex; gap:6px; margin-bottom:10px; flex-wrap:wrap; }
+  .filterrow select{ flex:1; min-width:0; border:1px solid var(--line); border-radius:8px; padding:6px 8px; font-size:12px; font-family:'Nunito',sans-serif; color:var(--ink); background:#fff; cursor:pointer; }
+  .filterrow select:focus{ outline:none; border-color:var(--lavender); }
+  .listcount{ font-size:12px; margin-bottom:8px; }
 
   .glist{ max-height:560px; overflow-y:auto; display:flex; flex-direction:column; gap:7px; }
   .gcard{ border:1px solid var(--line); border-radius:10px; padding:9px 11px; cursor:pointer; transition:border-color .12s, background .12s; }
@@ -109,14 +113,37 @@
     <div class="panel">
       <h3>Ćwiczenia</h3>
       <div class="list-head">
-        <input type="text" id="listSearch" placeholder="Szukaj…">
+        <div style="flex:1; position:relative; display:flex; align-items:center;">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" style="position:absolute; left:10px; color:var(--muted);"><circle cx="11" cy="11" r="7" stroke="currentColor" stroke-width="1.8"/><path d="m20 20-3.5-3.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+          <input type="text" id="listSearch" placeholder="Szukaj po nazwie…" style="padding-left:30px; width:100%;">
+        </div>
         <button class="btn btn-sm" id="newBtn">+ Nowe</button>
       </div>
       <div class="typefilter" id="typeFilter">
-        <button class="typechip active" data-type="all">Wszystkie</button>
+        <button class="typechip active" data-type="all">Wszystkie typy</button>
         <button class="typechip" data-type="gap-fill">gap-fill</button>
         <button class="typechip" data-type="quiz">quiz</button>
       </div>
+      <div class="filterrow">
+        <select id="fltStatus">
+          <option value="all">Status: wszystkie</option>
+          <option value="pub">Opublikowane</option>
+          <option value="draft">Szkice</option>
+        </select>
+        <select id="fltCat">
+          <option value="all">Kategoria: wszystkie</option>
+          <option value="gramatyka">gramatyka</option>
+          <option value="slownictwo">słownictwo</option>
+          <option value="speaking">speaking</option>
+          <option value="reading">reading</option>
+          <option value="listening">listening</option>
+        </select>
+        <select id="fltLevel">
+          <option value="all">Poziom: wszystkie</option>
+          <option>A1</option><option>A2</option><option>B1</option><option>B2</option><option>C1</option><option>C2</option>
+        </select>
+      </div>
+      <div class="listcount muted" id="listCount"></div>
       <div class="glist" id="glist"></div>
     </div>
 
@@ -250,7 +277,7 @@
 
   // ===== LISTA =====
   function loadList(){
-    sb.from('games').select('id,slug,title,template,level,published,sort_order,created_at')
+    sb.from('games').select('id,slug,title,template,category,level,published,sort_order,created_at')
       .in('template',['gap-fill','quiz'])
       .order('sort_order',{ascending:false}).order('created_at',{ascending:false})
       .then(function(res){
@@ -260,12 +287,18 @@
   }
   function renderList(){
     var q=($('listSearch').value||'').toLowerCase();
+    var fStatus=$('fltStatus').value, fCat=$('fltCat').value, fLevel=$('fltLevel').value;
     var items=ALL.filter(function(g){
       if(curType!=='all' && g.template!==curType) return false;
+      if(fStatus==='pub' && !g.published) return false;
+      if(fStatus==='draft' && g.published) return false;
+      if(fCat!=='all' && g.category!==fCat) return false;
+      if(fLevel!=='all' && g.level!==fLevel) return false;
       if(q && (g.title||'').toLowerCase().indexOf(q)===-1 && (g.slug||'').toLowerCase().indexOf(q)===-1) return false;
       return true;
     });
-    if(!items.length){ $('glist').innerHTML='<div class="muted" style="padding:10px;">Brak ćwiczeń.</div>'; return; }
+    $('listCount').textContent = items.length + (items.length===1?' ćwiczenie':(items.length%10>=2&&items.length%10<=4&&(items.length<10||items.length>20)?' ćwiczenia':' ćwiczeń'));
+    if(!items.length){ $('glist').innerHTML='<div class="muted" style="padding:10px;">Brak ćwiczeń pasujących do filtrów.</div>'; return; }
     $('glist').innerHTML=items.map(function(g){
       var pub=g.published?'<span class="pill pill-pub">opublikowane</span>':'<span class="pill pill-draft">szkic</span>';
       var lvl=g.level?'<span class="pill pill-lvl">'+esc(g.level)+'</span>':'';
@@ -279,6 +312,9 @@
     });
   }
   $('listSearch').addEventListener('input', renderList);
+  $('fltStatus').addEventListener('change', renderList);
+  $('fltCat').addEventListener('change', renderList);
+  $('fltLevel').addEventListener('change', renderList);
   $('typeFilter').querySelectorAll('.typechip').forEach(function(b){
     b.addEventListener('click', function(){
       curType=b.getAttribute('data-type');
