@@ -53,7 +53,13 @@
   .filterrow select:focus{ outline:none; border-color:var(--lavender); }
   .listcount{ font-size:12px; margin-bottom:8px; }
 
-  .glist{ max-height:560px; overflow-y:auto; display:flex; flex-direction:column; gap:7px; }
+  .glist{ display:flex; flex-direction:column; gap:7px; }
+  .pager{ display:flex; align-items:center; justify-content:center; gap:4px; margin-top:14px; flex-wrap:wrap; }
+  .pager button{ min-width:32px; height:32px; border:1px solid var(--line); background:#fff; border-radius:8px; font-family:'Quicksand',sans-serif; font-weight:700; font-size:13px; color:var(--ink); cursor:pointer; padding:0 8px; }
+  .pager button:hover:not(:disabled){ border-color:var(--lavender); background:var(--soft); }
+  .pager button.cur{ background:var(--magenta); border-color:var(--magenta); color:#fff; }
+  .pager button:disabled{ opacity:.4; cursor:default; }
+  .pager .pg-dots{ color:var(--muted); padding:0 2px; }
   .gcard{ border:1px solid var(--line); border-radius:10px; padding:9px 11px; cursor:pointer; transition:border-color .12s, background .12s; }
   .gcard:hover{ border-color:var(--lavender); } .gcard.sel{ border-color:var(--magenta); background:var(--soft); }
   .gt{ font-weight:700; font-size:14px; margin-bottom:3px; }
@@ -152,6 +158,7 @@
       </div>
       <div class="listcount muted" id="listCount"></div>
       <div class="glist" id="glist"></div>
+      <div class="pager" id="pager"></div>
     </div>
 
     <!-- EDYTOR -->
@@ -280,7 +287,7 @@
   function showMsg(el,txt,ok){ el.innerHTML='<div class="msg '+(ok?'msg-ok':'msg-err')+'">'+esc(txt)+'</div>'; }
   function clearMsg(el){ el.innerHTML=''; }
 
-  var ALL=[], curId=null, cur=null, curType='all';
+  var ALL=[], curId=null, cur=null, curType='all', curPage=1, PER_PAGE=20;
 
   // ===== LOGOWANIE =====
   function onLoggedIn(){ $('loginBox').classList.add('hidden'); $('app').classList.remove('hidden'); $('logoutBtn').classList.remove('hidden'); loadList(); }
@@ -306,26 +313,38 @@
   // ===== LISTA =====
   var EDITABLE=['gap-fill','quiz','reading']; // typy, które panel UMIE edytować (reszta tylko do podglądu na liście)
   var VOICES=[
+    // KOBIECE
     ['en-US-Chirp3-HD-Achernar','Achernar (kobiecy)'],
-    ['en-US-Chirp3-HD-Zephyr','Zephyr (kobiecy)'],
-    ['en-US-Chirp3-HD-Leda','Leda (kobiecy)'],
-    ['en-US-Chirp3-HD-Kore','Kore (kobiecy)'],
-    ['en-US-Chirp3-HD-Laomedeia','Laomedeia (kobiecy)'],
+    ['en-US-Chirp3-HD-Aoede','Aoede (kobiecy)'],
+    ['en-US-Chirp3-HD-Autonoe','Autonoe (kobiecy)'],
     ['en-US-Chirp3-HD-Callirrhoe','Callirrhoe (kobiecy)'],
     ['en-US-Chirp3-HD-Despina','Despina (kobiecy)'],
+    ['en-US-Chirp3-HD-Erinome','Erinome (kobiecy)'],
+    ['en-US-Chirp3-HD-Gacrux','Gacrux (kobiecy)'],
+    ['en-US-Chirp3-HD-Kore','Kore (kobiecy)'],
+    ['en-US-Chirp3-HD-Laomedeia','Laomedeia (kobiecy)'],
+    ['en-US-Chirp3-HD-Leda','Leda (kobiecy)'],
+    ['en-US-Chirp3-HD-Pulcherrima','Pulcherrima (kobiecy)'],
     ['en-US-Chirp3-HD-Sulafat','Sulafat (kobiecy)'],
     ['en-US-Chirp3-HD-Vindemiatrix','Vindemiatrix (kobiecy)'],
-    ['en-US-Chirp3-HD-Pulcherrima','Pulcherrima (kobiecy)'],
+    ['en-US-Chirp3-HD-Zephyr','Zephyr (kobiecy)'],
+    // MĘSKIE
+    ['en-US-Chirp3-HD-Achird','Achird (męski)'],
+    ['en-US-Chirp3-HD-Algenib','Algenib (męski)'],
+    ['en-US-Chirp3-HD-Algieba','Algieba (męski)'],
+    ['en-US-Chirp3-HD-Alnilam','Alnilam (męski)'],
     ['en-US-Chirp3-HD-Charon','Charon (męski)'],
-    ['en-US-Chirp3-HD-Puck','Puck (męski)'],
+    ['en-US-Chirp3-HD-Enceladus','Enceladus (męski)'],
+    ['en-US-Chirp3-HD-Fenrir','Fenrir (męski)'],
+    ['en-US-Chirp3-HD-Iapetus','Iapetus (męski)'],
     ['en-US-Chirp3-HD-Orus','Orus (męski)'],
-    ['en-US-Chirp3-HD-Gacrux','Gacrux (męski)'],
+    ['en-US-Chirp3-HD-Puck','Puck (męski)'],
     ['en-US-Chirp3-HD-Rasalgethi','Rasalgethi (męski)'],
     ['en-US-Chirp3-HD-Sadachbia','Sadachbia (męski)'],
-    ['en-US-Chirp3-HD-Umbriel','Umbriel (męski)'],
+    ['en-US-Chirp3-HD-Sadaltager','Sadaltager (męski)'],
     ['en-US-Chirp3-HD-Schedar','Schedar (męski)'],
-    ['en-US-Chirp3-HD-Alnilam','Alnilam (męski)'],
-    ['en-US-Chirp3-HD-Fenrir','Fenrir (męski)']
+    ['en-US-Chirp3-HD-Umbriel','Umbriel (męski)'],
+    ['en-US-Chirp3-HD-Zubenelgenubi','Zubenelgenubi (męski)']
   ];
   function loadList(){
     sb.from('games').select('id,slug,title,template,category,level,published,sort_order,created_at')
@@ -348,8 +367,14 @@
       return true;
     });
     $('listCount').textContent = items.length + (items.length===1?' ćwiczenie':(items.length%10>=2&&items.length%10<=4&&(items.length<10||items.length>20)?' ćwiczenia':' ćwiczeń'));
-    if(!items.length){ $('glist').innerHTML='<div class="muted" style="padding:10px;">Brak ćwiczeń pasujących do filtrów.</div>'; return; }
-    $('glist').innerHTML=items.map(function(g){
+    if(!items.length){ $('glist').innerHTML='<div class="muted" style="padding:10px;">Brak ćwiczeń pasujących do filtrów.</div>'; $('pager').innerHTML=''; return; }
+    // paginacja
+    var totalPages=Math.ceil(items.length/PER_PAGE);
+    if(curPage>totalPages) curPage=totalPages;
+    if(curPage<1) curPage=1;
+    var pageItems=items.slice((curPage-1)*PER_PAGE, curPage*PER_PAGE);
+    renderPager(totalPages);
+    $('glist').innerHTML=pageItems.map(function(g){
       var pub=g.published?'<span class="pill pill-pub">opublikowane</span>':'<span class="pill pill-draft">szkic</span>';
       var lvl=g.level?'<span class="pill pill-lvl">'+esc(g.level)+'</span>':'';
       var editable=EDITABLE.indexOf(g.template)>-1;
@@ -372,15 +397,44 @@
       });
     });
   }
-  $('listSearch').addEventListener('input', renderList);
-  $('fltStatus').addEventListener('change', renderList);
-  $('fltCat').addEventListener('change', renderList);
-  $('fltLevel').addEventListener('change', renderList);
+  function renderPager(totalPages){
+    var p=$('pager');
+    if(totalPages<=1){ p.innerHTML=''; return; }
+    var html='';
+    html+='<button '+(curPage===1?'disabled':'')+' data-pg="prev">‹</button>';
+    // numery stron: pierwsza, okolice bieżącej, ostatnia, z wielokropkami
+    var pages=[];
+    for(var i=1;i<=totalPages;i++){
+      if(i===1||i===totalPages||(i>=curPage-1&&i<=curPage+1)) pages.push(i);
+      else if(pages[pages.length-1]!=='…') pages.push('…');
+    }
+    pages.forEach(function(pg){
+      if(pg==='…') html+='<span class="pg-dots">…</span>';
+      else html+='<button class="'+(pg===curPage?'cur':'')+'" data-pg="'+pg+'">'+pg+'</button>';
+    });
+    html+='<button '+(curPage===totalPages?'disabled':'')+' data-pg="next">›</button>';
+    p.innerHTML=html;
+    p.querySelectorAll('button[data-pg]').forEach(function(b){
+      b.addEventListener('click', function(){
+        var v=b.getAttribute('data-pg');
+        if(v==='prev') curPage--;
+        else if(v==='next') curPage++;
+        else curPage=parseInt(v,10);
+        renderList();
+        $('glist').scrollIntoView({behavior:'smooth',block:'start'});
+      });
+    });
+  }
+  function resetPageAndRender(){ curPage=1; renderList(); }
+  $('listSearch').addEventListener('input', resetPageAndRender);
+  $('fltStatus').addEventListener('change', resetPageAndRender);
+  $('fltCat').addEventListener('change', resetPageAndRender);
+  $('fltLevel').addEventListener('change', resetPageAndRender);
   $('typeFilter').querySelectorAll('.typechip').forEach(function(b){
     b.addEventListener('click', function(){
       curType=b.getAttribute('data-type');
       $('typeFilter').querySelectorAll('.typechip').forEach(function(x){ x.classList.remove('active'); });
-      b.classList.add('active'); renderList();
+      b.classList.add('active'); resetPageAndRender();
     });
   });
 
@@ -468,7 +522,7 @@
       +'<div class="item-head"><span class="item-no">Slajd</span>'
       +'<span>'+(data.audio_path?'<span class="pill pill-pub">ma audio</span>':'<span class="pill pill-draft">bez audio</span>')+' '
       +'<button class="btn btn-danger btn-sm rm">Usuń</button></span></div>'
-      +'<div class="field"><label>Tekst slajdu</label><textarea class="s-body" style="min-height:90px;">'+esc(data.body||'')+'</textarea></div>'
+      +'<div class="field"><label>Tekst slajdu</label><textarea class="s-body" style="min-height:220px; line-height:1.6; font-size:14.5px;">'+esc(data.body||'')+'</textarea></div>'
       +'<div class="field"><label>Słowniczek (słówko = tłumaczenie)</label><div class="s-gloss"></div>'
       +'<button class="btn btn-soft btn-sm add-gl" style="margin-top:4px;">+ Słówko</button></div>';
     var glossBox=div.querySelector('.s-gloss');
