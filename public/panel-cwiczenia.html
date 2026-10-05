@@ -345,7 +345,8 @@
 
           <hr class="sep">
           <div class="section-title">Głosy (do 4 postaci)</div>
-          <div class="hint-i">Przy każdym polu widać, DLA KOGO jest ten głos (imię odczytane z dialogu — kto odzywa się jako pierwszy, drugi, itd.). Wybierz głos dla każdej postaci. Mieszaj damskie z męskimi. Po wygenerowaniu KONIECZNIE kliknij „Odsłuchaj nagranie" i sprawdź — jeśli płcie się zamieniły, zamień głosy miejscami i wygeneruj ponownie.</div>
+          <div class="hint-i">Wybierz głos dla każdej postaci (pole 1 = pierwsza osoba w dialogu, pole 2 = druga, itd.). <b>Najprościej, gdy obie postacie są tej samej płci</b> — wtedy kolejność nie ma znaczenia. Jeśli różnych płci: wybierz, wygeneruj, odsłuchaj — i gdyby wyszło odwrotnie, zamień głosy miejscami.</div>
+          <div class="hint-i" id="speakersHint" style="color:var(--magenta);"></div>
           <div class="grid2">
             <div class="field"><label>Głos A <span id="vALabel" style="color:var(--magenta);">(1. postać)</span></label><select id="voiceA"></select></div>
             <div class="field"><label>Głos B <span id="vBLabel" style="color:var(--magenta);">(2. postać)</span></label><select id="voiceB"></select></div>
@@ -1026,16 +1027,21 @@
       var sp=(it.querySelector('.ln-speaker').value||'').trim();
       if(sp && seen.indexOf(sp.toLowerCase())===-1){ seen.push(sp.toLowerCase()); order.push(sp); }
     });
-    // POTWIERDZONE TESTEM NA ŻYWO (Rózia, 2026-10-05): generate-listening-audio
-    // przypisuje głosy ODWROTNIE do kolejności mówienia — głos z pola A trafia do
-    // DRUGIEJ osoby, głos z pola B do PIERWSZEJ. Dlatego etykiety odwracamy parami.
-    var mapped=[ order[1], order[0], order[3], order[2] ];
+    // Pokazujemy listę postaci po kolei (kto się odzywa jako pierwszy/drugi).
+    // NIE zgadujemy, które pole trafi do której postaci — to zależy od funkcji
+    // generującej i bywa odwrotne. Dlatego: wybierz głosy, WYGENERUJ i ODSŁUCHAJ;
+    // jeśli płcie się zamieniły, zamień głosy miejscami i wygeneruj ponownie.
     var labels=['vALabel','vBLabel','vCLabel','vDLabel'];
     labels.forEach(function(lid, i){
       var el=$(lid); if(!el) return;
-      if(mapped[i]) el.textContent='→ '+mapped[i];
-      else el.textContent='('+(i+1)+'. postać)';
+      el.textContent='('+(i+1)+'. postać)';
     });
+    // wypisz listę postaci w podpowiedzi
+    var hint=$('speakersHint');
+    if(hint){
+      if(order.length) hint.textContent='Postacie w kolejności odzywania się: '+order.join(', ')+'. Jeśli masz dwie różne płcie, po wygenerowaniu KONIECZNIE odsłuchaj — gdyby głosy wyszły odwrotnie, zamień je miejscami.';
+      else hint.textContent='';
+    }
   }
   // aktualizuj etykiety gdy zmieniasz speakera (delegacja)
   $('linesList').addEventListener('input', function(e){
