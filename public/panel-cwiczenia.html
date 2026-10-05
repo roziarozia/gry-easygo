@@ -1058,9 +1058,11 @@
   // generowanie audio listening
   $('genListenBtn').addEventListener('click', function(){
     if(!curId){ showMsg($('listenAudioMsg'),'Najpierw zapisz słuchankę, potem generuj audio.',false); return; }
+    // zbierz wybrane głosy w kolejności A,B,C,D (pomijając puste) i WYŚLIJ do funkcji
+    var voices=[ $('voiceA').value, $('voiceB').value, $('voiceC').value, $('voiceD').value ].filter(function(v){ return v; });
     $('genListenBtn').disabled=true;
     $('listenAudioMsg').innerHTML='<div class="msg" style="background:#fff4e5;color:#c77d1a;">Generuję audio dialogu… to potrwa kilkanaście sekund, nie zamykaj strony.</div>';
-    sb.functions.invoke('generate-listening-audio', { body:{ game_id:curId } }).then(function(res){
+    sb.functions.invoke('generate-listening-audio', { body:{ game_id:curId, voices:voices } }).then(function(res){
       $('genListenBtn').disabled=false;
       if(res.error){ showMsg($('listenAudioMsg'),'Błąd generowania: '+(res.error.message||res.error),false); return; }
       showMsg($('listenAudioMsg'),'Audio wygenerowane! Kliknij „Odsłuchaj nagranie", żeby sprawdzić głosy.',true);
