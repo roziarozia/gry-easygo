@@ -54,6 +54,12 @@
 
   .listcol h2, .editcol h2{ font-family:'Quicksand',sans-serif; font-size:16px; margin:0 0 12px; }
   .alist{ display:flex; flex-direction:column; gap:10px; }
+  .pager{ display:flex; align-items:center; justify-content:center; gap:4px; margin-top:14px; flex-wrap:wrap; }
+  .pager button{ min-width:32px; height:32px; border:1px solid var(--line); background:#fff; border-radius:8px; font-family:'Quicksand',sans-serif; font-weight:700; font-size:13px; color:var(--ink); cursor:pointer; padding:0 8px; }
+  .pager button:hover:not(:disabled){ border-color:var(--lavender); background:var(--soft); }
+  .pager button.cur{ background:var(--magenta); border-color:var(--magenta); color:#fff; }
+  .pager button:disabled{ opacity:.4; cursor:default; }
+  .pager .pg-dots{ color:var(--muted); padding:0 2px; }
   .acard{ background:var(--card); border:1px solid var(--line); border-radius:12px; padding:12px 14px; cursor:pointer; transition:border-color .14s, box-shadow .14s; }
   .acard:hover{ border-color:var(--lavender); box-shadow:0 3px 12px rgba(120,90,180,.08); }
   .acard.sel{ border-color:var(--magenta); box-shadow:0 0 0 1px var(--magenta); }
@@ -106,7 +112,9 @@
         <button class="btn btn-pri" id="newBtn">+ Nowy</button>
       </div>
       <div class="field" style="margin-bottom:12px;"><input type="text" id="listSearch" placeholder="Szukaj…" autocomplete="off"></div>
+      <div class="muted listcount" id="listCount" style="font-size:12px;margin-bottom:8px;color:var(--muted);"></div>
       <div class="alist" id="alist"></div>
+      <div class="pager" id="pager"></div>
     </div>
 
     <!-- EDYTOR -->
@@ -227,7 +235,7 @@
   var sb = window.supabase.createClient(SUPA_URL, SUPA_KEY);
 
   var $ = function(id){ return document.getElementById(id); };
-  var ALL = [];
+  var ALL = [], curPage=1, PER_PAGE=20;
   var cur = null;        // aktualnie edytowany (null = nowy)
   var curId = null;
 
@@ -290,8 +298,14 @@
   function renderList(){
     var q = ($('listSearch').value||'').toLowerCase();
     var items = ALL.filter(function(a){ return !q || (a.title||'').toLowerCase().indexOf(q)>-1 || (a.slug||'').toLowerCase().indexOf(q)>-1; });
-    if(!items.length){ $('alist').innerHTML = '<div class="hint" style="padding:10px;">Brak artykułów.</div>'; return; }
-    $('alist').innerHTML = items.map(function(a){
+    $('listCount').textContent = items.length + (items.length===1?' artykuł':(items.length%10>=2&&items.length%10<=4&&(items.length<10||items.length>20)?' artykuły':' artykułów'));
+    if(!items.length){ $('alist').innerHTML = '<div class="hint" style="padding:10px;">Brak artykułów.</div>'; $('pager').innerHTML=''; return; }
+    var totalPages=Math.ceil(items.length/PER_PAGE);
+    if(curPage>totalPages) curPage=totalPages;
+    if(curPage<1) curPage=1;
+    var pageItems=items.slice((curPage-1)*PER_PAGE, curPage*PER_PAGE);
+    renderPager(totalPages);
+    $('alist').innerHTML = pageItems.map(function(a){
       var pub = a.published ? '<span class="pill pill-pub">opublikowany</span>' : '<span class="pill pill-draft">szkic</span>';
       var lvl = a.level ? '<span class="pill pill-lvl">'+esc(a.level)+'</span>' : '';
       return '<div class="acard'+(curId===a.id?' sel':'')+'" data-id="'+a.id+'">'
@@ -302,7 +316,30 @@
       c.addEventListener('click', function(){ openEdit(c.getAttribute('data-id')); });
     });
   }
-  $('listSearch').addEventListener('input', renderList);
+  function renderPager(totalPages){
+    var p=$('pager');
+    if(totalPages<=1){ p.innerHTML=''; return; }
+    var html='<button '+(curPage===1?'disabled':'')+' data-pg="prev">‹</button>';
+    var pages=[];
+    for(var i=1;i<=totalPages;i++){
+      if(i===1||i===totalPages||(i>=curPage-1&&i<=curPage+1)) pages.push(i);
+      else if(pages[pages.length-1]!=='…') pages.push('…');
+    }
+    pages.forEach(function(pg){
+      if(pg==='…') html+='<span class="pg-dots">…</span>';
+      else html+='<button class="'+(pg===curPage?'cur':'')+'" data-pg="'+pg+'">'+pg+'</button>';
+    });
+    html+='<button '+(curPage===totalPages?'disabled':'')+' data-pg="next">›</button>';
+    p.innerHTML=html;
+    p.querySelectorAll('button[data-pg]').forEach(function(b){
+      b.addEventListener('click', function(){
+        var v=b.getAttribute('data-pg');
+        if(v==='prev') curPage--; else if(v==='next') curPage++; else curPage=parseInt(v,10);
+        renderList(); $('alist').scrollIntoView({behavior:'smooth',block:'start'});
+      });
+    });
+  }
+  $('listSearch').addEventListener('input', function(){ curPage=1; renderList(); });
 
   // ===== EDYTOR =====
   function blankForm(){
