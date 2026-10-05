@@ -54,6 +54,9 @@
   .backbar{ display:flex; align-items:center; gap:12px; margin-bottom:16px; }
   .backbar .btn-back{ background:var(--soft); color:var(--ink); border:none; border-radius:10px; padding:9px 16px; font-family:'Quicksand',sans-serif; font-weight:700; font-size:14px; cursor:pointer; display:inline-flex; align-items:center; gap:6px; }
   .backbar .btn-back:hover{ background:#e8e1f2; }
+  .stickybar{ position:sticky; bottom:0; z-index:50; background:rgba(255,255,255,.96); backdrop-filter:blur(6px); border-top:1px solid var(--line); margin:20px -16px -16px; padding:12px 16px; display:flex; align-items:center; gap:10px; flex-wrap:wrap; box-shadow:0 -4px 16px rgba(42,39,48,.06); }
+  .stickybar .spacer{ flex:1; }
+  @media(max-width:560px){ .stickybar{ margin:16px -16px -16px; } }
 
   .panel{ background:var(--card); border:1px solid var(--line); border-radius:14px; padding:16px; }
   .panel h3{ font-family:'Quicksand',sans-serif; font-size:15px; margin:0 0 12px; }
@@ -377,14 +380,15 @@
           <div class="hint-i" id="audioStatus"></div>
         </div>
 
-        <hr class="sep">
+        <div id="saveMsg" style="margin-top:12px;"></div>
 
-        <div style="display:flex; gap:10px; flex-wrap:wrap; align-items:center;">
-          <button class="btn" id="saveBtn">Zapisz</button>
+        <div class="stickybar">
+          <button class="btn-back" id="backBtn2"><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M15 18l-6-6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg> Powrót</button>
           <a class="btn btn-soft" id="previewBtn" href="#" target="_blank">Podgląd</a>
-          <button class="btn btn-danger" id="deleteBtn" style="display:none;">Usuń ćwiczenie</button>
+          <button class="btn btn-danger" id="deleteBtn" style="display:none;">Usuń</button>
+          <span class="spacer"></span>
+          <button class="btn" id="saveBtn">Zapisz</button>
         </div>
-        <div id="saveMsg"></div>
       </div>
     </div>
     </div><!-- /exercisesTab -->
@@ -1118,7 +1122,9 @@
     });
   }
   $('newBtn').addEventListener('click', blankForm);
-  $('backBtn').addEventListener('click', function(){ showListView(); loadList(); });
+  function goBackToList(){ showListView(); loadList(); }
+  $('backBtn').addEventListener('click', goBackToList);
+  $('backBtn2').addEventListener('click', goBackToList);
 
   // auto-slug
   $('fTitle').addEventListener('input', function(){
