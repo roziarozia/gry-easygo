@@ -61,6 +61,8 @@
   .pill{ font-size:10.5px; font-weight:700; padding:2px 8px; border-radius:999px; letter-spacing:.02em; }
   .pill-pub{ background:#e9f7f0; color:var(--green); } .pill-draft{ background:#f3eff8; color:var(--muted); }
   .pill-lvl{ background:#fbeaf3; color:var(--magenta); } .pill-type{ background:#ede7f7; color:var(--lavender); }
+  .pill-ro{ background:#fff4e5; color:#c77d1a; }
+  .gcard.ro{ opacity:.82; }
   .gm span.slug{ font-size:11px; color:var(--muted); }
 
   .grid2{ display:grid; grid-template-columns:1fr 1fr; gap:12px; } @media(max-width:600px){ .grid2{ grid-template-columns:1fr; } }
@@ -120,9 +122,14 @@
         <button class="btn btn-sm" id="newBtn">+ Nowe</button>
       </div>
       <div class="typefilter" id="typeFilter">
-        <button class="typechip active" data-type="all">Wszystkie typy</button>
+        <button class="typechip active" data-type="all">Wszystkie</button>
         <button class="typechip" data-type="gap-fill">gap-fill</button>
         <button class="typechip" data-type="quiz">quiz</button>
+        <button class="typechip" data-type="reading">reading</button>
+        <button class="typechip" data-type="listening">listening</button>
+        <button class="typechip" data-type="speaking">speaking</button>
+        <button class="typechip" data-type="article-gap">article-gap</button>
+        <button class="typechip" data-type="what-is-it">what-is-it</button>
       </div>
       <div class="filterrow">
         <select id="fltStatus">
@@ -162,6 +169,7 @@
             <select id="fTemplate">
               <option value="gap-fill">gap-fill (uzupełnianie luk)</option>
               <option value="quiz">quiz (wybór odpowiedzi)</option>
+              <option value="reading">reading (czytanka)</option>
             </select>
           </div>
           <div class="field"><label>Kategoria</label>
@@ -224,6 +232,26 @@
           <button class="btn btn-ghost btn-sm addbtn" id="addQBtn">+ Dodaj pytanie</button>
         </div>
 
+        <!-- SEKCJA READING -->
+        <div id="readingSection" class="hidden">
+          <div class="section-title">Slajdy czytanki (reading)</div>
+          <div class="hint-i">Każdy slajd to fragment tekstu + słowniczek. Słówka w słowniczku muszą być zapisane <b>dokładnie</b> tak jak w tekście (ta sama forma i wielkość liter), inaczej się nie podświetlą.</div>
+          <div id="slidesList"></div>
+          <button class="btn btn-ghost btn-sm addbtn" id="addSlideBtn">+ Dodaj slajd</button>
+
+          <hr class="sep">
+          <div class="section-title">Audio (głos lektora)</div>
+          <div class="hint-i">Wybierz głos i wygeneruj audio. Dla słyszalnej różnicy mieszaj głosy damskie z męskimi. Generowanie trwa kilkanaście sekund — poczekaj na komunikat. <b>Ważne:</b> jeśli zmienisz tekst slajdu, wygeneruj audio ponownie, żeby pasowało do nowej treści.</div>
+          <div class="grid2">
+            <div class="field"><label>Głos</label><select id="readingVoice"></select></div>
+            <div class="field" style="display:flex; align-items:flex-end;">
+              <button class="btn" id="genAudioBtn" style="width:100%;">Generuj audio</button>
+            </div>
+          </div>
+          <div id="audioMsg"></div>
+          <div class="hint-i" id="audioStatus"></div>
+        </div>
+
         <hr class="sep">
 
         <div style="display:flex; gap:10px; flex-wrap:wrap; align-items:center;">
@@ -276,9 +304,31 @@
   });
 
   // ===== LISTA =====
+  var EDITABLE=['gap-fill','quiz','reading']; // typy, które panel UMIE edytować (reszta tylko do podglądu na liście)
+  var VOICES=[
+    ['en-US-Chirp3-HD-Achernar','Achernar (kobiecy)'],
+    ['en-US-Chirp3-HD-Zephyr','Zephyr (kobiecy)'],
+    ['en-US-Chirp3-HD-Leda','Leda (kobiecy)'],
+    ['en-US-Chirp3-HD-Kore','Kore (kobiecy)'],
+    ['en-US-Chirp3-HD-Laomedeia','Laomedeia (kobiecy)'],
+    ['en-US-Chirp3-HD-Callirrhoe','Callirrhoe (kobiecy)'],
+    ['en-US-Chirp3-HD-Despina','Despina (kobiecy)'],
+    ['en-US-Chirp3-HD-Sulafat','Sulafat (kobiecy)'],
+    ['en-US-Chirp3-HD-Vindemiatrix','Vindemiatrix (kobiecy)'],
+    ['en-US-Chirp3-HD-Pulcherrima','Pulcherrima (kobiecy)'],
+    ['en-US-Chirp3-HD-Charon','Charon (męski)'],
+    ['en-US-Chirp3-HD-Puck','Puck (męski)'],
+    ['en-US-Chirp3-HD-Orus','Orus (męski)'],
+    ['en-US-Chirp3-HD-Gacrux','Gacrux (męski)'],
+    ['en-US-Chirp3-HD-Rasalgethi','Rasalgethi (męski)'],
+    ['en-US-Chirp3-HD-Sadachbia','Sadachbia (męski)'],
+    ['en-US-Chirp3-HD-Umbriel','Umbriel (męski)'],
+    ['en-US-Chirp3-HD-Schedar','Schedar (męski)'],
+    ['en-US-Chirp3-HD-Alnilam','Alnilam (męski)'],
+    ['en-US-Chirp3-HD-Fenrir','Fenrir (męski)']
+  ];
   function loadList(){
     sb.from('games').select('id,slug,title,template,category,level,published,sort_order,created_at')
-      .in('template',['gap-fill','quiz'])
       .order('sort_order',{ascending:false}).order('created_at',{ascending:false})
       .then(function(res){
         if(res.error){ $('glist').innerHTML='<div class="msg msg-err">Nie udało się wczytać: '+esc(res.error.message)+'</div>'; return; }
@@ -302,13 +352,24 @@
     $('glist').innerHTML=items.map(function(g){
       var pub=g.published?'<span class="pill pill-pub">opublikowane</span>':'<span class="pill pill-draft">szkic</span>';
       var lvl=g.level?'<span class="pill pill-lvl">'+esc(g.level)+'</span>':'';
-      var typ='<span class="pill pill-type">'+esc(g.template)+'</span>';
-      return '<div class="gcard'+(curId===g.id?' sel':'')+'" data-id="'+g.id+'">'
+      var editable=EDITABLE.indexOf(g.template)>-1;
+      var typ='<span class="pill pill-type">'+esc(g.template)+'</span>'+(editable?'':'<span class="pill pill-ro">wkrótce edytowalne</span>');
+      return '<div class="gcard'+(curId===g.id?' sel':'')+(editable?'':' ro')+'" data-id="'+g.id+'" data-tpl="'+esc(g.template)+'">'
         +'<div class="gt">'+esc(g.title||'(bez tytułu)')+'</div>'
         +'<div class="gm">'+pub+typ+lvl+'<span class="slug">'+esc(g.slug||'')+'</span></div></div>';
     }).join('');
     $('glist').querySelectorAll('.gcard').forEach(function(c){
-      c.addEventListener('click', function(){ openEdit(c.getAttribute('data-id')); });
+      c.addEventListener('click', function(){
+        var tpl=c.getAttribute('data-tpl');
+        if(EDITABLE.indexOf(tpl)===-1){
+          $('editForm').classList.add('hidden');
+          $('editTitle').innerHTML='Typ „'+esc(tpl)+'” nie jest jeszcze edytowalny w panelu.<br><span class="muted" style="font-weight:400;font-size:13px;">Na razie panel edytuje gap-fill i quiz. Edycja tego typu dojdzie w kolejnym etapie — na razie zarządzaj nim przez dotychczasowy sposób.</span>';
+          curId=c.getAttribute('data-id');
+          renderList();
+          return;
+        }
+        openEdit(c.getAttribute('data-id'));
+      });
     });
   }
   $('listSearch').addEventListener('input', renderList);
@@ -328,6 +389,7 @@
     var t=$('fTemplate').value;
     $('gapSection').classList.toggle('hidden', t!=='gap-fill');
     $('quizSection').classList.toggle('hidden', t!=='quiz');
+    $('readingSection').classList.toggle('hidden', t!=='reading');
   }
   $('fTemplate').addEventListener('change', syncSections);
 
@@ -388,6 +450,67 @@
   }
   $('addQBtn').addEventListener('click', function(){ $('questionsList').appendChild(qRow()); renumber(); });
 
+  // ===== SLAJDY READING =====
+  function glossRow(w, pl){
+    var row=document.createElement('div'); row.className='opt-row';
+    row.innerHTML='<input type="text" class="gl-word" value="'+esc(w||'')+'" placeholder="słówko/fraza (dokładnie jak w tekście)">'
+      +'<input type="text" class="gl-pl" value="'+esc(pl||'')+'" placeholder="tłumaczenie PL">'
+      +'<button class="btn btn-danger btn-sm rm-gl">×</button>';
+    row.querySelector('.rm-gl').addEventListener('click', function(){ row.remove(); });
+    return row;
+  }
+  function slideRow(data){
+    data=data||{};
+    var gloss=[];
+    try{ gloss = Array.isArray(data.glossary)?data.glossary:(data.glossary?JSON.parse(data.glossary):[]); }catch(e){ gloss=[]; }
+    var div=document.createElement('div'); div.className='item';
+    div.innerHTML=''
+      +'<div class="item-head"><span class="item-no">Slajd</span>'
+      +'<span>'+(data.audio_path?'<span class="pill pill-pub">ma audio</span>':'<span class="pill pill-draft">bez audio</span>')+' '
+      +'<button class="btn btn-danger btn-sm rm">Usuń</button></span></div>'
+      +'<div class="field"><label>Tekst slajdu</label><textarea class="s-body" style="min-height:90px;">'+esc(data.body||'')+'</textarea></div>'
+      +'<div class="field"><label>Słowniczek (słówko = tłumaczenie)</label><div class="s-gloss"></div>'
+      +'<button class="btn btn-soft btn-sm add-gl" style="margin-top:4px;">+ Słówko</button></div>';
+    var glossBox=div.querySelector('.s-gloss');
+    if(gloss.length){ gloss.forEach(function(g){ glossBox.appendChild(glossRow(g.word, g.pl)); }); }
+    else { glossBox.appendChild(glossRow()); }
+    div.setAttribute('data-audio', data.audio_path||'');
+    div.querySelector('.rm').addEventListener('click', function(){ div.remove(); renumberSlides(); });
+    div.querySelector('.add-gl').addEventListener('click', function(){ glossBox.appendChild(glossRow()); });
+    return div;
+  }
+  function renumberSlides(){ $('slidesList').querySelectorAll('.item .item-no').forEach(function(el,i){ el.textContent='Slajd '+(i+1); }); }
+  $('addSlideBtn').addEventListener('click', function(){ $('slidesList').appendChild(slideRow()); renumberSlides(); });
+
+  // dropdown głosów
+  (function(){ var sel=$('readingVoice'); VOICES.forEach(function(v){ var o=document.createElement('option'); o.value=v[0]; o.textContent=v[1]; sel.appendChild(o); }); })();
+
+  // generowanie audio
+  $('genAudioBtn').addEventListener('click', function(){
+    if(!curId){ showMsg($('audioMsg'),'Najpierw zapisz czytankę, potem generuj audio.',false); return; }
+    var voice=$('readingVoice').value;
+    $('genAudioBtn').disabled=true;
+    $('audioMsg').innerHTML='<div class="msg" style="background:#fff4e5;color:#c77d1a;">Generuję audio głosem '+esc(voice.replace('en-US-Chirp3-HD-',''))+'… to potrwa kilkanaście sekund, nie zamykaj strony.</div>';
+    sb.functions.invoke('generate-reading-audio', { body:{ game_id:curId, voice:voice } }).then(function(res){
+      $('genAudioBtn').disabled=false;
+      if(res.error){ showMsg($('audioMsg'),'Błąd generowania: '+(res.error.message||res.error),false); return; }
+      showMsg($('audioMsg'),'Audio wygenerowane! Zapisano głos i pliki dla wszystkich slajdów.',true);
+      if(cur) cur.reading_voice=voice;
+      // odśwież slajdy (żeby pokazać "ma audio")
+      if(curId) reloadSlides(curId);
+    }).catch(function(e){
+      $('genAudioBtn').disabled=false;
+      showMsg($('audioMsg'),'Błąd generowania: '+(e&&e.message?e.message:e),false);
+    });
+  });
+  function reloadSlides(gid){
+    sb.from('reading_slides').select('*').eq('game_id',gid).order('position').then(function(r){
+      $('slidesList').innerHTML='';
+      (r.data||[]).forEach(function(row){ $('slidesList').appendChild(slideRow(row)); });
+      renumberSlides();
+    });
+  }
+
   // ===== OKŁADKA =====
   function renderCover(url){
     $('coverSlot').innerHTML=url?'<img class="cover-prev" src="'+esc(url)+'" alt="okładka">':'<div class="cover-prev-ph">Brak okładki</div>';
@@ -419,8 +542,10 @@
     $('fPremium').checked=false; $('fKids').checked=false; $('fPub').checked=false;
     renderCover(''); $('coverSlot').removeAttribute('data-url');
     $('slugPrev').textContent='slug';
-    $('gapsList').innerHTML=''; $('questionsList').innerHTML='';
+    $('gapsList').innerHTML=''; $('questionsList').innerHTML=''; $('slidesList').innerHTML='';
     $('gapsList').appendChild(gapRow()); renumber();
+    $('readingVoice').value='en-US-Chirp3-HD-Achernar';
+    $('audioMsg').innerHTML=''; $('audioStatus').textContent='';
     syncSections();
     $('deleteBtn').style.display='none';
     clearMsg($('saveMsg')); clearMsg($('coverMsg'));
@@ -450,7 +575,8 @@
       $('editForm').classList.remove('hidden');
       $('previewBtn').setAttribute('href','/cwiczenie/'+encodeURIComponent(a.slug||''));
       // wczytaj pozycje
-      $('gapsList').innerHTML=''; $('questionsList').innerHTML='';
+      $('gapsList').innerHTML=''; $('questionsList').innerHTML=''; $('slidesList').innerHTML='';
+      $('audioMsg').innerHTML=''; $('audioStatus').textContent='';
       if(a.template==='gap-fill'){
         sb.from('gaps').select('*').eq('game_id',id).order('position').then(function(r){
           var rows=r.data||[];
@@ -458,12 +584,24 @@
           else rows.forEach(function(row){ $('gapsList').appendChild(gapRow(row)); });
           renumber();
         });
-      } else {
+      } else if(a.template==='quiz'){
         sb.from('questions').select('*').eq('game_id',id).order('position').then(function(r){
           var rows=r.data||[];
           if(!rows.length){ $('questionsList').appendChild(qRow()); }
           else rows.forEach(function(row){ $('questionsList').appendChild(qRow(row)); });
           renumber();
+        });
+      } else if(a.template==='reading'){
+        $('readingVoice').value = a.reading_voice || 'en-US-Chirp3-HD-Achernar';
+        sb.from('reading_slides').select('*').eq('game_id',id).order('position').then(function(r){
+          var rows=r.data||[];
+          if(!rows.length){ $('slidesList').appendChild(slideRow()); }
+          else {
+            rows.forEach(function(row){ $('slidesList').appendChild(slideRow(row)); });
+            var withAudio=rows.filter(function(x){ return x.audio_path; }).length;
+            $('audioStatus').textContent = withAudio+' z '+rows.length+' slajdów ma audio.';
+          }
+          renumberSlides();
         });
       }
       renderList();
@@ -490,8 +628,34 @@
     if(!slug){ showMsg($('saveMsg'),'Podaj slug (adres).',false); return; }
 
     // zbierz pozycje
-    var gapData=[], qData=[], err='';
-    if(template==='gap-fill'){
+    var gapData=[], qData=[], slideData=[], err='';
+    if(template==='reading'){
+      $('slidesList').querySelectorAll('.item').forEach(function(it,i){
+        var body=it.querySelector('.s-body').value.trim();
+        if(!body) return;
+        var gloss=[];
+        it.querySelectorAll('.opt-row').forEach(function(row){
+          var w=row.querySelector('.gl-word').value.trim();
+          var pl=row.querySelector('.gl-pl').value.trim();
+          if(w) gloss.push({ word:w, pl:pl });
+        });
+        slideData.push({ position:slideData.length+1, body:body, glossary:gloss, audio_path:it.getAttribute('data-audio')||null });
+      });
+      if(!slideData.length) err='Dodaj przynajmniej jeden slajd z tekstem.';
+      // walidacja glosariusza: słówko musi być w tekście
+      if(!err){
+        for(var si=0; si<slideData.length; si++){
+          var sl=slideData[si];
+          for(var gi=0; gi<sl.glossary.length; gi++){
+            if(sl.body.indexOf(sl.glossary[gi].word)===-1){
+              err='Slajd '+(si+1)+': słówko „'+sl.glossary[gi].word+'" nie występuje dokładnie w tekście — popraw pisownię/formę.';
+              break;
+            }
+          }
+          if(err) break;
+        }
+      }
+    } else if(template==='gap-fill'){
       $('gapsList').querySelectorAll('.item').forEach(function(it,i){
         var sent=it.querySelector('.g-sent').value.trim();
         var ans=it.querySelector('.g-ans').value.trim();
@@ -536,6 +700,7 @@
       is_premium:$('fPremium').checked, for_kids:$('fKids').checked,
       published:$('fPub').checked, cover_url:coverUrl
     };
+    if(template==='reading') rec.reading_voice=$('readingVoice').value;
     if(rec.published && (!cur||!cur.published_at)) rec.published_at=new Date().toISOString();
 
     $('saveBtn').disabled=true;
@@ -549,19 +714,61 @@
         showMsg($('saveMsg'),'Błąd zapisu: '+m,false); return;
       }
       var gid=res.data.id; curId=gid; cur=res.data;
-      // zapisz pozycje: usuń stare, wstaw nowe
-      var childTable=template==='gap-fill'?'gaps':'questions';
-      sb.from(childTable).delete().eq('game_id',gid).then(function(){
-        var rows=(template==='gap-fill'?gapData:qData).map(function(r){ r.game_id=gid; return r; });
-        if(!rows.length){ finishSave(res.data); return; }
-        sb.from(childTable).insert(rows).then(function(r2){
-          $('saveBtn').disabled=false;
-          if(r2.error){ showMsg($('saveMsg'),'Ćwiczenie zapisane, ale błąd przy pozycjach: '+r2.error.message,false); return; }
-          finishSave(res.data);
-        });
-      });
+      var childTable = template==='gap-fill'?'gaps':(template==='quiz'?'questions':'reading_slides');
+      var childRows = template==='gap-fill'?gapData:(template==='quiz'?qData:slideData);
+      saveChildrenSafely(childTable, gid, childRows, template, res.data);
     });
   });
+  // Bezpieczny zapis pozycji: update istniejących po pozycji (zachowuje audio_path),
+  // insert nowych, delete tylko nadmiarowych. Zero "skasuj wszystko".
+  function saveChildrenSafely(table, gid, rows, template, gameData){
+    sb.from(table).select('*').eq('game_id',gid).order('position').then(function(existRes){
+      if(existRes.error){ $('saveBtn').disabled=false; showMsg($('saveMsg'),'Ćwiczenie zapisane, ale błąd odczytu pozycji: '+existRes.error.message,false); return; }
+      var existing=existRes.data||[];
+      var ops=[], errHit=false;
+
+      function runNext(){
+        if(errHit) return;
+        if(!ops.length){
+          $('saveBtn').disabled=false;
+          if(template==='reading'){ reloadSlides(gid); }
+          finishSave(gameData);
+          return;
+        }
+        var op=ops.shift();
+        op().then(function(r){
+          if(r && r.error){ errHit=true; $('saveBtn').disabled=false; showMsg($('saveMsg'),'Ćwiczenie zapisane, ale błąd przy pozycjach: '+r.error.message+' (nic nie zostało skasowane).',false); return; }
+          runNext();
+        }).catch(function(e){ errHit=true; $('saveBtn').disabled=false; showMsg($('saveMsg'),'Błąd przy pozycjach: '+(e&&e.message?e.message:e),false); });
+      }
+
+      // 1. UPDATE/INSERT dla każdej pozycji z formularza
+      rows.forEach(function(r, idx){
+        var pos=idx+1; r.game_id=gid; r.position=pos;
+        var match=existing.find(function(e){ return e.position===pos; });
+        if(template==='reading'){
+          // zachowaj audio_path: jeśli tekst slajdu TAKI SAM jak w bazie, zostaw stare audio; jeśli inny — audio nieaktualne, ale zostaw (ostrzeżenie w UI) chyba że puste
+          if(match && (!r.audio_path) && match.audio_path && match.body===r.body){ r.audio_path=match.audio_path; }
+        }
+        if(match){
+          var upd={}; Object.keys(r).forEach(function(k){ if(k!=='game_id') upd[k]=r[k]; });
+          ops.push(function(){ return sb.from(table).update(upd).eq('id',match.id); });
+        } else {
+          ops.push(function(){ return sb.from(table).insert(r); });
+        }
+      });
+      // 2. DELETE tylko pozycji nadmiarowych (było więcej niż teraz)
+      existing.forEach(function(e){
+        if(e.position > rows.length){
+          ops.push(function(){ return sb.from(table).delete().eq('id',e.id); });
+        }
+      });
+
+      if(!ops.length){ $('saveBtn').disabled=false; if(template==='reading'){ reloadSlides(gid); } finishSave(gameData); return; }
+      runNext();
+    });
+  }
+
   function finishSave(data){
     $('saveBtn').disabled=false;
     showMsg($('saveMsg'),'Zapisano.',true);
@@ -576,7 +783,7 @@
   $('deleteBtn').addEventListener('click', function(){
     if(!curId) return;
     if(!confirm('Na pewno usunąć to ćwiczenie? Tej operacji nie można cofnąć.')) return;
-    var t=$('fTemplate').value, childTable=t==='gap-fill'?'gaps':'questions';
+    var t=$('fTemplate').value, childTable=t==='gap-fill'?'gaps':(t==='quiz'?'questions':'reading_slides');
     sb.from(childTable).delete().eq('game_id',curId).then(function(){
       sb.from('games').delete().eq('id',curId).then(function(res){
         if(res.error){ showMsg($('saveMsg'),'Błąd usuwania: '+res.error.message,false); return; }
