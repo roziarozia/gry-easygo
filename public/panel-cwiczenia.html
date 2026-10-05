@@ -1026,10 +1026,14 @@
       var sp=(it.querySelector('.ln-speaker').value||'').trim();
       if(sp && seen.indexOf(sp.toLowerCase())===-1){ seen.push(sp.toLowerCase()); order.push(sp); }
     });
+    // UWAGA: Edge Function przypisuje głosy ODWROTNIE do kolejności mówienia —
+    // Głos A trafia do DRUGIEJ osoby, Głos B do PIERWSZEJ (sprawdzone na żywo).
+    // Dlatego etykiety odwracamy parami: A↔B, C↔D.
+    var mapped=[ order[1], order[0], order[3], order[2] ];
     var labels=['vALabel','vBLabel','vCLabel','vDLabel'];
     labels.forEach(function(lid, i){
       var el=$(lid); if(!el) return;
-      if(order[i]) el.textContent='→ '+order[i];
+      if(mapped[i]) el.textContent='→ '+mapped[i];
       else el.textContent='('+(i+1)+'. postać)';
     });
   }
