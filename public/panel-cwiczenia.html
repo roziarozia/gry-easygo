@@ -354,7 +354,11 @@
             <div class="field"><label>Głos C <span id="vCLabel" style="color:var(--magenta);">(3. postać)</span></label><select id="voiceC"></select></div>
             <div class="field"><label>Głos D <span id="vDLabel" style="color:var(--magenta);">(4. postać)</span></label><select id="voiceD"></select></div>
           </div>
-          <button class="btn" id="genListenBtn" style="width:100%; margin-top:6px;">Generuj audio dialogu</button>
+          <div style="display:flex; gap:8px; flex-wrap:wrap;">
+            <button class="btn" id="genListenBtn" style="flex:1; min-width:180px;">Generuj audio dialogu</button>
+            <button class="btn btn-soft" id="playListenBtn" style="flex:1; min-width:140px;">Odsłuchaj nagranie</button>
+          </div>
+          <audio id="listenPlayer" controls style="width:100%; margin-top:10px; display:none;"></audio>
           <div id="listenAudioMsg"></div>
 
           <hr class="sep">
@@ -385,6 +389,11 @@
               <button class="btn" id="genAudioBtn" style="width:100%;">Generuj audio</button>
             </div>
           </div>
+          <div style="display:flex; gap:8px; align-items:flex-end; flex-wrap:wrap; margin-top:4px;">
+            <div class="field" style="flex:1; min-width:140px; margin:0;"><label>Odsłuchaj slajd</label><select id="rdPlaySlide"></select></div>
+            <button class="btn btn-soft" id="playReadBtn">Odsłuchaj</button>
+          </div>
+          <audio id="readPlayer" controls style="width:100%; margin-top:10px; display:none;"></audio>
           <div id="audioMsg"></div>
           <div class="hint-i" id="audioStatus"></div>
         </div>
@@ -862,8 +871,31 @@
       $('slidesList').innerHTML='';
       (r.data||[]).forEach(function(row){ $('slidesList').appendChild(slideRow(row)); });
       renumberSlides();
+      fillReadSlideList(r.data||[]);
     });
   }
+  // lista slajdów do odsłuchu
+  function fillReadSlideList(rows){
+    var sel=$('rdPlaySlide'); sel.innerHTML='';
+    (rows||[]).forEach(function(row){
+      var o=document.createElement('option'); o.value=row.position;
+      o.textContent='Slajd '+row.position+(row.audio_path?'':' (bez audio)');
+      sel.appendChild(o);
+    });
+  }
+  // odsłuchanie slajdu czytanki
+  $('playReadBtn').addEventListener('click', function(){
+    if(!curId){ showMsg($('audioMsg'),'Najpierw zapisz i wygeneruj audio.',false); return; }
+    var pos=parseInt($('rdPlaySlide').value,10)||1;
+    $('playReadBtn').disabled=true;
+    $('audioMsg').innerHTML='<div class="msg" style="background:#fff4e5;color:#c77d1a;">Pobieram nagranie…</div>';
+    sb.functions.invoke('reading-audio', { body:{ game_id:curId, position:pos } }).then(function(res){
+      $('playReadBtn').disabled=false;
+      var url = res.data && (res.data.url || res.data.signedUrl);
+      if(res.error || !url){ showMsg($('audioMsg'),'Ten slajd nie ma jeszcze audio. Wygeneruj najpierw.',false); $('readPlayer').style.display='none'; return; }
+      var p=$('readPlayer'); p.src=url; p.style.display='block'; clearMsg($('audioMsg')); p.play().catch(function(){});
+    }).catch(function(e){ $('playReadBtn').disabled=false; showMsg($('audioMsg'),'Błąd: '+(e&&e.message?e.message:e),false); });
+  });
 
   // ===== SPEAKING =====
   function imgUploader(div, cls, label, folder){
@@ -1021,9 +1053,24 @@
     sb.functions.invoke('generate-listening-audio', { body:{ game_id:curId } }).then(function(res){
       $('genListenBtn').disabled=false;
       if(res.error){ showMsg($('listenAudioMsg'),'Błąd generowania: '+(res.error.message||res.error),false); return; }
-      showMsg($('listenAudioMsg'),'Audio dialogu wygenerowane!',true);
+      showMsg($('listenAudioMsg'),'Audio wygenerowane! Kliknij „Odsłuchaj nagranie", żeby sprawdzić głosy.',true);
+      loadListenAudio();
     }).catch(function(e){ $('genListenBtn').disabled=false; showMsg($('listenAudioMsg'),'Błąd: '+(e&&e.message?e.message:e),false); });
   });
+  // odsłuchanie gotowego nagrania
+  function loadListenAudio(){
+    if(!curId) return;
+    $('playListenBtn').disabled=true;
+    $('listenAudioMsg').innerHTML='<div class="msg" style="background:#fff4e5;color:#c77d1a;">Pobieram nagranie…</div>';
+    sb.functions.invoke('listening-audio', { body:{ game_id:curId } }).then(function(res){
+      $('playListenBtn').disabled=false;
+      var url = res.data && (res.data.url || res.data.signedUrl);
+      if(res.error || !url){ showMsg($('listenAudioMsg'),'Nie znalazłem nagrania. Najpierw wygeneruj audio.',false); $('listenPlayer').style.display='none'; return; }
+      var p=$('listenPlayer'); p.src=url; p.style.display='block'; clearMsg($('listenAudioMsg'));
+      p.play().catch(function(){}); // autoodtwarzanie jeśli przeglądarka pozwoli
+    }).catch(function(e){ $('playListenBtn').disabled=false; showMsg($('listenAudioMsg'),'Błąd: '+(e&&e.message?e.message:e),false); });
+  }
+  $('playListenBtn').addEventListener('click', loadListenAudio);
 
   function renumberGeneric(listId, label){
     $(listId).querySelectorAll('.item .item-no').forEach(function(el,i){ el.textContent=label+' '+(i+1); });
@@ -1126,6 +1173,8 @@
             $('audioStatus').textContent = withAudio+' z '+rows.length+' slajdów ma audio.';
           }
           renumberSlides();
+          fillReadSlideList(rows);
+          $('readPlayer').style.display='none';
         });
       } else if(a.template==='speaking'){
         sb.from('speaking_prompts').select('*').eq('game_id',id).order('position').then(function(r){
