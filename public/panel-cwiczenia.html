@@ -350,7 +350,12 @@
         <!-- SEKCJA READING -->
         <div id="readingSection" class="hidden">
           <div class="section-title">Slajdy czytanki (reading)</div>
-          <div class="hint-i">Każdy slajd to fragment tekstu + słowniczek. Słówka w słowniczku muszą być zapisane <b>dokładnie</b> tak jak w tekście (ta sama forma i wielkość liter), inaczej się nie podświetlą.</div>
+          <div class="hint-i">Każdy slajd to fragment tekstu + słowniczek. Słówka w słowniczku muszą być zapisane <b>dokładnie</b> tak jak w tekście (ta sama forma i wielkość liter), inaczej się nie podświetlą. Obrazek możesz dodać osobny do każdego slajdu, albo jeden wspólny (przycisk niżej).</div>
+          <div style="background:var(--soft); border-radius:10px; padding:10px 13px; margin-bottom:12px; display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
+            <input type="file" id="sameImgFile" accept="image/*" style="flex:1; min-width:160px;">
+            <button class="btn btn-soft btn-sm" id="sameImgBtn">Wgraj jeden obrazek do wszystkich slajdów</button>
+            <span id="sameImgMsg" style="font-size:12px;"></span>
+          </div>
           <div id="slidesList"></div>
           <button class="btn btn-ghost btn-sm addbtn" id="addSlideBtn">+ Dodaj slajd</button>
 
@@ -747,17 +752,63 @@
       +'<button class="btn btn-danger btn-sm rm">Usuń</button></span></div>'
       +'<div class="field"><label>Tekst slajdu</label><textarea class="s-body" style="min-height:220px; line-height:1.6; font-size:14.5px;">'+esc(data.body||'')+'</textarea></div>'
       +'<div class="field"><label>Słowniczek (słówko = tłumaczenie)</label><div class="s-gloss"></div>'
-      +'<button class="btn btn-soft btn-sm add-gl" style="margin-top:4px;">+ Słówko</button></div>';
+      +'<button class="btn btn-soft btn-sm add-gl" style="margin-top:4px;">+ Słówko</button></div>'
+      +'<div class="field"><label>Obrazek slajdu (opcjonalnie)</label><div class="simg-slot"></div>'
+      +'<input type="file" class="simg-file" accept="image/*" style="margin-top:6px;">'
+      +'<button class="btn btn-soft btn-sm simg-up" style="margin-top:4px;">Wgraj</button>'
+      +'<button class="btn btn-ghost btn-sm simg-clear" style="margin-top:4px; margin-left:4px;">Usuń obrazek</button>'
+      +'<span class="simg-msg" style="margin-left:8px;font-size:12px;"></span></div>';
     var glossBox=div.querySelector('.s-gloss');
     if(gloss.length){ gloss.forEach(function(g){ glossBox.appendChild(glossRow(g.word, g.pl)); }); }
     else { glossBox.appendChild(glossRow()); }
     div.setAttribute('data-audio', data.audio_path||'');
+    div.setAttribute('data-img', data.image_url||'');
     div.querySelector('.rm').addEventListener('click', function(){ div.remove(); renumberSlides(); });
     div.querySelector('.add-gl').addEventListener('click', function(){ glossBox.appendChild(glossRow()); });
+    // obrazek slajdu
+    var imgSlot=div.querySelector('.simg-slot');
+    function renderSImg(url){ imgSlot.innerHTML = url?'<img src="'+esc(url)+'" style="max-width:160px;border-radius:8px;border:1px solid var(--line);">':'<div class="cover-prev-ph" style="max-width:160px;">Brak</div>'; }
+    renderSImg(data.image_url||'');
+    div.querySelector('.simg-up').addEventListener('click', function(){
+      var f=div.querySelector('.simg-file').files[0];
+      if(!f){ div.querySelector('.simg-msg').textContent='Wybierz plik.'; return; }
+      var path='reading/'+(slugify($('fSlug').value)||'rd')+'-'+Date.now()+'.'+((f.name.split('.').pop()||'jpg').toLowerCase());
+      div.querySelector('.simg-msg').textContent='Wgrywam…';
+      sb.storage.from(BUCKET).upload(path,f,{upsert:true,contentType:f.type}).then(function(res){
+        if(res.error){ div.querySelector('.simg-msg').textContent='Błąd: '+res.error.message; return; }
+        var url=sb.storage.from(BUCKET).getPublicUrl(path).data.publicUrl;
+        div.setAttribute('data-img',url); renderSImg(url);
+        div.querySelector('.simg-msg').textContent='Wgrano. Zapisz ćwiczenie.';
+      });
+    });
+    div.querySelector('.simg-clear').addEventListener('click', function(){
+      div.setAttribute('data-img',''); renderSImg(''); div.querySelector('.simg-msg').textContent='Usunięto. Zapisz ćwiczenie.';
+    });
     return div;
   }
   function renumberSlides(){ $('slidesList').querySelectorAll('.item .item-no').forEach(function(el,i){ el.textContent='Slajd '+(i+1); }); }
   $('addSlideBtn').addEventListener('click', function(){ $('slidesList').appendChild(slideRow()); renumberSlides(); });
+
+  // jeden obrazek do wszystkich slajdów
+  $('sameImgBtn').addEventListener('click', function(){
+    var f=$('sameImgFile').files[0];
+    if(!f){ $('sameImgMsg').textContent='Wybierz plik.'; return; }
+    $('sameImgBtn').disabled=true; $('sameImgMsg').textContent='Wgrywam…';
+    var path='reading/'+(slugify($('fSlug').value)||'rd')+'-all-'+Date.now()+'.'+((f.name.split('.').pop()||'jpg').toLowerCase());
+    sb.storage.from(BUCKET).upload(path,f,{upsert:true,contentType:f.type}).then(function(res){
+      $('sameImgBtn').disabled=false;
+      if(res.error){ $('sameImgMsg').textContent='Błąd: '+res.error.message; return; }
+      var url=sb.storage.from(BUCKET).getPublicUrl(path).data.publicUrl;
+      var n=0;
+      $('slidesList').querySelectorAll('.item').forEach(function(it){
+        it.setAttribute('data-img',url);
+        var slot=it.querySelector('.simg-slot');
+        if(slot) slot.innerHTML='<img src="'+esc(url)+'" style="max-width:160px;border-radius:8px;border:1px solid var(--line);">';
+        n++;
+      });
+      $('sameImgMsg').textContent='Ustawiono na '+n+' slajdach. Zapisz ćwiczenie.';
+    });
+  });
 
   // dropdown głosów
   (function(){ var sel=$('readingVoice'); VOICES.forEach(function(v){ var o=document.createElement('option'); o.value=v[0]; o.textContent=v[1]; sel.appendChild(o); }); })();
@@ -789,12 +840,47 @@
   }
 
   // ===== SPEAKING =====
+  function imgUploader(div, cls, label, folder){
+    // zwraca HTML dla jednego uploadera obrazka (image_a/image_b)
+    return '<div class="field"><label>'+label+'</label><div class="'+cls+'-slot"></div>'
+      +'<input type="file" class="'+cls+'-file" accept="image/*" style="margin-top:6px;">'
+      +'<button class="btn btn-soft btn-sm '+cls+'-up" style="margin-top:4px;">Wgraj</button>'
+      +'<button class="btn btn-ghost btn-sm '+cls+'-clear" style="margin-top:4px; margin-left:4px;">Usuń obrazek</button>'
+      +'<span class="'+cls+'-msg" style="margin-left:8px;font-size:12px;"></span></div>';
+  }
+  function wireImgUploader(div, cls){
+    var slot=div.querySelector('.'+cls+'-slot');
+    function render(url){
+      slot.innerHTML = url?'<img src="'+esc(url)+'" style="max-width:120px;border-radius:8px;border:1px solid var(--line);">':'<div class="cover-prev-ph" style="max-width:120px;">Brak</div>';
+    }
+    render(div.getAttribute('data-'+cls)||'');
+    div.querySelector('.'+cls+'-up').addEventListener('click', function(){
+      var f=div.querySelector('.'+cls+'-file').files[0];
+      if(!f){ div.querySelector('.'+cls+'-msg').textContent='Wybierz plik.'; return; }
+      var path='speaking/'+(slugify($('fSlug').value)||'sp')+'-'+Date.now()+'.'+((f.name.split('.').pop()||'jpg').toLowerCase());
+      div.querySelector('.'+cls+'-msg').textContent='Wgrywam…';
+      sb.storage.from(BUCKET).upload(path,f,{upsert:true,contentType:f.type}).then(function(res){
+        if(res.error){ div.querySelector('.'+cls+'-msg').textContent='Błąd: '+res.error.message; return; }
+        var url=sb.storage.from(BUCKET).getPublicUrl(path).data.publicUrl;
+        div.setAttribute('data-'+cls,url); render(url);
+        div.querySelector('.'+cls+'-msg').textContent='Wgrano. Zapisz ćwiczenie.';
+      });
+    });
+    div.querySelector('.'+cls+'-clear').addEventListener('click', function(){
+      div.setAttribute('data-'+cls,''); render(''); div.querySelector('.'+cls+'-msg').textContent='Usunięto. Zapisz ćwiczenie.';
+    });
+  }
   function promptRow(data){
     data=data||{};
     var div=document.createElement('div'); div.className='item';
     div.innerHTML='<div class="item-head"><span class="item-no">Pytanie</span><button class="btn btn-danger btn-sm rm">Usuń</button></div>'
-      +'<div class="field"><label>Pytanie (po angielsku)</label><textarea class="sp-text" style="min-height:70px;">'+esc(data.text||'')+'</textarea></div>';
+      +'<div class="field"><label>Pytanie (po angielsku)</label><textarea class="sp-text" style="min-height:70px;">'+esc(data.text||'')+'</textarea></div>'
+      +'<div class="hint-i">Obrazki opcjonalne. Jeden obrazek do zwykłego pytania; dwa (A i B) do pytań z wyborem, np. „Pizza or ice cream?".</div>'
+      +'<div class="grid2">'+imgUploader(div,'imga','Obrazek A')+imgUploader(div,'imgb','Obrazek B (opc.)')+'</div>';
+    div.setAttribute('data-imga', data.image_a||'');
+    div.setAttribute('data-imgb', data.image_b||'');
     div.querySelector('.rm').addEventListener('click', function(){ div.remove(); renumberGeneric('promptsList','Pytanie'); });
+    wireImgUploader(div,'imga'); wireImgUploader(div,'imgb');
     return div;
   }
   $('addPromptBtn').addEventListener('click', function(){ $('promptsList').appendChild(promptRow()); renumberGeneric('promptsList','Pytanie'); });
@@ -1070,7 +1156,8 @@
     if(template==='speaking'){
       $('promptsList').querySelectorAll('.item').forEach(function(it){
         var t=it.querySelector('.sp-text').value.trim();
-        if(t) promptData.push({ position:promptData.length+1, text:t });
+        if(t) promptData.push({ position:promptData.length+1, text:t,
+          image_a:it.getAttribute('data-imga')||null, image_b:it.getAttribute('data-imgb')||null });
       });
       if(!promptData.length) err='Dodaj przynajmniej jedno pytanie.';
     } else if(template==='what-is-it'){
@@ -1115,7 +1202,7 @@
           var pl=row.querySelector('.gl-pl').value.trim();
           if(w) gloss.push({ word:w, pl:pl });
         });
-        slideData.push({ position:slideData.length+1, body:body, glossary:gloss, audio_path:it.getAttribute('data-audio')||null });
+        slideData.push({ position:slideData.length+1, body:body, glossary:gloss, audio_path:it.getAttribute('data-audio')||null, image_url:it.getAttribute('data-img')||null });
       });
       if(!slideData.length) err='Dodaj przynajmniej jeden slajd z tekstem.';
       // walidacja glosariusza: słówko musi być w tekście
