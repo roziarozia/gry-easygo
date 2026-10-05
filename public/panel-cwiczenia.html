@@ -306,7 +306,12 @@
         <!-- SEKCJA SPEAKING -->
         <div id="speakingSection" class="hidden">
           <div class="section-title">Pytania do rozmowy (speaking)</div>
-          <div class="hint-i">Każde pytanie to osobny slajd. Pytania otwierające rozmowę, po angielsku. Pierwszy slajd może mieć dwa pytania (rozdzielone nową linią).</div>
+          <div class="hint-i">Każde pytanie to osobny slajd. Pytania otwierające rozmowę, po angielsku. Pierwszy slajd może mieć dwa pytania (rozdzielone nową linią). Obrazek możesz dodać osobny do każdego pytania, albo jeden wspólny (przycisk niżej).</div>
+          <div style="background:var(--soft); border-radius:10px; padding:10px 13px; margin-bottom:12px; display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
+            <input type="file" id="spSameImgFile" accept="image/*" style="flex:1; min-width:160px;">
+            <button class="btn btn-soft btn-sm" id="spSameImgBtn">Wgraj jeden obrazek do wszystkich pytań</button>
+            <span id="spSameImgMsg" style="font-size:12px;"></span>
+          </div>
           <div id="promptsList"></div>
           <button class="btn btn-ghost btn-sm addbtn" id="addPromptBtn">+ Dodaj pytanie</button>
         </div>
@@ -884,6 +889,27 @@
     return div;
   }
   $('addPromptBtn').addEventListener('click', function(){ $('promptsList').appendChild(promptRow()); renumberGeneric('promptsList','Pytanie'); });
+
+  // jeden obrazek do wszystkich pytań (jako Obrazek A)
+  $('spSameImgBtn').addEventListener('click', function(){
+    var f=$('spSameImgFile').files[0];
+    if(!f){ $('spSameImgMsg').textContent='Wybierz plik.'; return; }
+    $('spSameImgBtn').disabled=true; $('spSameImgMsg').textContent='Wgrywam…';
+    var path='speaking/'+(slugify($('fSlug').value)||'sp')+'-all-'+Date.now()+'.'+((f.name.split('.').pop()||'jpg').toLowerCase());
+    sb.storage.from(BUCKET).upload(path,f,{upsert:true,contentType:f.type}).then(function(res){
+      $('spSameImgBtn').disabled=false;
+      if(res.error){ $('spSameImgMsg').textContent='Błąd: '+res.error.message; return; }
+      var url=sb.storage.from(BUCKET).getPublicUrl(path).data.publicUrl;
+      var n=0;
+      $('promptsList').querySelectorAll('.item').forEach(function(it){
+        it.setAttribute('data-imga',url);
+        var slot=it.querySelector('.imga-slot');
+        if(slot) slot.innerHTML='<img src="'+esc(url)+'" style="max-width:120px;border-radius:8px;border:1px solid var(--line);">';
+        n++;
+      });
+      $('spSameImgMsg').textContent='Ustawiono na '+n+' pytaniach. Zapisz ćwiczenie.';
+    });
+  });
 
   // ===== WHAT-IS-IT =====
   function wisRow(data){
