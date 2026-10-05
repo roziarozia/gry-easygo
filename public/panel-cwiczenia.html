@@ -1026,11 +1026,14 @@
       var sp=(it.querySelector('.ln-speaker').value||'').trim();
       if(sp && seen.indexOf(sp.toLowerCase())===-1){ seen.push(sp.toLowerCase()); order.push(sp); }
     });
-    // Głos A = pierwsza osoba, która się odzywa (Dan), Głos B = druga (Shelly).
+    // POTWIERDZONE TESTEM NA ŻYWO (Rózia, 2026-10-05): generate-listening-audio
+    // przypisuje głosy ODWROTNIE do kolejności mówienia — głos z pola A trafia do
+    // DRUGIEJ osoby, głos z pola B do PIERWSZEJ. Dlatego etykiety odwracamy parami.
+    var mapped=[ order[1], order[0], order[3], order[2] ];
     var labels=['vALabel','vBLabel','vCLabel','vDLabel'];
     labels.forEach(function(lid, i){
       var el=$(lid); if(!el) return;
-      if(order[i]) el.textContent='→ '+order[i];
+      if(mapped[i]) el.textContent='→ '+mapped[i];
       else el.textContent='('+(i+1)+'. postać)';
     });
   }
