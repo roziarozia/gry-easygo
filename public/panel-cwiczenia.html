@@ -233,6 +233,36 @@
           <div class="field"><label>Seria (opcjonalnie)</label><input type="text" id="fSeries" placeholder="np. present simple"></div>
           <div class="field"><label>Nr w serii (exercise_no)</label><input type="number" id="fExNo" value="1"></div>
         </div>
+        <div class="grid2">
+          <div class="field"><label>Kolor tła kafelka</label>
+            <select id="fBg">
+              <option value="">— domyślny —</option>
+              <optgroup label="Jednolite">
+                <option value="mint">mint (miętowy)</option>
+                <option value="lavender">lavender (lawendowy)</option>
+                <option value="sky">sky (błękitny)</option>
+                <option value="peach">peach (brzoskwiniowy)</option>
+                <option value="coral">coral (koralowy)</option>
+                <option value="butter">butter (maślany)</option>
+                <option value="periwinkle">periwinkle (barwinkowy)</option>
+                <option value="sage">sage (szałwiowy)</option>
+                <option value="blush">blush (różany jasny)</option>
+                <option value="rose">rose (różany)</option>
+              </optgroup>
+              <optgroup label="W kropki (spots)">
+                <option value="spots-sky">spots-sky</option>
+                <option value="spots-pastel">spots-pastel</option>
+                <option value="spots-lemon">spots-lemon</option>
+                <option value="spots-rainbow">spots-rainbow</option>
+                <option value="spots-multi">spots-multi</option>
+                <option value="spots-mint">spots-mint</option>
+                <option value="spots-peach">spots-peach</option>
+                <option value="spots-gray">spots-gray</option>
+              </optgroup>
+            </select>
+          </div>
+          <div class="field"><label>Etykieta liczby (np. „10 pytań”, „5 slajdów”)</label><input type="text" id="fSlideLabel" placeholder="10 pytań"></div>
+        </div>
         <div class="field"><label>Instrukcja <span class="hint-i">format: English||Polski (angielski przed ||)</span></label><input type="text" id="fInstruction" placeholder="Type the missing word.||Wpisz brakujące słowo."></div>
         <div class="field"><label>Opis (krótki, pod tytułem)</label><textarea id="fDesc"></textarea></div>
 
@@ -874,6 +904,7 @@
     $('editTitle').textContent='Nowe ćwiczenie';
     $('fTitle').value=''; $('fSlug').value=''; $('fTemplate').value='gap-fill'; $('fCat').value='gramatyka'; $('fLevel').value='';
     $('fSeries').value=''; $('fExNo').value='1'; $('fInstruction').value=''; $('fDesc').value='';
+    $('fBg').value=''; $('fSlideLabel').value='';
     $('fKeywords').value=''; $('fSort').value='0';
     $('fPremium').checked=false; $('fKids').checked=false; $('fPub').checked=false;
     renderCover(''); $('coverSlot').removeAttribute('data-url');
@@ -902,6 +933,7 @@
       $('fTitle').value=a.title||''; $('fSlug').value=a.slug||''; $('fTemplate').value=a.template||'gap-fill';
       $('fCat').value=a.category||'gramatyka'; $('fLevel').value=a.level||'';
       $('fSeries').value=a.series||''; $('fExNo').value=(a.exercise_no!=null?a.exercise_no:1);
+      $('fBg').value=a.bg||''; $('fSlideLabel').value=a.slide_count_label||'';
       $('fInstruction').value=a.instruction||''; $('fDesc').value=a.description||'';
       $('fKeywords').value=a.keywords||''; $('fSort').value=a.sort_order||0;
       $('fPremium').checked=!!a.is_premium; $('fKids').checked=!!a.for_kids; $('fPub').checked=!!a.published;
@@ -1099,6 +1131,8 @@
       category:$('fCat').value, level:$('fLevel').value||null,
       series:$('fSeries').value.trim()||null,
       exercise_no:parseInt($('fExNo').value,10)||null,
+      bg:$('fBg').value||null,
+      slide_count_label:$('fSlideLabel').value.trim()||null,
       instruction:$('fInstruction').value.trim()||null,
       keywords:$('fKeywords').value.trim(),
       sort_order:parseInt($('fSort').value,10)||0,
