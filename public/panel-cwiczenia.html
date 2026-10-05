@@ -38,6 +38,19 @@
   .msg-err{ background:#fdeaee; color:var(--red); } .msg-ok{ background:#e9f7f0; color:var(--green); }
 
   .layout{ display:block; }
+  .maintabs{ display:flex; gap:6px; margin-bottom:18px; border-bottom:2px solid var(--line); }
+  .maintab{ background:none; border:none; padding:10px 18px; font-family:'Quicksand',sans-serif; font-weight:700; font-size:15px; color:var(--muted); cursor:pointer; border-bottom:3px solid transparent; margin-bottom:-2px; }
+  .maintab:hover{ color:var(--ink); }
+  .maintab.active{ color:var(--magenta); border-bottom-color:var(--magenta); }
+  .fnd-group-title{ font-family:'Quicksand',sans-serif; font-weight:700; font-size:14px; color:var(--muted); margin:16px 0 8px; }
+  .fnd-row{ display:flex; align-items:center; gap:12px; padding:11px 13px; border:1px solid var(--line); border-radius:10px; margin-bottom:8px; flex-wrap:wrap; }
+  .fnd-row .fnd-email{ font-weight:700; font-size:14px; flex:1; min-width:180px; }
+  .fnd-meta{ display:flex; gap:6px; flex-wrap:wrap; align-items:center; }
+  .fnd-badge{ font-size:11px; font-weight:700; padding:3px 9px; border-radius:999px; }
+  .fnd-active{ background:#e9f7f0; color:var(--green); }
+  .fnd-invited{ background:#fff4e5; color:#c77d1a; }
+  .fnd-gone{ background:#f3eff8; color:var(--muted); }
+  .fnd-info{ font-size:12.5px; color:var(--muted); }
   .backbar{ display:flex; align-items:center; gap:12px; margin-bottom:16px; }
   .backbar .btn-back{ background:var(--soft); color:var(--ink); border:none; border-radius:10px; padding:9px 16px; font-family:'Quicksand',sans-serif; font-weight:700; font-size:14px; cursor:pointer; display:inline-flex; align-items:center; gap:6px; }
   .backbar .btn-back:hover{ background:#e8e1f2; }
@@ -123,6 +136,14 @@
 
   <!-- APLIKACJA -->
   <div class="layout hidden" id="app">
+    <!-- ZAKŁADKI -->
+    <div class="maintabs" id="mainTabs">
+      <button class="maintab active" data-tab="exercises">Ćwiczenia</button>
+      <button class="maintab" data-tab="founders">Dostępy founderów</button>
+    </div>
+
+    <!-- WIDOK ĆWICZEŃ -->
+    <div id="exercisesTab">
     <!-- LISTA -->
     <div class="panel" id="listView">
       <h3>Ćwiczenia</h3>
@@ -326,6 +347,36 @@
         <div id="saveMsg"></div>
       </div>
     </div>
+    </div><!-- /exercisesTab -->
+
+    <!-- WIDOK FOUNDERÓW -->
+    <div id="foundersTab" class="hidden">
+      <div class="panel">
+        <h3>Przydziel dostęp founderowi</h3>
+        <div class="hint-i">Przydzielasz darmowy dostęp na określoną liczbę miesięcy i miejsc (uczniów). Lektor dostaje miejsca dla swoich uczniów; uczeń indywidualny — dostęp dla siebie.</div>
+        <div class="grid2">
+          <div class="field"><label>E-mail</label><input type="email" id="fndEmail" placeholder="osoba@example.com"></div>
+          <div class="field"><label>Rodzaj</label>
+            <select id="fndKind"><option value="lektor">lektor</option><option value="uczen">uczeń indywidualny</option></select>
+          </div>
+        </div>
+        <div class="grid2">
+          <div class="field"><label>Na ile miesięcy</label><input type="number" id="fndMonths" value="2" min="1"></div>
+          <div class="field"><label>Ile miejsc (uczniów)</label><input type="number" id="fndSeats" value="6" min="1"></div>
+        </div>
+        <button class="btn" id="grantBtn">Przydziel dostęp</button>
+        <div id="grantMsg"></div>
+      </div>
+
+      <div class="panel" style="margin-top:20px;">
+        <div style="display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap;">
+          <h3 style="margin:0;">Dostępy founderów</h3>
+          <button class="btn btn-soft btn-sm" id="refreshFndBtn">Odśwież</button>
+        </div>
+        <div class="hint-i">Aktywni, zaproszeni (jeszcze się nie zarejestrowali) oraz historia (wygasłe i cofnięte). Cofnięcie wysyła e-mail do osoby.</div>
+        <div id="foundersList" style="margin-top:12px;"></div>
+      </div>
+    </div>
   </div>
 </div>
 
@@ -349,6 +400,89 @@
   // ===== PRZEŁĄCZANIE WIDOKÓW =====
   function showListView(){ $('editView').classList.add('hidden'); $('listView').classList.remove('hidden'); window.scrollTo({top:0,behavior:'smooth'}); }
   function showEditView(){ $('listView').classList.add('hidden'); $('editView').classList.remove('hidden'); window.scrollTo({top:0,behavior:'smooth'}); }
+
+  // ===== ZAKŁADKI GŁÓWNE =====
+  $('mainTabs').querySelectorAll('.maintab').forEach(function(b){
+    b.addEventListener('click', function(){
+      $('mainTabs').querySelectorAll('.maintab').forEach(function(x){ x.classList.remove('active'); });
+      b.classList.add('active');
+      var tab=b.getAttribute('data-tab');
+      $('exercisesTab').classList.toggle('hidden', tab!=='exercises');
+      $('foundersTab').classList.toggle('hidden', tab!=='founders');
+      if(tab==='founders') loadFounders();
+    });
+  });
+
+  // ===== FOUNDERZY =====
+  function loadFounders(){
+    $('foundersList').innerHTML='<div class="muted" style="padding:10px;">Ładuję…</div>';
+    sb.rpc('list_founders').then(function(res){
+      if(res.error){ $('foundersList').innerHTML='<div class="msg msg-err">Błąd: '+esc(res.error.message)+'</div>'; return; }
+      var rows=res.data||[];
+      if(!rows.length){ $('foundersList').innerHTML='<div class="muted" style="padding:10px;">Brak dostępów founderów.</div>'; return; }
+      var groups={aktywny:[], zaproszony:[], historia:[]};
+      rows.forEach(function(r){
+        if(r.status==='aktywny') groups.aktywny.push(r);
+        else if(r.status==='zaproszony') groups.zaproszony.push(r);
+        else groups.historia.push(r);
+      });
+      var html='';
+      function fmtDate(d){ if(!d) return '—'; var dt=new Date(d); return dt.toLocaleDateString('pl-PL',{day:'2-digit',month:'2-digit',year:'numeric'}); }
+      function row(r, kind){
+        var badge, info;
+        if(kind==='aktywny'){
+          badge='<span class="fnd-badge fnd-active">aktywny</span>';
+          info='<span class="fnd-info">'+esc(r.rodzaj)+' · '+r.seats+' miejsc · wygasa '+fmtDate(r.comp_expires_at)+' (za '+r.wygasa_za_dni+' dni)</span>';
+        } else if(kind==='zaproszony'){
+          badge='<span class="fnd-badge fnd-invited">zaproszony</span>';
+          info='<span class="fnd-info">'+esc(r.rodzaj)+' · '+r.seats+' miejsc · zaproszenie wygasa '+fmtDate(r.comp_expires_at)+'</span>';
+        } else {
+          badge='<span class="fnd-badge fnd-gone">'+esc(r.status)+'</span>';
+          info='<span class="fnd-info">'+esc(r.rodzaj)+' · '+(r.seats||0)+' miejsc · '+fmtDate(r.comp_expires_at)+'</span>';
+        }
+        var revokeBtn = (kind!=='historia')
+          ? '<button class="btn btn-danger btn-sm fnd-revoke" data-email="'+esc(r.email)+'">Cofnij dostęp</button>' : '';
+        return '<div class="fnd-row"><span class="fnd-email">'+esc(r.email)+'</span>'
+          +'<div class="fnd-meta">'+badge+info+'</div>'+revokeBtn+'</div>';
+      }
+      if(groups.aktywny.length){ html+='<div class="fnd-group-title">Aktywne ('+groups.aktywny.length+')</div>'; groups.aktywny.forEach(function(r){ html+=row(r,'aktywny'); }); }
+      if(groups.zaproszony.length){ html+='<div class="fnd-group-title">Zaproszeni — jeszcze się nie zarejestrowali ('+groups.zaproszony.length+')</div>'; groups.zaproszony.forEach(function(r){ html+=row(r,'zaproszony'); }); }
+      if(groups.historia.length){ html+='<div class="fnd-group-title">Historia — wygasłe i cofnięte ('+groups.historia.length+')</div>'; groups.historia.forEach(function(r){ html+=row(r,'historia'); }); }
+      $('foundersList').innerHTML=html;
+      $('foundersList').querySelectorAll('.fnd-revoke').forEach(function(b){
+        b.addEventListener('click', function(){
+          var email=b.getAttribute('data-email');
+          if(!confirm('Cofnąć dostęp dla '+email+'?\n\nOsoba straci dostęp i dostanie e-mail z informacją. Tej operacji nie można cofnąć.')) return;
+          b.disabled=true; b.textContent='Cofam…';
+          sb.rpc('revoke_founder_access', { p_email:email }).then(function(res){
+            if(res.error){ alert('Błąd: '+res.error.message); b.disabled=false; b.textContent='Cofnij dostęp'; return; }
+            loadFounders();
+          });
+        });
+      });
+    });
+  }
+  $('refreshFndBtn').addEventListener('click', loadFounders);
+  $('grantBtn').addEventListener('click', function(){
+    clearMsg($('grantMsg'));
+    var email=($('fndEmail').value||'').trim();
+    var months=parseInt($('fndMonths').value,10);
+    var seats=parseInt($('fndSeats').value,10);
+    var kind=$('fndKind').value;
+    if(!email){ showMsg($('grantMsg'),'Podaj e-mail.',false); return; }
+    if(!months||months<1){ showMsg($('grantMsg'),'Podaj liczbę miesięcy.',false); return; }
+    if(!seats||seats<1){ showMsg($('grantMsg'),'Podaj liczbę miejsc.',false); return; }
+    $('grantBtn').disabled=true;
+    sb.rpc('grant_founder_access', { p_email:email, p_months:months, p_seats:seats, p_kind:kind }).then(function(res){
+      $('grantBtn').disabled=false;
+      if(res.error){ showMsg($('grantMsg'),'Błąd: '+res.error.message,false); return; }
+      var r=res.data||'';
+      if(typeof r==='string' && r.indexOf('error')===0){ showMsg($('grantMsg'),r,false); return; }
+      showMsg($('grantMsg'),'Dostęp przydzielony dla '+email+'.',true);
+      $('fndEmail').value='';
+      loadFounders();
+    });
+  });
 
   // ===== LOGOWANIE =====
   function onLoggedIn(){ $('loginBox').classList.add('hidden'); $('app').classList.remove('hidden'); $('logoutBtn').classList.remove('hidden'); showListView(); loadList(); }
