@@ -5,6 +5,11 @@ import GameEmbed from './GameEmbed';
 import ExerciseMeta from './ExerciseMeta';
 import { SITE, ORGANIZATION } from '../../../lib/site';
 
+// Odświeżaj stronę ćwiczenia co 5 min i pozwól dogenerować nowe ćwiczenia on-demand
+// (bez tego nowo opublikowane ćwiczenia dawały 404 do następnego pełnego buildu).
+export const revalidate = 300;
+export const dynamicParams = true;
+
 export async function generateStaticParams() {
   const games = await getPublishedGames();
   return games.map((g) => ({ slug: g.slug }));
