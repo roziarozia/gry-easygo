@@ -1104,11 +1104,13 @@
   .eg-type-reading{ background:#e6f0f9; color:#1f6099; }
   .eg-type-gramatyka{ background:#e2ecf7; color:#1f5aa0; }
   .eg-type-slownictwo{ background:#e3f3ea; color:#1e7e50; }
+  .eg-type-kultura{ background:#fdf0e3; color:#b5721c; }
   .eg-type-listening{ background:#fdeee2; color:#a35b1c; }
   html.eg-dark .eg-type-speaking{ background:#3a2d4f; color:#cbb8e6; }
   html.eg-dark .eg-type-reading{ background:#22384f; color:#a9cdec; }
   html.eg-dark .eg-type-gramatyka{ background:#25344a; color:#a9c6ec; }
   html.eg-dark .eg-type-slownictwo{ background:#1f3d30; color:#8fd9b3; }
+  html.eg-dark .eg-type-kultura{ background:#3d3119; color:#edca93; }
   html.eg-dark .eg-type-listening{ background:#43301f; color:#e8b183; }
   .eg-premium-open{ display:inline-flex; align-items:center; margin-left:6px; color:#b8b2c0; }
   /* znacznik ukończenia na kafelku */
@@ -1535,6 +1537,7 @@
         <button data-cat="speaking">Speaking</button>
         <button data-cat="reading">Reading</button>
         <button data-cat="listening">Listening</button>
+        <button data-cat="kultura">Wiedza o krajach</button>
       </div>
       <div class="eg-filter-row">
         <button data-cat="darmowe" class="eg-free-filter"><svg viewBox="0 0 24 24" width="13" height="13" style="vertical-align:-1px;margin-right:5px"><path d="M9 21h6v-1H9v1zm3-19C8.14 2 5 5.14 5 9c0 2.38 1.19 4.47 3 5.74V17c0 .55.45 1 1 1h6c.55 0 1-.45 1-1v-2.26c1.81-1.27 3-3.36 3-5.74 0-3.86-3.14-7-7-7z" fill="currentColor"/></svg><span data-i18n="Darmowe">Darmowe</span></button>
@@ -1942,7 +1945,7 @@
       var parts = [];
       if(progressLevels.length) parts.push(progressLevels.join(', '));
       if(progressCats.length){
-        var catNames = { gramatyka:t('Gramatyka'), slownictwo:t('Słownictwo'), speaking:'Speaking', reading:'Reading', listening:'Listening' };
+        var catNames = { gramatyka:t('Gramatyka'), slownictwo:t('Słownictwo'), speaking:'Speaking', reading:'Reading', listening:'Listening', kultura:t('Wiedza o krajach') };
         parts.push(progressCats.map(function(c){ return catNames[c] || c; }).join(', '));
       }
       scopeEl.innerHTML = 'Liczone dla: <strong>' + parts.join(' · ') + '</strong>';
@@ -2038,7 +2041,8 @@
     };
     var typeLabels = {
       'gramatyka':'Gramatyka', 'slownictwo':'Słownictwo',
-      'speaking':'Speaking', 'reading':'Reading', 'listening':'Listening'
+      'speaking':'Speaking', 'reading':'Reading', 'listening':'Listening',
+      'kultura':'Wiedza o krajach'
     };
     var chips = [];
     // poziomy (może być kilka)
@@ -2086,7 +2090,7 @@
       curType = 'wszystkie';
       filters.querySelectorAll('button[data-cat]').forEach(function(b){
         var c = b.getAttribute('data-cat');
-        if(c === 'gramatyka' || c === 'slownictwo' || c === 'speaking' || c === 'reading' || c === 'listening')
+        if(c === 'gramatyka' || c === 'slownictwo' || c === 'speaking' || c === 'reading' || c === 'listening' || c === 'kultura')
           b.classList.remove('eg-active');
       });
     } else if(kind === 'status'){
@@ -2528,6 +2532,7 @@
 
     var html = pageList.map(function(g){
       var catLabel = (g.category === 'gramatyka') ? 'gramatyka'
+        : (g.category === 'kultura') ? 'kultura'
         : (g.category === 'speaking' || g.template === 'speaking') ? 'speaking'
         : (g.category === 'reading' || g.template === 'reading') ? 'reading'
         : (g.category === 'listening' || g.template === 'listening') ? 'listening'
@@ -2558,15 +2563,17 @@
         reading: '<svg viewBox="0 0 24 24" width="12" height="12" style="vertical-align:-2px;margin-right:4px"><path d="M12 6.5C10.5 5.5 8.5 5 6 5c-1.5 0-3 .2-4 .6v13c1-.4 2.5-.6 4-.6 2.5 0 4.5.5 6 1.5 1.5-1 3.5-1.5 6-1.5 1.5 0 3 .2 4 .6v-13c-1-.4-2.5-.6-4-.6-2.5 0-4.5.5-6 1.5zm0 2v9.3" fill="none" stroke="currentColor" stroke-width="1.6"/></svg>',
         gramatyka: '<svg viewBox="0 0 24 24" width="12" height="12" style="vertical-align:-2px;margin-right:4px"><path d="M5 4h14v2H5zM5 9h14v2H5zM5 14h9v2H5zM5 19h9v2H5z" fill="currentColor"/></svg>',
         slownictwo: '<svg viewBox="0 0 24 24" width="12" height="12" style="vertical-align:-2px;margin-right:4px"><path d="M4 6a2 2 0 0 1 2-2h5v16H6a2 2 0 0 0-2 2V6zm16 0a2 2 0 0 0-2-2h-5v16h5a2 2 0 0 1 2 2V6z" fill="currentColor"/></svg>',
-        listening: '<svg viewBox="0 0 24 24" width="12" height="12" style="vertical-align:-2px;margin-right:4px"><path d="M12 3a7 7 0 0 0-7 7v5a3 3 0 0 0 3 3h1v-6H7v-2a5 5 0 0 1 10 0v2h-2v6h1a3 3 0 0 0 3-3v-5a7 7 0 0 0-7-7z" fill="currentColor"/></svg>'
+        listening: '<svg viewBox="0 0 24 24" width="12" height="12" style="vertical-align:-2px;margin-right:4px"><path d="M12 3a7 7 0 0 0-7 7v5a3 3 0 0 0 3 3h1v-6H7v-2a5 5 0 0 1 10 0v2h-2v6h1a3 3 0 0 0 3-3v-5a7 7 0 0 0-7-7z" fill="currentColor"/></svg>',
+        kultura: '<svg viewBox="0 0 24 24" width="12" height="12" style="vertical-align:-2px;margin-right:4px"><path d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20zm0 2c1.5 0 3.5 2.6 3.5 8s-2 8-3.5 8-3.5-2.6-3.5-8 2-8 3.5-8zM4.2 9h3.1c-.1 1-.1 2-.1 3s0 2 .1 3H4.2a8 8 0 0 1 0-6zm12.5 0h3.1a8 8 0 0 1 0 6h-3.1c.1-1 .1-2 .1-3s0-2-.1-3z" fill="currentColor"/></svg>'
       };
-      var typeLabels = { speaking:'Speaking', reading:'Reading', gramatyka:t('Gramatyka'), slownictwo:t('Słownictwo'), listening:'Listening' };
+      var typeLabels = { speaking:'Speaking', reading:'Reading', gramatyka:t('Gramatyka'), slownictwo:t('Słownictwo'), listening:'Listening', kultura:t('Wiedza o krajach') };
       // klucz typu bez ogonków (catLabel bywa 'słownictwo' z ł) — spójny z CSS i mapami
       var typeKey = (catLabel === 'słownictwo' || catLabel === 'slownictwo') ? 'slownictwo'
         : (catLabel === 'speaking') ? 'speaking'
         : (catLabel === 'reading') ? 'reading'
         : (catLabel === 'listening') ? 'listening'
         : (catLabel === 'gramatyka') ? 'gramatyka'
+        : (catLabel === 'kultura') ? 'kultura'
         : 'slownictwo';
       var typeBadge = '<span class="eg-type eg-type-' + typeKey + '">' + (typeIcons[typeKey]||'') + typeLabels[typeKey] + '</span>';
       var metaParts = [];
@@ -2796,7 +2803,7 @@
     window.scrollTo({ top: 0, behavior: 'smooth' });
   });
 
-  var TYPE_CATS = ['gramatyka','slownictwo','speaking','reading','listening'];
+  var TYPE_CATS = ['gramatyka','slownictwo','speaking','reading','listening','kultura'];
   var STATUS_CATS = ['darmowe','platne','dzieci','ulubione','domowa','zrobione','niezrobione'];
   filters.addEventListener('click', function(e){
     var btn = e.target.closest('button');
