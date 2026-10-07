@@ -8,9 +8,9 @@ export const metadata = {
   openGraph: { ...DEFAULT_OG, url: '/' },
 };
 
-const CAT_LABEL = { gramatyka: 'Gramatyka', slownictwo: 'Słownictwo', speaking: 'Speaking', reading: 'Reading', listening: 'Listening' };
+const CAT_LABEL = { gramatyka: 'Gramatyka', slownictwo: 'Słownictwo', speaking: 'Speaking', reading: 'Reading', listening: 'Listening', kultura: 'Wiedza o krajach' };
 // Kolejność sekcji na liście dla robotów; kategorie spoza tej listy trafiają do "Inne ćwiczenia".
-const CAT_ORDER = ['gramatyka', 'slownictwo', 'reading', 'listening', 'speaking'];
+const CAT_ORDER = ['gramatyka', 'slownictwo', 'reading', 'listening', 'speaking', 'kultura'];
 // Liczba ćwiczeń w ItemList (numberOfItems musi się zgadzać z tym, co jest na liście).
 const ITEM_LIST_SIZE = 60;
 
