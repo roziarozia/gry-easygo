@@ -36,7 +36,7 @@ export async function generateMetadata({ params }) {
   };
 }
 
-const CAT_LABEL = { gramatyka: 'Gramatyka', slownictwo: 'Słownictwo', speaking: 'Speaking', reading: 'Reading', listening: 'Listening' };
+const CAT_LABEL = { gramatyka: 'Gramatyka', slownictwo: 'Słownictwo', speaking: 'Speaking', reading: 'Reading', listening: 'Listening', kultura: 'Wiedza o krajach' };
 
 // Buduje ciepły, naturalny akapit z danych ćwiczenia (dla ucznia i dla Google).
 // Nie wymyśla treści — składa zdania z tego, co jest w bazie: kategoria, poziom, liczba, słowa kluczowe.
