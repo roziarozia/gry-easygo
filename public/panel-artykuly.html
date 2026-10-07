@@ -68,6 +68,9 @@
   .pill{ font-size:10.5px; font-weight:700; padding:2px 8px; border-radius:999px; text-transform:uppercase; letter-spacing:.03em; }
   .pill-pub{ background:rgba(46,158,107,.14); color:var(--green); }
   .pill-draft{ background:rgba(106,100,117,.14); color:var(--muted); }
+  .sfchip{ flex:1; background:var(--card); border:1.5px solid var(--line); border-radius:9px; padding:7px 6px; font-family:'Quicksand',sans-serif; font-weight:700; font-size:12.5px; color:var(--muted); cursor:pointer; transition:all .12s; }
+  .sfchip:hover{ border-color:var(--lavender); color:var(--ink); }
+  .sfchip.active{ background:var(--magenta); border-color:var(--magenta); color:#fff; }
   .pill-lvl{ background:rgba(202,68,144,.1); color:var(--magenta); }
 
   .editcol{ background:var(--card); border:1px solid var(--line); border-radius:16px; padding:22px 24px; }
@@ -111,7 +114,12 @@
         <h2 style="margin:0;">Artykuły</h2>
         <button class="btn btn-pri" id="newBtn">+ Nowy</button>
       </div>
-      <div class="field" style="margin-bottom:12px;"><input type="text" id="listSearch" placeholder="Szukaj…" autocomplete="off"></div>
+      <div class="field" style="margin-bottom:10px;"><input type="text" id="listSearch" placeholder="Szukaj…" autocomplete="off"></div>
+      <div class="statusfilter" id="statusFilter" style="display:flex; gap:6px; margin-bottom:12px;">
+        <button class="sfchip active" data-status="all">Wszystkie</button>
+        <button class="sfchip" data-status="pub">Opublikowane</button>
+        <button class="sfchip" data-status="draft">Szkice</button>
+      </div>
       <div class="muted listcount" id="listCount" style="font-size:12px;margin-bottom:8px;color:var(--muted);"></div>
       <div class="alist" id="alist"></div>
       <div class="pager" id="pager"></div>
@@ -295,9 +303,14 @@
         renderList();
       });
   }
+  var statusFilter = 'all';
   function renderList(){
     var q = ($('listSearch').value||'').toLowerCase();
-    var items = ALL.filter(function(a){ return !q || (a.title||'').toLowerCase().indexOf(q)>-1 || (a.slug||'').toLowerCase().indexOf(q)>-1; });
+    var items = ALL.filter(function(a){
+      var matchQ = !q || (a.title||'').toLowerCase().indexOf(q)>-1 || (a.slug||'').toLowerCase().indexOf(q)>-1;
+      var matchS = statusFilter==='all' || (statusFilter==='pub' && a.published) || (statusFilter==='draft' && !a.published);
+      return matchQ && matchS;
+    });
     $('listCount').textContent = items.length + (items.length===1?' artykuł':(items.length%10>=2&&items.length%10<=4&&(items.length<10||items.length>20)?' artykuły':' artykułów'));
     if(!items.length){ $('alist').innerHTML = '<div class="hint" style="padding:10px;">Brak artykułów.</div>'; $('pager').innerHTML=''; return; }
     var totalPages=Math.ceil(items.length/PER_PAGE);
@@ -340,6 +353,14 @@
     });
   }
   $('listSearch').addEventListener('input', function(){ curPage=1; renderList(); });
+  $('statusFilter').querySelectorAll('.sfchip').forEach(function(b){
+    b.addEventListener('click', function(){
+      $('statusFilter').querySelectorAll('.sfchip').forEach(function(x){ x.classList.remove('active'); });
+      b.classList.add('active');
+      statusFilter = b.getAttribute('data-status');
+      curPage=1; renderList();
+    });
+  });
 
   // ===== EDYTOR =====
   function blankForm(){
