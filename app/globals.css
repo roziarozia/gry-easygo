@@ -466,6 +466,7 @@
   #egFilters button[data-cat="slownictwo"].eg-active{ background:#e3f3ea; border-color:#c4e6d2; }
   #egFilters button[data-cat="speaking"].eg-active{ background:#efe6f7; border-color:#d8c4ee; }
   #egFilters button[data-cat="reading"].eg-active{ background:#e6f0f7; border-color:#c4dcee; }
+  #egFilters button[data-cat="kultura"].eg-active{ background:#fdf0e3; border-color:#f3d9b8; }
   #egFilters button[data-cat="ulubione"].eg-active{ background:#fce4ef; border-color:#f4c4dd; color:var(--eg-magenta); }
   #egFilters button[data-cat="domowa"].eg-active{ background:#e3f3ea; border-color:#c4e6d2; color:#1e7e50; }
   #egFilters button[data-cat="zrobione"]{ color:#1e7e50; }
