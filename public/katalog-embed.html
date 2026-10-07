@@ -1400,7 +1400,7 @@
         <p class="eg-intro-eyebrow" data-i18n="Platforma do nauki angielskiego">Platforma do nauki angielskiego</p>
         <h2 class="eg-intro-title"><span class="eg-intro-line" data-i18n="Ucz się lub ucz innych języka angielskiego">Ucz się lub ucz innych języka angielskiego</span><br><span class="eg-intro-line" data-i18n="z platformą, która ogarnie wszystko!">z platformą, która ogarnie wszystko!</span></h2>
       </div>
-      <p class="eg-intro-sub" id="egIntroSub"><strong style="color:var(--eg-ink)">Ponad 200 interaktywnych ćwiczeń</strong> z wyjaśnieniami, na każdym poziomie od A1 do C2 –<br>dla <a href="/oferta" class="eg-intro-link">lektorów i ich uczniów</a> oraz <a href="/oferta" class="eg-intro-link">uczniów indywidualnych</a>.</p>
+      <p class="eg-intro-sub" id="egIntroSub"><strong style="color:var(--eg-ink)">Ponad 300 interaktywnych ćwiczeń</strong> z wyjaśnieniami, na każdym poziomie od A1 do C2 –<br>dla <a href="/oferta" class="eg-intro-link">lektorów i ich uczniów</a> oraz <a href="/oferta" class="eg-intro-link">uczniów indywidualnych</a>.</p>
       <p class="eg-intro-new" data-i18n="Nowe materiały kilka razy w tygodniu">Nowe materiały kilka razy w tygodniu</p>
       <div class="eg-intro-row">
         <button type="button" class="eg-intro-cta" id="egHeroCta" data-i18n="Wypróbuj za darmo przez 7 dni">Wypróbuj za darmo przez 7 dni</button>
@@ -1534,9 +1534,9 @@
         <button class="eg-active" data-cat="wszystkie" data-i18n="Wszystkie">Wszystkie</button>
         <button data-cat="gramatyka" data-i18n="Gramatyka">Gramatyka</button>
         <button data-cat="slownictwo" data-i18n="Słownictwo">Słownictwo</button>
-        <button data-cat="speaking">Speaking</button>
-        <button data-cat="reading">Reading</button>
-        <button data-cat="listening">Listening</button>
+        <button data-cat="speaking" data-i18n="Mówienie">Mówienie</button>
+        <button data-cat="reading" data-i18n="Czytanie">Czytanie</button>
+        <button data-cat="listening" data-i18n="Słuchanie">Słuchanie</button>
         <button data-cat="kultura" data-i18n="Wiedza o krajach">Wiedza o krajach</button>
       </div>
       <div class="eg-filter-row">
@@ -1945,7 +1945,7 @@
       var parts = [];
       if(progressLevels.length) parts.push(progressLevels.join(', '));
       if(progressCats.length){
-        var catNames = { gramatyka:t('Gramatyka'), slownictwo:t('Słownictwo'), speaking:'Speaking', reading:'Reading', listening:'Listening', kultura:t('Wiedza o krajach') };
+        var catNames = { gramatyka:t('Gramatyka'), slownictwo:t('Słownictwo'), speaking:t('Mówienie'), reading:t('Czytanie'), listening:t('Słuchanie'), kultura:t('Wiedza o krajach') };
         parts.push(progressCats.map(function(c){ return catNames[c] || c; }).join(', '));
       }
       scopeEl.innerHTML = 'Liczone dla: <strong>' + parts.join(' · ') + '</strong>';
@@ -2041,7 +2041,7 @@
     };
     var typeLabels = {
       'gramatyka':t('Gramatyka'), 'slownictwo':t('Słownictwo'),
-      'speaking':'Speaking', 'reading':'Reading', 'listening':'Listening',
+      'speaking':t('Mówienie'), 'reading':t('Czytanie'), 'listening':t('Słuchanie'),
       'kultura':t('Wiedza o krajach')
     };
     var chips = [];
@@ -2566,7 +2566,7 @@
         listening: '<svg viewBox="0 0 24 24" width="12" height="12" style="vertical-align:-2px;margin-right:4px"><path d="M12 3a7 7 0 0 0-7 7v5a3 3 0 0 0 3 3h1v-6H7v-2a5 5 0 0 1 10 0v2h-2v6h1a3 3 0 0 0 3-3v-5a7 7 0 0 0-7-7z" fill="currentColor"/></svg>',
         kultura: '<svg viewBox="0 0 24 24" width="12" height="12" style="vertical-align:-2px;margin-right:4px"><path d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20zm0 2c1.5 0 3.5 2.6 3.5 8s-2 8-3.5 8-3.5-2.6-3.5-8 2-8 3.5-8zM4.2 9h3.1c-.1 1-.1 2-.1 3s0 2 .1 3H4.2a8 8 0 0 1 0-6zm12.5 0h3.1a8 8 0 0 1 0 6h-3.1c.1-1 .1-2 .1-3s0-2-.1-3z" fill="currentColor"/></svg>'
       };
-      var typeLabels = { speaking:'Speaking', reading:'Reading', gramatyka:t('Gramatyka'), slownictwo:t('Słownictwo'), listening:'Listening', kultura:t('Wiedza o krajach') };
+      var typeLabels = { speaking:t('Mówienie'), reading:t('Czytanie'), gramatyka:t('Gramatyka'), slownictwo:t('Słownictwo'), listening:t('Słuchanie'), kultura:t('Wiedza o krajach') };
       // klucz typu bez ogonków (catLabel bywa 'słownictwo' z ł) — spójny z CSS i mapami
       var typeKey = (catLabel === 'słownictwo' || catLabel === 'slownictwo') ? 'slownictwo'
         : (catLabel === 'speaking') ? 'speaking'
@@ -3467,6 +3467,9 @@
     'Słownictwo': 'Vocabulary',
     'Gramatyka': 'Grammar',
     'Wiedza o krajach': 'Culture & Facts',
+    'Mówienie': 'Speaking',
+    'Czytanie': 'Reading',
+    'Słuchanie': 'Listening',
     // etykiety / filtry
     'Kategoria': 'Category',
     'Poziom': 'Level',
@@ -3629,8 +3632,8 @@
     var iSub = document.getElementById('egIntroSub');
     if(iSub){
       iSub.innerHTML = (window.EG_LANG === 'en')
-        ? '<strong style="color:var(--eg-ink)">Over 200 interactive exercises</strong> with explanations, at every level from A1 to C2 –<br>for <a href="/oferta" class="eg-intro-link">tutors and their students</a> and <a href="/oferta" class="eg-intro-link">individual learners</a>.'
-        : '<strong style="color:var(--eg-ink)">Ponad 200 interaktywnych ćwiczeń</strong> z wyjaśnieniami, na każdym poziomie od A1 do C2 –<br>dla <a href="/oferta" class="eg-intro-link">lektorów i ich uczniów</a> oraz <a href="/oferta" class="eg-intro-link">uczniów indywidualnych</a>.';
+        ? '<strong style="color:var(--eg-ink)">Over 300 interactive exercises</strong> with explanations, at every level from A1 to C2 –<br>for <a href="/oferta" class="eg-intro-link">tutors and their students</a> and <a href="/oferta" class="eg-intro-link">individual learners</a>.'
+        : '<strong style="color:var(--eg-ink)">Ponad 300 interaktywnych ćwiczeń</strong> z wyjaśnieniami, na każdym poziomie od A1 do C2 –<br>dla <a href="/oferta" class="eg-intro-link">lektorów i ich uczniów</a> oraz <a href="/oferta" class="eg-intro-link">uczniów indywidualnych</a>.';
     }
     // nagłówek "Czym jest EasyWonders?" - Easy różowe, Wonders złote (jak logo)
     var aboutH = document.getElementById('egAboutH');
