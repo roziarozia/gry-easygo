@@ -245,6 +245,16 @@
   /* Tytuł bloga bez lawendowego podkreślenia: większy, pogrubiony, czysty */
   .hero-title{ font-weight:800 !important; font-size:clamp(34px,5.4vw,50px) !important; letter-spacing:-1px !important; margin:0 0 14px !important; }
   .hero-title .hl{ background:none !important; padding:0 !important; }
+
+  /* Strony listy artykułów */
+  .pager{ display:flex; justify-content:center; align-items:center; flex-wrap:wrap; gap:8px; margin:40px 0 10px; }
+  .pager button{ font-family:'Outfit',sans-serif; font-weight:600; font-size:15px; min-width:42px; height:42px; padding:0 12px; border-radius:999px;
+                 border:1.5px solid var(--line); background:var(--card); color:var(--ink); cursor:pointer; transition:border-color .15s, background .15s, color .15s; }
+  .pager button:hover:not([disabled]){ border-color:var(--magenta); color:var(--magenta); }
+  .pager button.active{ background:var(--magenta); border-color:var(--magenta); color:#fff; }
+  .pager button[disabled]{ opacity:.35; cursor:default; }
+  .pager .pg-arrow{ font-size:20px; line-height:1; }
+  .pager .pg-dots{ color:var(--muted); padding:0 2px; }
   /* Cały blog w czcionce Outfit - także fragmenty z czcionką wpisaną w treść artykułu */
   body, body *:not(svg):not(path){ font-family:'Outfit',sans-serif !important; }
 </style>
@@ -328,6 +338,7 @@
   <div class="list">
     <div id="grid" class="grid"></div>
     <div id="listMsg" class="loading">Ładuję artykuły…</div>
+    <nav class="pager" id="pager" aria-label="Strony artykułów"></nav>
   </div>
 </div>
 
@@ -403,6 +414,16 @@
   var ALL = [];
   var curCat = 'all';
   var curSearch = '';
+  var curPage = 1;
+  var PER_PAGE = 20;   // ile artykułów na jednej stronie listy
+
+  // Losowa kolejność artykułów - przy każdym wejściu na bloga inna. W trakcie przeglądania
+  // (otwarcie artykułu i powrót do listy) kolejność zostaje ta sama.
+  function shuffleArticles(list){
+    var a=list.slice();
+    for(var i=a.length-1;i>0;i--){ var j=Math.floor(Math.random()*(i+1)), t=a[i]; a[i]=a[j]; a[j]=t; }
+    return a;
+  }
 
   var grid = document.getElementById('grid');
   var listMsg = document.getElementById('listMsg');
@@ -428,7 +449,7 @@
     cats.forEach(function(c){ html += '<button class="cat-chip'+(curCat===c?' active':'')+'" data-cat="'+esc(c)+'">'+esc(catLabel(c))+'</button>'; });
     catbar.innerHTML = html;
     catbar.querySelectorAll('.cat-chip').forEach(function(b){
-      b.addEventListener('click', function(){ curCat=b.getAttribute('data-cat'); renderCatBar(); renderGrid(); });
+      b.addEventListener('click', function(){ curCat=b.getAttribute('data-cat'); curPage=1; renderCatBar(); renderGrid(); });
     });
   }
 
@@ -441,6 +462,9 @@
       }
       return true;
     });
+    var pages = Math.max(1, Math.ceil(items.length / PER_PAGE));
+    if(curPage > pages) curPage = pages;
+    renderPager(pages);
     if(!items.length){
       grid.innerHTML='';
       listMsg.className='empty';
@@ -449,9 +473,10 @@
       return;
     }
     listMsg.classList.add('hidden');
+    items = items.slice((curPage-1)*PER_PAGE, curPage*PER_PAGE);
     grid.innerHTML = items.map(function(a){
       var cover = a.cover_url
-        ? '<img class="post-cover" src="'+esc(a.cover_url)+'" alt="'+esc(a.title)+'" loading="lazy">'
+        ? '<img class="post-cover" src="'+esc(a.cover_url)+'" alt="'+esc(a.title)+'" loading="lazy" decoding="async">'
         : '<div class="post-cover-ph">EasyWonders</div>';
       var cat = a.category ? '<span class="badge-cat">'+esc(catLabel(a.category))+'</span>' : '';
       return '<a class="post" href="?a='+encodeURIComponent(a.slug)+'" data-slug="'+esc(a.slug)+'">'
@@ -467,15 +492,42 @@
     });
   }
 
+  function renderPager(pages){
+    var pg=document.getElementById('pager'); if(!pg) return;
+    if(pages<=1){ pg.innerHTML=''; return; }
+    var nums=[], i;
+    for(i=1;i<=pages;i++){
+      if(i===1 || i===pages || Math.abs(i-curPage)<=1) nums.push(i);
+      else if(nums[nums.length-1]!=='…') nums.push('…');
+    }
+    var h='<button type="button" class="pg-arrow" data-p="'+(curPage-1)+'"'+(curPage===1?' disabled':'')+' aria-label="Poprzednia strona">‹</button>';
+    nums.forEach(function(n){
+      h += n==='…' ? '<span class="pg-dots">…</span>'
+        : '<button type="button" class="pg-num'+(n===curPage?' active':'')+'" data-p="'+n+'"'+(n===curPage?' aria-current="page"':'')+'>'+n+'</button>';
+    });
+    h+='<button type="button" class="pg-arrow" data-p="'+(curPage+1)+'"'+(curPage===pages?' disabled':'')+' aria-label="Następna strona">›</button>';
+    pg.innerHTML=h;
+    pg.querySelectorAll('button[data-p]').forEach(function(b){
+      b.addEventListener('click',function(){
+        var p=parseInt(b.getAttribute('data-p'),10); if(!p || p<1 || p>pages || p===curPage) return;
+        curPage=p; renderGrid();
+        var top=document.getElementById('catbar').getBoundingClientRect().top + window.scrollY - 90;
+        window.scrollTo({ top: Math.max(0, top), behavior:'smooth' });
+      });
+    });
+  }
+
+  // Lista pobiera tylko lekkie dane (bez treści). Pełną treść artykułu dociągamy dopiero przy otwarciu.
+  var FULL_COLS = 'slug,title,excerpt,body,cover_url,level,category,keywords,cta_link,cta_label,exercise_slug,published_at,sort_order';
   function openArticle(slug, push){
     var a = ALL.find(function(x){ return x.slug===slug; });
-    if(!a){
-      sb.from('articles').select('*').eq('slug',slug).eq('published',true).single().then(function(res){
-        if(res.data){ ALL.push(res.data); showArticle(res.data, push); } else showList(push);
-      });
-      return;
-    }
-    showArticle(a, push);
+    if(a && a.body != null){ showArticle(a, push); return; }
+    sb.from('articles').select(FULL_COLS).eq('slug',slug).eq('published',true).single().then(function(res){
+      if(res.data){
+        if(a){ for(var k in res.data){ a[k]=res.data[k]; } showArticle(a, push); }
+        else { ALL.push(res.data); showArticle(res.data, push); }
+      } else showList(push);
+    });
   }
 
   var exCache = {};
@@ -569,17 +621,17 @@
   var sT;
   searchInput.addEventListener('input', function(){
     clearTimeout(sT);
-    sT = setTimeout(function(){ curSearch = searchInput.value.trim(); renderGrid(); }, 200);
+    sT = setTimeout(function(){ curSearch = searchInput.value.trim(); curPage = 1; renderGrid(); }, 200);
   });
 
   sb.from('articles')
-    .select('slug,title,excerpt,body,cover_url,level,category,keywords,cta_link,cta_label,exercise_slug,published_at,sort_order')
+    .select('slug,title,excerpt,cover_url,category,keywords')
     .eq('published', true)
     .order('sort_order', { ascending:false })
     .order('published_at', { ascending:false })
     .then(function(res){
       if(res.error){ listMsg.className='empty'; listMsg.textContent='Nie udało się wczytać artykułów. Spróbuj odświeżyć stronę.'; return; }
-      ALL = res.data || [];
+      ALL = shuffleArticles(res.data || []);
       renderCatBar();
       var slug = new URLSearchParams(location.search).get('a');
       if(slug){ openArticle(slug, false); } else { renderGrid(); }
