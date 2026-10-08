@@ -1335,7 +1335,7 @@
 
   /* BANER BLOGA pod logo: "Ucz się teorii z blogiem, wróć tu po ćwiczenia!"
      + przewijający się pasek najnowszych artykułów (dane z tabeli articles). */
-  .eg-blogban{ max-width:1100px; margin:18px auto 26px; background:#f6f1ae; border-radius:26px; padding:28px 0 28px 34px;
+  .eg-blogban{ isolation:isolate; max-width:1100px; margin:18px auto 26px; background:#f6f1ae; border-radius:26px; padding:28px 0 28px 34px;
                display:grid; grid-template-columns:minmax(0,.95fr) minmax(0,1.25fr); gap:26px; align-items:center; text-align:left; overflow:hidden; }
   .eg-bb-title{ font-family:'Outfit','Quicksand',sans-serif !important; font-weight:800 !important; font-size:clamp(26px,2.9vw,36px) !important;
                 line-height:1.08 !important; letter-spacing:-.6px; margin:0 0 12px !important; color:var(--eg-magenta) !important; }
@@ -1350,11 +1350,12 @@
   .eg-bb-right{ min-width:0; }
   .eg-bb-lbl{ display:block; font-family:'Quicksand',sans-serif; font-size:12px; font-weight:700; letter-spacing:.08em; text-transform:uppercase;
               color:#8a7a2a; margin:0 0 10px 4px; }
-  .eg-bb-strip{ overflow:hidden; -webkit-mask-image:linear-gradient(90deg,transparent,#000 5%,#000 92%,transparent);
-                mask-image:linear-gradient(90deg,transparent,#000 5%,#000 92%,transparent); }
-  .eg-bb-track{ display:flex; gap:14px; width:max-content; padding:4px 0 8px; animation:egBbScroll var(--eg-bb-dur,48s) linear infinite; }
+  /* iPhone (Safari): bez rozmytych krawędzi i z osobną warstwą animacji - inaczej Safari potrafi "zgubić" przewijany pasek */
+  .eg-bb-strip{ overflow:hidden; border-radius:16px; isolation:isolate; -webkit-transform:translateZ(0); transform:translateZ(0); }
+  .eg-bb-track{ display:flex; gap:14px; width:max-content; padding:4px 0 8px; animation:egBbScroll var(--eg-bb-dur,48s) linear infinite;
+                 will-change:transform; -webkit-backface-visibility:hidden; backface-visibility:hidden; }
   .eg-bb-strip:hover .eg-bb-track{ animation-play-state:paused; }
-  @keyframes egBbScroll{ from{ transform:translateX(0); } to{ transform:translateX(-50%); } }
+  @keyframes egBbScroll{ from{ transform:translate3d(0,0,0); } to{ transform:translate3d(-50%,0,0); } }
   .eg-bb-card{ flex:none; width:200px; background:#fff; border-radius:16px; overflow:hidden; text-decoration:none !important;
                box-shadow:0 6px 16px rgba(120,100,20,.14); transition:transform .2s, box-shadow .2s; }
   .eg-bb-card:hover{ transform:translateY(-3px); box-shadow:0 12px 24px rgba(120,100,20,.22); }
@@ -1378,7 +1379,7 @@
   }
   @media (prefers-reduced-motion:reduce){
     .eg-bb-track{ animation:none; }
-    .eg-bb-strip{ overflow-x:auto; -webkit-mask-image:none; mask-image:none; }
+    .eg-bb-strip{ overflow-x:auto; }
   }
 
   /* RUCHOMY BANER (zamiast nagłówka intro): zmieniające się hasła + okładki ćwiczeń */
@@ -4250,7 +4251,7 @@
     if(!rows || rows.length<2) return;
     var html=rows.map(function(a){
       return '<a class="eg-bb-card" href="/nauka?a='+encodeURIComponent(a.slug)+'" aria-label="'+esc(a.title)+'">'+
-        '<img src="'+esc(a.cover_url)+'" alt="" loading="lazy" onerror="this.style.visibility=\'hidden\'">'+
+        '<img src="'+esc(a.cover_url)+'" alt="" decoding="async" onerror="this.style.visibility=\'hidden\'">'+
         '<span class="eg-bb-ct">'+esc(String(a.title).split(' — ')[0])+'</span></a>';
     }).join('');
     track.innerHTML=html+html;  // dwa razy = przewijanie bez przerwy
