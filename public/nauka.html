@@ -191,7 +191,7 @@
 
 
   /* BANER "Ucz się z blogiem, wróć po ćwiczenia" - jak na stronie głównej, z przewijającymi się ćwiczeniami */
-  .blogban{ box-sizing:border-box; width:min(1100px, calc(100% - 32px)); margin:22px auto 4px; background:#f6f1ae; border-radius:26px; padding:28px 0 28px 34px;
+  .blogban{ isolation:isolate; box-sizing:border-box; width:min(1100px, calc(100% - 32px)); margin:22px auto 4px; background:#f6f1ae; border-radius:26px; padding:28px 0 28px 34px;
             display:grid; grid-template-columns:minmax(0,.95fr) minmax(0,1.25fr); gap:26px; align-items:center; text-align:left; overflow:hidden; }
   .bb-title{ font-family:'Outfit',sans-serif; font-weight:800; font-size:clamp(26px,2.9vw,36px); line-height:1.08; letter-spacing:-.6px; margin:0 0 12px; }
   .bb-title span{ display:block; color:#2e2a33; }
@@ -203,10 +203,12 @@
   .bb-right{ min-width:0; }
   .bb-right.bb-empty{ visibility:hidden; }
   .bb-lbl{ display:block; font-size:12px; font-weight:700; letter-spacing:.08em; text-transform:uppercase; color:#8a7a2a; margin:0 0 10px 4px; }
-  .bb-strip{ overflow:hidden; -webkit-mask-image:linear-gradient(90deg,transparent,#000 5%,#000 92%,transparent); mask-image:linear-gradient(90deg,transparent,#000 5%,#000 92%,transparent); }
-  .bb-track{ display:flex; gap:14px; width:max-content; padding:4px 0 8px; animation:bbScroll var(--bb-dur,60s) linear infinite; }
+  /* iPhone (Safari): bez rozmytych krawędzi i z osobną warstwą animacji - inaczej Safari potrafi "zgubić" przewijany pasek */
+  .bb-strip{ overflow:hidden; border-radius:16px; isolation:isolate; -webkit-transform:translateZ(0); transform:translateZ(0); }
+  .bb-track{ display:flex; gap:14px; width:max-content; padding:4px 0 8px; animation:bbScroll var(--bb-dur,60s) linear infinite;
+              will-change:transform; -webkit-backface-visibility:hidden; backface-visibility:hidden; }
   .bb-strip:hover .bb-track{ animation-play-state:paused; }
-  @keyframes bbScroll{ from{ transform:translateX(0); } to{ transform:translateX(-50%); } }
+  @keyframes bbScroll{ from{ transform:translate3d(0,0,0); } to{ transform:translate3d(-50%,0,0); } }
   .bb-card{ flex:none; width:200px; background:#fff; border-radius:16px; overflow:hidden; text-decoration:none !important; box-shadow:0 6px 16px rgba(120,100,20,.14); transition:transform .2s, box-shadow .2s; }
   .bb-card:hover{ transform:translateY(-3px); box-shadow:0 12px 24px rgba(120,100,20,.22); }
   .bb-card img{ display:block; width:100%; aspect-ratio:3/2; object-fit:cover; background:#efe6f5; }
@@ -229,7 +231,7 @@
     .bb-lbl{ margin-left:22px; }
     .bb-card{ width:170px; }
   }
-  @media (prefers-reduced-motion:reduce){ .bb-track{ animation:none; } .bb-strip{ overflow-x:auto; -webkit-mask-image:none; mask-image:none; } }
+  @media (prefers-reduced-motion:reduce){ .bb-track{ animation:none; } .bb-strip{ overflow-x:auto; } }
 
   /* Zdjęcie Rózi nad tytułem bloga */
   .hero-author{ display:flex; flex-direction:column; align-items:center; margin:0 0 18px; }
@@ -679,7 +681,7 @@
     list=shuffle(list).slice(0,12);
     var html=list.map(function(g){
       return '<a class="bb-card" href="/cwiczenie/'+encodeURIComponent(g.slug)+'" aria-label="'+esc(g.title)+'">'+
-        '<img src="'+esc(g.cover_url)+'" alt="" loading="lazy" onerror="this.style.visibility=\'hidden\'">'+
+        '<img src="'+esc(g.cover_url)+'" alt="" decoding="async" onerror="this.style.visibility=\'hidden\'">'+
         '<span class="bb-cb"><span class="bb-cl">'+esc(CAT[g.category]||'Ćwiczenie')+(g.level?' · '+esc(g.level):'')+'</span>'+
         '<span class="bb-ct">'+esc(g.title)+'</span></span></a>';
     }).join('');
