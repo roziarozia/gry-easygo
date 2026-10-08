@@ -230,6 +230,21 @@
     .bb-card{ width:170px; }
   }
   @media (prefers-reduced-motion:reduce){ .bb-track{ animation:none; } .bb-strip{ overflow-x:auto; -webkit-mask-image:none; mask-image:none; } }
+
+  /* Zdjęcie Rózi nad tytułem bloga */
+  .hero-author{ display:flex; flex-direction:column; align-items:center; margin:0 0 18px; }
+  /* plik rozia.png ma własne różowe tło i białą obwódkę - przycinamy do samego zdjęcia */
+  .hero-photo{ position:relative; display:block; width:96px; height:96px; border-radius:50%; overflow:hidden; background:#efe6f5;
+               box-shadow:0 0 0 4px var(--bg,#fff), 0 0 0 7px #f6f1ae; margin:0 0 12px; }
+  .hero-photo img{ position:absolute; width:168%; height:auto; max-width:none; left:-34%; top:-27%; }
+  .hero-by{ font-family:'Outfit',sans-serif; font-weight:300 !important; font-size:14.5px; letter-spacing:.02em; color:#a39cb0; margin:0; }
+  :root[data-theme="dark"] .hero-by{ color:#8f88a0; }
+  @media (prefers-color-scheme:dark){ :root:not([data-theme="light"]) .hero-by{ color:#8f88a0; } }
+  @media (max-width:600px){ .hero-photo{ width:84px; height:84px; } .hero-by{ font-size:13.5px; } }
+
+  /* Tytuł bloga bez lawendowego podkreślenia: większy, pogrubiony, czysty */
+  .hero-title{ font-weight:800 !important; font-size:clamp(34px,5.4vw,50px) !important; letter-spacing:-1px !important; margin:0 0 14px !important; }
+  .hero-title .hl{ background:none !important; padding:0 !important; }
   /* Cały blog w czcionce Outfit - także fragmenty z czcionką wpisaną w treść artykułu */
   body, body *:not(svg):not(path){ font-family:'Outfit',sans-serif !important; }
 </style>
@@ -279,6 +294,10 @@
 <!-- ===================== WIDOK LISTY ===================== -->
 <div id="listView">
   <header class="hero">
+    <div class="hero-author">
+      <span class="hero-photo"><img src="/rozia.png" alt="Rózia, lektorka i założycielka EasyWonders"></span>
+      <p class="hero-by">Rózia, lektorka i założycielka EasyWonders</p>
+    </div>
     <h1 class="hero-title"><span class="hl">Teoria z <span class="b-easy">Easy</span><span class="b-wonders">Wonders</span></span></h1>
     <p class="hero-lead">Wyjaśnienia w formie, jakiej potrzebujesz <span class="pink">&#9829;</span></p>
     <p class="hero-sub">Przeczytaj, a potem utrwal wiedzę, korzystając z naszych ćwiczeń!</p>
