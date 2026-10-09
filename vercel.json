@@ -1,4 +1,12 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
-  "cleanUrls": true
+  "cleanUrls": true,
+  "redirects": [
+    {
+      "source": "/nauka",
+      "has": [{ "type": "query", "key": "a", "value": "(?<slug>.+)" }],
+      "destination": "/nauka/:slug",
+      "permanent": true
+    }
+  ]
 }
