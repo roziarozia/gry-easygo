@@ -98,8 +98,12 @@ export async function GET(request, { params }) {
   html = swap(html, '<article id="articleView" class="article hidden">', '<article id="articleView" class="article">');
 
   // 3) treść artykułu
+  // okładka w pomniejszonej wersji (szybciej); gdyby pomniejszanie nie zadziałało, wraca do oryginału
+  const thumb = (u, w) => (u && u.includes('/storage/v1/object/public/'))
+    ? u.replace('/storage/v1/object/public/', '/storage/v1/render/image/public/') + `?width=${w}&quality=72`
+    : u;
   const cover = article.cover_url
-    ? `<img class="art-cover" src="${esc(article.cover_url)}" alt="${esc(title)}">`
+    ? `<img class="art-cover" src="${esc(thumb(article.cover_url, 1200))}" data-o="${esc(article.cover_url)}" onerror="ewImgFallback(this)" alt="${esc(title)}" fetchpriority="high">`
     : '<div class="art-cover-ph">EasyWonders</div>';
   html = swap(html, '<div id="artCoverSlot"></div>', `<div id="artCoverSlot">${cover}</div>`);
   const badge = article.category ? `<span class="badge-cat">${esc(CAT_LABEL[article.category] || article.category)}</span>` : '';
