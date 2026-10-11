@@ -267,7 +267,7 @@
    obrazek sam wraca do oryginału (ewImgFallback), więc nic się nie psuje. */
 window.ewThumb = function(url, w){
   if(!url || url.indexOf('/storage/v1/object/public/') === -1) return url;
-  return url.replace('/storage/v1/object/public/', '/storage/v1/render/image/public/') + '?width=' + w + '&quality=72';
+  return url.replace('/storage/v1/object/public/', '/storage/v1/render/image/public/') + '?width=' + w + '&quality=72&resize=contain';
 };
 window.ewImgFallback = function(img){
   var o = img.getAttribute('data-o');
