@@ -260,6 +260,20 @@
   /* Cały blog w czcionce Outfit - także fragmenty z czcionką wpisaną w treść artykułu */
   body, body *:not(svg):not(path){ font-family:'Outfit',sans-serif !important; }
 </style>
+
+<script>
+/* LŻEJSZE OKŁADKI: zamiast oryginału (często 1-2 MB) prosimy Supabase o pomniejszoną wersję
+   (np. szer. 800 px, format WebP, ~50-120 KB). Gdyby pomniejszanie nie zadziałało,
+   obrazek sam wraca do oryginału (ewImgFallback), więc nic się nie psuje. */
+window.ewThumb = function(url, w){
+  if(!url || url.indexOf('/storage/v1/object/public/') === -1) return url;
+  return url.replace('/storage/v1/object/public/', '/storage/v1/render/image/public/') + '?width=' + w + '&quality=72';
+};
+window.ewImgFallback = function(img){
+  var o = img.getAttribute('data-o');
+  if(o && img.src !== o){ img.src = o; } else { img.style.visibility = 'hidden'; }
+};
+</script>
 </head>
 <body>
 
@@ -481,7 +495,7 @@
     items = items.slice((curPage-1)*PER_PAGE, curPage*PER_PAGE);
     grid.innerHTML = items.map(function(a){
       var cover = a.cover_url
-        ? '<img class="post-cover" src="'+esc(a.cover_url)+'" alt="'+esc(a.title)+'" loading="lazy" decoding="async">'
+        ? '<img class="post-cover" src="'+esc(ewThumb(a.cover_url,800))+'" data-o="'+esc(a.cover_url)+'" onerror="ewImgFallback(this)" alt="'+esc(a.title)+'" loading="lazy" decoding="async">'
         : '<div class="post-cover-ph">EasyWonders</div>';
       var cat = a.category ? '<span class="badge-cat">'+esc(catLabel(a.category))+'</span>' : '';
       return '<a class="post" href="/nauka/'+encodeURIComponent(a.slug)+'" data-slug="'+esc(a.slug)+'">'
@@ -610,7 +624,7 @@
     if(a.category) badges += '<span class="badge-cat">'+esc(catLabel(a.category))+'</span>';
     document.getElementById('artBadges').innerHTML = badges;
     document.getElementById('artCoverSlot').innerHTML = a.cover_url
-      ? ('<img class="art-cover" src="'+esc(a.cover_url)+'" alt="'+esc(a.title)+'">')
+      ? ('<img class="art-cover" src="'+esc(ewThumb(a.cover_url,1200))+'" data-o="'+esc(a.cover_url)+'" onerror="ewImgFallback(this)" alt="'+esc(a.title)+'">')
       : '<div class="art-cover-ph">EasyWonders</div>';
     renderPractice(a);
     document.title = a.title + ' | EasyWonders';
@@ -702,7 +716,7 @@
     list=shuffle(list).slice(0,12);
     var html=list.map(function(g){
       return '<a class="bb-card" href="/cwiczenie/'+encodeURIComponent(g.slug)+'" aria-label="'+esc(g.title)+'">'+
-        '<img src="'+esc(g.cover_url)+'" alt="" decoding="async" onerror="this.style.visibility=\'hidden\'">'+
+        '<img src="'+esc(ewThumb(g.cover_url,400))+'" data-o="'+esc(g.cover_url)+'" alt="" decoding="async" onerror="ewImgFallback(this)">'+
         '<span class="bb-cb"><span class="bb-cl">'+esc(CAT[g.category]||'Ćwiczenie')+(g.level?' · '+esc(g.level):'')+'</span>'+
         '<span class="bb-ct">'+esc(g.title)+'</span></span></a>';
     }).join('');
