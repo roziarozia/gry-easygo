@@ -100,7 +100,7 @@ export async function GET(request, { params }) {
   // 3) treść artykułu
   // okładka w pomniejszonej wersji (szybciej); gdyby pomniejszanie nie zadziałało, wraca do oryginału
   const thumb = (u, w) => (u && u.includes('/storage/v1/object/public/'))
-    ? u.replace('/storage/v1/object/public/', '/storage/v1/render/image/public/') + `?width=${w}&quality=72`
+    ? u.replace('/storage/v1/object/public/', '/storage/v1/render/image/public/') + `?width=${w}&quality=72&resize=contain`
     : u;
   const cover = article.cover_url
     ? `<img class="art-cover" src="${esc(thumb(article.cover_url, 1200))}" data-o="${esc(article.cover_url)}" onerror="ewImgFallback(this)" alt="${esc(title)}" fetchpriority="high">`
