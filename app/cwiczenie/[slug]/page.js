@@ -27,12 +27,15 @@ export async function generateMetadata({ params }) {
   // Jeśli ćwiczenie ma własny opis „Czego się nauczysz” (kolumna learn_text), to on idzie
   // do Google — unikalny dla każdego ćwiczenia. Przycinamy na granicy słowa do ~160 znaków.
   const opis = game.learn_text ? przytnij(game.learn_text, 160) : staryOpis;
+  // Tytuł dla Google (kolumna seo_title) — po polsku, pod to, czego ludzie szukają.
+  // Na stronie i kafelkach dalej widać zwykły tytuł ćwiczenia.
+  const tytulGoogle = game.seo_title || game.title;
   return {
-    title: game.title,
+    title: tytulGoogle,
     description: opis,
     alternates: { canonical: `/cwiczenie/${game.slug}` },
     openGraph: {
-      title: game.title, description: opis,
+      title: tytulGoogle, description: opis,
       url: `/cwiczenie/${game.slug}`,
       images: game.cover_url ? [game.cover_url] : [], type: 'article',
     },
