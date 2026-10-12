@@ -281,6 +281,7 @@
         </div>
         <div class="field"><label>Instrukcja <span class="hint-i">format: English||Polski (angielski przed ||)</span></label><input type="text" id="fInstruction" placeholder="Type the missing word.||Wpisz brakujące słowo."></div>
         <div class="field"><label>Opis (krótki, pod tytułem)</label><textarea id="fDesc"></textarea></div>
+        <div class="field"><label>Tytuł dla Google <span class="hint-i">po polsku, tak jak ludzie szukają, maks. ok. 58 znaków · widać go tylko w Google i na karcie przeglądarki</span></label><input type="text" id="fSeoTitle" placeholder="Czasowniki statyczne (stative verbs) – ćwiczenia B1"><div id="seoCount" style="font-size:12px; color:var(--muted); margin-top:4px;">0 znaków</div></div>
         <div class="field"><label>Czego się nauczysz (opis dla Google) <span class="hint-i">2–3 zdania, ok. 250–400 znaków · widać go pod ćwiczeniem i w wynikach Google</span></label><textarea id="fLearn" style="min-height:96px;" placeholder="Poznasz 15 zwrotów o…, np. … Czytasz definicję i wpisujesz pasujące słowo… Przyda się…"></textarea><div id="learnCount" style="font-size:12px; color:var(--muted); margin-top:4px;">0 znaków</div></div>
 
         <details class="kw-box">
@@ -1130,6 +1131,13 @@
     el.style.color=(n&&(n<200||n>450))?'#b4572a':'';
   }
   $('fLearn').addEventListener('input', updLearnCount);
+  function updSeoCount(){
+    var n=($('fSeoTitle').value||'').trim().length;
+    var el=$('seoCount'); if(!el) return;
+    el.textContent=n+' znaków'+(n>58?' · za długi, Google go utnie':'');
+    el.style.color=n>58?'#b4572a':'';
+  }
+  $('fSeoTitle').addEventListener('input', updSeoCount);
 
   // ===== EDYTOR: nowy / otwórz =====
   function blankForm(){
@@ -1138,7 +1146,7 @@
     $('fTitle').value=''; $('fSlug').value=''; $('fTemplate').value='gap-fill'; $('fCat').value='gramatyka'; $('fLevel').value='';
     $('fSeries').value=''; $('fExNo').value='1'; $('fInstruction').value=''; $('fDesc').value='';
     $('fBg').value=''; $('fSlideLabel').value='';
-    $('fKeywords').value=''; $('fSort').value='0'; $('fLearn').value=''; updLearnCount();
+    $('fKeywords').value=''; $('fSort').value='0'; $('fLearn').value=''; updLearnCount(); $('fSeoTitle').value=''; updSeoCount();
     $('fPremium').checked=false; $('fKids').checked=false; $('fPub').checked=false;
     renderCover(''); $('coverSlot').removeAttribute('data-url');
     $('slugPrev').textContent='slug';
@@ -1170,6 +1178,7 @@
       $('fInstruction').value=a.instruction||''; $('fDesc').value=a.description||'';
       $('fKeywords').value=a.keywords||''; $('fSort').value=a.sort_order||0;
       $('fLearn').value=a.learn_text||''; updLearnCount();
+      $('fSeoTitle').value=a.seo_title||''; updSeoCount();
       $('fPremium').checked=!!a.is_premium; $('fKids').checked=!!a.for_kids; $('fPub').checked=!!a.published;
       renderCover(a.cover_url||''); $('coverSlot').removeAttribute('data-url');
       $('slugPrev').textContent=a.slug||'slug';
@@ -1415,6 +1424,7 @@
       instruction:$('fInstruction').value.trim()||null,
       keywords:$('fKeywords').value.trim(),
       learn_text:typo($('fLearn').value)||null,
+      seo_title:typo($('fSeoTitle').value).replace(/\.$/,'')||null,
       sort_order:parseInt($('fSort').value,10)||0,
       is_premium:$('fPremium').checked, for_kids:$('fKids').checked,
       published:$('fPub').checked, cover_url:coverUrl
