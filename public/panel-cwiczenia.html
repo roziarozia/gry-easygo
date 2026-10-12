@@ -727,11 +727,13 @@
     div.innerHTML=''
       +'<div class="item-head"><span class="item-no">Luka</span><button class="btn btn-danger btn-sm rm">Usuń</button></div>'
       +'<div class="field"><label>Zdanie (z _ jako luką)</label><input type="text" class="g-sent" value="'+esc(data.sentence||'')+'" placeholder="_ a book on the table."></div>'
-      +'<div class="grid2">'
       +'<div class="field"><label>Poprawne odpowiedzi (oddziel |)</label><input type="text" class="g-ans" value="'+esc(data.answers||'')+'" placeholder="There is|There\'s"></div>'
-      +'<div class="field"><label>Podpowiedź PL (opcjonalnie)</label><input type="text" class="g-hint" value="'+esc(data.pl_hint||'')+'"></div>'
+      +'<div class="grid2">'
+      +'<div class="field"><label>Podpowiedź PL – tłumaczenie (opcjonalnie)</label><input type="text" class="g-hint" value="'+esc(data.pl_hint||'')+'" placeholder="zapuścić"></div>'
+      +'<div class="field"><label>Podpowiedź EN – bezokolicznik (opcjonalnie)</label><input type="text" class="g-base" value="'+esc(data.base_form||'')+'" placeholder="grow"></div>'
       +'</div>'
-      +'<div class="field"><label>Wyjaśnienie (Polski||English — polski przed ||)</label><textarea class="g-expl">'+esc(data.explanation||'')+'</textarea></div>';
+      +'<div class="hint-i" style="margin:-4px 0 10px;">Gdy wypełnisz obie podpowiedzi, uczeń wybiera tryb: z tłumaczeniem albo z bezokolicznikiem.</div>'
+      +'<div class="field"><label>Wyjaśnienie (Polski||English — polski przed ||; na B2+ albo gdy wolisz: samo po angielsku)</label><textarea class="g-expl">'+esc(data.explanation||'')+'</textarea></div>';
     div.querySelector('.rm').addEventListener('click', function(){ div.remove(); renumber(); });
     return div;
   }
@@ -1388,6 +1390,7 @@
         if(!sent || !ans){ err='Luka '+(i+1)+': uzupełnij zdanie i odpowiedź.'; }
         gapData.push({ position:gapData.length+1, sentence:sent, answers:ans,
           pl_hint:it.querySelector('.g-hint').value.trim(),
+          base_form:it.querySelector('.g-base').value.trim(),
           explanation:it.querySelector('.g-expl').value.trim() });
       });
       if(!gapData.length) err='Dodaj przynajmniej jedną lukę.';
