@@ -22,8 +22,11 @@ export async function generateMetadata({ params }) {
   const kw = (game.keywords || '').split(',').map(s => s.trim())
     .filter(s => s && !/^[a-c][12]$/i.test(s)).slice(0, 4).join(', ');
   const bazowy = game.description || `Ćwiczenie do nauki angielskiego${game.level ? ', poziom ' + game.level : ''}.`;
-  const opis = [bazowy, game.level ? `Poziom ${game.level}.` : '', kw ? `Słówka: ${kw}.` : '']
+  const staryOpis = [bazowy, game.level ? `Poziom ${game.level}.` : '', kw ? `Słówka: ${kw}.` : '']
     .filter(Boolean).join(' ').slice(0, 160);
+  // Jeśli ćwiczenie ma własny opis „Czego się nauczysz” (kolumna learn_text), to on idzie
+  // do Google — unikalny dla każdego ćwiczenia. Przycinamy na granicy słowa do ~160 znaków.
+  const opis = game.learn_text ? przytnij(game.learn_text, 160) : staryOpis;
   return {
     title: game.title,
     description: opis,
@@ -34,6 +37,15 @@ export async function generateMetadata({ params }) {
       images: game.cover_url ? [game.cover_url] : [], type: 'article',
     },
   };
+}
+
+// Przycina tekst do max znaków na granicy słowa (dla meta description).
+function przytnij(tekst, max) {
+  const t = (tekst || '').replace(/\s+/g, ' ').trim();
+  if (t.length <= max) return t;
+  const cut = t.slice(0, max - 1);
+  const sp = cut.lastIndexOf(' ');
+  return (sp > 80 ? cut.slice(0, sp) : cut).replace(/[,;:.\s]+$/, '') + '…';
 }
 
 const CAT_LABEL = { gramatyka: 'Gramatyka', slownictwo: 'Słownictwo', speaking: 'Speaking', reading: 'Reading', listening: 'Listening', kultura: 'Wiedza o krajach' };
@@ -103,7 +115,7 @@ export default async function CwiczeniePage({ params }) {
 
   const jsonLd = {
     '@context': 'https://schema.org', '@type': 'LearningResource',
-    name: game.title, description: game.description || '',
+    name: game.title, description: game.learn_text || game.description || '',
     educationalLevel: game.level || '', inLanguage: 'en', teaches: 'English',
     learningResourceType: 'Interactive exercise', isAccessibleForFree: !game.is_premium,
     provider: ORGANIZATION,
@@ -153,8 +165,13 @@ export default async function CwiczeniePage({ params }) {
           </p>
         )}
 
-        {/* Wzbogacony opis — generowany z danych ćwiczenia, dla ucznia i dla Google */}
-        {(() => {
+        {/* Opis „Czego się nauczysz” — pisany osobno dla każdego ćwiczenia (kolumna learn_text).
+            Gdy go brak (np. nowe ćwiczenie), zostaje dawny opis składany automatycznie. */}
+        {game.learn_text ? (
+          <p style={{ fontSize: 14.5, lineHeight: 1.65, color: 'var(--eg-muted)', margin: '0 0 18px' }}>
+            <strong style={{ color: 'var(--eg-ink)' }}>Czego się nauczysz:</strong> {game.learn_text}
+          </p>
+        ) : (() => {
           const { zdanie1, kwPolskie } = budujOpis(game);
           return (
             <>
