@@ -149,6 +149,14 @@
   .art-content table tr:last-child td{ border-bottom:none; }
   .art-content table .per{ font-weight:800; color:var(--magenta); white-space:nowrap; }
   .art-content table .en{ color:var(--ink); } .art-content table .pls{ color:var(--muted); font-size:13px; }
+  /* Telefon: tabela mieści się w szerokości ekranu — tekst zawija się w komórkach zamiast przewijania w bok */
+  @media(max-width:620px){
+    .art-content table{ min-width:0; font-size:13.5px; table-layout:auto; }
+    .art-content table th{ padding:8px 7px; font-size:13px; }
+    .art-content table td{ padding:8px 7px; overflow-wrap:break-word; hyphens:auto; }
+    .art-content table .pls{ font-size:12.5px; }
+    .art-content table .per{ white-space:normal; }
+  }
 
   /* sekcja "Twoja kolej" + kafelek ćwiczenia (zachowane) */
   .practice{ margin:40px 0 0; }
