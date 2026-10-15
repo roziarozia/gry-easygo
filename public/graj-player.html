@@ -197,15 +197,16 @@
   .frame.reading-mode{
     aspect-ratio:auto;
     height:auto;
-    max-height:90vh;
+    max-height:none;   /* karta rośnie razem z tekstem - bez przewijania w przewijaniu */
     justify-content:flex-start;
     padding:40px 36px 44px;
   }
   .frame.reading-mode > section{
     justify-content:flex-start;
-    height:100%;
+    height:auto;
     min-height:0;
   }
+  .frame.reading-mode .reading-text{ overflow:visible; flex:none; }
   .frame > section{
     display:flex;
     flex-direction:column;
@@ -1399,7 +1400,7 @@
   @media (max-width:560px){
     .frame{padding:60px 20px 56px;height:min(560px,72vh);}
     .frame.slide-mode{padding:0;}
-    .frame.reading-mode{height:auto;max-height:90vh;padding:48px 20px 40px;}
+    .frame.reading-mode{height:auto;max-height:none;padding:48px 20px 40px;}
     .frame.artgap-mode{height:auto;max-height:none;padding:36px 16px 40px;justify-content:flex-start;}
     .btn{min-width:130px;font-size:15px;}
     .prompt{padding:10px 24px 12px;}
