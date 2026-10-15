@@ -4092,7 +4092,10 @@ async function egShowAnswerDetails(gameSlug, userId, opts){
       var de = document.documentElement;
       var prev = de.style.height;
       de.style.height = 'auto';
-      var h = document.body.scrollHeight;
+      // przy powiększeniu przeglądarki (np. 110-125%) wysokość bywa ułamkowa,
+      // a scrollHeight zaokrągla w dół - iframe wychodził o 1px za niski
+      // i pokazywał własny pasek przewijania. Zaokrąglamy w górę + mały zapas.
+      var h = Math.ceil(Math.max(document.body.scrollHeight, document.body.getBoundingClientRect().height)) + 4;
       de.style.height = prev;
       if(window.parent && window.parent!==window){ window.parent.postMessage({egPlayerHeight:h}, '*'); }
     }catch(e){}
