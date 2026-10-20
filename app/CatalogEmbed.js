@@ -74,7 +74,7 @@ export default function CatalogEmbed() {
         try {
           const saved = JSON.parse(localStorage.getItem('easygo_filtry_url') || 'null');
           if (saved && typeof saved === 'object') {
-            ['poziom', 'kategoria', 'status', 'sort', 'szukaj'].forEach(function (k) {
+            ['poziom', 'kategoria', 'status', 'sort'].forEach(function (k) {
               if (saved[k]) pass.set(k, saved[k]);
             });
           }
