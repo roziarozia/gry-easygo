@@ -50,13 +50,53 @@ export default function Konto() {
           return;
         }
         var pr = await sb.from('profiles')
-          .select('access, access_source, role, seats, subscription_status, subscription_cancel_at, subscription_period_end, comp_expires_at')
+          .select('access, access_source, role, seats, subscription_status, subscription_cancel_at, subscription_period_end, comp_expires_at, teacher_id, owner_id')
           .eq('id', me.id).single();
         myProfile = pr && pr.data ? pr.data : null;
         if(analyticsEnabled && myProfile){ posthog.identify(me.id, { role: myProfile.role }); }
         if(myProfile && myProfile.access_source === 'own_sub'){ $('subCard').classList.remove('hidden'); }
         if(myProfile){ await renderSubStatus(myProfile); }
+        renderRoleCard();
       })();
+
+      // TYP KONTA (uczeń / lektor) — zmiana możliwa tylko dla darmowego, niepowiązanego konta.
+      // Ostateczną decyzję podejmuje baza (RPC switch_my_role), tu tylko pokazujemy przycisk.
+      function renderRoleCard(){
+        var card = $('roleCard');
+        if(!card || !myProfile) return;
+        var isT = myProfile.role === 'teacher';
+        $('roleDesc').textContent = isT
+          ? 'Masz konto lektora: możesz dodawać uczniów, zadawać im pracę domową i śledzić postępy w Panelu lektora.'
+          : 'Masz konto ucznia: rozwiązujesz ćwiczenia i śledzisz swoje postępy.';
+        var canSwitch = myProfile.access !== 'full' && (myProfile.access_source || 'none') === 'none' && !myProfile.teacher_id && !myProfile.owner_id;
+        var btn = $('roleBtn');
+        if(canSwitch){
+          btn.style.display = '';
+          btn.textContent = isT ? 'Zmień na konto ucznia' : 'Zmień na konto lektora';
+          $('roleNote').textContent = '';
+        } else {
+          btn.style.display = 'none';
+          $('roleNote').textContent = 'Typ konta można zmienić samodzielnie tylko przy darmowym koncie, które nie jest połączone z lektorem. Jeśli potrzebujesz zmiany, napisz do nas.';
+        }
+        card.classList.remove('hidden');
+      }
+      $('roleBtn').addEventListener('click', async function(){
+        if(!myProfile) return;
+        var target = myProfile.role === 'teacher' ? 'student' : 'teacher';
+        if(!confirm(target === 'teacher'
+          ? 'Na pewno chcesz zmienić konto na konto lektora?\n\nDostaniesz Panel lektora, a żeby dodawać uczniów, potrzebna będzie subskrypcja dla lektorów. Dopóki nie masz uczniów ani subskrypcji, możesz w każdej chwili wrócić do konta ucznia.'
+          : 'Na pewno chcesz zmienić konto na konto ucznia?\n\nStracisz dostęp do Panelu lektora. Dopóki nie masz uczniów ani subskrypcji, możesz w każdej chwili wrócić do konta lektora.')) return;
+        $('roleBtn').disabled = true;
+        var r = await sb.rpc('switch_my_role', { p_role: target });
+        var out = r && r.data ? String(r.data) : '';
+        if(r.error || out.indexOf('ok') !== 0){
+          $('roleBtn').disabled = false;
+          msg($('roleMsg'), r.error ? 'Nie udało się zmienić typu konta. Spróbuj ponownie.' : out.replace(/^error:\s*/, ''), 'err');
+          return;
+        }
+        msg($('roleMsg'), 'Gotowe! Typ konta został zmieniony.', 'ok');
+        setTimeout(function(){ window.location.reload(); }, 800);
+      });
 
       function formatDatePL(iso){
         if(!iso) return '';
@@ -257,6 +297,14 @@ export default function Konto() {
             </div>
             <button className="btn" id="savePass">Zapisz nowe hasło</button>
             <div className="msg" id="passMsg"></div>
+          </div>
+
+          <div className="card hidden" id="roleCard">
+            <h2>Typ konta</h2>
+            <p className="desc" id="roleDesc"></p>
+            <button className="btn secondary" id="roleBtn" style={{ display: 'none' }}></button>
+            <p className="desc" id="roleNote" style={{ marginTop: 8 }}></p>
+            <div className="msg" id="roleMsg"></div>
           </div>
 
           <div className="card" id="delCard">
