@@ -255,7 +255,7 @@ export default function Konto() {
       </button>
       <div className="wrap">
         <div className="brand">
-          <div className="logo">EasyGo</div>
+          <a className="logo" href="/" title="Powrót na stronę główną"><span className="e">Easy</span><span className="w">Wonders</span></a>
           <div className="sub">Moje konto</div>
         </div>
 
@@ -341,7 +341,9 @@ const CSS = `
   body{ margin:0; font-family:'Nunito',Arial,sans-serif; background:var(--eg-bg); color:var(--eg-ink); }
   .wrap{ max-width:560px; margin:0 auto; padding:40px 20px 60px; }
   .brand{ text-align:center; margin-bottom:28px; }
-  .brand .logo{ font-family:'Quicksand',sans-serif; font-weight:700; font-size:34px; letter-spacing:-1px; color:var(--eg-magenta); line-height:1; }
+  .brand .logo{ font-family:'Quicksand',sans-serif; font-weight:700; font-size:34px; letter-spacing:-1px; color:var(--eg-magenta); line-height:1; text-decoration:none; display:inline-block; }
+  .brand .logo .e{ color:#ca4490; } .brand .logo .w{ color:#f4c94c; }
+  .brand .logo:hover{ opacity:.85; }
   .brand .sub{ font-family:'Quicksand',sans-serif; font-weight:700; font-size:15px; display:inline-block; border-bottom:4px solid rgba(244,201,76,.55); padding-bottom:2px; margin-top:8px; }
   .card{ background:var(--eg-card); border:1px solid var(--eg-line); border-radius:18px; padding:26px 26px; margin-bottom:18px; box-shadow:0 6px 24px rgba(46,42,51,.04); }
   h2{ font-family:'Quicksand',sans-serif; font-size:19px; margin:0 0 4px; }
