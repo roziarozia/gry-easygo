@@ -126,7 +126,9 @@ export default function Konto() {
           } else if(status === 'trialing'){
             html += '<p class="status-title">Okres próbny</p>';
             html += '<p class="status-line">' + planLabelFor(p) + '</p>';
-            if(periodEnd){ html += '<p class="status-line">Bezpłatny okres próbny do <strong>' + formatDatePL(periodEnd) + '</strong>, potem naliczymy pierwszą płatność.</p>'; }
+            if(periodEnd){ html += '<p class="status-line">Bezpłatny okres próbny do <strong>' + formatDatePL(periodEnd) + '</strong>.</p>'; }
+            html += '<p class="status-line">Jeśli chcesz korzystać dalej po okresie próbnym, dodaj kartę w sekcji „Moja subskrypcja” poniżej (Zarządzaj subskrypcją). Pierwszą płatność pobierzemy dopiero po zakończeniu okresu próbnego.</p>';
+            html += '<p class="status-line status-muted">Bez dodanej karty subskrypcja zakończy się sama po okresie próbnym, bez żadnych opłat.</p>';
           } else {
             html += '<p class="status-title">Subskrypcja aktywna</p>';
             html += '<p class="status-line">' + planLabelFor(p) + '</p>';
