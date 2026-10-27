@@ -1558,6 +1558,30 @@
                 font-family:'Outfit','Quicksand',sans-serif !important; font-weight:600 !important; font-size:16px !important; gap:0 !important; }
   .eg-demo-btn:hover{ background:#b33a7e !important; box-shadow:0 6px 18px rgba(202,68,144,.38) !important; }
   html.eg-dark .eg-demo-btn{ box-shadow:none !important; }
+
+  /* ===== POWITANIE po założeniu konta (uczeń / lektor) ===== */
+  .eg-welcome{ position:relative; box-sizing:border-box; width:calc(100% - 32px); max-width:1180px; margin:16px auto 4px; padding:18px 48px 18px 22px;
+    background:#fdf2f9; border:1.5px solid var(--eg-magenta); border-radius:16px; color:var(--eg-ink); }
+  .eg-welcome-title{ font-family:'Quicksand',sans-serif; font-weight:700; font-size:19px; color:var(--eg-magenta); margin:0 0 6px; }
+  .eg-welcome-text{ font-size:15px; line-height:1.6; margin:0 0 12px; }
+  .eg-welcome-btns{ display:flex; flex-wrap:wrap; gap:8px; align-items:center; }
+  .eg-welcome-btn{ display:inline-flex; align-items:center; font-family:'Quicksand',sans-serif; font-weight:700; font-size:14px; padding:8px 16px;
+    border-radius:999px; border:1.5px solid var(--eg-magenta); cursor:pointer; text-decoration:none; background:#fff; color:var(--eg-magenta); }
+  .eg-welcome-btn.primary{ background:var(--eg-magenta); color:#fff; }
+  .eg-welcome-btn:hover{ opacity:.9; }
+  .eg-welcome-switch{ background:none; border:none; padding:6px 4px; font-family:inherit; font-size:13.5px; color:var(--eg-muted, #7d7788);
+    text-decoration:underline; cursor:pointer; }
+  .eg-welcome-confirm{ margin-top:10px; font-size:14px; }
+  .eg-welcome-confirm .eg-welcome-btn{ margin-left:6px; padding:5px 12px; font-size:13px; }
+  .eg-welcome-msg{ margin-top:8px; font-size:13.5px; }
+  .eg-welcome-msg.err{ color:#c0392b; }
+  .eg-welcome-x{ position:absolute; top:10px; right:12px; width:28px; height:28px; border:none; background:none; cursor:pointer;
+    font-size:18px; line-height:1; color:var(--eg-magenta); border-radius:999px; }
+  .eg-welcome-x:hover{ background:rgba(202,68,144,.1); }
+  html.eg-dark .eg-welcome{ background:#3a1f30; border-color:#8a4a72; }
+  html.eg-dark .eg-welcome-btn{ background:#2b2436; }
+  html.eg-dark .eg-welcome-btn.primary{ background:var(--eg-magenta); }
+  @media(max-width:560px){ .eg-welcome{ padding:16px 40px 16px 16px; } .eg-welcome-title{ font-size:17px; } }
 </style>
 
 <div class="eg-games">
@@ -1607,6 +1631,8 @@
     </div>
   </div>
 
+  <div class="eg-welcome" id="egWelcome" style="display:none" role="region" aria-label="Powitanie"></div>
+
   <section class="eg-hero">
     <h1 class="eg-hero-title">
       <span class="eg-wonderland">
@@ -1634,7 +1660,7 @@
           <span class="eg-hpro-kicker" data-i18n="Platforma do nauki angielskiego">Platforma do nauki angielskiego</span>
           <div class="eg-hpro-slides" id="egHproSlides" aria-live="polite">
             <div class="eg-hpro-slide eg-on" data-cover="any">
-              <h2 class="eg-hpro-h" data-i18n="7 dni za darmo">7 dni za darmo</h2>
+              <h2 class="eg-hpro-h" data-i18n="14 dni za darmo">14 dni za darmo</h2>
               <p class="eg-hpro-t" data-i18n="Sprawdź pełny dostęp do wszystkich ćwiczeń, zanim zdecydujesz.">Sprawdź pełny dostęp do wszystkich ćwiczeń, zanim zdecydujesz.</p>
             </div>
             <div class="eg-hpro-slide" data-cover="any">
@@ -1660,7 +1686,7 @@
           </div>
           <div class="eg-hpro-dots" id="egHproDots" aria-hidden="true"></div>
           <div class="eg-hpro-cta">
-            <button type="button" class="eg-intro-cta" id="egHeroCta" data-i18n="Wypróbuj za darmo przez 7 dni">Wypróbuj za darmo przez 7 dni</button>
+            <button type="button" class="eg-intro-cta" id="egHeroCta" data-i18n="Wypróbuj za darmo przez 14 dni">Wypróbuj za darmo przez 14 dni</button>
             <span class="eg-hpro-trust"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 3.5l2.6 5.7 6.2.6-4.7 4.1 1.4 6.1L12 17.3 6.5 20.1l1.4-6.1L3.2 9.8l6.2-.6z" stroke="#ca4490" stroke-width="1.8" stroke-linejoin="round"/></svg> <span data-i18n="Zaufało nam już ponad 100 osób">Zaufało nam już ponad 100 osób</span></span>
           </div>
         </div>
@@ -1697,7 +1723,7 @@
             <div class="eg-how-ico eg-how-ico-m"><svg width="26" height="26" viewBox="0 0 24 24" fill="none"><circle cx="11" cy="11" r="7" stroke="#ca4490" stroke-width="1.8"/><line x1="16.5" y1="16.5" x2="21" y2="21" stroke="#ca4490" stroke-width="1.8" stroke-linecap="round"/></svg></div>
             <div class="eg-how-num">1</div>
             <p class="eg-how-step-title" data-i18n="Załóż konto lektora">Załóż konto lektora</p>
-            <p class="eg-how-step-desc" data-i18n="Wybierz plan i zacznij od 7 dni za darmo.">Wybierz plan i zacznij od 7 dni za darmo.</p>
+            <p class="eg-how-step-desc" data-i18n="Wybierz plan i zacznij od 14 dni za darmo.">Wybierz plan i zacznij od 14 dni za darmo.</p>
           </div>
           <div class="eg-how-step">
             <div class="eg-how-ico eg-how-ico-l"><svg width="26" height="26" viewBox="0 0 24 24" fill="none"><rect x="3" y="5" width="18" height="14" rx="2" stroke="#8b6fc7" stroke-width="1.8"/><path d="M3.5 6.5L12 12.5l8.5-6" stroke="#8b6fc7" stroke-width="1.8" stroke-linecap="round"/></svg></div>
@@ -1736,7 +1762,7 @@
             <div class="eg-how-ico eg-how-ico-m"><svg width="26" height="26" viewBox="0 0 24 24" fill="none"><path d="M12 2l2.5 6.5H21l-5.2 4 2 6.5L12 15.5 6.2 19l2-6.5L3 8.5h6.5z" stroke="#ca4490" stroke-width="1.7" stroke-linejoin="round"/></svg></div>
             <div class="eg-how-num">1</div>
             <p class="eg-how-step-title" data-i18n="Załóż konto">Załóż konto</p>
-            <p class="eg-how-step-desc" data-i18n="Wybierz plan i zacznij od 7 dni za darmo.">Wybierz plan i zacznij od 7 dni za darmo.</p>
+            <p class="eg-how-step-desc" data-i18n="Wybierz plan i zacznij od 14 dni za darmo.">Wybierz plan i zacznij od 14 dni za darmo.</p>
           </div>
           <div class="eg-how-step">
             <div class="eg-how-ico eg-how-ico-l"><svg width="26" height="26" viewBox="0 0 24 24" fill="none"><circle cx="11" cy="11" r="7" stroke="#8b6fc7" stroke-width="1.8"/><line x1="16.5" y1="16.5" x2="21" y2="21" stroke="#8b6fc7" stroke-width="1.8" stroke-linecap="round"/></svg></div>
@@ -1926,7 +1952,7 @@
             <span><strong data-i18n="Konta dla całej szkoły językowej">Konta dla całej szkoły językowej</strong><br><span data-i18n="Właściciel subskrypcji zaprasza lektorów, przydziela im miejsca i dodaje uczniów. Każdy lektor prowadzi potem swoich uczniów - w grupach lub indywidualnie - zadaje im pracę domową i śledzi postępy.">Właściciel subskrypcji zaprasza lektorów, przydziela im miejsca i dodaje uczniów. Każdy lektor prowadzi potem swoich uczniów - w grupach lub indywidualnie - zadaje im pracę domową i śledzi postępy.</span></span>
           </li>
         </ul>
-        <p class="eg-how-cta" data-i18n="Wypróbuj EasyWonders za darmo przez 7 dni - bez ryzyka, w każdej chwili możesz zrezygnować. Zajrzyj do zakładki OFERTA, wybierz plan i zacznij naukę już dziś.">Wypróbuj EasyWonders <strong>za darmo przez 7 dni</strong> - bez ryzyka, w każdej chwili możesz zrezygnować. Zajrzyj do zakładki <strong>OFERTA</strong>, wybierz plan i zacznij naukę już dziś.</p>
+        <p class="eg-how-cta" data-i18n="Wypróbuj EasyWonders za darmo przez 14 dni - bez ryzyka, w każdej chwili możesz zrezygnować. Zajrzyj do zakładki OFERTA, wybierz plan i zacznij naukę już dziś.">Wypróbuj EasyWonders <strong>za darmo przez 14 dni</strong> - bez ryzyka, w każdej chwili możesz zrezygnować. Zajrzyj do zakładki <strong>OFERTA</strong>, wybierz plan i zacznij naukę już dziś.</p>
       </div>
     </div>
     <!-- seria i aktywne filtry stoją razem, jeden pod drugim, tuż nad kafelkami -->
@@ -3583,6 +3609,105 @@
   function egTellParentLogin(loggedIn){
     try{ if(window.parent && window.parent!==window){ window.parent.postMessage({egLoggedIn: !!loggedIn}, '*'); } }catch(e){}
   }
+  // ===== POWITANIE po założeniu konta =====
+  // Pokazuje się kontom założonym w ostatnich 30 dniach, dopóki ktoś go nie zamknie (krzyżyk zapamiętany w przeglądarce).
+  // Treść zależy od typu konta. Darmowe, niepowiązane konto może zmienić typ (uczeń <-> lektor) — RPC switch_my_role
+  // sprawdza po stronie bazy, czy zmiana jest bezpieczna (brak subskrypcji, lektora, uczniów, zaproszeń).
+  function egShowWelcome(session, p){
+    var box = document.getElementById('egWelcome');
+    if(!box || !session || !p) return;
+    var KEY = 'eg_powitanie_' + session.user.id;
+    try{ if(localStorage.getItem(KEY)) return; }catch(e){}
+    var created = p.created_at ? new Date(p.created_at).getTime() : 0;
+    if(!created || (Date.now() - created) > 30*24*3600*1000) return;
+
+    var en = window.EG_LANG === 'en';
+    function L(pl, e){ return en ? e : pl; }
+    var isTeacher = p.role === 'teacher';
+    var full = p.access === 'full';
+    var src = p.access_source || 'none';
+    var canSwitch = !full && src === 'none' && !p.teacher_id && !p.owner_id;
+
+    var text = '', btns = '', switchTo = '';
+    if(isTeacher && !full){
+      text = L('Jako lektor możesz zadawać uczniom ćwiczenia jako pracę domową i śledzić ich postępy w Panelu lektora. Zobacz, jak to działa, i wypróbuj pełny dostęp przez 14 dni za darmo.',
+               'As a teacher, you can assign exercises as homework and track your students’ progress in the Teacher panel. See how it works and try full access free for 14 days.');
+      btns = '<a class="eg-welcome-btn primary" href="/oferta" target="_top">' + L('Wypróbuj 14 dni za darmo','Try 14 days free') + '</a>' +
+             '<button type="button" class="eg-welcome-btn" data-eg-w="demo">' + L('Jak wygląda Panel lektora?','See the Teacher panel') + '</button>';
+      switchTo = 'student';
+    } else if(isTeacher){
+      text = L('Masz pełny dostęp do wszystkich ćwiczeń. Zacznij od dodania pierwszego ucznia w Panelu lektora, a potem zadaj mu pracę domową.',
+               'You have full access to all exercises. Start by adding your first student in the Teacher panel, then assign some homework.');
+      btns = '<a class="eg-welcome-btn primary" href="/panel-lektora" target="_top">' + L('Przejdź do Panelu lektora','Go to the Teacher panel') + '</a>';
+    } else if(src === 'teacher'){
+      text = L('Twój lektor dał Ci dostęp do ćwiczeń. Zadania od niego znajdziesz w zakładce „Praca domowa”, a resztę ćwiczeń możesz rozwiązywać, kiedy chcesz.',
+               'Your teacher has given you access to the exercises. You will find their tasks under “Homework”, and you can do any other exercise whenever you like.');
+    } else if(full){
+      text = L('Masz pełny dostęp do wszystkich ćwiczeń. Wybierz poziom i kategorię w filtrach poniżej i zacznij naukę.',
+               'You have full access to all exercises. Pick a level and category in the filters below and start learning.');
+    } else {
+      text = L('Możesz od razu rozwiązywać darmowe ćwiczenia. Z subskrypcją odblokujesz całą bazę, a pierwsze 14 dni jest za darmo.',
+               'You can start with the free exercises right away. A subscription unlocks the whole library, and the first 14 days are free.');
+      btns = '<a class="eg-welcome-btn primary" href="/oferta" target="_top">' + L('Zobacz ofertę','See the offer') + '</a>';
+      switchTo = 'teacher';
+    }
+    if(canSwitch && switchTo){
+      btns += '<button type="button" class="eg-welcome-switch" data-eg-w="switch">' +
+        (switchTo === 'teacher' ? L('Jestem lektorem — zmień na konto lektora','I am a teacher — switch to a teacher account')
+                                : L('Jestem uczniem — zmień na konto ucznia','I am a student — switch to a student account')) + '</button>';
+    }
+
+    box.innerHTML =
+      '<button type="button" class="eg-welcome-x" data-eg-w="close" aria-label="' + L('Zamknij','Close') + '">✕</button>' +
+      '<p class="eg-welcome-title">' + L('Witaj w EasyWonders!','Welcome to EasyWonders!') + '</p>' +
+      '<p class="eg-welcome-text">' + text + '</p>' +
+      (btns ? '<div class="eg-welcome-btns">' + btns + '</div>' : '') +
+      '<div class="eg-welcome-confirm" id="egWelcomeConfirm" style="display:none"></div>' +
+      '<div class="eg-welcome-msg" id="egWelcomeMsg"></div>';
+    box.style.display = 'block';
+
+    box.onclick = function(ev){
+      var b = ev.target.closest('[data-eg-w]');
+      if(!b) return;
+      var act = b.getAttribute('data-eg-w');
+      if(act === 'close'){
+        try{ localStorage.setItem(KEY, '1'); }catch(e){}
+        box.style.display = 'none';
+      } else if(act === 'demo'){
+        try{ if(window.parent && window.parent !== window){ window.parent.postMessage({egOpenDemo:'/demo-panelu'}, '*'); return; } }catch(e){}
+        window.open('/demo-panelu', '_blank', 'noopener');
+      } else if(act === 'switch'){
+        var c = document.getElementById('egWelcomeConfirm');
+        c.innerHTML = (switchTo === 'teacher'
+            ? L('<b>Na pewno chcesz zmienić konto na konto lektora?</b> Dostaniesz Panel lektora, a żeby dodawać uczniów, potrzebna będzie subskrypcja dla lektorów. Dopóki nie masz uczniów ani subskrypcji, możesz w każdej chwili wrócić do konta ucznia.',
+                '<b>Are you sure you want to switch to a teacher account?</b> You will get the Teacher panel; adding students requires a teacher subscription. As long as you have no students or subscription, you can switch back at any time.')
+            : L('<b>Na pewno chcesz zmienić konto na konto ucznia?</b> Stracisz dostęp do Panelu lektora. Dopóki nie masz uczniów ani subskrypcji, możesz w każdej chwili wrócić do konta lektora.',
+                '<b>Are you sure you want to switch to a student account?</b> You will lose access to the Teacher panel. As long as you have no students or subscription, you can switch back at any time.')) + '<br>' +
+          '<button type="button" class="eg-welcome-btn primary" data-eg-w="switch-yes">' + L('Tak, zmień','Yes, switch') + '</button>' +
+          '<button type="button" class="eg-welcome-btn" data-eg-w="switch-no">' + L('Anuluj','Cancel') + '</button>';
+        c.style.display = 'block';
+      } else if(act === 'switch-no'){
+        document.getElementById('egWelcomeConfirm').style.display = 'none';
+      } else if(act === 'switch-yes'){
+        var m = document.getElementById('egWelcomeMsg');
+        b.disabled = true;
+        _sb.rpc('switch_my_role', { p_role: switchTo }).then(function(r){
+          var out = r && r.data ? String(r.data) : '';
+          if(r.error || out.indexOf('ok') !== 0){
+            b.disabled = false;
+            m.className = 'eg-welcome-msg err';
+            m.textContent = r.error ? L('Nie udało się zmienić typu konta. Spróbuj ponownie.','Could not switch the account type. Please try again.')
+                                    : out.replace(/^error:\s*/, '');
+            return;
+          }
+          m.className = 'eg-welcome-msg';
+          m.textContent = L('Gotowe! Odświeżamy stronę…','Done! Reloading…');
+          setTimeout(function(){ try{ window.top.location.reload(); }catch(e){ location.reload(); } }, 700);
+        });
+      }
+    };
+  }
+
   function loadHomework(){
     if(!_sb){ egTellParentLogin(false); egLoadPixelForGuest(); renderAccount(null, null); applyLoginUI(false, false); return; }
     _sb.auth.getSession().then(function(res){
@@ -3591,7 +3716,7 @@
       currentStudentId = session.user.id;
       egTellParentLogin(true);
       // pobierz profil (rola, dostęp, źródło, Speaking) do paska konta i filtrowania
-      _sb.from('profiles').select('role,email,access,access_source,speaking_enabled').eq('id', session.user.id).single()
+      _sb.from('profiles').select('role,email,access,access_source,speaking_enabled,teacher_id,owner_id,created_at').eq('id', session.user.id).single()
         .then(function(pr){
           var p = pr && pr.data ? pr.data : null;
           // czy użytkownik ma pełny dostęp (własna subskrypcja, przez lektora, lub komplementarny)?
@@ -3609,6 +3734,7 @@
           }
           render();
           renderAccount(session, p);
+          egShowWelcome(session, p);   // powitanie dla nowych kont (uczeń / lektor) + zmiana typu konta
           // Teczka lektora — podgląd katalogu oczami ucznia (tylko rola teacher)
           if(p && p.role === 'teacher'){ initTeczka(session.user.id); }
         });
@@ -3716,7 +3842,7 @@
     'Opinie': 'Reviews',
     'Nauka': 'Learn',
     'Przeczytaj opinie': 'Read reviews',
-    'Wypróbuj za darmo przez 7 dni': 'Try it free for 7 days',
+    'Wypróbuj za darmo przez 14 dni': 'Try it free for 14 days',
     'Zaufało nam już ponad 100 osób': 'Trusted by 100+ learners',
     'Poznaj mnie': 'About me',
     'Założycielka i lektorka': 'Founder & English teacher',
@@ -3856,7 +3982,7 @@
     'Widzisz wyniki i błędy': 'You see results and mistakes',
     'Klikasz wynik ucznia i wiesz, co powtórzyć.': 'Click the student\'s score and know what to review.',
     'Załóż konto': 'Create an account',
-    'Wybierz plan i zacznij od 7 dni za darmo.': 'Choose a plan and start with 7 days free.',
+    'Wybierz plan i zacznij od 14 dni za darmo.': 'Choose a plan and start with 14 days free.',
     'Wybierz ćwiczenia': 'Choose your exercises',
     'Setki zadań na każdym poziomie zaawansowania.': 'Hundreds of tasks at every level.',
     'Ucz się na błędach': 'Learn from your mistakes',
@@ -3874,7 +4000,7 @@
     'Krótkie, jasne wyjaśnienia gramatyki i słownictwa z przykładami. Przeczytaj, zrozum, a potem sprawdź się w ćwiczeniach.': 'Short, clear explanations of grammar and vocabulary with examples. Read, understand, then test yourself in the exercises.',
     'Czytaj bloga': 'Read the blog',
     'Najnowsze na blogu': 'New on the blog',
-    '7 dni za darmo': '7 days free',
+    '14 dni za darmo': '14 days free',
     'Sprawdź pełny dostęp do wszystkich ćwiczeń, zanim zdecydujesz.': 'Try full access to every exercise before you decide.',
     'Każdy poziom, od A1 do C2': 'Every level, from A1 to C2',
     'Ponad 300 ćwiczeń z wyjaśnieniami, od pierwszych słówek po zaawansowaną gramatykę.': 'Over 300 exercises with explanations, from first words to advanced grammar.',
