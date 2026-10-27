@@ -1560,28 +1560,35 @@
   html.eg-dark .eg-demo-btn{ box-shadow:none !important; }
 
   /* ===== POWITANIE po założeniu konta (uczeń / lektor) ===== */
-  .eg-welcome{ position:relative; box-sizing:border-box; width:calc(100% - 32px); max-width:1180px; margin:16px auto 4px; padding:18px 48px 18px 22px;
-    background:#fdf2f9; border:1.5px solid var(--eg-magenta); border-radius:16px; color:var(--eg-ink); }
-  .eg-welcome-title{ font-family:'Quicksand',sans-serif; font-weight:700; font-size:19px; color:var(--eg-magenta); margin:0 0 6px; }
-  .eg-welcome-text{ font-size:15px; line-height:1.6; margin:0 0 12px; }
-  .eg-welcome-btns{ display:flex; flex-wrap:wrap; gap:8px; align-items:center; }
-  .eg-welcome-btn{ display:inline-flex; align-items:center; font-family:'Quicksand',sans-serif; font-weight:700; font-size:14px; padding:8px 16px;
+  .eg-welcome{ position:relative; box-sizing:border-box; width:calc(100% - 32px); max-width:860px; margin:18px auto 6px; padding:26px 52px 24px;
+    background:#fdf2f9; border:1.5px solid var(--eg-magenta); border-radius:20px; color:var(--eg-ink); text-align:center; }
+  .eg-welcome-title{ font-family:'Quicksand',sans-serif; font-weight:700; font-size:23px; color:var(--eg-magenta); margin:0 0 4px; }
+  .eg-welcome-lead{ font-family:'Quicksand',sans-serif; font-weight:700; font-size:16px; margin:0 0 10px; }
+  .eg-welcome-text{ font-size:15px; line-height:1.65; margin:0 auto 18px; max-width:640px; }
+  .eg-welcome-btns{ display:flex; flex-wrap:wrap; gap:10px; align-items:center; justify-content:center; }
+  .eg-welcome-btn{ display:inline-flex; align-items:center; font-family:'Quicksand',sans-serif; font-weight:700; font-size:14.5px; padding:10px 20px;
     border-radius:999px; border:1.5px solid var(--eg-magenta); cursor:pointer; text-decoration:none; background:#fff; color:var(--eg-magenta); }
   .eg-welcome-btn.primary{ background:var(--eg-magenta); color:#fff; }
   .eg-welcome-btn:hover{ opacity:.9; }
-  .eg-welcome-switch{ background:none; border:none; padding:6px 4px; font-family:inherit; font-size:13.5px; color:var(--eg-muted, #7d7788);
-    text-decoration:underline; cursor:pointer; }
-  .eg-welcome-confirm{ margin-top:10px; font-size:14px; }
-  .eg-welcome-confirm .eg-welcome-btn{ margin-left:6px; padding:5px 12px; font-size:13px; }
+  .eg-welcome-switchrow{ margin-top:18px; padding-top:16px; border-top:1px dashed rgba(202,68,144,.35);
+    display:flex; flex-wrap:wrap; gap:10px; align-items:center; justify-content:center; font-size:14px; }
+  .eg-welcome-switch{ display:inline-flex; align-items:center; font-family:'Quicksand',sans-serif; font-weight:700; font-size:14px; padding:9px 18px;
+    border-radius:999px; border:1.5px solid #c9b6ec; background:#ece4f8; color:#4b3a72; cursor:pointer; }
+  .eg-welcome-switch:hover{ background:#e2d6f5; }
+  .eg-welcome-confirm{ margin:14px auto 0; max-width:620px; font-size:14px; line-height:1.6; }
+  .eg-welcome-confirm .eg-welcome-btn{ margin:10px 4px 0; padding:7px 16px; font-size:13.5px; }
   .eg-welcome-msg{ margin-top:8px; font-size:13.5px; }
   .eg-welcome-msg.err{ color:#c0392b; }
-  .eg-welcome-x{ position:absolute; top:10px; right:12px; width:28px; height:28px; border:none; background:none; cursor:pointer;
+  .eg-welcome-x{ position:absolute; top:12px; right:14px; width:30px; height:30px; border:none; background:none; cursor:pointer;
     font-size:18px; line-height:1; color:var(--eg-magenta); border-radius:999px; }
   .eg-welcome-x:hover{ background:rgba(202,68,144,.1); }
   html.eg-dark .eg-welcome{ background:#3a1f30; border-color:#8a4a72; }
   html.eg-dark .eg-welcome-btn{ background:#2b2436; }
   html.eg-dark .eg-welcome-btn.primary{ background:var(--eg-magenta); }
-  @media(max-width:560px){ .eg-welcome{ padding:16px 40px 16px 16px; } .eg-welcome-title{ font-size:17px; } }
+  html.eg-dark .eg-welcome-switch{ background:#3b3152; border-color:#6d5a96; color:#e3d8f7; }
+  html.eg-dark .eg-welcome-switch:hover{ background:#463b60; }
+  html.eg-dark .eg-welcome-switchrow{ border-top-color:rgba(255,255,255,.18); }
+  @media(max-width:560px){ .eg-welcome{ padding:22px 18px 20px; } .eg-welcome-title{ font-size:19px; margin-top:8px; } .eg-welcome-text{ font-size:14.5px; } }
 </style>
 
 <div class="eg-games">
@@ -3628,40 +3635,50 @@
     var src = p.access_source || 'none';
     var canSwitch = !full && src === 'none' && !p.teacher_id && !p.owner_id;
 
-    var text = '', btns = '', switchTo = '';
+    var text = '', lead = '', btns = '', switchTo = '';
     if(isTeacher && !full){
-      text = L('Jako lektor możesz zadawać uczniom ćwiczenia jako pracę domową i śledzić ich postępy w Panelu lektora. Zobacz, jak to działa, i wypróbuj pełny dostęp przez 14 dni za darmo.',
-               'As a teacher, you can assign exercises as homework and track your students’ progress in the Teacher panel. See how it works and try full access free for 14 days.');
+      lead = L('Cieszymy się, że do nas dołączasz.','We are so glad you have joined us.');
+      text = L('Chcemy dać Ci wszystko, czego potrzebujesz na swoje lekcje: gotowe gry, czytanki, słuchanki, speakingi i ćwiczenia na każdym poziomie. Możesz zadawać je uczniom jako pracę domową i śledzić ich postępy w Panelu lektora, a Ty oszczędzasz czas na przygotowaniach. Wypróbuj pełny dostęp przez 14 dni za darmo, bez podawania karty.',
+               'We want to give you everything you need for your lessons: ready-made games, readings, listenings, speaking prompts and exercises at every level. Assign them as homework, track your students’ progress in the Teacher panel and save time on lesson prep. Try full access free for 14 days, no card required.');
       btns = '<a class="eg-welcome-btn primary" href="/oferta" target="_top">' + L('Wypróbuj 14 dni za darmo','Try 14 days free') + '</a>' +
              '<button type="button" class="eg-welcome-btn" data-eg-w="demo">' + L('Jak wygląda Panel lektora?','See the Teacher panel') + '</button>';
       switchTo = 'student';
     } else if(isTeacher){
-      text = L('Masz pełny dostęp do wszystkich ćwiczeń. Zacznij od dodania pierwszego ucznia w Panelu lektora, a potem zadaj mu pracę domową.',
-               'You have full access to all exercises. Start by adding your first student in the Teacher panel, then assign some homework.');
+      lead = L('Cieszymy się, że do nas dołączasz.','We are so glad you have joined us.');
+      text = L('Masz pełny dostęp do wszystkich ćwiczeń, więc możesz od razu zacząć. Dodaj pierwszego ucznia w Panelu lektora, zadaj mu pracę domową i zobacz, jak łatwo śledzić jego postępy. Chcemy, żeby przygotowanie lekcji zajmowało Ci jak najmniej czasu.',
+               'You have full access to all exercises, so you can get started right away. Add your first student in the Teacher panel, assign some homework and see how easy it is to track progress. We want lesson prep to take you as little time as possible.');
       btns = '<a class="eg-welcome-btn primary" href="/panel-lektora" target="_top">' + L('Przejdź do Panelu lektora','Go to the Teacher panel') + '</a>';
     } else if(src === 'teacher'){
-      text = L('Twój lektor dał Ci dostęp do ćwiczeń. Zadania od niego znajdziesz w zakładce „Praca domowa”, a resztę ćwiczeń możesz rozwiązywać, kiedy chcesz.',
-               'Your teacher has given you access to the exercises. You will find their tasks under “Homework”, and you can do any other exercise whenever you like.');
+      lead = L('Cieszymy się, że tu jesteś.','We are so glad you are here.');
+      text = L('Twój lektor dał Ci dostęp do ćwiczeń. Zadania od niego znajdziesz w zakładce „Praca domowa”, a całą resztę gier, czytanek i ćwiczeń możesz rozwiązywać, kiedy tylko chcesz. Powodzenia w nauce!',
+               'Your teacher has given you access to the exercises. You will find their tasks under “Homework”, and you can play any other game, reading or exercise whenever you like. Good luck!');
     } else if(full){
-      text = L('Masz pełny dostęp do wszystkich ćwiczeń. Wybierz poziom i kategorię w filtrach poniżej i zacznij naukę.',
-               'You have full access to all exercises. Pick a level and category in the filters below and start learning.');
+      lead = L('Cieszymy się, że tu jesteś.','We are so glad you are here.');
+      text = L('Masz pełny dostęp do wszystkich gier, czytanek, słuchanek i ćwiczeń na każdym poziomie. Wybierz poziom i kategorię w filtrach poniżej i ucz się we własnym tempie. Chcemy, żeby nauka angielskiego była dla Ciebie przyjemnością.',
+               'You have full access to all games, readings, listenings and exercises at every level. Pick a level and category in the filters below and learn at your own pace. We want learning English to be a pleasure for you.');
     } else {
-      text = L('Możesz od razu rozwiązywać darmowe ćwiczenia. Z subskrypcją odblokujesz całą bazę, a pierwsze 14 dni jest za darmo.',
-               'You can start with the free exercises right away. A subscription unlocks the whole library, and the first 14 days are free.');
+      lead = L('Cieszymy się, że tu jesteś.','We are so glad you are here.');
+      text = L('Chcemy, żeby nauka angielskiego była przyjemna i skuteczna, dlatego przygotowaliśmy gry, czytanki, słuchanki i ćwiczenia na każdym poziomie. Darmowe ćwiczenia możesz rozwiązywać od razu, a z subskrypcją odblokujesz całą bazę. Pierwsze 14 dni jest za darmo, bez podawania karty.',
+               'We want learning English to be fun and effective, so we have prepared games, readings, listenings and exercises at every level. You can start with the free exercises right away, and a subscription unlocks the whole library. The first 14 days are free, no card required.');
       btns = '<a class="eg-welcome-btn primary" href="/oferta" target="_top">' + L('Zobacz ofertę','See the offer') + '</a>';
       switchTo = 'teacher';
     }
+    var switchRow = '';
     if(canSwitch && switchTo){
-      btns += '<button type="button" class="eg-welcome-switch" data-eg-w="switch">' +
-        (switchTo === 'teacher' ? L('Jestem lektorem — zmień na konto lektora','I am a teacher — switch to a teacher account')
-                                : L('Jestem uczniem — zmień na konto ucznia','I am a student — switch to a student account')) + '</button>';
+      switchRow = '<div class="eg-welcome-switchrow"><span>' +
+        (switchTo === 'teacher' ? L('Uczysz angielskiego?','Do you teach English?') : L('Uczysz się angielskiego?','Are you learning English?')) + '</span>' +
+        '<button type="button" class="eg-welcome-switch" data-eg-w="switch">' +
+        (switchTo === 'teacher' ? L('Zmień na konto lektora','Switch to a teacher account')
+                                : L('Zmień na konto ucznia','Switch to a student account')) + '</button></div>';
     }
 
     box.innerHTML =
       '<button type="button" class="eg-welcome-x" data-eg-w="close" aria-label="' + L('Zamknij','Close') + '">✕</button>' +
-      '<p class="eg-welcome-title">' + L('Witaj w EasyWonders!','Welcome to EasyWonders!') + '</p>' +
+      '<p class="eg-welcome-title">' + L('Miło nam, że jesteś z nami!','Welcome to EasyWonders!') + '</p>' +
+      '<p class="eg-welcome-lead">' + lead + '</p>' +
       '<p class="eg-welcome-text">' + text + '</p>' +
       (btns ? '<div class="eg-welcome-btns">' + btns + '</div>' : '') +
+      switchRow +
       '<div class="eg-welcome-confirm" id="egWelcomeConfirm" style="display:none"></div>' +
       '<div class="eg-welcome-msg" id="egWelcomeMsg"></div>';
     box.style.display = 'block';
