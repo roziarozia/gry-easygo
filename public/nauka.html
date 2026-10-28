@@ -59,10 +59,11 @@
 
   .mobile-overlay{ display:none; position:fixed; inset:0; background:rgba(30,25,40,.45); z-index:150; opacity:0; transition:opacity .25s; }
   .mobile-overlay.open{ opacity:1; }
-  .mobile-menu{ display:flex; position:fixed; top:0; right:0; bottom:0; width:80%; max-width:320px; background:var(--card); z-index:200; box-shadow:-10px 0 40px rgba(0,0,0,.16); padding:24px 22px 28px; flex-direction:column; gap:11px; transform:translateX(105%); transition:transform .26s cubic-bezier(.4,0,.2,1); }
-  .mobile-menu.open{ transform:translateX(0); visibility:visible; transition:transform .26s cubic-bezier(.4,0,.2,1), visibility 0s; }
-  /* zamknięte menu nie może „wystawać” poza ekran — na iPhonie rozpychało stronę w bok */
-  .mobile-menu:not(.open){ visibility:hidden; transition:transform .26s cubic-bezier(.4,0,.2,1), visibility 0s .26s; }
+  .mobile-menu{ display:flex; position:fixed; top:0; right:0; bottom:0; width:80%; max-width:320px; background:var(--card); z-index:200; box-shadow:-10px 0 40px rgba(0,0,0,.16); padding:24px 22px 28px; flex-direction:column; gap:11px; clip-path:inset(0 0 0 100%); -webkit-clip-path:inset(0 0 0 100%); transition:clip-path .26s cubic-bezier(.4,0,.2,1), -webkit-clip-path .26s cubic-bezier(.4,0,.2,1); }
+  /* Menu NIE jest przesuwane poza ekran (transform) — na iPhonie takie schowane menu rozpychało stronę w bok.
+     Stoi na swoim miejscu przy prawej krawędzi i jest „odsłaniane” przycięciem (clip-path), które nie zmienia szerokości strony. */
+  .mobile-menu.open{ clip-path:inset(0 0 0 0); -webkit-clip-path:inset(0 0 0 0); visibility:visible; transition:clip-path .26s cubic-bezier(.4,0,.2,1), -webkit-clip-path .26s cubic-bezier(.4,0,.2,1), visibility 0s; }
+  .mobile-menu:not(.open){ visibility:hidden; transition:clip-path .26s cubic-bezier(.4,0,.2,1), -webkit-clip-path .26s cubic-bezier(.4,0,.2,1), visibility 0s .26s; }
   html, body{ overflow-x:clip; max-width:100%; }
   .art-content{ overflow-wrap:break-word; }
   .m-brand{ font-family:'Outfit',sans-serif; font-weight:700; font-size:21px; margin-bottom:22px; padding-bottom:18px; border-bottom:1px solid var(--line); display:block; text-decoration:none; }
