@@ -460,7 +460,24 @@ window.ewImgFallback = function(img){
   var SUPA_KEY = 'sb_publishable_TNCq1UAMAvLO0Z5Mt8QOig_OvsxhhyJ';
   var sb = window.supabase.createClient(SUPA_URL, SUPA_KEY);
   // Ramka „Przetestuj za darmo” — chowamy ją osobom, które mają już pełny dostęp (subskrypcja, lektor, founder).
-  try{ sb.rpc('has_full_access').then(function(r){ if(r && r.data===true){ var t=document.getElementById('artTrial'); if(t) t.classList.add('hidden'); } }); }catch(e){}
+  // Kto miał już subskrypcję (także okres próbny), nie dostanie drugiego okresu próbnego — dostaje zaproszenie do powrotu.
+  try{
+    sb.auth.getSession().then(function(res){
+      var ses = res && res.data ? res.data.session : null;
+      if(!ses) return;                                   // gość: zostaje „14 dni za darmo”
+      sb.rpc('has_full_access').then(function(r){
+        var t = document.getElementById('artTrial'); if(!t) return;
+        if(r && r.data === true){ t.classList.add('hidden'); return; }
+        sb.from('profiles').select('subscription_status').eq('id', ses.user.id).single().then(function(pr){
+          if(pr && pr.data && pr.data.subscription_status){
+            t.querySelector('.tb-title').textContent = 'Wróć do pełnego dostępu';
+            t.querySelector('.tb-text').textContent = 'Wszystkie ćwiczenia, czytanki i słuchanki czekają na Ciebie. Wybierz plan i ucz się dalej bez ograniczeń.';
+            t.querySelector('.tb-btn').textContent = 'Zobacz ofertę';
+          }
+        });
+      });
+    });
+  }catch(e){}
 
   var ALL = [];
   var curCat = 'all';
