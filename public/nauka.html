@@ -484,8 +484,12 @@ window.ewImgFallback = function(img){
     var items = ALL.filter(function(a){
       if(curCat!=='all' && a.category!==curCat) return false;
       if(curSearch){
-        var hay = norm(a.title)+' '+norm(a.excerpt)+' '+norm(a.keywords);
-        if(hay.indexOf(norm(curSearch))===-1) return false;
+        // Każde wpisane słowo musi wystąpić gdziekolwiek (tytuł, opis, słowa kluczowe, adres),
+        // więc „asking directions” znajdzie „asking for directions”, a kolejność słów nie ma znaczenia.
+        var hay = ' '+[norm(a.title), norm(a.excerpt), norm(a.keywords), norm((a.slug||'').replace(/-/g,' '))].join(' ')
+          .replace(/[^a-z0-9]+/g,' ')+' ';
+        var words = norm(curSearch).replace(/[^a-z0-9]+/g,' ').trim().split(' ').filter(Boolean);
+        for(var wi=0; wi<words.length; wi++){ if(hay.indexOf(words[wi])===-1) return false; }
       }
       return true;
     });
