@@ -467,7 +467,17 @@ window.ewImgFallback = function(img){
       if(!ses) return;                                   // gość: zostaje „14 dni za darmo”
       sb.rpc('has_full_access').then(function(r){
         var t = document.getElementById('artTrial'); if(!t) return;
-        if(r && r.data === true){ t.classList.add('hidden'); return; }
+        if(r && r.data === true){
+          t.classList.add('hidden');
+          // Ktoś z pełnym dostępem nie potrzebuje „Oferty” — zamiast tego „Jak to działa?” (opis platformy pod cenami).
+          document.querySelectorAll('a[href="/oferta"]').forEach(function(el){
+            el.setAttribute('href', '/oferta#jak-to-dziala');
+            var b = el.querySelector('.m-tx b'), sm = el.querySelector('.m-tx small');
+            if(b){ b.textContent = 'Jak to działa?'; if(sm) sm.textContent = 'Wszystko o platformie'; }
+            else el.textContent = 'Jak to działa?';
+          });
+          return;
+        }
         sb.from('profiles').select('subscription_status').eq('id', ses.user.id).single().then(function(pr){
           if(pr && pr.data && pr.data.subscription_status){
             t.querySelector('.tb-title').textContent = 'Wróć do pełnego dostępu';
