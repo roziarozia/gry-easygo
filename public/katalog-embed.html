@@ -3634,13 +3634,16 @@
     var full = p.access === 'full';
     var src = p.access_source || 'none';
     var canSwitch = !full && src === 'none' && !p.teacher_id && !p.owner_id;
+    // Ktoś, kto miał już subskrypcję (także okres próbny), nie dostanie drugiego okresu próbnego —
+    // nie obiecujemy mu więc „14 dni za darmo”.
+    var hadSub = !!p.subscription_status;
 
     var text = '', lead = '', btns = '', switchTo = '';
     if(isTeacher && !full){
       lead = L('Cieszymy się, że do nas dołączasz.','We are so glad you have joined us.');
-      text = L('Chcemy dać Ci wszystko, czego potrzebujesz na swoje lekcje: gotowe gry, czytanki, słuchanki, speakingi i ćwiczenia na każdym poziomie. Możesz zadawać je uczniom jako pracę domową i śledzić ich postępy w Panelu lektora, a Ty oszczędzasz czas na przygotowaniach. Wypróbuj pełny dostęp przez 14 dni za darmo, bez podawania karty.',
-               'We want to give you everything you need for your lessons: ready-made games, readings, listenings, speaking prompts and exercises at every level. Assign them as homework, track your students’ progress in the Teacher panel and save time on lesson prep. Try full access free for 14 days, no card required.');
-      btns = '<a class="eg-welcome-btn primary" href="/oferta" target="_top">' + L('Wypróbuj 14 dni za darmo','Try 14 days free') + '</a>' +
+      text = L('Chcemy dać Ci wszystko, czego potrzebujesz na swoje lekcje: gotowe gry, czytanki, słuchanki, speakingi i ćwiczenia na każdym poziomie. Możesz zadawać je uczniom jako pracę domową i śledzić ich postępy w Panelu lektora, a Ty oszczędzasz czas na przygotowaniach. ' + (hadSub ? 'Wróć do pełnego dostępu, kiedy tylko zechcesz.' : 'Wypróbuj pełny dostęp przez 14 dni za darmo, bez podawania karty.'),
+               'We want to give you everything you need for your lessons: ready-made games, readings, listenings, speaking prompts and exercises at every level. Assign them as homework, track your students’ progress in the Teacher panel and save time on lesson prep. ' + (hadSub ? 'Come back to full access whenever you like.' : 'Try full access free for 14 days, no card required.'));
+      btns = '<a class="eg-welcome-btn primary" href="/oferta" target="_top">' + (hadSub ? L('Zobacz ofertę','See the offer') : L('Wypróbuj 14 dni za darmo','Try 14 days free')) + '</a>' +
              '<button type="button" class="eg-welcome-btn" data-eg-w="demo">' + L('Jak wygląda Panel lektora?','See the Teacher panel') + '</button>';
       switchTo = 'student';
     } else if(isTeacher){
@@ -3658,8 +3661,8 @@
                'You have full access to all games, readings, listenings and exercises at every level. Pick a level and category in the filters below and learn at your own pace. We want learning English to be a pleasure for you.');
     } else {
       lead = L('Cieszymy się, że tu jesteś.','We are so glad you are here.');
-      text = L('Chcemy, żeby nauka angielskiego była przyjemna i skuteczna, dlatego przygotowaliśmy gry, czytanki, słuchanki i ćwiczenia na każdym poziomie. Darmowe ćwiczenia możesz rozwiązywać od razu, a z subskrypcją odblokujesz całą bazę. Pierwsze 14 dni jest za darmo, bez podawania karty.',
-               'We want learning English to be fun and effective, so we have prepared games, readings, listenings and exercises at every level. You can start with the free exercises right away, and a subscription unlocks the whole library. The first 14 days are free, no card required.');
+      text = L('Chcemy, żeby nauka angielskiego była przyjemna i skuteczna, dlatego przygotowaliśmy gry, czytanki, słuchanki i ćwiczenia na każdym poziomie. Darmowe ćwiczenia możesz rozwiązywać od razu, a z subskrypcją odblokujesz całą bazę.' + (hadSub ? '' : ' Pierwsze 14 dni jest za darmo, bez podawania karty.'),
+               'We want learning English to be fun and effective, so we have prepared games, readings, listenings and exercises at every level. You can start with the free exercises right away, and a subscription unlocks the whole library.' + (hadSub ? '' : ' The first 14 days are free, no card required.'));
       btns = '<a class="eg-welcome-btn primary" href="/oferta" target="_top">' + L('Zobacz ofertę','See the offer') + '</a>';
       switchTo = 'teacher';
     }
@@ -3733,7 +3736,7 @@
       currentStudentId = session.user.id;
       egTellParentLogin(true);
       // pobierz profil (rola, dostęp, źródło, Speaking) do paska konta i filtrowania
-      _sb.from('profiles').select('role,email,access,access_source,speaking_enabled,teacher_id,owner_id,created_at').eq('id', session.user.id).single()
+      _sb.from('profiles').select('role,email,access,access_source,speaking_enabled,teacher_id,owner_id,created_at,subscription_status').eq('id', session.user.id).single()
         .then(function(pr){
           var p = pr && pr.data ? pr.data : null;
           // czy użytkownik ma pełny dostęp (własna subskrypcja, przez lektora, lub komplementarny)?
