@@ -60,7 +60,11 @@
   .mobile-overlay{ display:none; position:fixed; inset:0; background:rgba(30,25,40,.45); z-index:150; opacity:0; transition:opacity .25s; }
   .mobile-overlay.open{ opacity:1; }
   .mobile-menu{ display:flex; position:fixed; top:0; right:0; bottom:0; width:80%; max-width:320px; background:var(--card); z-index:200; box-shadow:-10px 0 40px rgba(0,0,0,.16); padding:24px 22px 28px; flex-direction:column; gap:11px; transform:translateX(105%); transition:transform .26s cubic-bezier(.4,0,.2,1); }
-  .mobile-menu.open{ transform:translateX(0); }
+  .mobile-menu.open{ transform:translateX(0); visibility:visible; transition:transform .26s cubic-bezier(.4,0,.2,1), visibility 0s; }
+  /* zamknięte menu nie może „wystawać” poza ekran — na iPhonie rozpychało stronę w bok */
+  .mobile-menu:not(.open){ visibility:hidden; transition:transform .26s cubic-bezier(.4,0,.2,1), visibility 0s .26s; }
+  html, body{ overflow-x:clip; max-width:100%; }
+  .art-content{ overflow-wrap:break-word; }
   .m-brand{ font-family:'Outfit',sans-serif; font-weight:700; font-size:21px; margin-bottom:22px; padding-bottom:18px; border-bottom:1px solid var(--line); display:block; text-decoration:none; }
   .m-brand .e{ color:var(--magenta); } .m-brand .w{ color:var(--gold); }
   .m-item{ display:flex; align-items:center; gap:14px; text-decoration:none; padding:13px 14px; border-radius:14px; transition:background .15s, transform .14s; }
@@ -179,6 +183,17 @@
   .exc-desc{ font-size:14.5px; color:var(--muted); line-height:1.55; margin:0 0 16px; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; }
   .exc-play{ display:inline-flex; align-items:center; gap:7px; background:var(--magenta); color:#fff; font-family:'Outfit',sans-serif; font-weight:700; font-size:14.5px; padding:10px 22px; border-radius:999px; transition:background .16s; }
   .exc-card:hover .exc-play{ background:var(--magenta-dk); }
+
+  /* zaproszenie na okres próbny pod ćwiczeniem (chowane, gdy ktoś ma już pełny dostęp) */
+  .trial-box{ margin:36px auto 0; max-width:520px; text-align:center; background:#fbf8d9; border:1.5px solid #f4c94c; border-radius:18px; padding:24px 22px 26px; }
+  .trial-box .tb-title{ font-family:'Outfit',sans-serif; font-weight:700; font-size:20px; line-height:1.3; text-wrap:balance; color:var(--magenta); margin:0 0 8px; }
+  .trial-box .tb-text{ font-size:15px; line-height:1.55; color:#4a4553; margin:0 0 16px; }
+  .trial-box .tb-btn{ display:inline-block; text-decoration:none; background:var(--magenta); color:#fff; font-family:'Outfit',sans-serif; font-weight:700; font-size:15px; padding:12px 28px; border-radius:999px; transition:background .18s, transform .18s; }
+  .trial-box .tb-btn:hover{ background:var(--magenta-dk); transform:translateY(-1px); }
+  .trial-box.hidden{ display:none; }
+  @media (prefers-color-scheme: dark){ :root:not([data-theme="light"]) .trial-box{ background:#2a2618; border-color:#8a7430; } :root:not([data-theme="light"]) .trial-box .tb-text{ color:var(--muted); } }
+  :root[data-theme="dark"] .trial-box{ background:#2a2618; border-color:#8a7430; }
+  :root[data-theme="dark"] .trial-box .tb-text{ color:var(--muted); }
 
   .art-author{ display:flex; align-items:center; gap:13px; margin:40px 0 0; padding-top:24px; border-top:1px solid var(--line); }
   .art-author img{ width:50px; height:50px; border-radius:50%; object-fit:cover; object-position:50% 40%; background:var(--soft); }
@@ -379,6 +394,12 @@ window.ewImgFallback = function(img){
 
   <div class="practice" id="artPractice"></div>
 
+  <div class="trial-box" id="artTrial">
+    <p class="tb-title">Przetestuj EasyWonders za darmo!</p>
+    <p class="tb-text">14 dni pełnego dostępu do wszystkich ćwiczeń, czytanek i słuchanek. Bez podpinania karty.</p>
+    <a class="tb-btn" href="/oferta">Wypróbuj 14 dni za darmo</a>
+  </div>
+
   <div class="art-author">
     <img src="/rozia.png" alt="Rózia">
     <div>
@@ -437,6 +458,8 @@ window.ewImgFallback = function(img){
   var SUPA_URL = 'https://svjrdyxwqznbzxqeytdn.supabase.co';
   var SUPA_KEY = 'sb_publishable_TNCq1UAMAvLO0Z5Mt8QOig_OvsxhhyJ';
   var sb = window.supabase.createClient(SUPA_URL, SUPA_KEY);
+  // Ramka „Przetestuj za darmo” — chowamy ją osobom, które mają już pełny dostęp (subskrypcja, lektor, founder).
+  try{ sb.rpc('has_full_access').then(function(r){ if(r && r.data===true){ var t=document.getElementById('artTrial'); if(t) t.classList.add('hidden'); } }); }catch(e){}
 
   var ALL = [];
   var curCat = 'all';
