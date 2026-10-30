@@ -208,10 +208,10 @@ export default function Logowanie() {
             ? 'Miło nam, że wracasz. Zaloguj się i ćwicz dalej, a my zadbamy o Twoje postępy.'
             : 'Załóż konto i ucz się angielskiego w swoim tempie, z ćwiczeniami, które sprawdzają się same.'}</p>
           <ul className="eg-hello-list">
-            <li>Gramatyka, słownictwo, czytanki, słuchanki i speaking od A1 do C1</li>
-            <li>Każde ćwiczenie od razu pokazuje wynik i tłumaczy błędy</li>
-            <li>Twoje postępy i wyniki zapisują się na koncie</li>
-            <li>Lektorzy zadają pracę domową i śledzą postępy uczniów</li>
+            <li><strong>Wszystko w jednym miejscu</strong><span>Gramatyka, słownictwo, czytanki, słuchanki i speaking na poziomach od A1 do C1.</span></li>
+            <li><strong>Wynik od razu</strong><span>Każde ćwiczenie sprawdza się samo i wyjaśnia, skąd wziął się błąd.</span></li>
+            <li><strong>Postępy zawsze pod ręką</strong><span>Wyniki i zrobione ćwiczenia zapisują się na Twoim koncie.</span></li>
+            <li><strong>Dla lektorów</strong><span>Praca domowa zadawana jednym kliknięciem i podgląd postępów każdego ucznia.</span></li>
           </ul>
         </aside>
 
@@ -332,10 +332,12 @@ const CSS = `
   .eg-logo:hover{ opacity:.85; }
   .eg-hello-h{ font-family:'Outfit',sans-serif; font-weight:600; font-size:30px; line-height:1.2; letter-spacing:-.5px; margin:34px 0 12px; color:var(--eg-ink); }
   .eg-heart{ color:#ff5fa2; }
-  .eg-hello-lead{ font-size:16px; line-height:1.6; color:#4e475a; margin:0 0 24px; }
-  .eg-hello-list{ list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:12px; }
-  .eg-hello-list li{ position:relative; padding-left:22px; font-size:14.5px; line-height:1.5; font-weight:600; color:#4e475a; }
-  .eg-hello-list li::before{ content:''; position:absolute; left:2px; top:.5em; width:9px; height:9px; border-radius:50%; background:var(--eg-magenta); }
+  .eg-hello-lead{ font-size:16px; line-height:1.6; color:#4e475a; margin:0 0 26px; text-wrap:balance; }
+  .eg-hello-list{ list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:16px; }
+  .eg-hello-list li{ position:relative; padding-left:24px; }
+  .eg-hello-list li::before{ content:''; position:absolute; left:2px; top:.45em; width:10px; height:10px; border-radius:50%; background:var(--eg-magenta); }
+  .eg-hello-list strong{ display:block; font-size:15.5px; font-weight:700; color:var(--eg-ink); line-height:1.35; margin-bottom:2px; }
+  .eg-hello-list span{ display:block; font-size:14px; line-height:1.5; color:#5d5668; text-wrap:balance; }
 
   .eg-card{ padding:40px 40px 32px; min-width:0; }
   .eg-head{ margin-bottom:18px; }
