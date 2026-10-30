@@ -899,6 +899,28 @@
   .eg-sm-exit:hover{ background:#e3daf8; }
   html.eg-dark .eg-sm-exit{ background:#33294e; color:#c9b6f2; border-color:#5a4a8a; }
   html.eg-dark .eg-sm-exit:hover{ background:#42356a; }
+  /* Teczka: zadawanie pracy domowej prosto z podglądu ucznia */
+  .eg-sv-hw{
+    display:block; width:100%; margin-top:8px; font-family:inherit; font-weight:800; font-size:13.5px;
+    padding:10px; border-radius:10px; cursor:pointer; transition:background .15s, color .15s, border-color .15s;
+    color:var(--eg-magenta); background:var(--eg-card); border:1.5px solid #f0c4dc;
+  }
+  .eg-sv-hw:hover{ background:#fdf4f9; border-color:var(--eg-magenta); }
+  .eg-sv-hw.eg-sv-hw-on{ background:var(--eg-magenta); color:#fff; border-color:var(--eg-magenta); }
+  .eg-sv-hw.eg-sv-hw-on:hover{ filter:brightness(1.06); }
+  .eg-sv-hw.eg-sv-hw-done{ background:#eaf7f0; color:#1e7e50; border-color:#cde9d8; }
+  .eg-sv-hw:disabled{ opacity:.6; cursor:default; }
+  html.eg-dark .eg-sv-hw{ background:transparent; border-color:#6a3a56; color:#f4a8d0; }
+  html.eg-dark .eg-sv-hw:hover{ background:#3a2632; }
+  html.eg-dark .eg-sv-hw.eg-sv-hw-on{ background:var(--eg-magenta); color:#fff; border-color:var(--eg-magenta); }
+  html.eg-dark .eg-sv-hw.eg-sv-hw-done{ background:#1e3b2c; color:#7fd0a0; border-color:#3a6d50; }
+  .eg-sv-toast{
+    position:fixed; left:50%; bottom:24px; transform:translateX(-50%) translateY(20px); opacity:0;
+    background:#2e2a33; color:#fff; font-family:'Nunito',sans-serif; font-weight:700; font-size:14px; padding:11px 18px; border-radius:12px;
+    box-shadow:0 8px 24px rgba(0,0,0,.18); z-index:9999; transition:opacity .2s, transform .2s; pointer-events:none;
+    max-width:calc(100% - 32px); text-align:center;
+  }
+  .eg-sv-toast.eg-on{ opacity:1; transform:translateX(-50%) translateY(0); }
   /* baner trybu ucznia na telefonie: elementy w pionie, przycisk pełną szerokością */
   @media (max-width:560px){
     .eg-student-mode{ gap:9px 12px; padding:12px 14px; }
@@ -1925,13 +1947,14 @@
       <div class="eg-sm-modal" role="dialog" aria-modal="true" aria-labelledby="egSmModalTitle">
         <button type="button" class="eg-sm-modal-close" id="egSmModalClose" aria-label="Zamknij">✕</button>
         <h3 id="egSmModalTitle" data-i18n="Podgląd oczami ucznia">Podgląd oczami ucznia</h3>
-        <p data-i18n="Widzisz katalog tak, jak wygląda dla wybranego ucznia. To tylko podgląd - nic nie zapisuje się na koncie ucznia, a Twoje własne postępy wracają, gdy wyjdziesz z trybu.">Widzisz katalog tak, jak wygląda dla wybranego ucznia. To tylko podgląd - nic nie zapisuje się na koncie ucznia, a Twoje własne postępy wracają, gdy wyjdziesz z trybu.</p>
+        <p data-i18n="Widzisz katalog tak, jak wygląda dla wybranego ucznia. Twoje własne postępy wracają, gdy wyjdziesz z trybu.">Widzisz katalog tak, jak wygląda dla wybranego ucznia. Twoje własne postępy wracają, gdy wyjdziesz z trybu.</p>
         <p class="eg-sm-modal-sub" data-i18n="Kolorowe obwódki wokół zadań pokazują postępy ucznia:">Kolorowe obwódki wokół zadań pokazują postępy ucznia:</p>
         <ul class="eg-sm-modal-list">
           <li><span class="eg-sm-swatch eg-sm-sw-done"></span><span data-i18n="zielona - zadanie ukończone">zielona - zadanie ukończone</span></li>
           <li><span class="eg-sm-swatch eg-sm-sw-prog"></span><span data-i18n="lawendowa - zadanie w trakcie">lawendowa - zadanie w trakcie</span></li>
           <li><span class="eg-sm-swatch eg-sm-sw-none"></span><span data-i18n="bez obwódki - uczeń jeszcze nie zaczął">bez obwódki - uczeń jeszcze nie zaczął</span></li>
         </ul>
+        <p class="eg-sm-modal-sub" data-i18n="Pod każdym ćwiczeniem masz przycisk „Zadaj pracę domową” - jednym kliknięciem zadajesz je temu uczniowi, bez wchodzenia do Panelu lektora. Kliknij go ponownie, żeby usunąć ćwiczenie z pracy domowej.">Pod każdym ćwiczeniem masz przycisk „Zadaj pracę domową” - jednym kliknięciem zadajesz je temu uczniowi, bez wchodzenia do Panelu lektora. Kliknij go ponownie, żeby usunąć ćwiczenie z pracy domowej.</p>
         <p class="eg-sm-modal-note" data-i18n="Status „w trakcie” ustawiasz w Panelu lektora.">Status „w trakcie” ustawiasz w Panelu lektora.</p>
       </div>
     </div>
@@ -2555,6 +2578,7 @@
       var nm = document.getElementById('egSmName');
       if(nm) nm.textContent = target.name;
       if(sm) sm.classList.add('eg-on');
+      svShowHwFilter(true);
       buildTeczkaPanel();
       closeTeczka();
       curPage = 1;
@@ -2581,9 +2605,59 @@
     }
     var sm = document.getElementById('egStudentMode');
     if(sm) sm.classList.remove('eg-on');
+    svShowHwFilter(false);
     buildTeczkaPanel();
     closeTeczka();
     render();
+  }
+
+  // Zadaj / usuń pracę domową oglądanemu uczniowi (zapis na koncie ucznia, jak w panelu lektora)
+  function svToast(msg){
+    var el = document.getElementById('egSvToast');
+    if(!el){ el = document.createElement('div'); el.id = 'egSvToast'; el.className = 'eg-sv-toast'; document.body.appendChild(el); }
+    el.textContent = msg;
+    el.classList.add('eg-on');
+    clearTimeout(svToast._t);
+    svToast._t = setTimeout(function(){ el.classList.remove('eg-on'); }, 2600);
+  }
+  function svToggleHomework(slug, btn){
+    if(!svViewing || svViewing.kind !== 'student' || !svTeacherId) return;
+    var on = !!homeworkSet[slug];
+    if(on && homeworkDone[slug]){
+      if(!confirm(t('Uczeń oznaczył już tę pracę domową jako zrobioną. Usunąć ją z jego pracy domowej?'))) return;
+    }
+    var studentId = svViewing.id;
+    var game = (allGames || []).filter(function(x){ return x.slug === slug; })[0];
+    var title = game ? game.title : slug;
+    if(btn) btn.disabled = true;
+    var q = on
+      ? _sb.from('homework').delete().eq('teacher_id', svTeacherId).eq('student_id', studentId).eq('game_slug', slug)
+      : _sb.from('homework').insert({ teacher_id: svTeacherId, student_id: studentId, game_slug: slug });
+    q.then(function(r){
+      if(btn) btn.disabled = false;
+      if(r.error && !(!on && String(r.error.message || '').indexOf('duplicate') !== -1)){
+        alert(t('Nie udało się zapisać. Spróbuj ponownie.'));
+        return;
+      }
+      // uczeń mógł w międzyczasie zmienić widok — zapisuj tylko, jeśli dalej oglądamy tego samego ucznia
+      if(!svViewing || svViewing.id !== studentId) return;
+      if(on){ delete homeworkSet[slug]; delete homeworkDone[slug]; svToast(t('Usunięto z pracy domowej:') + ' ' + title); }
+      else { homeworkSet[slug] = true; svToast(t('Zadano jako pracę domową:') + ' ' + title); }
+      render();
+    });
+  }
+  document.addEventListener('click', function(e){
+    var b = e.target.closest ? e.target.closest('.eg-sv-hw[data-svhw]') : null;
+    if(!b) return;
+    e.preventDefault();
+    svToggleHomework(b.getAttribute('data-svhw'), b);
+  });
+  // w podglądzie ucznia pokaż filtr „Praca domowa”, żeby lektor widział, co już zadał
+  function svShowHwFilter(show){
+    var hwBtn = document.querySelector('#egFilters button[data-cat="domowa"]');
+    if(!hwBtn) return;
+    if(show){ hwBtn.style.display = ''; }
+    else if(typeof applyLoginUI === 'function'){ applyLoginUI(true, egIsTeacherStudent); }
   }
 
   function closeTeczka(){
@@ -2943,6 +3017,19 @@
           doneBtn = '<button class="eg-done eg-done-no" onclick="egToggleDone(\'' + g.slug + '\', true)" data-i18n="Oznacz jako zrobione">' + t('Oznacz jako zrobione') + '</button>';
         }
       }
+      // TECZKA: w podglądzie ucznia lektor może od razu zadać / usunąć pracę domową
+      var svHwBtn = '';
+      if(svViewing && svViewing.kind === 'student'){
+        if(homeworkSet[g.slug] && homeworkDone[g.slug]){
+          var _hd = new Date(homeworkDone[g.slug]);
+          var _hds = _hd.toLocaleDateString(window.EG_LANG==='en'?'en-GB':'pl-PL', {day:'2-digit', month:'2-digit'});
+          svHwBtn = '<button type="button" class="eg-sv-hw eg-sv-hw-done" data-svhw="' + esc(g.slug) + '" data-on="1" title="' + t('Kliknij, aby usunąć z pracy domowej') + '">✓ ' + t('Praca domowa zrobiona') + ' ' + _hds + '</button>';
+        } else if(homeworkSet[g.slug]){
+          svHwBtn = '<button type="button" class="eg-sv-hw eg-sv-hw-on" data-svhw="' + esc(g.slug) + '" data-on="1" title="' + t('Kliknij, aby usunąć z pracy domowej') + '">✓ ' + t('Zadane jako praca domowa') + '</button>';
+        } else {
+          svHwBtn = '<button type="button" class="eg-sv-hw" data-svhw="' + esc(g.slug) + '" data-on="0">+ ' + t('Zadaj pracę domową') + '</button>';
+        }
+      }
       // znacznik "dla dzieci" — obrys misia w rogu okładki
       var bearBadge = g.for_kids
         ? '<span class="eg-kids" title="' + t('Ćwiczenie dla dzieci') + '"><img src="data:image/png;base64,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" alt="" width="22" height="22"></span>'
@@ -2993,6 +3080,7 @@
           seriesLine +
           playBtn +
           doneBtn +
+          svHwBtn +
         '</div></article>';
     }).join('');
 
@@ -3911,7 +3999,15 @@
     'Wróć do widoku lektora': 'Back to teacher view',
     'jak to działa?': 'how does it work?',
     'Podgląd oczami ucznia': 'Viewing as a student',
-    'Widzisz katalog tak, jak wygląda dla wybranego ucznia. To tylko podgląd - nic nie zapisuje się na koncie ucznia, a Twoje własne postępy wracają, gdy wyjdziesz z trybu.': 'You see the catalogue as it looks for the selected student. This is view-only - nothing is saved to the student\'s account, and your own progress returns when you exit.',
+    'Widzisz katalog tak, jak wygląda dla wybranego ucznia. Twoje własne postępy wracają, gdy wyjdziesz z trybu.': 'You see the catalogue as it looks for the selected student. Your own progress returns when you exit.',
+    'Pod każdym ćwiczeniem masz przycisk „Zadaj pracę domową” - jednym kliknięciem zadajesz je temu uczniowi, bez wchodzenia do Panelu lektora. Kliknij go ponownie, żeby usunąć ćwiczenie z pracy domowej.': 'Under each exercise there is an "Assign as homework" button - one click assigns it to this student, without opening the Teacher Panel. Click it again to remove the exercise from their homework.',
+    'Zadaj pracę domową': 'Assign as homework',
+    'Zadane jako praca domowa': 'Assigned as homework',
+    'Praca domowa zrobiona': 'Homework done',
+    'Kliknij, aby usunąć z pracy domowej': 'Click to remove from homework',
+    'Zadano jako pracę domową:': 'Assigned as homework:',
+    'Usunięto z pracy domowej:': 'Removed from homework:',
+    'Uczeń oznaczył już tę pracę domową jako zrobioną. Usunąć ją z jego pracy domowej?': 'The student has already marked this homework as done. Remove it from their homework?',
     'Kolorowe obwódki wokół zadań pokazują postępy ucznia:': 'Coloured outlines around exercises show the student\'s progress:',
     'zielona - zadanie ukończone': 'green - exercise completed',
     'lawendowa - zadanie w trakcie': 'lavender - exercise in progress',
