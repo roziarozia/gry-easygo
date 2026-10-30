@@ -921,6 +921,56 @@
     max-width:calc(100% - 32px); text-align:center;
   }
   .eg-sv-toast.eg-on{ opacity:1; transform:translateX(-50%) translateY(0); }
+  /* Teczka: chmurka z notatką lektora + szybkie „zrobione” na kafelku */
+  .eg-svn{
+    position:relative; margin:4px 0 2px; background:#f4eefc; border:1.5px solid #d8c4ee; border-radius:14px;
+    padding:10px 12px 9px; font-size:13.5px; line-height:1.45; color:#3d2f5c;
+  }
+  .eg-svn::before{
+    content:''; position:absolute; top:-8px; left:18px; width:13px; height:13px; background:#f4eefc;
+    border-left:1.5px solid #d8c4ee; border-top:1.5px solid #d8c4ee; transform:rotate(45deg); border-radius:3px 0 0 0;
+  }
+  .eg-svn-lbl{ display:block; font-size:11px; font-weight:800; letter-spacing:.4px; text-transform:uppercase; color:#7c4dbc; margin-bottom:3px; }
+  .eg-svn-txt{ white-space:pre-line; word-break:break-word; font-weight:600; }
+  .eg-svn-empty{ color:#8a7ca8; font-style:italic; font-weight:600; }
+  .eg-svn-acts{ display:flex; flex-wrap:wrap; gap:6px; margin-top:8px; }
+  .eg-svn-btn{
+    font-family:inherit; font-size:12.5px; font-weight:800; border-radius:999px; padding:5px 11px; cursor:pointer;
+    background:var(--eg-card); color:#7c4dbc; border:1.5px solid #d8c4ee; transition:background .15s, border-color .15s;
+  }
+  .eg-svn-btn:hover{ background:#efe6f7; }
+  .eg-svn-btn.eg-svn-done{ color:#1e7e50; border-color:#bfe3cf; }
+  .eg-svn-btn.eg-svn-done:hover{ background:#eaf7f0; }
+  .eg-svn-btn.eg-svn-save{ background:#7c4dbc; color:#fff; border-color:#7c4dbc; }
+  .eg-svn-btn:disabled{ opacity:.6; cursor:default; }
+  .eg-svn textarea{
+    width:100%; box-sizing:border-box; min-height:60px; resize:vertical; font-family:inherit; font-size:13.5px;
+    border:1.5px solid #d8c4ee; border-radius:10px; padding:8px 10px; background:var(--eg-card); color:var(--eg-ink); outline:none;
+  }
+  .eg-svn textarea:focus{ border-color:#7c4dbc; }
+  .eg-svn.eg-svn-isdone{ background:#f1f9f4; border-color:#cde9d8; color:#2b4a39; }
+  .eg-svn.eg-svn-isdone::before{ background:#f1f9f4; border-color:#cde9d8; }
+  .eg-svn.eg-svn-isdone .eg-svn-lbl{ color:#1e7e50; }
+  .eg-sv-mark{
+    display:block; width:100%; margin-top:2px; font-family:inherit; font-size:12.5px; font-weight:800; cursor:pointer;
+    background:transparent; color:var(--eg-muted); border:1.5px dashed var(--eg-line); border-radius:10px; padding:7px;
+  }
+  .eg-sv-mark:hover{ color:#7c4dbc; border-color:#d8c4ee; background:#faf7fd; }
+  html.eg-dark .eg-svn{ background:#2b2640; border-color:#463d63; color:#e3dbf3; }
+  html.eg-dark .eg-svn::before{ background:#2b2640; border-color:#463d63; }
+  html.eg-dark .eg-svn-lbl{ color:#c9b6f2; }
+  html.eg-dark .eg-svn-empty{ color:#a99cc6; }
+  html.eg-dark .eg-svn-btn{ background:#221f33; color:#d8c4ee; border-color:#463d63; }
+  html.eg-dark .eg-svn-btn:hover{ background:#33294e; }
+  html.eg-dark .eg-svn-btn.eg-svn-done{ color:#7fd0a0; border-color:#3a6d50; }
+  html.eg-dark .eg-svn-btn.eg-svn-done:hover{ background:#1e3b2c; }
+  html.eg-dark .eg-svn-btn.eg-svn-save{ background:#7c4dbc; color:#fff; border-color:#7c4dbc; }
+  html.eg-dark .eg-svn textarea{ background:#1f1d2e; border-color:#463d63; }
+  html.eg-dark .eg-svn.eg-svn-isdone{ background:#1e3b2c; border-color:#3a6d50; color:#cfe9da; }
+  html.eg-dark .eg-svn.eg-svn-isdone::before{ background:#1e3b2c; border-color:#3a6d50; }
+  html.eg-dark .eg-svn.eg-svn-isdone .eg-svn-lbl{ color:#7fd0a0; }
+  html.eg-dark .eg-sv-mark{ border-color:#3a3c55; }
+  html.eg-dark .eg-sv-mark:hover{ color:#d8c4ee; border-color:#463d63; background:#2b2640; }
   /* baner trybu ucznia na telefonie: elementy w pionie, przycisk pełną szerokością */
   @media (max-width:560px){
     .eg-student-mode{ gap:9px 12px; padding:12px 14px; }
@@ -1955,7 +2005,7 @@
           <li><span class="eg-sm-swatch eg-sm-sw-none"></span><span data-i18n="bez obwódki - uczeń jeszcze nie zaczął">bez obwódki - uczeń jeszcze nie zaczął</span></li>
         </ul>
         <p class="eg-sm-modal-sub" data-i18n="Pod każdym ćwiczeniem masz przycisk „Zadaj pracę domową” - jednym kliknięciem zadajesz je temu uczniowi, bez wchodzenia do Panelu lektora. Kliknij go ponownie, żeby usunąć ćwiczenie z pracy domowej.">Pod każdym ćwiczeniem masz przycisk „Zadaj pracę domową” - jednym kliknięciem zadajesz je temu uczniowi, bez wchodzenia do Panelu lektora. Kliknij go ponownie, żeby usunąć ćwiczenie z pracy domowej.</p>
-        <p class="eg-sm-modal-note" data-i18n="Status „w trakcie” ustawiasz w Panelu lektora.">Status „w trakcie” ustawiasz w Panelu lektora.</p>
+        <p class="eg-sm-modal-note" data-i18n="Status „w trakcie”, notatkę (np. na którym slajdzie stanęliście) i „zrobione” ustawiasz prosto na kafelku ćwiczenia albo w Panelu lektora.">Status „w trakcie”, notatkę (np. na którym slajdzie stanęliście) i „zrobione” ustawiasz prosto na kafelku ćwiczenia albo w Panelu lektora.</p>
       </div>
     </div>
     <div class="eg-sm-modal-overlay" id="egHowModal" style="display:none">
@@ -2652,6 +2702,86 @@
     e.preventDefault();
     svToggleHomework(b.getAttribute('data-svhw'), b);
   });
+  // === Notatki lektora i postęp „na lekcji” prosto z kafelka (tryb podglądu ucznia) ===
+  function svFindGameTitle(slug){
+    var g = (allGames || []).filter(function(x){ return x.slug === slug; })[0];
+    return g ? g.title : slug;
+  }
+  // zapis do student_progress (notatka / zrobione); tworzy wiersz, jeśli go nie ma
+  function svSaveProgress(slug, patch){
+    var studentId = svViewing && svViewing.id;
+    if(!studentId || !svTeacherId) return Promise.reject(new Error('no_view'));
+    var have = !!svProgress[slug];
+    var q = have
+      ? _sb.from('student_progress').update(patch).eq('teacher_id', svTeacherId).eq('student_id', studentId).eq('game_slug', slug)
+      : _sb.from('student_progress').insert(Object.assign({ teacher_id: svTeacherId, student_id: studentId, game_slug: slug, done: false }, patch));
+    return q.then(function(r){
+      if(r.error) throw r.error;
+      if(!svViewing || svViewing.id !== studentId) return;
+      var cur = svProgress[slug] || { done:false, note:'' };
+      if('note' in patch) cur.note = patch.note || '';
+      if('done' in patch) cur.done = !!patch.done;
+      svProgress[slug] = cur;
+    });
+  }
+  document.addEventListener('click', function(e){
+    if(!e.target.closest) return;
+    // ✎ edycja notatki — zamień chmurkę w pole tekstowe
+    var ed = e.target.closest('[data-svnedit]');
+    if(ed){
+      e.preventDefault();
+      var slug = ed.getAttribute('data-svnedit');
+      var box = ed.closest('.eg-svn');
+      var cur = (svProgress[slug] && svProgress[slug].note) || '';
+      box.innerHTML = '<span class="eg-svn-lbl">' + t('Twoja notatka') + '</span>' +
+        '<textarea maxlength="1000" placeholder="' + t('np. stanęliśmy na slajdzie 5') + '"></textarea>' +
+        '<div class="eg-svn-acts"><button type="button" class="eg-svn-btn eg-svn-save" data-svnsave="' + esc(slug) + '">' + t('Zapisz') + '</button>' +
+        '<button type="button" class="eg-svn-btn" data-svncancel="1">' + t('Anuluj') + '</button></div>';
+      var ta = box.querySelector('textarea');
+      ta.value = cur; ta.focus();
+      return;
+    }
+    if(e.target.closest('[data-svncancel]')){ e.preventDefault(); render(); return; }
+    var sv = e.target.closest('[data-svnsave]');
+    if(sv){
+      e.preventDefault();
+      var sslug = sv.getAttribute('data-svnsave');
+      var txt = (sv.closest('.eg-svn').querySelector('textarea').value || '').trim();
+      sv.disabled = true;
+      svSaveProgress(sslug, { note: txt }).then(function(){ svToast(t('Zapisano notatkę')); render(); })
+        .catch(function(){ sv.disabled = false; alert(t('Nie udało się zapisać. Spróbuj ponownie.')); });
+      return;
+    }
+    // ✓ oznacz jako zrobione (na lekcji) — jak w panelu: postęp done + zaliczenie uczniowi
+    var dn = e.target.closest('[data-svndone]');
+    if(dn){
+      e.preventDefault();
+      var dslug = dn.getAttribute('data-svndone');
+      var studentId = svViewing && svViewing.id;
+      dn.disabled = true;
+      svSaveProgress(dslug, { done: true }).then(function(){
+        return _sb.rpc('teacher_mark_completion', { p_student: studentId, p_slug: dslug, p_done: true });
+      }).then(function(){
+        if(svViewing && svViewing.id === studentId && !completedSet[dslug]) completedSet[dslug] = 'teacher';
+        svToast(t('Oznaczono jako zrobione:') + ' ' + svFindGameTitle(dslug));
+        render();
+      }).catch(function(){ dn.disabled = false; alert(t('Nie udało się zapisać. Spróbuj ponownie.')); });
+      return;
+    }
+    // + robimy na lekcji — dodaj do „w trakcie” i od razu otwórz pole notatki
+    var st = e.target.closest('[data-svnstart]');
+    if(st){
+      e.preventDefault();
+      var tslug = st.getAttribute('data-svnstart');
+      st.disabled = true;
+      svSaveProgress(tslug, {}).then(function(){
+        render();
+        var btn = document.querySelector('[data-svnedit="' + (window.CSS && CSS.escape ? CSS.escape(tslug) : tslug) + '"]');
+        if(btn) btn.click();
+      }).catch(function(){ st.disabled = false; alert(t('Nie udało się zapisać. Spróbuj ponownie.')); });
+    }
+  });
+
   // w podglądzie ucznia pokaż filtr „Praca domowa”, żeby lektor widział, co już zadał
   function svShowHwFilter(show){
     var hwBtn = document.querySelector('#egFilters button[data-cat="domowa"]');
@@ -3058,8 +3188,23 @@
       // Zielona = ukończone (oznaczone w panelu LUB faktycznie zrobione przez ucznia).
       // Lawendowa = w trakcie (oznaczone w panelu), o ile nie jest już ukończone.
       var svClass = '';
+      var svNote = '';
       if(svViewing){
         var sp = svProgress[g.slug];
+        var _isDone = (sp && sp.done) || !!completedSet[g.slug];
+        if(sp && (!_isDone || sp.note)){
+          var _noteTxt = sp.note ? '<span class="eg-svn-txt">' + esc(sp.note) + '</span>'
+            : '<span class="eg-svn-empty">' + t('Brak notatki - dopisz, na czym stanęliście.') + '</span>';
+          svNote = '<div class="eg-svn' + (_isDone ? ' eg-svn-isdone' : '') + '" data-svn="' + esc(g.slug) + '">' +
+            '<span class="eg-svn-lbl">' + (_isDone ? t('Zrobione · Twoja notatka') : t('W trakcie · Twoja notatka')) + '</span>' + _noteTxt +
+            '<div class="eg-svn-acts">' +
+              '<button type="button" class="eg-svn-btn eg-svn-edit" data-svnedit="' + esc(g.slug) + '">✎ ' + (sp.note ? t('Edytuj notatkę') : t('Dodaj notatkę')) + '</button>' +
+              (_isDone ? '' : '<button type="button" class="eg-svn-btn eg-svn-done" data-svndone="' + esc(g.slug) + '">✓ ' + t('Oznacz jako zrobione') + '</button>') +
+            '</div></div>';
+        } else if(!sp && !_isDone){
+          // nietknięte ćwiczenie: mały przycisk, żeby od razu zacząć je z uczniem („w trakcie”)
+          svNote = '<button type="button" class="eg-sv-mark" data-svnstart="' + esc(g.slug) + '">+ ' + t('Robimy na lekcji (w trakcie)') + '</button>';
+        }
         var doneInPanel = sp && sp.done;
         var doneByStudent = !!completedSet[g.slug];
         var inProgress = sp && !sp.done;
@@ -3075,6 +3220,7 @@
           '<h3>' + esc(g.title).replace(/\s*\(part\s+([^)]+)\)/gi, '\u00A0(part\u00A0$1)') + '</h3>' +
           typeBadge +
           scoreLine +
+          svNote +
           '<p>' + esc(g.description || '') + '</p>' +
           '<span class="eg-meta">' + metaParts.join(' · ') + premiumBadge + '</span>' +
           seriesLine +
@@ -4002,6 +4148,18 @@
     'Widzisz katalog tak, jak wygląda dla wybranego ucznia. Twoje własne postępy wracają, gdy wyjdziesz z trybu.': 'You see the catalogue as it looks for the selected student. Your own progress returns when you exit.',
     'Pod każdym ćwiczeniem masz przycisk „Zadaj pracę domową” - jednym kliknięciem zadajesz je temu uczniowi, bez wchodzenia do Panelu lektora. Kliknij go ponownie, żeby usunąć ćwiczenie z pracy domowej.': 'Under each exercise there is an "Assign as homework" button - one click assigns it to this student, without opening the Teacher Panel. Click it again to remove the exercise from their homework.',
     'Zadaj pracę domową': 'Assign as homework',
+    'Brak notatki - dopisz, na czym stanęliście.': 'No note yet - add where you stopped.',
+    'Zrobione · Twoja notatka': 'Done · Your note',
+    'W trakcie · Twoja notatka': 'In progress · Your note',
+    'Twoja notatka': 'Your note',
+    'Edytuj notatkę': 'Edit note',
+    'Dodaj notatkę': 'Add note',
+    'Robimy na lekcji (w trakcie)': 'Doing it in class (in progress)',
+    'np. stanęliśmy na slajdzie 5': 'e.g. we stopped at slide 5',
+    'Zapisz': 'Save',
+    'Anuluj': 'Cancel',
+    'Zapisano notatkę': 'Note saved',
+    'Oznaczono jako zrobione:': 'Marked as done:',
     'Zadane jako praca domowa': 'Assigned as homework',
     'Praca domowa zrobiona': 'Homework done',
     'Kliknij, aby usunąć z pracy domowej': 'Click to remove from homework',
@@ -4012,7 +4170,7 @@
     'zielona - zadanie ukończone': 'green - exercise completed',
     'lawendowa - zadanie w trakcie': 'lavender - exercise in progress',
     'bez obwódki - uczeń jeszcze nie zaczął': 'no outline - student hasn\'t started yet',
-    'Status „w trakcie” ustawiasz w Panelu lektora.': 'You set the "in progress" status in the Teacher Panel.',
+    'Status „w trakcie”, notatkę (np. na którym slajdzie stanęliście) i „zrobione” ustawiasz prosto na kafelku ćwiczenia albo w Panelu lektora.': 'You set "in progress", your note (e.g. which slide you stopped at) and "done" right on the exercise tile or in the Teacher Panel.',
     'Więcej': 'More',
     'Ukryj': 'Hide',
     'OFERTA': 'PRICING',
