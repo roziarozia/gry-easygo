@@ -913,6 +913,18 @@
     .speak-img{ flex:none; max-width:70%; width:70%; }
     .speak-text{ text-align:center; font-size:22px; }
   }
+  /* SPEAKING: przyciski Wstecz/Dalej zawsze w tym samym miejscu na dole karty —
+     treść (obrazek + pytanie) zajmuje środek i nie przesuwa nawigacji */
+  .frame.speak-mode{ justify-content:flex-start; }
+  .frame.speak-mode > #speak{ flex:1 1 auto; min-height:0; height:100%; gap:12px; }
+  #speak .speak-body{ flex:1 1 auto; min-height:0; width:100%; display:flex; flex-direction:column; justify-content:center; align-items:center; overflow-y:auto; overflow-x:hidden; padding:4px 0; }
+  #speak > #sNav{ flex:none; margin-top:auto; }
+  .speak-text.speak-text-long{ font-size:clamp(20px,2.5vw,27px); line-height:1.4; }
+  .speak-text.speak-text-xlong{ font-size:clamp(18px,2.1vw,23px); line-height:1.45; }
+  @media(max-width:640px){
+    .speak-text.speak-text-long{ font-size:19px; }
+    .speak-text.speak-text-xlong{ font-size:17px; }
+  }
   /* READING — czytanka */
   .reading-img{
     width:100%;
@@ -1853,6 +1865,7 @@
     <section id="speak" class="hidden">
       <div class="q-bar-track"><div class="q-bar" id="sBar"></div></div>
       <span class="q-progress" id="sProgress"></span>
+      <div class="speak-body">
       <div class="speak-row">
         <div class="speak-img" id="speakImg"></div>
         <div class="speak-text" id="speakText"></div>
@@ -1863,6 +1876,7 @@
         <div class="speak-opt" id="speakOptB"><div class="speak-opt-img" id="speakImgB"></div></div>
       </div>
       <div class="speak-single" id="speakSingle" style="display:none"><img id="speakSingleImg" alt=""></div>
+      </div>
       <div class="nav" id="sNav">
         <button class="btn btn-secondary" id="sPrev" data-i18n="Wstecz">Wstecz</button>
         <button class="btn" id="sNext" data-i18n="Dalej">Dalej</button>
@@ -2369,6 +2383,7 @@ function show(section){
     section === slide || (section === cover && coverHasImage));
   var artgapSec = document.getElementById('artgap');
   frame.classList.toggle('reading-mode', section === readingSec);
+  frame.classList.toggle('speak-mode', section === speakSec);
   frame.classList.toggle('artgap-mode', section === artgapSec);
   frame.classList.toggle('quiz-mode', section === quizSec || section === gapSec);
   frame.classList.toggle('end-mode', section === end);
@@ -3258,7 +3273,12 @@ function startSpeak(){
 }
 function renderSpeak(){
   const cur = SPEAKS[sIdx] || { text:'', image_a:null, image_b:null };
-  document.getElementById('speakText').textContent = cur.text || '';
+  const speakTextEl = document.getElementById('speakText');
+  speakTextEl.textContent = cur.text || '';
+  // dłuższy tekst = mniejsza czcionka, żeby zmieścił się nad przyciskami (przyciski stoją zawsze w tym samym miejscu)
+  const spLen = (cur.text || '').length;
+  speakTextEl.classList.toggle('speak-text-long', spLen > 110 && spLen <= 170);
+  speakTextEl.classList.toggle('speak-text-xlong', spLen > 170);
   const imgEl = document.getElementById('speakImg');
   const pair = document.getElementById('speakPair');
   const imgA = document.getElementById('speakImgA');
