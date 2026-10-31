@@ -925,6 +925,24 @@
     .speak-text.speak-text-long{ font-size:19px; }
     .speak-text.speak-text-xlong{ font-size:17px; }
   }
+  /* QUIZ i GAP-FILL: przyciski Dalej/Wstecz przypięte do dołu karty — nie skaczą,
+     gdy pytanie, odpowiedzi albo wyjaśnienie są dłuższe. Treść zostaje wyśrodkowana
+     w wolnym miejscu nad przyciskami (auto-marginesy dzielą wolną przestrzeń). */
+  /* na niskich ekranach (laptop) długie pytanie + wyjaśnienie nie mieściły się w sztywnej ramce 3:2 i
+     ucinało górę pytania — teraz proporcja 3:2 to wysokość MINIMALNA, a karta może urosnąć */
+  .frame.quiz-mode{ justify-content:flex-start; overflow:visible; aspect-ratio:auto; height:auto; max-height:none;
+    min-height:min(82vh, 653px, calc((100vw - 120px) / 1.5)); }
+  .frame.quiz-mode > section{ flex:1 1 auto; min-height:0; }
+  /* quiz był przypięty absolutnie do ramki — przy długim pytaniu treść wychodziła poza kartę.
+     Na komputerze quiz staje się zwykłym elementem: wypełnia ramkę, a gdy treści jest więcej, ramka rośnie. */
+  @media (min-width:561px){
+    .frame.quiz-mode:has(> #quiz:not(.hidden)){ padding:0; }
+    .frame.quiz-mode > #quiz{ position:relative; inset:auto; flex:1 1 auto; width:100%; min-height:inherit; }
+  }
+  #quiz > .q-prompt, #gap > .q-prompt{ margin-top:auto; }
+  #quiz > #qNav, #gap > #gNav{ margin-top:auto; }
+  /* link „‹ poprzednie” w gap-fill zajmuje miejsce także na 1. pytaniu (niewidoczny), żeby „Dalej” nie skakało */
+  #gap > #gPrev.hidden{ display:inline-block !important; visibility:hidden; }
   /* READING — czytanka */
   .reading-img{
     width:100%;
@@ -1430,6 +1448,9 @@
        "Dalej". W trybie quizu ramka rośnie z treścią i całość może się przewijać,
        a zawartość układa się od góry (nie centruje na siłę). */
     .frame.quiz-mode{height:auto;max-height:none;aspect-ratio:auto;overflow:visible;padding:18px 18px 32px;}
+    /* stała minimalna wysokość karty na telefonie: przyciski stoją w tym samym miejscu
+       dla większości pytań; tylko wyjątkowo długie pytanie wydłuża kartę */
+    .frame.quiz-mode{min-height:calc(100svh - 170px);}
     /* gdy ramka quizu jest wyższa niż ekran, stage musi wyrównać ją do GÓRY
        (nie centrować, bo centrowanie wypycha treść poza ekran) i pozwolić
        całej stronie się przewinąć. */
