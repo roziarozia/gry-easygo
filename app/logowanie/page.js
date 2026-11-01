@@ -77,8 +77,8 @@ export default function Logowanie() {
     if (params.get('powrot') === 'oferta') {
       setMode('signup');
       setOffer(rola === 'lektor'
-        ? { title: 'Zakładasz konto lektora.', text: 'Najpierw zarejestruj się poniżej (rola „Lektor” jest już wybrana), a potem dokończysz płatność. Wybrany plan jest zapamiętany.' }
-        : { title: 'Zakładasz konto indywidualne.', text: 'Najpierw zarejestruj się poniżej (rola „Uczeń” jest już wybrana), a potem dokończysz płatność. Wybrany plan jest zapamiętany.' });
+        ? { title: 'Zakładasz konto lektora.', text: 'Zarejestruj się poniżej (rola „Lektor” jest już wybrana). Od razu dostaniesz 14 dni pełnej wersji za darmo i możesz dodać do 5 uczniów. Wybrany plan jest zapamiętany, a płatność zacznie się dopiero po okresie próbnym.' }
+        : { title: 'Zakładasz konto indywidualne.', text: 'Zarejestruj się poniżej (rola „Uczeń” jest już wybrana). Od razu dostaniesz 14 dni pełnej wersji za darmo. Wybrany plan jest zapamiętany, a płatność zacznie się dopiero po okresie próbnym.' });
     }
   }, []);
 
@@ -207,7 +207,7 @@ export default function Logowanie() {
           <h1 className="eg-hello-h">Witaj w EasyWonders <span className="eg-heart">&#9829;</span></h1>
           <p className="eg-hello-lead">{mode === 'login'
             ? 'Miło nam, że wracasz. Zaloguj się i ćwicz dalej, a my zadbamy o Twoje postępy.'
-            : 'Załóż konto i ucz się angielskiego w swoim tempie, z ćwiczeniami, które sprawdzają się same.'}</p>
+            : 'Załóż konto i przez 14 dni korzystaj z pełnej wersji za darmo, bez podawania karty. Potem sam/a decydujesz, czy wybierasz plan, czy zostajesz przy darmowych ćwiczeniach.'}</p>
           <ul className="eg-hello-list">
             <li><strong>Wszystko w jednym miejscu</strong><span>Gramatyka, słownictwo, czytanki, słuchanki i speaking na poziomach od A1 do C1.</span></li>
             <li><strong>Wynik od razu</strong><span>Każde ćwiczenie sprawdza się samo i wyjaśnia, skąd wziął się błąd.</span></li>
@@ -238,7 +238,7 @@ export default function Logowanie() {
             <>
               <div className="eg-head">
                 <h2 className="eg-title">{mode === 'login' ? 'Zaloguj się' : 'Załóż konto'}</h2>
-                <div className="eg-sub">{mode === 'login' ? 'Wpisz e-mail i hasło albo zaloguj się przez Google.' : 'Zajmie Ci to mniej niż minutę.'}</div>
+                <div className="eg-sub">{mode === 'login' ? 'Wpisz e-mail i hasło albo zaloguj się przez Google.' : 'Zajmie Ci to mniej niż minutę. Pełna wersja przez 14 dni za darmo, bez karty.'}</div>
               </div>
 
               {offer && (
