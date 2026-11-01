@@ -41,13 +41,13 @@ export async function GET() {
   const out = [];
   out.push('# EasyWonders');
   out.push('');
-  out.push('> EasyWonders (easywonders.pl) to polska platforma z interaktywnymi ćwiczeniami do nauki języka angielskiego online, na poziomach od A1 do C2. Uczniowie od razu widzą wynik i wyjaśnienie każdej odpowiedzi. Do ćwiczeń są darmowe artykuły z wyjaśnieniami gramatyki i słownictwa po polsku. Serwis prowadzi szkoła językowa EasyGo English (easygo-english.pl).');
+  out.push('> EasyWonders (easywonders.pl) to polska platforma z interaktywnymi ćwiczeniami do nauki języka angielskiego online, na poziomach od A1 do C1. Uczniowie od razu widzą wynik i wyjaśnienie każdej odpowiedzi. Do ćwiczeń są darmowe artykuły z wyjaśnieniami gramatyki i słownictwa po polsku. Serwis prowadzi szkoła językowa EasyGo English (easygo-english.pl).');
   out.push('');
   out.push(`Liczba ćwiczeń: ${games.length}. Liczba artykułów: ${articles.length}. Część ćwiczeń jest darmowa, pełny dostęp daje subskrypcja dla uczniów albo konto dla lektorów (z zadawaniem prac domowych i śledzeniem postępów uczniów). Materiały przydają się do samodzielnej nauki, przygotowania do matury i egzaminu ósmoklasisty oraz na lekcjach z lektorem.`);
   out.push('');
   out.push('## Najważniejsze strony');
   out.push('');
-  out.push(`- [Katalog ćwiczeń](${SITE}/): wszystkie ćwiczenia z filtrami poziomu (A1–C2) i rodzaju (gramatyka, słownictwo, czytanki, słuchanie, konwersacje)`);
+  out.push(`- [Katalog ćwiczeń](${SITE}/): wszystkie ćwiczenia z filtrami poziomu (A1–C1) i rodzaju (gramatyka, słownictwo, czytanki, słuchanie, konwersacje)`);
   out.push(`- [Nauka – artykuły](${SITE}/nauka): wyjaśnienia gramatyki i słownictwa po polsku, z przykładami i tabelami`);
   out.push(`- [Oferta](${SITE}/oferta): plany dla uczniów i lektorów`);
   if (matura.length) out.push(`- [Matura z angielskiego](${SITE}/matura): ćwiczenia wzorowane na arkuszach maturalnych (Listening, Reading, Use of English), z poleceniami jak na maturze`);
