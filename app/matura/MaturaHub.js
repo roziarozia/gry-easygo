@@ -13,7 +13,18 @@ export default function MaturaHub() {
   const [user, setUser] = useState(null);
   const [access, setAccess] = useState('guest'); // guest | free | full
   const [isAdmin, setIsAdmin] = useState(false);
-  const [done, setDone] = useState({}); // slug -> {score, max, at}
+  const [myDone, setDone] = useState({}); // slug -> {score, max, at} — wyniki zalogowanej osoby
+  const [myHw, setMyHw] = useState({}); // slug -> data ukończenia albo true — praca domowa zalogowanego ucznia
+  // TECZKA LEKTORA — podgląd strony oczami ucznia (jak w katalogu na stronie głównej)
+  const [teacherId, setTeacherId] = useState(null);
+  const [students, setStudents] = useState([]); // [{id, name, groupId}]
+  const [groups, setGroups] = useState([]); // [{id, name}]
+  const [viewing, setViewing] = useState(null); // {id, name} albo null
+  const [vDone, setVDone] = useState({});
+  const [vHw, setVHw] = useState({});
+  const [tkOpen, setTkOpen] = useState(false);
+  const [toast, setToast] = useState('');
+  const [busy, setBusy] = useState('');
   const [level, setLevel] = useState('basic');
   const [drawer, setDrawer] = useState(null); // {section, task}
   const [filter, setFilter] = useState('all');
@@ -32,11 +43,17 @@ export default function MaturaHub() {
       setGames(g.data || []);
       if (session) {
         setUser(session.user);
-        const [fa, ad, gc] = await Promise.all([
+        const [fa, ad, gc, pr, hw] = await Promise.all([
           supabase.rpc('has_full_access'),
           supabase.rpc('is_admin'),
           supabase.from('game_completions').select('game_slug,score,score_max,completed_at').eq('user_id', session.user.id),
+          supabase.from('profiles').select('role').eq('id', session.user.id).maybeSingle(),
+          supabase.from('homework').select('game_slug,completed_at').eq('student_id', session.user.id),
         ]);
+        const h = {};
+        (hw.data || []).forEach((r) => { h[r.game_slug] = r.completed_at || true; });
+        setMyHw(h);
+        if (pr.data && pr.data.role === 'teacher') loadTeczka(session.user.id);
         const admin = !!ad.data;
         setIsAdmin(admin);
         setAccess(fa.data || admin ? 'full' : 'free');
@@ -47,6 +64,70 @@ export default function MaturaHub() {
       setReady(true);
     })();
   }, []);
+
+  // Teczka: uczniowie i grupy lektora; podgląd przywracamy z sesji (ten sam klucz co w katalogu,
+  // więc lektor, który oglądał ucznia na stronie głównej, ogląda go dalej tutaj).
+  async function loadTeczka(tid) {
+    setTeacherId(tid);
+    const [pr, gr] = await Promise.all([
+      supabase.from('profiles').select('id,student_name,email,group_id').eq('teacher_id', tid),
+      supabase.from('student_groups').select('id,name').eq('teacher_id', tid),
+    ]);
+    const st = (pr.data || []).map((x) => ({ id: x.id, name: x.student_name || x.email || 'Uczeń', groupId: x.group_id || null }))
+      .sort((a, b) => a.name.localeCompare(b.name));
+    const gs = (gr.data || []).map((x) => ({ id: x.id, name: x.name })).sort((a, b) => a.name.localeCompare(b.name));
+    setStudents(st); setGroups(gs);
+    try {
+      const sv = JSON.parse(sessionStorage.getItem('egSvViewing') || 'null');
+      const s = sv && st.find((x) => x.id === sv.id);
+      if (s) enterView(s);
+    } catch (e) {}
+  }
+
+  async function enterView(s) {
+    setTkOpen(false);
+    const [gc, hw] = await Promise.all([
+      supabase.from('game_completions').select('game_slug,score,score_max,completed_at').eq('user_id', s.id),
+      supabase.from('homework').select('game_slug,completed_at').eq('student_id', s.id),
+    ]);
+    if (gc.error || hw.error) { showToast('Nie udało się wczytać postępów ucznia. Spróbuj ponownie.'); return; }
+    const d = {};
+    (gc.data || []).forEach((c) => { d[c.game_slug] = { score: c.score, max: c.score_max, at: c.completed_at }; });
+    const h = {};
+    (hw.data || []).forEach((r) => { h[r.game_slug] = r.completed_at || true; });
+    setVDone(d); setVHw(h); setViewing({ id: s.id, name: s.name });
+    try { sessionStorage.setItem('egSvViewing', JSON.stringify({ id: s.id, name: s.name })); } catch (e) {}
+  }
+
+  function exitView() {
+    setViewing(null); setVDone({}); setVHw({}); setTkOpen(false);
+    try { sessionStorage.removeItem('egSvViewing'); } catch (e) {}
+  }
+
+  function showToast(m) {
+    setToast(m);
+    clearTimeout(showToast.t);
+    showToast.t = setTimeout(() => setToast(''), 2600);
+  }
+
+  // Zadaj / usuń pracę domową oglądanemu uczniowi (ta sama tabela co panel lektora i katalog)
+  async function toggleHw(g) {
+    if (!viewing || !teacherId) return;
+    const on = !!vHw[g.slug];
+    if (on && vHw[g.slug] !== true && !window.confirm('Uczeń oznaczył już tę pracę domową jako zrobioną. Usunąć ją z jego pracy domowej?')) return;
+    setBusy(g.slug);
+    const r = on
+      ? await supabase.from('homework').delete().eq('teacher_id', teacherId).eq('student_id', viewing.id).eq('game_slug', g.slug)
+      : await supabase.from('homework').insert({ teacher_id: teacherId, student_id: viewing.id, game_slug: g.slug });
+    setBusy('');
+    if (r.error && !(!on && String(r.error.message || '').indexOf('duplicate') !== -1)) { showToast('Nie udało się zapisać. Spróbuj ponownie.'); return; }
+    setVHw((prev) => { const n = { ...prev }; if (on) delete n[g.slug]; else n[g.slug] = true; return n; });
+    showToast((on ? 'Usunięto z pracy domowej: ' : 'Zadano jako pracę domową: ') + g.title);
+  }
+
+  // W podglądzie cała strona liczy wyniki oglądanego ucznia
+  const done = viewing ? vDone : myDone;
+  const hwMap = viewing ? vHw : myHw;
 
   function chooseLevel(l) {
     setLevel(l); setDrawer(null);
@@ -117,9 +198,51 @@ export default function MaturaHub() {
             <a href="/">Ćwiczenia</a>
             <a href="/nauka">Blog</a>
             {user ? <a href="/konto">Moje konto</a> : <a href="/logowanie?powrot=matura">Zaloguj się</a>}
+            {teacherId && (students.length > 0 || groups.length > 0) && (
+              <div className={'mt-tk' + (tkOpen ? ' open' : '')}>
+                <button type="button" className="mt-tk-btn" aria-expanded={tkOpen} onClick={() => setTkOpen(!tkOpen)}>
+                  <TeczkaIcon />Teczka uczniów<span className="mt-tk-caret" aria-hidden="true">▾</span>
+                </button>
+                {tkOpen && (
+                  <div className="mt-tk-panel">
+                    <div className="mt-tk-k">Zobacz stronę oczami ucznia</div>
+                    {viewing && <button type="button" className="mt-tk-item mt-tk-exit" onClick={exitView}><span className="mt-tk-av">×</span>Wróć do swojego widoku</button>}
+                    {groups.map((gr) => {
+                      const mem = students.filter((x) => x.groupId === gr.id);
+                      return (
+                        <div key={gr.id}>
+                          <div className="mt-tk-group">{gr.name} · {mem.length} uczn.</div>
+                          {mem.length === 0 && <div className="mt-tk-empty">Brak uczniów w grupie</div>}
+                          {mem.map((x) => <StudentItem key={x.id} s={x} active={viewing && viewing.id === x.id} onPick={enterView} />)}
+                        </div>
+                      );
+                    })}
+                    {(() => {
+                      const rest = groups.length ? students.filter((x) => !x.groupId) : students;
+                      if (!rest.length) return null;
+                      return (
+                        <div>
+                          <div className="mt-tk-group">{groups.length ? 'Bez grupy' : 'Uczniowie'}</div>
+                          {rest.map((x) => <StudentItem key={x.id} s={x} active={viewing && viewing.id === x.id} onPick={enterView} />)}
+                        </div>
+                      );
+                    })()}
+                  </div>
+                )}
+              </div>
+            )}
             <ThemeToggle />
           </nav>
         </div>
+
+        {viewing && (
+          <div className="mt-view" role="status">
+            <span className="mt-view-k">Podgląd ucznia</span>
+            <span className="mt-view-t">Widzisz stronę oczami: <strong>{viewing.name}</strong></span>
+            <span className="mt-view-legend"><i className="lg-done" />zrobione<i className="lg-hw" />praca domowa</span>
+            <button type="button" className="mt-view-x" onClick={exitView}>Zamknij podgląd <span aria-hidden="true">×</span></button>
+          </div>
+        )}
 
         <header className="mt-mast">
           <h1>Matura<span className="mt-sr"> z angielskiego</span></h1>
@@ -138,7 +261,7 @@ export default function MaturaHub() {
             <div className="mt-sign">Redakcja EasyWonders</div>
           </div>
           <div className="mt-next">
-            <div className="mt-next-k">{nextUp && nextUp.cont ? 'Twoje następne ćwiczenie' : 'Zacznij tutaj'}</div>
+            <div className="mt-next-k">{viewing ? 'Następne ćwiczenie ucznia' : nextUp && nextUp.cont ? 'Twoje następne ćwiczenie' : 'Zacznij tutaj'}</div>
             {nextUp ? (
               <>
                 <div className="mt-next-t">{sectionName(nextUp.g.matura_section)}: {taskLabel(nextUp.g.matura_section, nextUp.g.matura_task).toLowerCase()}, nr {nextUp.g.exercise_no}</div>
@@ -154,7 +277,7 @@ export default function MaturaHub() {
           </div>
         </section>
 
-        {ready && access !== 'full' && (
+        {ready && access !== 'full' && !viewing && (
           <section className="mt-access">
             <div className="mt-access-k">Od redakcji: o dostępie</div>
             <p>
@@ -214,6 +337,7 @@ export default function MaturaHub() {
                         <div className="mt-row-meta">
                           <span className="mt-bar"><span style={{ width: Math.round((100 * dd) / list.length) + '%' }} /></span>
                           <span>{dd} z {list.length}</span>
+                          {list.some((g) => hwMap[g.slug]) && <span className="mt-hw-pill">praca domowa: {list.filter((g) => hwMap[g.slug]).length}</span>}
                           <button type="button" className="mt-link" onClick={() => { setDrawer({ section: s.id, task }); setFilter('all'); }}>lista</button>
                         </div>
                       </div>
@@ -251,23 +375,53 @@ export default function MaturaHub() {
                 <button key={k} type="button" className={filter === k ? 'on' : ''} onClick={() => setFilter(k)}>{l}</button>
               ))}
             </div>
+            {viewing ? (
+              <div className="mt-vlist">
+                {drawerShown.map((g) => {
+                  const r = done[g.slug];
+                  const pct = r && r.max ? Math.round((100 * r.score) / r.max) : null;
+                  const hwv = vHw[g.slug];
+                  return (
+                    <div key={g.slug} className={'mt-vrow' + (r ? ' done' : '')}>
+                      <button type="button" className="mt-vno" title="Otwórz ćwiczenie" onClick={() => open(g)}>{g.exercise_no}</button>
+                      <div className="mt-vmain">
+                        <div className="mt-vtitle">{g.title}</div>
+                        <div className="mt-vmeta">
+                          {r ? (r.max ? <span className="mt-vscore">{r.score}/{r.max} · {pct}%</span> : <span className="mt-vscore">zrobione</span>) : <span>jeszcze nie zrobione</span>}
+                          {hwv && hwv !== true && <span>· praca domowa zrobiona {new Date(hwv).toLocaleDateString('pl-PL')}</span>}
+                          {!g.published && <span>· szkic</span>}
+                        </div>
+                      </div>
+                      <button type="button" disabled={busy === g.slug} className={'mt-vhw' + (hwv ? ' on' : '')} onClick={() => toggleHw(g)}>
+                        {hwv ? 'Zadane' : '+ Zadaj'}
+                      </button>
+                    </div>
+                  );
+                })}
+                {drawerShown.length === 0 && <p className="mt-soon">Brak ćwiczeń w tym widoku.</p>}
+              </div>
+            ) : (
             <div className="mt-tiles">
               {drawerShown.map((g) => (
-                <button key={g.slug} type="button" title={g.title} className={'mt-tile' + (done[g.slug] ? ' done' : '') + (!g.published ? ' draft' : '')} onClick={() => open(g)}>
+                <button key={g.slug} type="button" title={g.title + (hwMap[g.slug] ? ' (praca domowa)' : '')} className={'mt-tile' + (done[g.slug] ? ' done' : '') + (!g.published ? ' draft' : '') + (hwMap[g.slug] ? ' hw' : '')} onClick={() => open(g)}>
                   {locked(g) ? <Lock /> : null}{g.exercise_no}
                 </button>
               ))}
               {drawerShown.length === 0 && <p className="mt-soon">Brak ćwiczeń w tym widoku.</p>}
             </div>
+            )}
             <div className="mt-legend">
               <span><i className="lg-done" />zrobione</span>
               <span><i className="lg-new" />nowe</span>
+              {Object.keys(hwMap).length > 0 && !viewing && <span><i className="lg-hw" />praca domowa</span>}
               {access !== 'full' && <span><Lock />dla subskrybentów</span>}
               {isAdmin && <span><i className="lg-draft" />szkic</span>}
             </div>
           </div>
         </div>
       )}
+
+      {toast && <div className="mt-toast" role="status">{toast}</div>}
 
       {paywall && (
         <div className="mt-overlay mt-center" onClick={() => setPaywall(false)}>
@@ -290,6 +444,23 @@ export default function MaturaHub() {
         </div>
       )}
     </div>
+  );
+}
+
+function StudentItem({ s, active, onPick }) {
+  const ini = (s.name || '?').trim().split(/\s+/).map((w) => w[0] || '').join('').slice(0, 2).toUpperCase();
+  return (
+    <button type="button" className={'mt-tk-item' + (active ? ' on' : '')} onClick={() => onPick(s)}>
+      <span className="mt-tk-av">{ini}</span>{s.name}
+    </button>
+  );
+}
+
+function TeczkaIcon() {
+  return (
+    <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinejoin="round" aria-hidden="true">
+      <rect x="3" y="7" width="18" height="13" rx="2" /><path d="M9 7V5a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2" />
+    </svg>
   );
 }
 
@@ -398,6 +569,73 @@ body{ margin:0; background:#fbfaf6; }
 .mt-modal h3{ margin:0 0 10px; font-family:'Playfair Display',Georgia,serif; font-weight:800; font-size:28px; line-height:1.15; }
 .mt-modal p{ margin:0 0 18px; font-size:16.5px; line-height:1.6; color:#4f4959; }
 .mt-close{ margin-top:12px; }
+
+/* TECZKA LEKTORA i podgląd ucznia */
+.mt-tk{ position:relative; }
+.mt-tk-btn{ display:inline-flex; align-items:center; gap:8px; min-height:40px; padding:0 14px; border:1.5px solid #1d1a22; border-radius:999px; background:#fff; color:#1d1a22; font-family:'Outfit',sans-serif; font-size:14.5px; font-weight:600; cursor:pointer; }
+.mt-tk-btn:hover, .mt-tk.open .mt-tk-btn{ background:#1d1a22; color:#fff; }
+.mt-tk-caret{ font-size:11px; transition:transform .15s; }
+.mt-tk.open .mt-tk-caret{ transform:rotate(180deg); }
+.mt-tk-panel{ position:absolute; right:0; top:calc(100% + 8px); z-index:60; width:300px; max-width:calc(100vw - 32px); max-height:70vh; overflow-y:auto; background:#fbfaf6; border:1.5px solid #1d1a22; border-radius:16px; padding:14px; box-shadow:0 18px 40px rgba(29,26,34,.16); }
+.mt-tk-k{ font-family:'Playfair Display',Georgia,serif; font-weight:800; font-size:19px; line-height:1.2; padding:2px 4px 10px; border-bottom:1px solid #ebe6dc; margin-bottom:6px; }
+.mt-tk-group{ font-size:11.5px; font-weight:700; text-transform:uppercase; letter-spacing:1.4px; color:#ca4490; padding:12px 6px 4px; }
+.mt-tk-empty{ font-size:13.5px; color:#7a7385; padding:4px 6px; }
+.mt-tk-item{ display:flex; align-items:center; gap:10px; width:100%; min-height:44px; padding:6px 8px; border:none; border-radius:10px; background:transparent; cursor:pointer; text-align:left; font-family:'Outfit',sans-serif; font-size:15px; font-weight:500; color:#1d1a22; }
+.mt-tk-item:hover{ background:#f0ece4; }
+.mt-tk-item.on{ background:#fdf1f7; color:#8f2c66; font-weight:700; }
+.mt-tk-av{ flex:none; width:30px; height:30px; border-radius:50%; background:#f6f1ae; color:#1d1a22; display:inline-flex; align-items:center; justify-content:center; font-size:12px; font-weight:700; }
+.mt-tk-exit{ color:#8f2c66; font-weight:600; }
+.mt-tk-exit .mt-tk-av{ background:#fdf1f7; color:#ca4490; font-size:17px; }
+.mt-view{ position:sticky; top:0; z-index:45; display:flex; flex-wrap:wrap; align-items:center; gap:8px 16px; margin:0 0 14px; padding:12px 14px 12px 18px; background:#1d1a22; color:#fff; border-radius:14px; box-shadow:0 10px 24px rgba(29,26,34,.18); }
+.mt-view-k{ font-size:11.5px; font-weight:700; text-transform:uppercase; letter-spacing:1.6px; color:#1d1a22; background:#f6f1ae; padding:4px 10px; border-radius:999px; }
+.mt-view-t{ font-size:15.5px; flex:1 1 220px; }
+.mt-view-t strong{ font-family:'Playfair Display',Georgia,serif; font-size:19px; font-weight:800; }
+.mt-view-legend{ display:inline-flex; align-items:center; gap:6px; font-size:13px; color:#d9d4e2; }
+.mt-view-legend i{ display:inline-block; width:12px; height:12px; border-radius:3px; margin-left:6px; }
+.mt-view-legend .lg-done{ background:#ca4490; }
+.mt-view-legend .lg-hw{ background:#f6f1ae; }
+.mt-view-x{ min-height:40px; padding:0 14px; border:1.5px solid #fff; border-radius:999px; background:transparent; color:#fff; font-family:'Outfit',sans-serif; font-size:14.5px; font-weight:600; cursor:pointer; }
+.mt-view-x:hover{ background:#fff; color:#1d1a22; }
+.mt-hw-pill{ font-size:12px; font-weight:700; color:#6b5a0b; background:#f6f1ae; padding:3px 9px; border-radius:999px; }
+.mt-tile.hw{ box-shadow:inset 0 -5px 0 #f6f1ae; }
+.mt-tile.done.hw{ box-shadow:inset 0 -5px 0 #f6f1ae; }
+.mt-legend .lg-hw{ background:#f6f1ae; border-color:#e6dc7a; }
+.mt-vlist{ display:flex; flex-direction:column; gap:8px; }
+.mt-vrow{ display:flex; align-items:center; gap:12px; background:#fff; border:1px solid #ebe6dc; border-radius:14px; padding:10px 10px 10px 12px; }
+.mt-vrow.done{ border-left:4px solid #ca4490; }
+.mt-vno{ flex:none; width:40px; height:40px; border-radius:10px; border:1px solid #ddd6ca; background:#fbfaf6; cursor:pointer; font-family:'Outfit',sans-serif; font-weight:700; font-size:15px; color:#1d1a22; }
+.mt-vrow.done .mt-vno{ background:#ca4490; border-color:#ca4490; color:#fff; }
+.mt-vmain{ flex:1 1 auto; min-width:0; }
+.mt-vtitle{ font-size:14.5px; font-weight:600; line-height:1.3; }
+.mt-vmeta{ display:flex; flex-wrap:wrap; gap:4px; margin-top:3px; font-size:12.5px; color:#7a7385; }
+.mt-vscore{ font-weight:700; color:#8f2c66; }
+.mt-vhw{ flex:none; min-height:40px; min-width:84px; padding:0 12px; border-radius:10px; border:1.5px solid #ca4490; background:#fff; color:#ca4490; font-family:'Outfit',sans-serif; font-size:14px; font-weight:700; cursor:pointer; }
+.mt-vhw.on{ background:#f6f1ae; border-color:#e6dc7a; color:#5b4d10; }
+.mt-vhw:disabled{ opacity:.5; cursor:wait; }
+.mt-toast{ position:fixed; left:50%; bottom:24px; transform:translateX(-50%); z-index:80; max-width:calc(100vw - 32px); background:#1d1a22; color:#fff; padding:12px 18px; border-radius:12px; font-size:14.5px; box-shadow:0 10px 30px rgba(0,0,0,.2); }
+html.eg-dark .mt-tk-btn{ background:transparent; color:#e8e6ef; border-color:#e8e6ef; }
+html.eg-dark .mt-tk-btn:hover, html.eg-dark .mt-tk.open .mt-tk-btn{ background:#e8e6ef; color:#1a1b26; }
+html.eg-dark .mt-tk-panel{ background:#24263a; border-color:#4a4c66; }
+html.eg-dark .mt-tk-k{ border-color:#363850; }
+html.eg-dark .mt-tk-item{ color:#e8e6ef; }
+html.eg-dark .mt-tk-item:hover{ background:#2c2e44; }
+html.eg-dark .mt-tk-item.on{ background:#3a2034; color:#f08cc4; }
+html.eg-dark .mt-tk-av{ background:#3b3820; color:#f6f1ae; }
+html.eg-dark .mt-tk-exit{ color:#f08cc4; }
+html.eg-dark .mt-view{ background:#e8e6ef; color:#1a1b26; }
+html.eg-dark .mt-view-legend{ color:#4f4959; }
+html.eg-dark .mt-view-x{ border-color:#1a1b26; color:#1a1b26; }
+html.eg-dark .mt-view-x:hover{ background:#1a1b26; color:#fff; }
+html.eg-dark .mt-hw-pill{ background:#3b3820; color:#f6f1ae; }
+html.eg-dark .mt-vrow{ background:#24263a; border-color:#363850; }
+html.eg-dark .mt-vno{ background:#1a1b26; border-color:#4a4c66; color:#e8e6ef; }
+html.eg-dark .mt-vscore{ color:#f08cc4; }
+html.eg-dark .mt-vhw{ background:transparent; }
+html.eg-dark .mt-vhw.on{ background:#3b3820; color:#f6f1ae; border-color:#5c5630; }
+@media (max-width:600px){
+  .mt-tk-panel{ position:fixed; left:16px; right:16px; top:70px; width:auto; }
+  .mt-view{ border-radius:0 0 14px 14px; margin:0 -16px 14px; }
+}
 /* wersja ciemna */
 html.eg-dark body{ background:#1a1b26; }
 html.eg-dark .mt{ background:#1a1b26; color:#e8e6ef; }
