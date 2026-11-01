@@ -1596,6 +1596,47 @@
     border:1.5px solid var(--line); background:transparent; color:var(--muted); transition:all .15s;
   }
   .np-clear:hover{ border-color:var(--magenta,#ca4490); color:var(--magenta,#ca4490); }
+
+  /* ===== MATURA: gazetowa skórka (włącza się tylko dla ćwiczeń z games.matura = true) ===== */
+  html.mat{ --ink:#1a1a1a; --muted:#4a463f; --card:#fffdf8; --line:#cfc8ba; --green:#2f7a52; --red:#b03a2e; }
+  html.mat body{ background:#f5f1e8 !important; background-image:none !important; font-family:'Source Serif 4',Georgia,serif; color:#1a1a1a; }
+  html.mat #grajTheme{ display:none !important; }
+  html.mat .frame, html.mat .frame[class*="bg-"]{ background:#fffdf8 !important; border:1.5px solid #1a1a1a !important; border-radius:4px !important; box-shadow:none !important; }
+  html.mat .cover-title, html.mat .end-title, html.mat .ls-title{ font-family:'Playfair Display',Georgia,serif !important; font-weight:800 !important; color:#1a1a1a !important; letter-spacing:-.3px; }
+  html.mat .cover-title .underline, html.mat .end-title .underline{ background:none !important; padding:0 !important; }
+  html.mat .cover-title .underline::after, html.mat .end-title .underline::after{ display:none !important; }
+  html.mat .cover-sub, html.mat .end-sub{ font-family:'Source Serif 4',Georgia,serif; color:#3a362f !important; }
+  html.mat .level, html.mat .cover-cat{ background:transparent !important; color:#1a1a1a !important; border:1px solid #1a1a1a !important; border-radius:2px !important; font-family:'Source Serif 4',Georgia,serif !important; font-weight:600 !important; box-shadow:none !important; }
+  html.mat .brand{ display:none !important; }
+  html.mat .btn{ font-family:'Source Serif 4',Georgia,serif !important; font-weight:700; background:#1a1a1a !important; color:#f5f1e8 !important; border:1.5px solid #1a1a1a !important; border-radius:2px !important; box-shadow:none !important; letter-spacing:.2px; }
+  html.mat .btn:hover{ background:#ca4490 !important; border-color:#ca4490 !important; transform:none; }
+  html.mat .btn-secondary{ background:transparent !important; color:#1a1a1a !important; }
+  html.mat .btn-secondary:hover{ background:#f5f1e8 !important; color:#1a1a1a !important; border-color:#1a1a1a !important; }
+  html.mat .mode-label, html.mat .shuffle-opt{ font-family:'Source Serif 4',Georgia,serif; color:#3a362f !important; }
+  html.mat .q-bar-track, html.mat .progress-track{ background:#e7e1d4 !important; border-radius:0 !important; }
+  html.mat .q-bar, html.mat .progress-bar{ background:#ca4490 !important; border-radius:0 !important; }
+  html.mat .q-progress{ background:transparent !important; color:#3a362f !important; font-family:'Source Serif 4',Georgia,serif !important; box-shadow:none !important; }
+  html.mat .gap-task{ font-family:'Source Serif 4',Georgia,serif; font-size:16px; font-weight:400; color:#1a1a1a !important; background:transparent !important; border-left:3px solid #ca4490; border-radius:0 !important; text-align:left; padding:4px 0 4px 14px; max-width:720px; }
+  html.mat .q-prompt{ font-family:'Source Serif 4',Georgia,serif !important; font-weight:600 !important; font-size:clamp(19px,2.6vw,24px) !important; letter-spacing:0 !important; line-height:1.55 !important; color:#1a1a1a !important; text-align:left; }
+  html.mat .q-prompt u, html.mat .gap-blank{ border-bottom:2px solid #1a1a1a !important; background:transparent !important; }
+  html.mat .mat-hl{ font-weight:800; background:#f6f1ae; padding:0 3px; }
+  html.mat .mat-orig{ font-weight:400; color:#3a362f; }
+  html.mat .mat-key{ display:inline-block; font-family:'Playfair Display',Georgia,serif; font-weight:800; letter-spacing:1px; border:1.5px solid #1a1a1a; padding:0 10px; margin:4px 0; font-size:.9em; }
+  html.mat .q-opt{ font-family:'Source Serif 4',Georgia,serif !important; font-weight:400 !important; font-size:17px; background:#fffdf8 !important; color:#1a1a1a !important; border:1.5px solid #c9c1b1 !important; border-radius:2px !important; box-shadow:none !important; }
+  html.mat .q-opt:hover:not(:disabled){ border-color:#1a1a1a !important; transform:none; }
+  html.mat .q-letter{ background:transparent !important; color:#1a1a1a !important; border:1.5px solid #1a1a1a; border-radius:2px !important; font-family:'Playfair Display',Georgia,serif; font-weight:800; }
+  html.mat .q-opt.correct{ background:#eef6f0 !important; border-color:#2f7a52 !important; }
+  html.mat .q-opt.correct .q-letter{ background:#2f7a52 !important; border-color:#2f7a52; color:#fff !important; }
+  html.mat .q-opt.wrong{ background:#faeeec !important; border-color:#b03a2e !important; }
+  html.mat .q-opt.wrong .q-letter{ background:#b03a2e !important; border-color:#b03a2e; color:#fff !important; }
+  html.mat .q-explain, html.mat .ag-expl{ font-family:'Source Serif 4',Georgia,serif !important; background:#f5f1e8 !important; color:#1a1a1a !important; border:none !important; border-top:1px solid #1a1a1a !important; border-radius:0 !important; text-align:left; }
+  html.mat #gapInput, html.mat .ag-input{ font-family:'Source Serif 4',Georgia,serif !important; background:#fffdf8 !important; color:#1a1a1a !important; border:none !important; border-bottom:2px solid #1a1a1a !important; border-radius:0 !important; box-shadow:none !important; }
+  html.mat .gap-word.ok{ background:#eef6f0 !important; } html.mat .gap-word.bad{ background:#faeeec !important; }
+  html.mat .ag-instr{ font-family:'Source Serif 4',Georgia,serif !important; font-size:16px !important; font-weight:400 !important; color:#1a1a1a !important; background:transparent !important; border-left:3px solid #ca4490; border-radius:0 !important; text-align:left; padding:4px 0 4px 14px !important; }
+  html.mat .reading-text, html.mat .ag-text{ font-family:'Source Serif 4',Georgia,serif !important; font-weight:400 !important; font-size:clamp(17px,2.1vw,20px) !important; line-height:1.85 !important; color:#1a1a1a !important; text-align:left; }
+  html.mat .gap-box{ background:transparent !important; border:1.5px solid #1a1a1a !important; border-radius:2px !important; }
+  html.mat .gap-chip{ font-family:'Source Serif 4',Georgia,serif !important; font-weight:600 !important; background:transparent !important; color:#1a1a1a !important; border:none !important; font-size:16px !important; }
+  html.mat .score .score-n, html.mat .ag-score{ font-family:'Playfair Display',Georgia,serif; }
 </style>
 </head>
 <body>
@@ -1652,6 +1693,9 @@
     'Powrót do ćwiczeń': 'Back to exercises',
     'Strona główna': 'Home',
     'Inne ćwiczenia': 'Other exercises',
+    'Wróć do matury': 'Back to Matura',
+    'Matura podstawowa': 'Matura, basic level',
+    'Matura rozszerzona': 'Matura, extended level',
     'Pełny ekran': 'Fullscreen',
     'Zamknij pełny ekran': 'Exit fullscreen',
     'Notatnik': 'Notes',
@@ -1856,6 +1900,7 @@
     <section id="quiz" class="hidden">
       <div class="q-bar-track"><div class="q-bar" id="qBar"></div></div>
       <span class="q-progress" id="qProgress"></span>
+      <div class="gap-task hidden" id="qTask"></div>
       <div class="q-prompt" id="qPrompt"></div>
       <div class="q-options" id="qOptions"></div>
       <div class="q-explain hidden" id="qExplain"></div>
@@ -1923,6 +1968,7 @@
     <!-- ARTICLE-GAP: tekst z lukami (przedimki) -->
     <section id="artgap" class="hidden">
       <div class="ag-instr" id="agInstr">Uzupełnij tekst: <b>a</b>, <b>an</b>, <b>the</b> lub <b>–</b> (myślnik, gdy przedimek nie jest potrzebny).</div>
+      <div class="gap-box hidden" id="agBox"></div>
       <div class="reading-img ag-img" id="agImg" style="display:none"><img id="agImgTag" alt=""></div>
       <div class="reading-text ag-text" id="agText"></div>
       <div class="ag-expl hidden" id="agExpl"></div>
@@ -2188,6 +2234,18 @@ async function markCompleted(score, scoreMax, answers){
       return;
     }
     GAME = rows[0];
+    if(GAME.matura){
+      // MATURA: gazetowa skórka, zawsze jasna (papier), powroty prowadzą na /matura
+      var hEl = document.documentElement;
+      hEl.classList.add('mat'); hEl.classList.remove('eg-dark');
+      var mf = document.createElement('link'); mf.rel = 'stylesheet';
+      mf.href = 'https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;800&family=Source+Serif+4:opsz,wght@8..60,400;8..60,600;8..60,700&display=swap';
+      document.head.appendChild(mf);
+      document.querySelectorAll('a[href="/"][target="_top"]').forEach(function(a){
+        a.setAttribute('href', '/matura');
+        if(a.getAttribute('data-i18n')){ a.setAttribute('data-i18n', 'Wróć do matury'); a.textContent = t('Wróć do matury'); }
+      });
+    }
     SLIDES = (GAME.slides || []).map(s => ({
       word: s.word,
       syn: s.syn || '',
@@ -2227,6 +2285,10 @@ async function markCompleted(score, scoreMax, answers){
        : GAME.category === 'listening' ? 'Listening'
        : t('Słownictwo'));
     document.getElementById('cTitle').textContent = GAME.title;
+    if(GAME.matura){
+      document.getElementById('cLevel').textContent = (GAME.matura_level === 'ext') ? t('Matura rozszerzona') : t('Matura podstawowa');
+      document.getElementById('cCat').textContent = ({listening:'Listening', reading:'Reading', use:'Use of English'})[GAME.matura_section] || 'Matura';
+    }
     document.getElementById('cSub').textContent = t((GAME.description || '').trim());
     document.getElementById('wordCount').textContent = SLIDES.length;
 
@@ -2708,6 +2770,17 @@ function renderQuestion(){
   frame.className = frame.className.replace(/\bbg-\S+/g,'').trim();
   frame.classList.add('bg-' + (GAME.bg || q.bg || 'mint'));
   qPrompt.innerHTML = promptWithGap(q.prompt);
+  if(GAME && GAME.matura){
+    // MATURA: wyróżniony fragment (“…”) jak pogrubienie w arkuszu
+    if(GAME.matura_task === 'u_paraphrase') qPrompt.innerHTML = qPrompt.innerHTML.replace(/“([^”]+)”/g, '<span class="mat-hl">$1</span>');
+    var qTaskEl = document.getElementById('qTask');
+    var qIns = (GAME.instruction || '').trim();
+    if(qTaskEl && qIns){
+      var qInsP = qIns.split('||');
+      qTaskEl.textContent = (window.EG_LANG === 'en' ? qInsP[0] : (qInsP[1] || qInsP[0])).split('##')[0].trim();
+      qTaskEl.classList.remove('hidden');
+    }
+  }
   qExplain.classList.add('hidden');
   qNext.classList.add('hidden');
   qOptions.innerHTML = '';
@@ -2742,7 +2815,7 @@ function showAnswered(picked){
       var qeParts = qExpl.split('||');
       qExpl = (window.EG_LANG === 'en' ? (qeParts[1] || qeParts[0]) : qeParts[0]).trim();
     }
-    qExplain.innerHTML = '<b>' + (picked === q.correct ? t('Dobrze! ') : t('Poprawnie: ') + escapeHtml(q.options[q.correct]) + '. ') + '</b>' + escapeHtml(qExpl);
+    qExplain.innerHTML = '<b>' + (picked === q.correct ? t('Dobrze! ') : t('Poprawnie: ') + escapeHtml(q.options[q.correct]) + (/[.!?…]$/.test(q.options[q.correct] || '') ? ' ' : '. ')) + '</b>' + escapeHtml(qExpl);
     qExplain.classList.remove('hidden');
   }
   qBar.style.width = ((qIndex + 1) / QUESTIONS.length * 100) + '%';
@@ -3008,6 +3081,12 @@ function gapSentenceHtml(item, filled){
   if(gapMode === 'pl' && item.pl) hint = ' <span style="opacity:.75">(' + escapeHtml(item.pl) + ')</span>';
   else if(gapMode === 'base' && item.base) hint = ' <span style="opacity:.75">(' + escapeHtml(item.base) + ')</span>';
   const blank = filled != null ? filled : '<span class="gap-blank">&nbsp;</span>';
+  if(GAME && GAME.matura && GAME.matura_task === 'u_transform'){
+    var tl = (item.sentence || '').split('\n');
+    if(tl.length === 3){
+      return '<span class="mat-orig">' + escapeHtml(tl[0]) + '</span>\n<span class="mat-key">' + escapeHtml(tl[1]) + '</span>\n' + escapeHtml(tl[2]).replace(/_/g, blank) + hint;
+    }
+  }
   return escapeHtml(item.sentence).replace(/_/g, blank) + hint;
 }
 
@@ -3386,7 +3465,18 @@ function startArtgap(){
     if(agIns){
       var agInsParts = agIns.split('||');
       // format EN||PL: część[0]=angielski (interfejs EN), część[1]=polski (interfejs PL)
-      agInstrEl.textContent = (window.EG_LANG === 'en') ? agInsParts[0].trim() : ((agInsParts[1] || agInsParts[0]).trim());
+      var agTxt = (window.EG_LANG === 'en') ? agInsParts[0].trim() : ((agInsParts[1] || agInsParts[0]).trim());
+      // "##" oddziela polecenie od ramki z wyrazami: "Uzupełnij…##build · danger · take"
+      var agBoxTxt = '';
+      if(agTxt.indexOf('##') !== -1){ var agPP = agTxt.split('##'); agTxt = agPP[0].trim(); agBoxTxt = (agPP[1] || '').trim(); }
+      agInstrEl.textContent = agTxt;
+      var agBoxEl = document.getElementById('agBox');
+      if(agBoxEl){
+        if(agBoxTxt){
+          agBoxEl.innerHTML = agBoxTxt.split('·').map(function(w){ w = w.trim(); return w ? '<span class="gap-chip">' + escapeHtml(w) + '</span>' : ''; }).join('');
+          agBoxEl.classList.remove('hidden');
+        } else { agBoxEl.innerHTML = ''; agBoxEl.classList.add('hidden'); }
+      }
     } else if(window.EG_LANG === 'en'){
       // domyślne polecenie o przedimkach po angielsku (statyczny HTML, bez danych z bazy)
       agInstrEl.innerHTML = 'Fill in the text with <b>a</b>, <b>an</b>, <b>the</b> or <b>\u2013</b> (a dash when no article is needed).';
