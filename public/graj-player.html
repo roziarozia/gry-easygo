@@ -1658,6 +1658,40 @@
   html.mat .ls-score{ font-family:'Playfair Display',Georgia,serif; }
   html.mat .ls-score u{ border-bottom-color:#f6f1ae; }
   html.mat.eg-dark .mat-plabel{ background:#3a2034; color:#f08cc4; }
+  /* MATURA: dobieranie — lista opcji raz, przy pytaniu same litery */
+  .mat-pool{ margin:14px 0 6px; padding:14px 16px; border-radius:14px; background:#f6f1ae; text-align:left; }
+  .mat-pool-row{ display:flex; gap:12px; align-items:flex-start; padding:5px 0; font-family:'Outfit',sans-serif; font-size:15.5px; line-height:1.5; color:#1d1a22; }
+  .mat-pool-l{ flex:none; width:26px; height:26px; border-radius:50%; background:#fff; color:#ca4490; font-weight:700; font-size:14px; display:inline-flex; align-items:center; justify-content:center; }
+  .mat-mrow{ display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:10px 16px; }
+  .mat-mrow .ls-q-prompt{ margin:0; flex:1 1 220px; }
+  .mat-lets{ display:flex; flex-wrap:wrap; gap:8px; }
+  .ls-opt.mat-let{ position:relative; padding:0; width:44px; height:44px; border-radius:12px; border:1.5px solid var(--line); background:var(--card); justify-content:center; align-items:center; font-family:'Outfit',sans-serif; font-weight:700; font-size:16px; color:var(--ink); }
+  .ls-opt.mat-let input{ position:absolute; opacity:0; width:100%; height:100%; margin:0; cursor:pointer; }
+  .ls-opt.mat-let:has(input:checked){ background:#ca4490; border-color:#ca4490; color:#fff; }
+  .ls-opt.mat-let.ok{ background:#eef7f1; border-color:#2f7a52; color:#2f7a52; }
+  .ls-opt.mat-let.ok:has(input:checked){ background:#2f7a52; border-color:#2f7a52; color:#fff; }
+  html.mat #lsText, html.mat #lsQuestions{ width:100%; align-self:stretch; }
+  .ls-opt.mat-let.bad, .ls-opt.mat-let.bad:has(input:checked){ background:#fbefed; border-color:#b03a2e; color:#b03a2e; text-decoration:line-through; text-decoration-thickness:1px; }
+  /* MATURA: druga część — wiadomość z lukami */
+  .mat-part2{ margin-top:18px; padding-top:16px; border-top:1px solid var(--line); text-align:left; }
+  .mat-ins2{ margin-bottom:12px; }
+  .mat-msg{ white-space:pre-line; font-family:'Outfit',sans-serif; font-size:clamp(16px,1.9vw,18px); line-height:2.1; color:var(--ink); background:var(--card); border:1px solid var(--line); border-radius:16px; padding:16px 18px; }
+  .mat-gapn{ font-weight:700; color:#ca4490; margin-right:4px; }
+  .mat-open{ display:inline-block !important; vertical-align:baseline; margin:2px 0 !important; box-sizing:border-box; font:inherit; font-size:16px; width:min(230px,62vw) !important; height:auto !important; min-height:0 !important; padding:4px 10px; border:1.5px solid #c9c2d3; border-radius:10px; background:var(--card); color:var(--ink); }
+  .mat-open:focus{ outline:none; border-color:#ca4490; }
+  .mat-open.ok{ border-color:#2f7a52; color:#2f7a52; background:#eef7f1; }
+  .mat-open.bad{ border-color:#e3b3ad; color:#b03a2e; text-decoration:line-through; text-decoration-thickness:1px; background:#fbefed; }
+  .mat-fix{ margin-left:8px; font-weight:600; color:#2f7a52; }
+  html.mat.eg-dark .mat-pool{ background:#3a3a24; }
+  html.mat.eg-dark .mat-pool-row{ color:#e8e6ef; }
+  html.mat.eg-dark .mat-pool-l{ background:#1a1b26; color:#f08cc4; }
+  html.mat.eg-dark .ls-opt.mat-let.ok{ background:#1e3b2c; border-color:#3f9d6d; color:#8fd4ad; }
+  html.mat.eg-dark .ls-opt.mat-let.ok:has(input:checked){ background:#2f7a52; color:#fff; }
+  html.mat.eg-dark .ls-opt.mat-let.bad, html.mat.eg-dark .ls-opt.mat-let.bad:has(input:checked){ background:#3d2226; border-color:#7a3b36; color:#f0a39a; }
+  html.mat.eg-dark .mat-open{ border-color:#4a4c66; }
+  html.mat.eg-dark .mat-open.ok{ background:#1e3b2c; border-color:#3f9d6d; color:#8fd4ad; }
+  html.mat.eg-dark .mat-open.bad{ background:#3d2226; border-color:#7a3b36; color:#f0a39a; }
+  html.mat.eg-dark .mat-fix{ color:#8fd4ad; }
   html.mat.eg-dark .ls-opt.ok{ background:#1e3b2c; border-color:#3f9d6d; }
   html.mat.eg-dark .ls-opt.bad{ background:#3d2226; border-color:#7a3b36; }
   /* MATURA — wersja ciemna (włącza się razem z trybem ciemnym całej strony) */
@@ -2952,6 +2986,82 @@ async function podajNagranie(){
 
 let lsWybor = {};
 
+// ===== MATURA: dobieranie (lista opcji raz, przy pytaniu same litery) + luki w wiadomości =====
+// Pytanie z JEDNĄ opcją = luka do wpisania (opcja = poprawne odpowiedzi oddzielone |).
+function matIsOpen(q){ return Array.isArray(q.options) && q.options.length === 1; }
+function matLetter(o){
+  var m = String(o).match(/^\s*([A-H])[.)]\s+/) || String(o).match(/^\s*(?:Tekst|Text)\s+([A-H])\s*$/i);
+  return m ? m[1].toUpperCase() : null;
+}
+function matMatchInfo(){
+  if(!GAME || !GAME.matura) return null;
+  var closed = QUESTIONS.filter(function(q){ return !matIsOpen(q); });
+  var open = QUESTIONS.filter(matIsOpen);
+  var match = false, opts = closed.length ? closed[0].options : [];
+  if(closed.length >= 2){
+    var key = JSON.stringify(opts);
+    match = closed.every(function(q){ return JSON.stringify(q.options) === key; })
+         && opts.every(function(o){ return !!matLetter(o); });
+  }
+  if(!match && !open.length) return null;
+  var onlyLabels = match && opts.every(function(o){ return /^\s*(?:Tekst|Text)\s+[A-H]\s*$/i.test(o); });
+  return { match: match, opts: opts, onlyLabels: onlyLabels, open: open.length > 0 };
+}
+function matPartTwoInstr(){
+  var ins = (GAME.instruction || '').trim(); if(!ins) return '';
+  var p = ins.split('||'); var txt = (window.EG_LANG === 'en' ? p[0] : (p[1] || p[0]));
+  var k = txt.indexOf('##'); return k > -1 ? txt.slice(k + 2).trim() : '';
+}
+function matRenderQuestions(mm){
+  var html = '';
+  // lista opcji raz (nagłówki / zdania); przy samych „Tekst A–D” lista jest zbędna
+  if(mm.match && !mm.onlyLabels){
+    html += '<div class="mat-pool">' + mm.opts.map(function(o){
+      var L = matLetter(o); var rest = String(o).replace(/^\s*[A-H][.)]\s+/, '');
+      return '<div class="mat-pool-row"><span class="mat-pool-l">' + L + '</span><span>' + escapeHtml(rest) + '</span></div>';
+    }).join('') + '</div>';
+  }
+  var openHtml = '', openExp = '', n = 0;
+  QUESTIONS.forEach(function(q, i){
+    n = i + 1;
+    var pr = String(q.prompt || '').replace(/^\s*\d+[.)]\s+/, '');
+    if(matIsOpen(q)){
+      var parts = escapeHtml(pr).split('_');
+      var inp = '<span class="mat-gapn">(' + n + ')</span><input class="mat-open" type="text" autocomplete="off" spellcheck="false" data-q="' + i + '" aria-label="' + n + '"><span class="mat-fix hidden" id="lsFix' + i + '"></span>';
+      openHtml += (parts.length > 1 ? parts[0] + inp + parts.slice(1).join('_') : parts[0] + ' ' + inp) + ' ';
+      openExp += '<p class="ls-explain hidden" id="lsExp' + i + '"></p>';
+      return;
+    }
+    if(mm.match){
+      var btns = q.options.map(function(o, j){
+        return '<label class="ls-opt mat-let" data-q="' + i + '" data-o="' + j + '"><input type="radio" name="lsq' + i + '" value="' + j + '"><span>' + matLetter(o) + '</span></label>';
+      }).join('');
+      var label = /^(Część|Luka|Part|Gap|Fragment)\s*\d+/i.test(pr) ? pr : (n + '. ' + pr);
+      html += '<div class="ls-q mat-mq"><div class="mat-mrow"><p class="ls-q-prompt">' + escapeHtml(label) + '</p><div class="mat-lets">' + btns + '</div></div>'
+            + '<p class="ls-explain hidden" id="lsExp' + i + '"></p></div>';
+    } else {
+      var opts = (q.options || []).map(function(o, j){
+        return '<label class="ls-opt" data-q="' + i + '" data-o="' + j + '"><input type="radio" name="lsq' + i + '" value="' + j + '"><span>' + escapeHtml(o) + '</span></label>';
+      }).join('');
+      html += '<div class="ls-q"><p class="ls-q-prompt">' + n + '. ' + escapeHtml(pr) + '</p>' + opts + '<p class="ls-explain hidden" id="lsExp' + i + '"></p></div>';
+    }
+  });
+  if(openHtml){
+    var ins2 = matPartTwoInstr();
+    html += '<div class="mat-part2">' + (ins2 ? '<div class="gap-task mat-ins2">' + escapeHtml(ins2) + '</div>' : '')
+          + '<div class="mat-msg">' + openHtml + '</div>' + openExp + '</div>';
+  }
+  return html;
+}
+function matNorm(v){
+  return String(v || '').toLowerCase().replace(/[\u2018\u2019\u02bc`]/g, "'").replace(/[\u201c\u201d"]/g, '')
+    .replace(/\s+/g, ' ').trim().replace(/[.!,;:]+$/, '').trim();
+}
+function matOpenOk(q, val){
+  var v = matNorm(val);
+  return String(q.options[0] || '').split('|').some(function(a){ return matNorm(a) === v && v !== ''; });
+}
+
 function startListening(){
   lsWybor = {};
   show(listeningSec);
@@ -3006,16 +3116,21 @@ function startListening(){
   btn.disabled = false;
 
   const box = document.getElementById('lsQuestions');
+  const mm = matMatchInfo();
+  if(mm){
+    box.innerHTML = matRenderQuestions(mm);
+  } else
   box.innerHTML = QUESTIONS.map(function(q, i){
     const opts = (Array.isArray(q.options) ? q.options : []).map(function(o, j){
       return '<label class="ls-opt" data-q="' + i + '" data-o="' + j + '">'
            + '<input type="radio" name="lsq' + i + '" value="' + j + '">'
            + '<span>' + escapeHtml(o) + '</span></label>';
     }).join('');
-    return '<div class="ls-q"><p class="ls-q-prompt">' + (i+1) + '. ' + escapeHtml(q.prompt || '') + '</p>'
+    return '<div class="ls-q"><p class="ls-q-prompt">' + (i+1) + '. ' + escapeHtml(String(q.prompt || '').replace(/^\s*\d+[.)]\s+/, '')) + '</p>'
          + opts + '<p class="ls-explain hidden" id="lsExp' + i + '"></p></div>';
   }).join('');
 
+  box.oninput = function(e){ if(e.target && e.target.classList && e.target.classList.contains('mat-open')) document.getElementById('lsErr').textContent = ''; };
   box.onchange = function(e){
     if(e.target && e.target.name && e.target.name.indexOf('lsq') === 0){
       lsWybor[e.target.name] = parseInt(e.target.value, 10);
@@ -3026,6 +3141,12 @@ function startListening(){
 
 function sprawdzListening(){
   const err = document.getElementById('lsErr');
+  // luki w wiadomości: wpisany tekst -> 0 (dobrze, bo correct=0) albo -1 (źle)
+  document.querySelectorAll('#lsQuestions .mat-open').forEach(function(inp){
+    var i = parseInt(inp.getAttribute('data-q'), 10);
+    if(inp.value.trim()) lsWybor['lsq' + i] = matOpenOk(QUESTIONS[i], inp.value) ? 0 : -1;
+    else delete lsWybor['lsq' + i];
+  });
   if(Object.keys(lsWybor).length < QUESTIONS.length){
     err.textContent = t('Odpowiedz na wszystkie pytania.');
     return;
@@ -3036,6 +3157,17 @@ function sprawdzListening(){
     const moja = lsWybor['lsq' + i];
     const dobra = q.correct;
     if(moja === dobra) punkty++;
+    if(matIsOpen(q) && GAME.matura){
+      var oi = document.querySelector('#lsQuestions .mat-open[data-q="' + i + '"]');
+      if(oi){
+        oi.disabled = true;
+        oi.classList.add(moja === dobra ? 'ok' : 'bad');
+        if(moja !== dobra){
+          var fx = document.getElementById('lsFix' + i);
+          if(fx){ fx.textContent = String(q.options[0] || '').split('|')[0].trim(); fx.classList.remove('hidden'); }
+        }
+      }
+    }
     document.querySelectorAll('.ls-opt[data-q="' + i + '"]').forEach(function(el){
       const j = parseInt(el.getAttribute('data-o'), 10);
       const inp = el.querySelector('input');
@@ -3045,7 +3177,7 @@ function sprawdzListening(){
     });
     if(q.explanation){
       const exp = document.getElementById('lsExp' + i);
-      exp.textContent = pickExplLang(q.explanation);
+      exp.textContent = (GAME.matura && matIsOpen(q) ? '(' + (i + 1) + ') ' : '') + pickExplLang(q.explanation);
       exp.classList.remove('hidden');
     }
   });
