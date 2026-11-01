@@ -213,9 +213,10 @@ export default function MaturaHub() {
         <div className="mt-top">
           <a href="/" className="mt-logo"><span style={{ color: '#ca4490' }}>Easy</span><span style={{ color: '#c8930f' }}>Wonders</span></a>
           <nav className="mt-nav">
-            <a href="/">Ćwiczenia</a>
+            <a href="/oferta?powrot=matura#jak-to-dziala-matura">Jak to działa</a>
+            {ready && access !== 'full' && <a href="/oferta?powrot=matura">Oferta</a>}
             <a href="/nauka">Blog</a>
-            {user ? <a href="/konto">Moje konto</a> : <a href="/logowanie?powrot=matura">Zaloguj się</a>}
+            {user ? <a href="/konto?powrot=matura">Moje konto</a> : <a href="/logowanie?powrot=matura">Zaloguj się</a>}
             {teacherId && (students.length > 0 || groups.length > 0) && (
               <div className={'mt-tk' + (tkOpen ? ' open' : '')}>
                 <button type="button" className="mt-tk-btn" aria-expanded={tkOpen} onClick={() => setTkOpen(!tkOpen)}>
@@ -311,7 +312,7 @@ export default function MaturaHub() {
                   <a className="mt-btn mt-btn-ghost" href="/logowanie?powrot=matura">Mam konto, zaloguj się</a>
                 </>
               ) : (
-                <a className="mt-btn" href="/oferta">Zobacz ofertę</a>
+                <a className="mt-btn" href="/oferta?powrot=matura">Zobacz ofertę</a>
               )}
             </div>
           </section>
@@ -466,7 +467,7 @@ export default function MaturaHub() {
                   <a className="mt-btn mt-btn-ghost" href="/logowanie?powrot=matura">Mam konto, zaloguj się</a>
                 </>
               ) : (
-                <a className="mt-btn" href="/oferta">Zobacz ofertę</a>
+                <a className="mt-btn" href="/oferta?powrot=matura">Zobacz ofertę</a>
               )}
             </div>
             <button type="button" className="mt-link mt-close" onClick={() => setPaywall(false)}>Wróć do listy</button>
