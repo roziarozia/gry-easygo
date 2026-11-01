@@ -351,6 +351,10 @@
      choć jedno opublikowane ćwiczenie maturalne (skrypt niżej). */
   .eg-matura{ display:flex; flex-direction:column; align-items:center; gap:2px; width:max-content; max-width:100%; margin:22px auto 4px; padding:14px 34px 16px; text-decoration:none !important; color:var(--eg-ink) !important; border-top:2px solid var(--eg-ink); border-bottom:2px solid var(--eg-ink); transition:transform .15s ease; }
   .eg-matura[hidden]{ display:none; }
+  /* okładka ćwiczenia maturalnego (bez obrazka) — w katalogu tylko jako praca domowa */
+  .eg-thumb-mat{ position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:4px; background:#f6f1ae; color:#1d1a22; }
+  .eg-thumb-mat-h{ font-family:'Playfair Display',Georgia,serif; font-weight:900; font-size:30px; letter-spacing:-.5px; line-height:1; }
+  .eg-thumb-mat-s{ font-family:'Outfit',sans-serif; font-weight:700; font-size:11px; letter-spacing:1.4px; text-transform:uppercase; color:#ca4490; }
   .eg-matura:hover{ transform:translateY(-2px); }
   .eg-matura-h{ font-family:'Playfair Display',Georgia,serif; font-weight:900; font-size:clamp(42px,6vw,60px); line-height:1; letter-spacing:-1px; color:var(--eg-ink); }
   .eg-matura-sub{ font-family:'Outfit',sans-serif; font-size:14px; font-weight:600; letter-spacing:1.4px; text-transform:uppercase; color:var(--eg-muted); margin-top:6px; }
@@ -2307,6 +2311,7 @@
     if(!currentStudentId){ box.style.display = 'none'; var sh=document.getElementById('egProgressShow'); if(sh) sh.style.display = 'none'; return; }
     // zbiór ćwiczeń dostępnych dla ucznia, zawężony do wybranego zakresu
     var scoped = allGames.filter(function(g){
+      if(g.matura && !homeworkSet[g.slug]) return false; // matura ma własną stronę /matura
       if(hideSpeaking && (g.category === 'speaking' || g.template === 'speaking') && !homeworkSet[g.slug] && completedSet[g.slug] !== 'teacher') return false;
       if(!(userHasAccess || !g.is_premium)) return false;
       return inProgressScope(g);
@@ -2943,6 +2948,8 @@
   function render(){
     var q = norm(curSearch);
     var list = allGames.filter(function(g){
+      // ćwiczenia maturalne są na /matura; w katalogu tylko jako zadana praca domowa
+      if(g.matura && !homeworkSet[g.slug]) return false;
       // ukryj Speaking dla ucznia podpiętego pod lektora, który nie ma go włączonego —
       // ALE jeśli lektor przypisał to ćwiczenie jako pracę domową LUB zaliczył je uczniowi, uczeń MUSI móc je zobaczyć
       if(hideSpeaking && (g.category === 'speaking' || g.template === 'speaking') && !homeworkSet[g.slug] && completedSet[g.slug] !== 'teacher') return false;
@@ -3109,7 +3116,7 @@
         : '';
       var thumb = g.cover_url
         ? '<div class="eg-thumb-bg" style="background-image:url(\'' + esc(g.cover_url) + '\')"></div><div class="eg-thumb-img" style="background-image:url(\'' + esc(g.cover_url) + '\')"></div>'
-        : '';
+        : (g.matura ? '<div class="eg-thumb-mat"><span class="eg-thumb-mat-h">Matura</span><span class="eg-thumb-mat-s">' + esc(({listening:'Listening',reading:'Reading',use:'Use of English'})[g.matura_section] || '') + '</span></div>' : '');
       // etykieta serii:
       // - w widoku serii: "Ćwiczenie nr N" (bez linku, bo już w serii)
       // - w normalnym katalogu: numer ćwiczenia (niebieski) + link "zobacz całą serię" (różowy)
@@ -3750,7 +3757,7 @@
     searchInput.focus();
   });
 
-  fetch(SUPA_URL + '/rest/v1/games?published=eq.true&matura=not.is.true&select=slug,title,description,category,level,cover_url,slide_count_label,sort_order,exercise_no,keywords,series,is_premium,for_kids,created_at,published_at&order=sort_order.asc',
+  fetch(SUPA_URL + '/rest/v1/games?published=eq.true&select=matura,matura_section,slug,title,description,category,level,cover_url,slide_count_label,sort_order,exercise_no,keywords,series,is_premium,for_kids,created_at,published_at&order=sort_order.asc',
     { headers: { apikey: SUPA_KEY, Authorization: 'Bearer ' + SUPA_KEY } })
   .then(function(r){ return r.json(); })
   .then(function(rows){
