@@ -50,7 +50,7 @@ export default function Konto() {
           return;
         }
         var pr = await sb.from('profiles')
-          .select('access, access_source, role, seats, subscription_status, subscription_cancel_at, subscription_period_end, comp_expires_at, teacher_id, owner_id')
+          .select('access, access_source, role, seats, subscription_status, subscription_cancel_at, subscription_period_end, comp_expires_at, trial_started_at, teacher_id, owner_id')
           .eq('id', me.id).single();
         myProfile = pr && pr.data ? pr.data : null;
         if(analyticsEnabled && myProfile){ posthog.identify(me.id, { role: myProfile.role }); }
@@ -68,7 +68,8 @@ export default function Konto() {
         $('roleDesc').textContent = isT
           ? 'Masz konto lektora: możesz dodawać uczniów, zadawać im pracę domową i śledzić postępy w Panelu lektora.'
           : 'Masz konto ucznia: rozwiązujesz ćwiczenia i śledzisz swoje postępy.';
-        var canSwitch = myProfile.access !== 'full' && (myProfile.access_source || 'none') === 'none' && !myProfile.teacher_id && !myProfile.owner_id;
+        var srcR = myProfile.access_source || 'none';
+        var canSwitch = ((srcR === 'none' && myProfile.access !== 'full') || srcR === 'trial') && !myProfile.teacher_id && !myProfile.owner_id;
         var btn = $('roleBtn');
         if(canSwitch){
           btn.style.display = '';
@@ -76,7 +77,7 @@ export default function Konto() {
           $('roleNote').textContent = '';
         } else {
           btn.style.display = 'none';
-          $('roleNote').textContent = 'Typ konta można zmienić samodzielnie tylko przy darmowym koncie, które nie jest połączone z lektorem. Jeśli potrzebujesz zmiany, napisz do nas.';
+          $('roleNote').textContent = 'Typ konta można zmienić samodzielnie tylko przy darmowym koncie lub w okresie próbnym, jeśli konto nie jest połączone z lektorem. Jeśli potrzebujesz zmiany, napisz do nas.';
         }
         card.classList.remove('hidden');
       }
@@ -84,7 +85,9 @@ export default function Konto() {
         if(!myProfile) return;
         var target = myProfile.role === 'teacher' ? 'student' : 'teacher';
         if(!confirm(target === 'teacher'
-          ? 'Na pewno chcesz zmienić konto na konto lektora?\n\nDostaniesz Panel lektora, a żeby dodawać uczniów, potrzebna będzie subskrypcja dla lektorów. Dopóki nie masz uczniów ani subskrypcji, możesz w każdej chwili wrócić do konta ucznia.'
+          ? (myProfile.access_source === 'trial'
+            ? 'Na pewno chcesz zmienić konto na konto lektora?\n\nDostaniesz Panel lektora i do końca okresu próbnego możesz dodać do 5 uczniów. Dopóki nie masz uczniów ani subskrypcji, możesz w każdej chwili wrócić do konta ucznia.'
+            : 'Na pewno chcesz zmienić konto na konto lektora?\n\nDostaniesz Panel lektora, a żeby dodawać uczniów, potrzebna będzie subskrypcja dla lektorów. Dopóki nie masz uczniów ani subskrypcji, możesz w każdej chwili wrócić do konta ucznia.')
           : 'Na pewno chcesz zmienić konto na konto ucznia?\n\nStracisz dostęp do Panelu lektora. Dopóki nie masz uczniów ani subskrypcji, możesz w każdej chwili wrócić do konta lektora.')) return;
         $('roleBtn').disabled = true;
         var r = await sb.rpc('switch_my_role', { p_role: target });
@@ -123,6 +126,10 @@ export default function Konto() {
             cls = 'status-warn';
             html += '<p class="status-title">Problem z płatnością</p>';
             html += '<p class="status-line">Nie udało się pobrać opłaty. Zaktualizuj metodę płatności, aby zachować dostęp.</p>';
+          } else if(status === 'trialing' && p.trial_started_at){
+            html += '<p class="status-title">Subskrypcja aktywna</p>';
+            html += '<p class="status-line">' + planLabelFor(p) + '</p>';
+            if(periodEnd){ html += '<p class="status-line">Pierwsza płatność: <strong>' + formatDatePL(periodEnd) + '</strong>, gdy skończy się Twój okres próbny.</p>'; }
           } else if(status === 'trialing'){
             html += '<p class="status-title">Okres próbny</p>';
             html += '<p class="status-line">' + planLabelFor(p) + '</p>';
@@ -155,8 +162,14 @@ export default function Konto() {
           html += '<p class="status-title">Pełny dostęp</p>';
           if(p.comp_expires_at){
             var dexp = new Date(p.comp_expires_at);
-            html += '<p class="status-line">Masz pełny dostęp do platformy <strong>w ramach współpracy</strong> z EasyGo (do ' + dexp.toLocaleDateString('pl-PL') + '). Nie płacisz za subskrypcję.</p>';
+            html += '<p class="status-line">Masz pełny dostęp do platformy <strong>w ramach współpracy</strong> z EasyWonders (do ' + dexp.toLocaleDateString('pl-PL') + '). Nie płacisz za subskrypcję.</p>';
           } else { html += '<p class="status-line">Masz stały, pełny dostęp do platformy.</p>'; }
+        } else if(src === 'trial' && p.comp_expires_at && new Date(p.comp_expires_at) > new Date()){
+          var dniT = Math.max(1, Math.ceil((new Date(p.comp_expires_at) - new Date()) / 86400000));
+          html += '<p class="status-title">Okres próbny</p>';
+          html += '<p class="status-line">Do <strong>' + formatDatePL(p.comp_expires_at) + '</strong> masz pełny dostęp do platformy' + (p.role === 'teacher' ? ' i możesz dodać do 5 uczniów' : '') + ' (' + (dniT === 1 ? 'został 1 dzień' : 'zostało dni: ' + dniT) + '). Nie musisz podawać karty.</p>';
+          html += '<p class="status-line status-muted">Jeśli chcesz korzystać dalej, wybierz plan już teraz: pierwszą płatność pobierzemy dopiero po zakończeniu okresu próbnego. Jeśli nic nie wybierzesz, po tym dniu konto przejdzie na darmowe ćwiczenia, bez żadnych opłat.</p>';
+          html += '<a class="status-cta" href="/oferta">Wybierz plan</a>';
         } else {
           cls = 'status-none';
           html += '<p class="status-title">Brak aktywnego dostępu</p>';
