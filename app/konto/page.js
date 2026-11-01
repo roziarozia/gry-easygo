@@ -140,8 +140,17 @@ export default function Konto() {
             html += '<p class="status-line status-seats">Miejsca: wykorzystano <strong>' + usedSeats + '</strong> z ' + (p.seats || 0) + '</p>';
           }
         } else if(src === 'teacher'){
-          html += '<p class="status-title">Dostęp przyznany przez lektora</p>';
-          html += '<p class="status-line">Masz pełny dostęp do ćwiczeń dzięki swojemu lektorowi.</p>';
+          // Wpis w profilu bywa nieaktualny: sprawdzamy w bazie, czy lektor naprawdę ma teraz dostęp.
+          var realAccess = true;
+          try{ var ra = await sb.rpc('has_full_access'); realAccess = !!(ra && ra.data === true); }catch(e){ realAccess = true; }
+          if(realAccess){
+            html += '<p class="status-title">Dostęp przyznany przez lektora</p>';
+            html += '<p class="status-line">Masz pełny dostęp do ćwiczeń dzięki swojemu lektorowi.</p>';
+          } else {
+            cls = 'status-none';
+            html += '<p class="status-title">Dostęp przez lektora jest nieaktywny</p>';
+            html += '<p class="status-line">Twój lektor nie ma teraz aktywnej subskrypcji, więc ćwiczenia z kłódką są zablokowane. Darmowe ćwiczenia możesz robić dalej.</p>';
+          }
         } else if(src === 'comp'){
           html += '<p class="status-title">Pełny dostęp</p>';
           if(p.comp_expires_at){
