@@ -1600,7 +1600,6 @@
   /* ===== MATURA: nowoczesna skórka magazynowa (tylko dla ćwiczeń z games.matura = true) ===== */
   html.mat{ --ink:#1d1a22; --muted:#5b5566; --card:#ffffff; --line:#ebe6dc; --green:#2f7a52; --red:#b03a2e; }
   html.mat body{ background:#fbfaf6 !important; background-image:none !important; font-family:'Outfit',system-ui,sans-serif; color:#1d1a22; }
-  html.mat #grajTheme{ display:none !important; }
   html.mat .frame, html.mat .frame[class*="bg-"]{ background:#ffffff !important; border:1px solid #ebe6dc !important; border-radius:22px !important; box-shadow:0 10px 30px rgba(29,26,34,.06) !important; }
   html.mat .cover-title, html.mat .end-title, html.mat .ls-title{ font-family:'Playfair Display',Georgia,serif !important; font-weight:800 !important; color:#1d1a22 !important; letter-spacing:-.8px; }
   html.mat .cover-title .underline, html.mat .end-title .underline{ background:none !important; padding:0 !important; }
@@ -1644,6 +1643,31 @@
   html.mat .gap-box{ background:#f6f1ae !important; border:none !important; border-radius:14px !important; }
   html.mat .gap-chip{ font-family:'Outfit',sans-serif !important; font-weight:600 !important; background:#fff !important; color:#1d1a22 !important; border:none !important; border-radius:999px !important; font-size:15px !important; }
   html.mat .score .score-n, html.mat .ag-score{ font-family:'Playfair Display',Georgia,serif; }
+  /* MATURA — wersja ciemna (włącza się razem z trybem ciemnym całej strony) */
+  html.mat.eg-dark body{ background:#1a1b26 !important; color:#e8e6ef; }
+  html.mat.eg-dark .frame, html.mat.eg-dark .frame[class*="bg-"]{ background:#24263a !important; border-color:#363850 !important; box-shadow:none !important; }
+  html.mat.eg-dark .cover-title, html.mat.eg-dark .end-title, html.mat.eg-dark .ls-title, html.mat.eg-dark .q-prompt, html.mat.eg-dark .reading-text, html.mat.eg-dark .ag-text{ color:#e8e6ef !important; }
+  html.mat.eg-dark .cover-sub, html.mat.eg-dark .end-sub, html.mat.eg-dark .mode-label, html.mat.eg-dark .shuffle-opt, html.mat.eg-dark .q-progress, html.mat.eg-dark .mat-orig{ color:#a29caf !important; }
+  html.mat.eg-dark .level, html.mat.eg-dark .cover-cat, html.mat.eg-dark .mat-key{ background:#3a2034 !important; color:#f08cc4 !important; }
+  html.mat.eg-dark .btn-secondary{ background:transparent !important; color:#e8e6ef !important; border-color:#4a4c66 !important; }
+  html.mat.eg-dark .btn-secondary:hover{ background:#2c2e44 !important; border-color:#e8e6ef !important; }
+  html.mat.eg-dark .q-bar-track, html.mat.eg-dark .progress-track{ background:#363850 !important; }
+  html.mat.eg-dark .gap-task, html.mat.eg-dark .ag-instr{ background:#1f2030 !important; color:#c4bfcf !important; }
+  html.mat.eg-dark .mat-hl{ background:#5a5320; color:#fff3a8; }
+  html.mat.eg-dark .q-opt{ background:#24263a !important; color:#e8e6ef !important; border-color:#3f4260 !important; }
+  html.mat.eg-dark .q-letter{ background:#33354d !important; color:#e8e6ef !important; }
+  html.mat.eg-dark .q-opt.correct{ background:#1e3b2c !important; border-color:#3f9d6d !important; }
+  html.mat.eg-dark .q-opt.wrong{ background:#3d2226 !important; border-color:#c94f4f !important; }
+  html.mat.eg-dark .q-explain, html.mat.eg-dark .ag-expl{ background:#1f2030 !important; color:#e8e6ef !important; border-color:#363850 !important; }
+  html.mat.eg-dark #gapInput, html.mat.eg-dark .ag-input{ background:#1f2030 !important; color:#e8e6ef !important; border-color:#4a4c66 !important; }
+  html.mat.eg-dark .ag-input.ag-ok{ background:#1e3b2c !important; color:#7ddba9 !important; border-color:#3f9d6d !important; }
+  html.mat.eg-dark .ag-input.ag-bad{ background:#3d2226 !important; color:#f08a80 !important; border-color:#7a3b36 !important; text-decoration-color:#f08a80 !important; }
+  html.mat.eg-dark .ag-correct, html.mat.eg-dark .gap-word.ok{ color:#7ddba9 !important; }
+  html.mat.eg-dark .gap-word.ok{ background:#1e3b2c !important; box-shadow:inset 0 0 0 1.5px #3f9d6d; }
+  html.mat.eg-dark .gap-word.bad{ background:#3d2226 !important; color:#f08a80 !important; box-shadow:inset 0 0 0 1.5px #7a3b36; }
+  html.mat.eg-dark .gap-box{ background:#3b3820 !important; }
+  html.mat.eg-dark .gap-chip{ background:#24263a !important; color:#e8e6ef !important; }
+  html.mat.eg-dark .ag-score, html.mat.eg-dark .score, html.mat.eg-dark .score .score-n, html.mat.eg-dark .score .score-l{ color:#e8e6ef !important; }
 </style>
 </head>
 <body>
@@ -1673,6 +1697,12 @@
       sync();
       // powiadom stronę nadrzędną (gdy odtwarzacz jest w iframe na /cwiczenie/…), żeby całą stronę przełączyła na żywo
       try{ if(window.parent && window.parent !== window){ window.parent.postMessage({ egTheme: dark ? 'dark' : 'light' }, '*'); } }catch(e){}
+    });
+    // strona nadrzędna (np. /matura/…) może przełączyć tryb własnym przyciskiem
+    window.addEventListener('message', function(e){
+      if(e.origin !== window.location.origin || !e.data || !e.data.egSetTheme) return;
+      document.documentElement.classList.toggle('eg-dark', e.data.egSetTheme === 'dark');
+      sync();
     });
   })();
 </script>
@@ -2242,9 +2272,9 @@ async function markCompleted(score, scoreMax, answers){
     }
     GAME = rows[0];
     if(GAME.matura){
-      // MATURA: gazetowa skórka, zawsze jasna (papier), powroty prowadzą na /matura
+      // MATURA: skórka magazynowa (jasna lub ciemna wg wyboru ucznia), powroty prowadzą na /matura
       var hEl = document.documentElement;
-      hEl.classList.add('mat'); hEl.classList.remove('eg-dark');
+      hEl.classList.add('mat');
       var mf = document.createElement('link'); mf.rel = 'stylesheet';
       mf.href = 'https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;800&family=Outfit:wght@400;500;600;700&display=swap';
       document.head.appendChild(mf);
