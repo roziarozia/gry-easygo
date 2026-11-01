@@ -3152,7 +3152,7 @@
         : '';
       var thumb = g.cover_url
         ? '<div class="eg-thumb-bg" style="background-image:url(\'' + esc(g.cover_url) + '\')"></div><div class="eg-thumb-img" style="background-image:url(\'' + esc(g.cover_url) + '\')"></div>'
-        : (g.matura ? '<div class="eg-thumb-mat"><span class="eg-thumb-mat-h">Matura</span><span class="eg-thumb-mat-s">' + esc(({listening:'Listening',reading:'Reading',use:'Use of English'})[g.matura_section] || '') + '</span></div>' : '');
+        : (g.matura ? '<div class="eg-thumb-mat"><span class="eg-thumb-mat-h">Matura</span><span class="eg-thumb-mat-s">' + esc(({listening:'Listening',reading:'Reading',use:'Use of English',writing:'Writing',speaking:'Matura ustna'})[g.matura_section] || '') + '</span></div>' : '');
       // etykieta serii:
       // - w widoku serii: "Ćwiczenie nr N" (bez linku, bo już w serii)
       // - w normalnym katalogu: numer ćwiczenia (niebieski) + link "zobacz całą serię" (różowy)
