@@ -2,6 +2,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { supabase } from '../../lib/supabase';
 import { SECTIONS, TASKS, daysToExam, MT_FONTS } from './maturaData';
+import ThemeToggle, { THEME_CSS } from './ThemeToggle';
 
 // Strona /matura — gazetowy „spis treści” ćwiczeń maturalnych.
 // Ćwiczenia, postępy i dostęp są czytane z tej samej bazy co reszta EasyWonders,
@@ -108,7 +109,7 @@ export default function MaturaHub() {
 
   return (
     <div className="mt">
-      <style dangerouslySetInnerHTML={{ __html: MT_FONTS + CSS }} />
+      <style dangerouslySetInnerHTML={{ __html: MT_FONTS + CSS + THEME_CSS }} />
       <div className="mt-wrap">
         <div className="mt-top">
           <a href="/" className="mt-logo"><span style={{ color: '#ca4490' }}>Easy</span><span style={{ color: '#c8930f' }}>Wonders</span></a>
@@ -116,6 +117,7 @@ export default function MaturaHub() {
             <a href="/">Ćwiczenia</a>
             <a href="/nauka">Blog</a>
             {user ? <a href="/konto">Moje konto</a> : <a href="/logowanie?powrot=matura">Zaloguj się</a>}
+            <ThemeToggle />
           </nav>
         </div>
 
@@ -306,7 +308,7 @@ body{ margin:0; background:#fbfaf6; }
 .mt-wrap{ max-width:1080px; margin:0 auto; padding:0 24px 80px; }
 .mt-top{ display:flex; flex-wrap:wrap; justify-content:space-between; align-items:center; gap:12px; padding:18px 0; font-size:15px; }
 .mt-logo{ text-decoration:none; font-family:'Outfit',sans-serif; font-weight:700; font-size:21px; letter-spacing:-.5px; }
-.mt-nav{ display:flex; flex-wrap:wrap; gap:24px; font-weight:500; }
+.mt-nav{ display:flex; flex-wrap:wrap; align-items:center; gap:22px; font-weight:500; }
 .mt-nav a{ text-decoration:none; color:#5b5566; }
 .mt-nav a:hover{ color:#ca4490; }
 .mt-mast{ border-top:1px solid #1d1a22; padding:26px 0 6px; text-align:center; }
@@ -394,6 +396,35 @@ body{ margin:0; background:#fbfaf6; }
 .mt-modal h3{ margin:0 0 10px; font-family:'Playfair Display',Georgia,serif; font-weight:800; font-size:28px; line-height:1.15; }
 .mt-modal p{ margin:0 0 18px; font-size:16.5px; line-height:1.6; color:#4f4959; }
 .mt-close{ margin-top:12px; }
+/* wersja ciemna */
+html.eg-dark body{ background:#1a1b26; }
+html.eg-dark .mt{ background:#1a1b26; color:#e8e6ef; }
+html.eg-dark .mt-nav a{ color:#a29caf; }
+html.eg-dark .mt-mast{ border-top-color:#e8e6ef; }
+html.eg-dark .mt-mast-sub, html.eg-dark .mt-num, html.eg-dark .mt-box-pl, html.eg-dark .mt-box-count, html.eg-dark .mt-row-meta, html.eg-dark .mt-soon, html.eg-dark .mt-next-stats span, html.eg-dark .mt-level, html.eg-dark .mt-legend{ color:#a29caf; }
+html.eg-dark .mt-admin, html.eg-dark .mt-kicker{ background:#3a2034; color:#f08cc4; }
+html.eg-dark .mt-lead p, html.eg-dark .mt-sign, html.eg-dark .mt-tip, html.eg-dark .mt-modal p, html.eg-dark .mt-link{ color:#c4bfcf; }
+html.eg-dark .mt-next, html.eg-dark .mt-box, html.eg-dark .mt-tip, html.eg-dark .mt-modal{ background:#24263a; border-color:#363850; box-shadow:none; }
+html.eg-dark .mt-next-stats, html.eg-dark .mt-box-head{ border-color:#363850; }
+html.eg-dark .mt-row{ border-color:#2e3048; }
+html.eg-dark .mt-next-stats strong, html.eg-dark .mt-box-count strong, html.eg-dark .mt-tip-k{ color:#e8e6ef; }
+html.eg-dark .mt-btn-ghost{ background:transparent; color:#e8e6ef !important; border-color:#4a4c66; }
+html.eg-dark .mt-btn-ghost:hover{ background:#2c2e44; border-color:#e8e6ef; }
+html.eg-dark .mt-access{ background:#3b3820; }
+html.eg-dark .mt-access p{ color:#ece6c0; }
+html.eg-dark .mt-access-k{ color:#f4c94c; }
+html.eg-dark .mt-toggle, html.eg-dark .mt-filters{ background:#2c2e44; }
+html.eg-dark .mt-toggle button, html.eg-dark .mt-filters button{ color:#a29caf; }
+html.eg-dark .mt-toggle button.on, html.eg-dark .mt-filters button.on{ background:#3a3d58; color:#fff; box-shadow:none; }
+html.eg-dark .mt-bar{ background:#363850; }
+html.eg-dark .mt-tip a{ color:#f08cc4; }
+html.eg-dark .mt-overlay{ background:rgba(0,0,0,.55); }
+html.eg-dark .mt-drawer{ background:#1a1b26; }
+html.eg-dark .mt-drawer-head{ border-color:#363850; }
+html.eg-dark .mt-x, html.eg-dark .mt-tile{ background:#24263a; color:#e8e6ef; border-color:#4a4c66; }
+html.eg-dark .mt-tile.done{ background:#ca4490; border-color:#ca4490; color:#fff; }
+html.eg-dark .mt-legend i{ background:#24263a; border-color:#4a4c66; }
+html.eg-dark .mt-legend .lg-done{ background:#ca4490; border-color:#ca4490; }
 @media (max-width:600px){
   .mt-wrap{ padding:0 16px 56px; }
   .mt-box{ padding:20px 16px 8px; }
