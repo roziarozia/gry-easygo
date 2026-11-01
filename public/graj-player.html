@@ -3028,7 +3028,8 @@ function matRenderQuestions(mm){
     if(matIsOpen(q)){
       var parts = escapeHtml(pr).split('_');
       var inp = '<span class="mat-gapn">(' + n + ')</span><input class="mat-open" type="text" autocomplete="off" spellcheck="false" data-q="' + i + '" aria-label="' + n + '"><span class="mat-fix hidden" id="lsFix' + i + '"></span>';
-      openHtml += (parts.length > 1 ? parts[0] + inp + parts.slice(1).join('_') : parts[0] + ' ' + inp) + ' ';
+      // z poleceniem po ## to jedna wiadomość (luki w tekście); bez niego osobne zdania, każde w nowej linii
+      openHtml += (parts.length > 1 ? parts[0] + inp + parts.slice(1).join('_') : parts[0] + ' ' + inp) + (matPartTwoInstr() ? ' ' : '\n');
       openExp += '<p class="ls-explain hidden" id="lsExp' + i + '"></p>';
       return;
     }
@@ -3036,7 +3037,7 @@ function matRenderQuestions(mm){
       var btns = q.options.map(function(o, j){
         return '<label class="ls-opt mat-let" data-q="' + i + '" data-o="' + j + '"><input type="radio" name="lsq' + i + '" value="' + j + '"><span>' + matLetter(o) + '</span></label>';
       }).join('');
-      var label = /^(Część|Luka|Part|Gap|Fragment)\s*\d+/i.test(pr) ? pr : (n + '. ' + pr);
+      var label = /^(Część|Luka|Part|Gap|Fragment|Wypowiedź|Tekst|Nagranie|Speaker)\s*\d+/i.test(pr) ? pr : (n + '. ' + pr);
       html += '<div class="ls-q mat-mq"><div class="mat-mrow"><p class="ls-q-prompt">' + escapeHtml(label) + '</p><div class="mat-lets">' + btns + '</div></div>'
             + '<p class="ls-explain hidden" id="lsExp' + i + '"></p></div>';
     } else {
