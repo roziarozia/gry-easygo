@@ -1,5 +1,5 @@
 import { getGameBySlug, getPublishedGames } from '../../../lib/supabase';
-import { notFound } from 'next/navigation';
+import { notFound, permanentRedirect } from 'next/navigation';
 import Link from 'next/link';
 import GameEmbed from './GameEmbed';
 import ExerciseMeta from './ExerciseMeta';
@@ -109,6 +109,8 @@ const PILL = {
 export default async function CwiczeniePage({ params }) {
   const game = await getGameBySlug(params.slug);
   if (!game) notFound();
+  // Ćwiczenia maturalne mają jeden adres: /matura/… (tam jest ich gazetowa oprawa).
+  if (game.matura) permanentRedirect(`/matura/${game.slug}`);
   const catLabel = CAT_LABEL[game.category] || game.category || '';
 
   // Tytuł na białej plakietce: część po dwukropku w magencie ("Open Cloze: New York").
