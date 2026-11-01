@@ -1,7 +1,7 @@
 'use client';
 import { useEffect, useMemo, useState } from 'react';
 import { supabase } from '../../lib/supabase';
-import { SECTIONS, TASKS, BOTH_LEVELS, daysToExam, MT_FONTS } from './maturaData';
+import { SECTIONS, TASKS, BOTH_LEVELS, daysToExam, MT_FONTS, taskName } from './maturaData';
 import ThemeToggle, { THEME_CSS, MaturaFooter, FOOTER_CSS } from './ThemeToggle';
 
 // Strona /matura — gazetowy „spis treści” ćwiczeń maturalnych.
@@ -25,6 +25,9 @@ export default function MaturaHub() {
   const [vWr, setVWr] = useState({}); // slug -> {status, score, max} — wypracowania oglądanego ucznia
   const [pending, setPending] = useState({}); // studentId -> liczba wypracowań do sprawdzenia
   const [tkOpen, setTkOpen] = useState(false);
+  const [hwOpen, setHwOpen] = useState(false); // teczka „Praca domowa” ucznia lektora
+  const [hwAt, setHwAt] = useState({}); // slug -> kiedy lektor zadał
+  const [hwMore, setHwMore] = useState({ todo: false, done: false }); // rozwinięte pełne listy
   const [toast, setToast] = useState('');
   const [busy, setBusy] = useState('');
   const [level, setLevel] = useState('basic');
@@ -50,11 +53,13 @@ export default function MaturaHub() {
           supabase.rpc('is_admin'),
           supabase.from('game_completions').select('game_slug,score,score_max,completed_at').eq('user_id', session.user.id),
           supabase.from('profiles').select('role').eq('id', session.user.id).maybeSingle(),
-          supabase.from('homework').select('game_slug,completed_at').eq('student_id', session.user.id),
+          supabase.from('homework').select('game_slug,completed_at,created_at').eq('student_id', session.user.id),
         ]);
         const h = {};
-        (hw.data || []).forEach((r) => { h[r.game_slug] = r.completed_at || true; });
+        const ha = {};
+        (hw.data || []).forEach((r) => { h[r.game_slug] = r.completed_at || true; ha[r.game_slug] = r.created_at || ''; });
         setMyHw(h);
+        setHwAt(ha);
         if (pr.data && pr.data.role === 'teacher') loadTeczka(session.user.id);
         const admin = !!ad.data;
         setIsAdmin(admin);
@@ -217,6 +222,57 @@ export default function MaturaHub() {
             {ready && access !== 'full' && <a href="/oferta?powrot=matura">Oferta</a>}
             <a href="/nauka">Blog</a>
             {user ? <a href="/konto?powrot=matura">Moje konto</a> : <a href="/logowanie?powrot=matura">Zaloguj się</a>}
+            {!teacherId && (() => {
+              // TECZKA UCZNIA: zadania maturalne, które lektor zadał jako pracę domową
+              const list = games.filter((g) => myHw[g.slug]);
+              if (!list.length) return null;
+              const isDone = (g) => typeof myHw[g.slug] === 'string' || !!myDone[g.slug];
+              // do zrobienia: najnowsze zadane na górze; zrobione: ostatnio zrobione na górze.
+              // Pokazujemy kilka, resztę po kliknięciu — żeby długa lista nie rozciągała teczki.
+              const doneAt = (g) => (typeof myHw[g.slug] === 'string' ? myHw[g.slug] : '') || ((myDone[g.slug] || {}).at || '');
+              const todo = list.filter((g) => !isDone(g)).sort((a, b) => String(hwAt[b.slug] || '').localeCompare(String(hwAt[a.slug] || '')));
+              const done = list.filter(isDone).sort((a, b) => String(doneAt(b)).localeCompare(String(doneAt(a))));
+              const TODO_MAX = 5, DONE_MAX = 3;
+              const todoShown = hwMore.todo ? todo : todo.slice(0, TODO_MAX);
+              const doneShown = hwMore.done ? done : done.slice(0, DONE_MAX);
+              const more = (key, n, label) => (
+                <button type="button" className="mt-hw-more" onClick={() => setHwMore({ ...hwMore, [key]: !hwMore[key] })}>
+                  {hwMore[key] ? 'Zwiń' : label + ' (' + n + ')'}
+                </button>
+              );
+              const item = (g) => {
+                const sec = SECTIONS.find((x) => x.id === g.matura_section);
+                const lvl = BOTH_LEVELS.includes(g.matura_section) ? 'matura ustna' : (g.matura_level === 'ext' ? 'rozszerzenie' : 'podstawa');
+                return (
+                  <a key={g.slug} className="mt-tk-item" href={'/matura/' + g.slug}>
+                    <span className="mt-tk-av">{sec ? sec.roman : '•'}</span>
+                    <span className="mt-hw-t">{g.title}<small>{(sec ? sec.en + ' · ' : '') + (taskName(g.matura_level, g.matura_section, g.matura_task) || '') + ' · ' + lvl}</small></span>
+                    {isDone(g) && <span className="mt-hw-ok">zrobione</span>}
+                  </a>
+                );
+              };
+              return (
+                <div className={'mt-tk' + (hwOpen ? ' open' : '')}>
+                  <button type="button" className="mt-tk-btn" aria-expanded={hwOpen} onClick={() => setHwOpen(!hwOpen)}>
+                    <TeczkaIcon />Praca domowa
+                    {todo.length > 0 && <span className="mt-tk-dot" title="Do zrobienia">{todo.length}</span>}
+                    <span className="mt-tk-caret" aria-hidden="true">▾</span>
+                  </button>
+                  {hwOpen && (
+                    <div className="mt-tk-panel mt-hw-panel">
+                      <div className="mt-tk-k">Praca domowa od lektora</div>
+                      {todo.length > 0 && <div className="mt-tk-group">Do zrobienia · {todo.length}</div>}
+                      {todoShown.map(item)}
+                      {todo.length > TODO_MAX && more('todo', todo.length, 'Pokaż wszystkie do zrobienia')}
+                      {todo.length === 0 && <div className="mt-tk-empty">Wszystko zrobione. Brawo!</div>}
+                      {done.length > 0 && <div className="mt-tk-group">Zrobione · {done.length}</div>}
+                      {doneShown.map(item)}
+                      {done.length > DONE_MAX && more('done', done.length, 'Pokaż wszystkie zrobione')}
+                    </div>
+                  )}
+                </div>
+              );
+            })()}
             {teacherId && (students.length > 0 || groups.length > 0) && (
               <div className={'mt-tk' + (tkOpen ? ' open' : '')}>
                 <button type="button" className="mt-tk-btn" aria-expanded={tkOpen} onClick={() => setTkOpen(!tkOpen)}>
@@ -625,6 +681,14 @@ html.eg-dark .mt-box-speaking::before{ background:#e8e6ef; }
 .mt-tk-item.on{ background:#fdf1f7; color:#8f2c66; font-weight:700; }
 .mt-tk-av{ flex:none; width:30px; height:30px; border-radius:50%; background:#f6f1ae; color:#1d1a22; display:inline-flex; align-items:center; justify-content:center; font-size:12px; font-weight:700; }
 .mt-tk-exit{ color:#8f2c66; font-weight:600; }
+a.mt-tk-item{ text-decoration:none; color:inherit; }
+.mt-hw-t{ display:flex; flex-direction:column; min-width:0; text-align:left; line-height:1.3; }
+.mt-hw-t small{ font-size:12px; font-weight:500; color:#7a7385; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.mt-hw-t{ flex:1; }
+.mt-hw-panel{ width:340px; }
+button.mt-hw-more{ display:block; width:100%; margin:2px 0 4px; padding:8px; border:none; border-radius:10px; background:transparent; color:#ca4490; font-family:'Outfit',sans-serif; font-size:13.5px; font-weight:600; text-align:left; cursor:pointer; }
+button.mt-hw-more:hover{ background:#fdf1f7; }
+.mt-hw-ok{ margin-left:auto; flex:none; font-size:11.5px; font-weight:700; color:#1e7e50; background:#e3f3ea; padding:2px 8px; border-radius:999px; white-space:nowrap; }
 .mt-tk-exit .mt-tk-av{ background:#fdf1f7; color:#ca4490; font-size:17px; }
 .mt-view{ position:sticky; top:0; z-index:45; display:flex; flex-wrap:wrap; align-items:center; gap:8px 16px; margin:0 0 14px; padding:12px 14px 12px 18px; background:#1d1a22; color:#fff; border-radius:14px; box-shadow:0 10px 24px rgba(29,26,34,.18); }
 .mt-view-k{ font-size:11.5px; font-weight:700; text-transform:uppercase; letter-spacing:1.6px; color:#1d1a22; background:#f6f1ae; padding:4px 10px; border-radius:999px; }
@@ -662,6 +726,10 @@ html.eg-dark .mt-tk-item:hover{ background:#2c2e44; }
 html.eg-dark .mt-tk-item.on{ background:#3a2034; color:#f08cc4; }
 html.eg-dark .mt-tk-av{ background:#3b3820; color:#f6f1ae; }
 html.eg-dark .mt-tk-exit{ color:#f08cc4; }
+html.eg-dark .mt-hw-t small{ color:#a29caf; }
+html.eg-dark button.mt-hw-more{ color:#f08cc4; }
+html.eg-dark button.mt-hw-more:hover{ background:#3a2034; }
+html.eg-dark .mt-hw-ok{ background:#1f3a2c; color:#8fd3ae; }
 html.eg-dark .mt-view{ background:#e8e6ef; color:#1a1b26; }
 html.eg-dark .mt-view-legend{ color:#4f4959; }
 html.eg-dark .mt-view-x{ border-color:#1a1b26; color:#1a1b26; }
