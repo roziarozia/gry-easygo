@@ -1826,7 +1826,7 @@
             <div class="eg-how-ico eg-how-ico-m"><svg width="26" height="26" viewBox="0 0 24 24" fill="none"><circle cx="11" cy="11" r="7" stroke="#ca4490" stroke-width="1.8"/><line x1="16.5" y1="16.5" x2="21" y2="21" stroke="#ca4490" stroke-width="1.8" stroke-linecap="round"/></svg></div>
             <div class="eg-how-num">1</div>
             <p class="eg-how-step-title" data-i18n="Załóż konto lektora">Załóż konto lektora</p>
-            <p class="eg-how-step-desc" data-i18n="Wybierz plan i zacznij od 14 dni za darmo.">Wybierz plan i zacznij od 14 dni za darmo.</p>
+            <p class="eg-how-step-desc" data-i18n="Od razu dostajesz 14 dni pełnej wersji za darmo, bez karty.">Od razu dostajesz 14 dni pełnej wersji za darmo, bez karty.</p>
           </div>
           <div class="eg-how-step">
             <div class="eg-how-ico eg-how-ico-l"><svg width="26" height="26" viewBox="0 0 24 24" fill="none"><rect x="3" y="5" width="18" height="14" rx="2" stroke="#8b6fc7" stroke-width="1.8"/><path d="M3.5 6.5L12 12.5l8.5-6" stroke="#8b6fc7" stroke-width="1.8" stroke-linecap="round"/></svg></div>
@@ -1865,7 +1865,7 @@
             <div class="eg-how-ico eg-how-ico-m"><svg width="26" height="26" viewBox="0 0 24 24" fill="none"><path d="M12 2l2.5 6.5H21l-5.2 4 2 6.5L12 15.5 6.2 19l2-6.5L3 8.5h6.5z" stroke="#ca4490" stroke-width="1.7" stroke-linejoin="round"/></svg></div>
             <div class="eg-how-num">1</div>
             <p class="eg-how-step-title" data-i18n="Załóż konto">Załóż konto</p>
-            <p class="eg-how-step-desc" data-i18n="Wybierz plan i zacznij od 14 dni za darmo.">Wybierz plan i zacznij od 14 dni za darmo.</p>
+            <p class="eg-how-step-desc" data-i18n="Od razu dostajesz 14 dni pełnej wersji za darmo, bez karty.">Od razu dostajesz 14 dni pełnej wersji za darmo, bez karty.</p>
           </div>
           <div class="eg-how-step">
             <div class="eg-how-ico eg-how-ico-l"><svg width="26" height="26" viewBox="0 0 24 24" fill="none"><circle cx="11" cy="11" r="7" stroke="#8b6fc7" stroke-width="1.8"/><line x1="16.5" y1="16.5" x2="21" y2="21" stroke="#8b6fc7" stroke-width="1.8" stroke-linecap="round"/></svg></div>
@@ -2055,7 +2055,7 @@
             <span><strong data-i18n="Konta dla całej szkoły językowej">Konta dla całej szkoły językowej</strong><br><span data-i18n="Właściciel subskrypcji zaprasza lektorów, przydziela im miejsca i dodaje uczniów. Każdy lektor prowadzi potem swoich uczniów - w grupach lub indywidualnie - zadaje im pracę domową i śledzi postępy.">Właściciel subskrypcji zaprasza lektorów, przydziela im miejsca i dodaje uczniów. Każdy lektor prowadzi potem swoich uczniów - w grupach lub indywidualnie - zadaje im pracę domową i śledzi postępy.</span></span>
           </li>
         </ul>
-        <p class="eg-how-cta" data-i18n="Wypróbuj EasyWonders za darmo przez 14 dni - bez ryzyka, w każdej chwili możesz zrezygnować. Zajrzyj do zakładki OFERTA, wybierz plan i zacznij naukę już dziś.">Wypróbuj EasyWonders <strong>za darmo przez 14 dni</strong> - bez ryzyka, w każdej chwili możesz zrezygnować. Zajrzyj do zakładki <strong>OFERTA</strong>, wybierz plan i zacznij naukę już dziś.</p>
+        <p class="eg-how-cta" data-i18n="Załóż konto i korzystaj z pełnej wersji EasyWonders za darmo przez 14 dni, bez podawania karty. Potem wybierz plan w zakładce OFERTA albo zostań przy darmowych ćwiczeniach.">Załóż konto i korzystaj z pełnej wersji EasyWonders <strong>za darmo przez 14 dni</strong>, bez podawania karty. Potem wybierz plan w zakładce <strong>OFERTA</strong> albo zostań przy darmowych ćwiczeniach.</p>
       </div>
     </div>
     <!-- seria i aktywne filtry stoją razem, jeden pod drugim, tuż nad kafelkami -->
@@ -2955,7 +2955,9 @@
     var heroCta = document.getElementById('egHeroCta');
     if(heroCta){
       heroCta.addEventListener('click', function(){
-        try{ if(window.parent && window.parent !== window){ window.parent.location.href = '/oferta'; } else { window.location.href = '/oferta'; } }catch(e){ window.location.href = '/oferta'; }
+        // gość zakłada konto (14 dni pełnej wersji od razu), zalogowany idzie do oferty
+        var cel = currentStudentId ? '/oferta' : '/logowanie?rejestracja';
+        try{ if(window.parent && window.parent !== window){ window.parent.location.href = cel; } else { window.location.href = cel; } }catch(e){ window.location.href = cel; }
       });
     }
     if(howClose && howModal){
@@ -3914,10 +3916,15 @@
     var isTeacher = p.role === 'teacher';
     var full = p.access === 'full';
     var src = p.access_source || 'none';
-    var canSwitch = !full && src === 'none' && !p.teacher_id && !p.owner_id;
+    var canSwitch = ((!full && src === 'none') || src === 'trial') && !p.teacher_id && !p.owner_id;
+    // okres próbny na platformie (od rejestracji): pokazujemy, do kiedy trwa
+    var trialDo = '';
+    if(src === 'trial' && p.comp_expires_at && new Date(p.comp_expires_at) > new Date()){
+      trialDo = new Date(p.comp_expires_at).toLocaleDateString(en ? 'en-GB' : 'pl-PL');
+    }
     // Ktoś, kto miał już subskrypcję (także okres próbny), nie dostanie drugiego okresu próbnego —
     // nie obiecujemy mu więc „14 dni za darmo”.
-    var hadSub = !!p.subscription_status;
+    var hadSub = !!p.subscription_status || !!p.trial_started_at;
 
     var text = '', lead = '', btns = '', switchTo = '';
     if(isTeacher && !full){
@@ -3926,6 +3933,13 @@
                'We want to give you everything you need for your lessons: ready-made games, readings, listenings, speaking prompts and exercises at every level. Assign them as homework, track your students’ progress in the Teacher panel and save time on lesson prep. ' + (hadSub ? 'Come back to full access whenever you like.' : 'Try full access free for 14 days, no card required.'));
       btns = '<a class="eg-welcome-btn primary" href="/oferta" target="_top">' + (hadSub ? L('Zobacz ofertę','See the offer') : L('Wypróbuj 14 dni za darmo','Try 14 days free')) + '</a>' +
              '<button type="button" class="eg-welcome-btn" data-eg-w="demo">' + L('Jak wygląda Panel lektora?','See the Teacher panel') + '</button>';
+      switchTo = 'student';
+    } else if(isTeacher && trialDo){
+      lead = L('Cieszymy się, że do nas dołączasz.','We are so glad you have joined us.');
+      text = L('Do ' + trialDo + ' masz za darmo pełną wersję EasyWonders: wszystkie ćwiczenia i Panel lektora, w którym możesz dodać do 5 uczniów, zadawać im pracę domową i śledzić ich postępy. Nie musisz podawać karty. Jeśli zechcesz zostać, wybierz plan, a płatność zacznie się dopiero po okresie próbnym.',
+               'Until ' + trialDo + ' you have the full version of EasyWonders for free: all exercises and the Teacher panel, where you can add up to 5 students, assign homework and track their progress. No card required. If you want to stay, choose a plan and payment will only start after the trial.');
+      btns = '<a class="eg-welcome-btn primary" href="/panel-lektora" target="_top">' + L('Dodaj pierwszego ucznia','Add your first student') + '</a>' +
+             '<a class="eg-welcome-btn" href="/oferta" target="_top">' + L('Zobacz plany','See the plans') + '</a>';
       switchTo = 'student';
     } else if(isTeacher){
       lead = L('Cieszymy się, że do nas dołączasz.','We are so glad you have joined us.');
@@ -3936,6 +3950,12 @@
       lead = L('Cieszymy się, że tu jesteś.','We are so glad you are here.');
       text = L('Twój lektor dał Ci dostęp do ćwiczeń. Zadania od niego znajdziesz w zakładce „Praca domowa”, a całą resztę gier, czytanek i ćwiczeń możesz rozwiązywać, kiedy tylko chcesz. Powodzenia w nauce!',
                'Your teacher has given you access to the exercises. You will find their tasks under “Homework”, and you can play any other game, reading or exercise whenever you like. Good luck!');
+    } else if(trialDo){
+      lead = L('Cieszymy się, że tu jesteś.','We are so glad you are here.');
+      text = L('Do ' + trialDo + ' masz za darmo pełną wersję EasyWonders: wszystkie gry, czytanki, słuchanki i ćwiczenia na każdym poziomie. Nie musisz podawać karty. Po tym dniu darmowe ćwiczenia działają dalej, a jeśli zechcesz zachować pełny dostęp, wybierz plan, a płatność zacznie się dopiero po okresie próbnym.',
+               'Until ' + trialDo + ' you have the full version of EasyWonders for free: all games, readings, listenings and exercises at every level. No card required. After that the free exercises keep working, and if you want to keep full access, choose a plan and payment will only start after the trial.');
+      btns = '<a class="eg-welcome-btn primary" href="/oferta" target="_top">' + L('Zobacz plany','See the plans') + '</a>';
+      switchTo = 'teacher';
     } else if(full){
       lead = L('Cieszymy się, że tu jesteś.','We are so glad you are here.');
       text = L('Masz pełny dostęp do wszystkich gier, czytanek, słuchanek i ćwiczeń na każdym poziomie. Wybierz poziom i kategorię w filtrach poniżej i ucz się we własnym tempie. Chcemy, żeby nauka angielskiego była dla Ciebie przyjemnością.',
@@ -4017,7 +4037,7 @@
       currentStudentId = session.user.id;
       egTellParentLogin(true);
       // pobierz profil (rola, dostęp, źródło, Speaking) do paska konta i filtrowania
-      _sb.from('profiles').select('role,email,access,access_source,speaking_enabled,teacher_id,owner_id,created_at,subscription_status').eq('id', session.user.id).single()
+      _sb.from('profiles').select('role,email,access,access_source,speaking_enabled,teacher_id,owner_id,created_at,subscription_status,comp_expires_at,trial_started_at').eq('id', session.user.id).single()
         .then(function(pr){
           var p = pr && pr.data ? pr.data : null;
           // czy użytkownik ma pełny dostęp (własna subskrypcja, przez lektora, lub komplementarny)?
@@ -4313,7 +4333,7 @@
     'Widzisz wyniki i błędy': 'You see results and mistakes',
     'Klikasz wynik ucznia i wiesz, co powtórzyć.': 'Click the student\'s score and know what to review.',
     'Załóż konto': 'Create an account',
-    'Wybierz plan i zacznij od 14 dni za darmo.': 'Choose a plan and start with 14 days free.',
+    'Od razu dostajesz 14 dni pełnej wersji za darmo, bez karty.': 'You get 14 days of full access free right away, no card required.',
     'Wybierz ćwiczenia': 'Choose your exercises',
     'Setki zadań na każdym poziomie zaawansowania.': 'Hundreds of tasks at every level.',
     'Ucz się na błędach': 'Learn from your mistakes',
