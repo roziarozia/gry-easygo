@@ -122,7 +122,7 @@ export default function MaturaHub() {
         </div>
 
         <header className="mt-mast">
-          <h1>Matura</h1>
+          <h1>Matura<span className="mt-sr"> z angielskiego</span></h1>
           <div className="mt-mast-sub">z angielskiego · wydanie 2026/2027 · redakcja EasyWonders</div>
         </header>
 
@@ -302,6 +302,7 @@ function Lock() {
 }
 
 const CSS = `
+.mt-sr{ position:absolute; width:1px; height:1px; overflow:hidden; clip:rect(0 0 0 0); white-space:nowrap; }
 body{ margin:0; background:#fbfaf6; }
 .mt{ min-height:100vh; background:#fbfaf6; color:#1d1a22; font-family:'Outfit',system-ui,sans-serif; }
 .mt *{ box-sizing:border-box; }
