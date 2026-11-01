@@ -30,13 +30,14 @@ export function sectionOf(id) {
   return SECTIONS.find((s) => s.id === id) || null;
 }
 
-// Matura 2027, język angielski, poziom podstawowy: 6 maja 2027, 9:00 (komunikat CKE z 20.08.2026).
-export const EXAM_AT = Date.UTC(2027, 4, 6, 7, 0, 0);
+// Matura 2027, język angielski (harmonogram CKE): poziom podstawowy 6 maja 2027, 9:00;
+// poziom rozszerzony 7 maja 2027, 9:00. Godziny w UTC (w maju Polska = UTC+2).
+export const EXAM_AT = { basic: Date.UTC(2027, 4, 6, 7, 0, 0), ext: Date.UTC(2027, 4, 7, 7, 0, 0) };
 
-export function daysToExam(now) {
-  const d = Math.ceil((EXAM_AT - now) / 86400000);
+export function daysToExam(now, level) {
+  const d = Math.ceil(((EXAM_AT[level] || EXAM_AT.basic) - now) / 86400000);
   return d > 0 ? d : 0;
 }
 
-// Wspólne kroje i kolory „gazety”.
-export const MT_FONTS = "@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,800;0,900;1,400&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;0,8..60,700;1,8..60,400&family=Outfit:wght@700&display=swap');";
+// Wspólne kroje: Playfair Display (tytuły) + Outfit (tekst, jak w całej marce).
+export const MT_FONTS = "@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,800;0,900;1,400&family=Outfit:wght@400;500;600;700&display=swap');";
