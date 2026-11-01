@@ -79,9 +79,13 @@ export default function MaturaHub() {
       .sort((a, b) => a.name.localeCompare(b.name));
     const gs = (gr.data || []).map((x) => ({ id: x.id, name: x.name })).sort((a, b) => a.name.localeCompare(b.name));
     setStudents(st); setGroups(gs);
-    // wypracowania oddane do sprawdzenia (RLS: lektor widzi tylko swoich uczniów)
+    // wypracowania oddane do sprawdzenia — liczymy TYLKO uczniów tego lektora
+    // (bez własnych wypracowań lektora i bez cudzych uczniów, które widzi administrator)
     try {
-      const ws = await supabase.from('writing_submissions').select('user_id').eq('status', 'submitted');
+      const ids = st.map((x) => x.id);
+      const ws = ids.length
+        ? await supabase.from('writing_submissions').select('user_id').eq('status', 'submitted').in('user_id', ids)
+        : { data: [] };
       const pc = {};
       (ws.data || []).forEach((w) => { pc[w.user_id] = (pc[w.user_id] || 0) + 1; });
       setPending(pc);
