@@ -1363,9 +1363,10 @@
   @media (min-width:821px){
     .eg-topbar, .eg-hero, .eg-sort-wrap, .eg-wrap,
     .eg-active-filters, .eg-series-banner{ max-width:100%; }
-    .eg-topbar-left a{ font-size:16px; }
-    .eg-nav-oferta, .eg-nav-op, .eg-nav-nauka{ font-size:16px; }
-    .eg-account{ font-size:16px; }
+    .eg-topbar-left a{ font-size:15px; }
+    .eg-nav-oferta, .eg-nav-op, .eg-nav-nauka{ font-size:15px; }
+    .eg-account{ font-size:15px; }
+    .eg-account .eg-hi{ font-size:13px; }
     .eg-hero-title .eg-logo{ width:min(660px,84vw); }
     .eg-hero-tagline{ font-size:19px; }
     .eg-search-wrap{ max-width:560px; }
@@ -1663,6 +1664,33 @@
   html.eg-dark .eg-welcome-switch:hover{ background:#463b60; }
   html.eg-dark .eg-welcome-switchrow{ border-top-color:rgba(255,255,255,.18); }
   @media(max-width:560px){ .eg-welcome{ padding:22px 18px 20px; } .eg-welcome-title{ font-size:19px; margin-top:8px; } .eg-welcome-text{ font-size:14.5px; } }
+  /* ===== GÓRNY PASEK: słowa rozdzielone cienkimi pionowymi kreskami (zamiast pigułek) ===== */
+  /* czcionka jak na stronie Matura: Outfit, lżejsza grubość, spokojny szary */
+  .eg-topbar-left > a, .eg-account a, .eg-account .eg-hi{ font-family:'Outfit','Segoe UI',Arial,sans-serif !important; letter-spacing:0 !important; }
+  .eg-topbar-left > a{ font-weight:500 !important; color:#5b5566 !important; }
+  .eg-topbar-left > a.eg-nav-oferta{ color:var(--eg-magenta) !important; font-weight:600 !important; }
+  .eg-topbar-left > a:hover{ color:var(--eg-magenta) !important; }
+  .eg-account a, .eg-account .eg-panel-link{ font-weight:500; color:#5b5566; }
+  .eg-account a:hover, .eg-account .eg-panel-link:hover{ color:var(--eg-magenta); }
+  .eg-account .eg-hi{ font-weight:400; color:#8a8494; }
+  html.eg-dark .eg-topbar-left > a, html.eg-dark .eg-account a{ color:#a29caf !important; }
+  html.eg-dark .eg-topbar-left > a.eg-nav-oferta{ color:#f4a8d0 !important; }
+  html.eg-dark .eg-topbar-left > a:hover, html.eg-dark .eg-account a:hover{ color:#f4a8d0 !important; }
+  .eg-topbar-left{ gap:0; }
+  .eg-topbar-left > a + a{ border-left:1px solid var(--eg-line); margin-left:14px; padding-left:14px !important; border-radius:0; }
+  .eg-topbar-left > a{ line-height:1.1; }
+  .eg-account{ gap:0; }
+  .eg-account .eg-hi{ font-size:12.5px; font-weight:500; margin-right:16px; letter-spacing:0; }
+  .eg-account a{ font-weight:500; line-height:1.1; }
+  .eg-account a + a{ border-left:1px solid var(--eg-line); margin-left:14px; padding-left:14px; }
+  @media (max-width:620px){
+    .eg-topbar-left > a + a{ margin-left:11px; padding-left:11px !important; }
+    .eg-account{ gap:6px 0; }
+    .eg-account .eg-hi{ flex-basis:100%; margin-right:0; font-size:12px; }
+    .eg-account .eg-panel-link{ flex:0 0 auto; max-width:none; padding-top:0; padding-bottom:0; padding-right:0; }
+    .eg-account a + a{ padding-left:12px; margin-left:12px; }
+    .eg-account #egLogout{ flex-basis:auto; }
+  }
 </style>
 
 <div class="eg-games">
