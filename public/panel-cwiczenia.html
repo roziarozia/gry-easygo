@@ -97,6 +97,8 @@
   .pill{ font-size:10.5px; font-weight:700; padding:2px 8px; border-radius:999px; letter-spacing:.02em; }
   .pill-pub{ background:#e9f7f0; color:var(--green); } .pill-draft{ background:#f3eff8; color:var(--muted); }
   .pill-lvl{ background:#fbeaf3; color:var(--magenta); } .pill-mat{ background:#1a1a1a; color:#f5f1e8; }
+  #listeningSection.mat-read .only-ls{ display:none !important; }
+  #listeningSection:not(.mat-read) .only-mr{ display:none !important; }
   .mat-box{ border:1.5px solid #e6e1d6; border-radius:14px; padding:14px 16px; margin:6px 0 14px; background:#fbf9f4; }
   .mat-box .mat-head{ display:flex; align-items:center; gap:8px; font-weight:700; }
   .mat-box .mat-head input{ width:auto; }
@@ -233,6 +235,7 @@
               <option value="quiz">quiz (wybór odpowiedzi)</option>
               <option value="reading">reading (czytanka)</option>
               <option value="listening">listening (słuchanka)</option>
+              <option value="mat-reading">czytanie maturalne (tekst + pytania)</option>
               <option value="speaking">speaking (rozmowa)</option>
               <option value="article-gap">article-gap (luki w tekście)</option>
               <option value="what-is-it">what-is-it (słówka z obrazkami)</option>
@@ -375,11 +378,13 @@
 
         <!-- SEKCJA LISTENING -->
         <div id="listeningSection" class="hidden">
-          <div class="section-title">Dialog (listening)</div>
-          <div class="hint-i">Każda linia to jedna wypowiedź: kto mówi (speaker) i co mówi (text). Głosy przypisują się automatycznie wg kolejności pojawiania się mówców.</div>
+          <div class="section-title"><span class="only-ls">Dialog (listening)</span><span class="only-mr">Tekst do czytania</span></div>
+          <div class="hint-i only-ls">Każda linia to jedna wypowiedź: kto mówi (speaker) i co mówi (text). Głosy przypisują się automatycznie wg kolejności pojawiania się mówców.</div>
+          <div class="hint-i only-mr">Każdy blok to jeden akapit albo jeden krótki tekst. <b>Oznaczenie</b> pojawia się w różowej plakietce obok tekstu: przy nagłówkach wpisz 1, 2, 3…, przy kilku tekstach Tekst A, Tekst B…, a przy zwykłym tekście zostaw puste. Luki na zdania oznaczaj w tekście jako [1] _____.</div>
           <div id="linesList"></div>
           <button class="btn btn-ghost btn-sm addbtn" id="addLineBtn">+ Dodaj linię</button>
 
+          <div class="only-ls">
           <hr class="sep">
           <div class="section-title">Głosy (do 4 postaci)</div>
           <div class="hint-i">Wybierz głos dla każdej postaci (pole 1 = pierwsza osoba w dialogu, pole 2 = druga, itd.). <b>Najprościej, gdy obie postacie są tej samej płci</b> — wtedy kolejność nie ma znaczenia. Jeśli różnych płci: wybierz, wygeneruj, odsłuchaj — i gdyby wyszło odwrotnie, zamień głosy miejscami.</div>
@@ -398,10 +403,12 @@
           </div>
           <audio id="listenPlayer" controls style="width:100%; margin-top:10px; display:none;"></audio>
           <div id="listenAudioMsg"></div>
+          </div>
 
           <hr class="sep">
-          <div class="section-title">Pytania do nagrania (quiz po odsłuchaniu)</div>
-          <div class="hint-i">Pytania sprawdzające zrozumienie dialogu — jak w quizie, z opcjami i poprawną odpowiedzią.</div>
+          <div class="section-title"><span class="only-ls">Pytania do nagrania (quiz po odsłuchaniu)</span><span class="only-mr">Pytania do tekstu</span></div>
+          <div class="hint-i only-ls">Pytania sprawdzające zrozumienie dialogu — jak w quizie, z opcjami i poprawną odpowiedzią.</div>
+          <div class="hint-i only-mr"><b>Wybór A–D:</b> zwykłe opcje.<br><b>Dobieranie</b> (nagłówki, zdania w luki, teksty do zdań): w każdym pytaniu wpisz te same opcje z literą, np. „A. WHY WAS…” albo „Tekst A”. Uczeń zobaczy listę raz, a przy każdym pytaniu wybierze tylko literę.<br><b>Luka w wiadomości</b> (druga część zadania z tekstami A–D): wpisz fragment wiadomości z _ w miejscu luki i <b>jedną</b> opcję z poprawnymi odpowiedziami oddzielonymi | (np. Ireland|in Ireland). Polecenie do tej części dopisz w polu Polecenie po znakach ##.</div>
           <div id="listenQList"></div>
           <button class="btn btn-ghost btn-sm addbtn" id="addListenQBtn">+ Dodaj pytanie</button>
         </div>
@@ -776,9 +783,17 @@
     $('readingSection').classList.toggle('hidden', t!=='reading');
     $('speakingSection').classList.toggle('hidden', t!=='speaking');
     $('whatisitSection').classList.toggle('hidden', t!=='what-is-it');
-    $('listeningSection').classList.toggle('hidden', t!=='listening');
+    $('listeningSection').classList.toggle('hidden', !(t==='listening'||t==='mat-reading'));
+    $('listeningSection').classList.toggle('mat-read', t==='mat-reading');
   }
-  $('fTemplate').addEventListener('change', syncSections);
+  $('fTemplate').addEventListener('change', function(){
+    // czytanie maturalne = zawsze ćwiczenie maturalne w dziale Reading
+    if($('fTemplate').value==='mat-reading'){
+      setMatura(true, $('fMatLevel').value, 'reading', $('fMatSection').value==='reading' ? $('fMatTask').value : '');
+      if($('fCat').value!=='reading') $('fCat').value='reading';
+    }
+    syncSections();
+  });
 
   // ===== LUKI (gap-fill) =====
   function gapRow(data){
@@ -818,7 +833,7 @@
     }
     div.innerHTML=''
       +'<div class="item-head"><span class="item-no">Pytanie</span><button class="btn btn-danger btn-sm rm">Usuń</button></div>'
-      +'<div class="field"><label>Pytanie / zdanie</label><input type="text" class="q-prompt" value="'+esc(data.prompt||'')+'" placeholder="Someone _ the milk."></div>'
+      +'<div class="field"><label>Pytanie / zdanie <span class="hint-i">Enter = nowa linia (np. X:/Y: w minidialogu)</span></label><textarea class="q-prompt" style="min-height:44px;" placeholder="Someone _ the milk.">'+esc(data.prompt||'')+'</textarea></div>'
       +'<div class="field"><label>Opcje (zaznacz poprawną)</label><div class="q-opts">'+optsHtml+'</div>'
       +'<button class="btn btn-soft btn-sm add-opt" style="margin-top:4px;">+ Opcja</button></div>'
       +'<div class="field"><label>Wyjaśnienie</label><textarea class="q-expl">'+esc(data.explanation||'')+'</textarea></div>';
@@ -1082,10 +1097,10 @@
     var div=document.createElement('div'); div.className='item';
     div.innerHTML='<div class="item-head"><span class="item-no">Linia</span><button class="btn btn-danger btn-sm rm">Usuń</button></div>'
       +'<div class="grid2">'
-      +'<div class="field"><label>Kto mówi (speaker)</label><input type="text" class="ln-speaker" value="'+esc(data.speaker||'')+'" placeholder="Coach"></div>'
+      +'<div class="field"><label><span class="only-ls">Kto mówi (speaker)</span><span class="only-mr">Oznaczenie (np. 1 albo Tekst A; może być puste)</span></label><input type="text" class="ln-speaker" value="'+esc(data.speaker||'')+'" placeholder="Coach"></div>'
       +'<div class="field"></div>'
       +'</div>'
-      +'<div class="field"><label>Wypowiedź</label><textarea class="ln-text" style="min-height:60px;">'+esc(data.text||'')+'</textarea></div>';
+      +'<div class="field"><label><span class="only-ls">Wypowiedź</span><span class="only-mr">Akapit / tekst</span></label><textarea class="ln-text" style="min-height:60px;">'+esc(data.text||'')+'</textarea></div>';
     div.querySelector('.rm').addEventListener('click', function(){ div.remove(); renumberGeneric('linesList','Linia'); });
     return div;
   }
@@ -1244,6 +1259,7 @@
       $('fSeoTitle').value=a.seo_title||''; updSeoCount();
       $('fPremium').checked=!!a.is_premium; $('fKids').checked=!!a.for_kids; $('fPub').checked=!!a.published;
       setMatura(!!a.matura, a.matura_level, a.matura_section, a.matura_task);
+      if(a.template==='listening' && a.matura && a.matura_section==='reading') $('fTemplate').value='mat-reading';
       renderCover(a.cover_url||''); $('coverSlot').removeAttribute('data-url');
       $('slugPrev').textContent=a.slug||'slug';
       $('deleteBtn').style.display='';
@@ -1251,7 +1267,7 @@
       clearMsg($('saveMsg')); clearMsg($('coverMsg'));
       $('editForm').classList.remove('hidden');
       showEditView();
-      $('previewBtn').setAttribute('href','/cwiczenie/'+encodeURIComponent(a.slug||''));
+      $('previewBtn').setAttribute('href',(a.matura?'/matura/':'/cwiczenie/')+encodeURIComponent(a.slug||''));
       // wczytaj pozycje
       $('gapsList').innerHTML=''; $('questionsList').innerHTML=''; $('slidesList').innerHTML='';
       $('promptsList').innerHTML=''; $('wisList').innerHTML=''; $('linesList').innerHTML=''; $('listenQList').innerHTML='';
@@ -1331,6 +1347,7 @@
 
   // ===== PROPOZYCJA SŁÓW KLUCZOWYCH =====
   var TYPE_KW={
+    'mat-reading':['matura','reading','czytanie ze zrozumieniem'],
     'gap-fill':['gap-fill','uzupełnianie luk','ćwiczenie'],
     'quiz':['quiz','wybór odpowiedzi','ćwiczenie'],
     'reading':['reading','czytanka','czytanie'],
@@ -1371,6 +1388,9 @@
     var title=$('fTitle').value.trim();
     var slug=slugify($('fSlug').value);
     var template=$('fTemplate').value;
+    // czytanie maturalne zapisujemy jako szablon listening (tekst + pytania) w dziale Reading
+    var isMR = (template==='mat-reading');
+    if(isMR) template='listening';
     if(!title){ showMsg($('saveMsg'),'Podaj tytuł.',false); return; }
     if(!slug){ showMsg($('saveMsg'),'Podaj slug (adres).',false); return; }
     if(!$('fLearn').value.trim()){
@@ -1404,7 +1424,7 @@
         if(!t) return;
         lineData.push({ position:lineData.length+1, speaker:sp, text:t });
       });
-      if(!lineData.length) err='Dodaj przynajmniej jedną linię dialogu.';
+      if(!lineData.length) err=isMR?'Dodaj tekst do czytania.':'Dodaj przynajmniej jedną linię dialogu.';
       // pytania listening (opcjonalne)
       $('listenQList').querySelectorAll('.item').forEach(function(it,i){
         var prompt=it.querySelector('.q-prompt').value.trim();
@@ -1414,7 +1434,9 @@
           if(v!==''){ if(row.querySelector('.q-corr').checked) correctIdx=opts.length; opts.push(v); }
         });
         if(!prompt && !opts.length) return;
-        if(!prompt||opts.length<2){ err='Pytanie '+(i+1)+': wpisz treść i min. 2 opcje.'; }
+        // w czytaniu maturalnym jedna opcja = luka do wpisania (odpowiedzi oddzielone |)
+        if(!prompt||opts.length<(isMR?1:2)){ err='Pytanie '+(i+1)+': wpisz treść i '+(isMR?'co najmniej 1 opcję.':'min. 2 opcje.'); }
+        if(isMR && opts.length===1) correctIdx=0;
         if(correctIdx<0){ err='Pytanie '+(i+1)+': zaznacz poprawną.'; }
         listenQData.push({ position:listenQData.length+1, prompt:prompt, options:opts, correct:correctIdx<0?0:correctIdx, explanation:it.querySelector('.q-expl').value.trim() });
       });
@@ -1499,8 +1521,9 @@
       matura_section:$('fMatura').checked?$('fMatSection').value:null,
       matura_task:$('fMatura').checked?$('fMatTask').value:null
     };
+    if(isMR){ rec.matura=true; rec.matura_section='reading'; rec.matura_level=$('fMatLevel').value; rec.matura_task=$('fMatTask').value||null; }
     if(template==='reading') rec.reading_voice=$('readingVoice').value;
-    if(template==='listening'){
+    if(template==='listening' && !isMR){
       rec.voice_a=$('voiceA').value||null; rec.voice_b=$('voiceB').value||null;
       rec.voice_c=$('voiceC').value||null; rec.voice_d=$('voiceD').value||null;
     }
@@ -1590,7 +1613,7 @@
     $('coverSlot').removeAttribute('data-url');
     $('deleteBtn').style.display='';
     $('editTitle').textContent='Edytujesz ćwiczenie';
-    $('previewBtn').setAttribute('href','/cwiczenie/'+encodeURIComponent(data.slug||''));
+    $('previewBtn').setAttribute('href',(data.matura?'/matura/':'/cwiczenie/')+encodeURIComponent(data.slug||''));
     loadList();
   }
 
@@ -1599,7 +1622,7 @@
     if(!curId) return;
     if(!confirm('Na pewno usunąć to ćwiczenie? Tej operacji nie można cofnąć.')) return;
     var t=$('fTemplate').value;
-    var tables={'gap-fill':['gaps'],'article-gap':['gaps'],'quiz':['questions'],'reading':['reading_slides'],'speaking':['speaking_prompts'],'what-is-it':['slides'],'listening':['listening_lines','questions']};
+    var tables={'gap-fill':['gaps'],'article-gap':['gaps'],'quiz':['questions'],'reading':['reading_slides'],'speaking':['speaking_prompts'],'what-is-it':['slides'],'listening':['listening_lines','questions'],'mat-reading':['listening_lines','questions']};
     var toDel=(tables[t]||['gaps']).slice();
     function delNext(){
       if(!toDel.length){
