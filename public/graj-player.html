@@ -1643,6 +1643,23 @@
   html.mat .gap-box{ background:#f6f1ae !important; border:none !important; border-radius:14px !important; }
   html.mat .gap-chip{ font-family:'Outfit',sans-serif !important; font-weight:600 !important; background:#fff !important; color:#1d1a22 !important; border:none !important; border-radius:999px !important; font-size:15px !important; }
   html.mat .score .score-n, html.mat .ag-score{ font-family:'Playfair Display',Georgia,serif; }
+  /* MATURA: czytanka (tekst nad pytaniami) i pytania w stylu magazynu */
+  .mat-rtext{ text-align:left; margin:6px 0 10px; }
+  .mat-para{ display:flex; gap:14px; align-items:flex-start; padding:12px 0; border-top:1px solid var(--line); }
+  .mat-para:first-child{ border-top:none; }
+  .mat-plabel{ flex:none; min-width:30px; padding:3px 9px; border-radius:8px; background:#fdf1f7; color:#ca4490; font-family:'Outfit',sans-serif; font-weight:700; font-size:13.5px; text-align:center; white-space:nowrap; }
+  .mat-ptext{ flex:1; min-width:0; font-family:'Outfit',sans-serif; font-size:clamp(16px,1.9vw,18px); line-height:1.75; color:var(--ink); white-space:pre-line; }
+  html.mat .ls-title{ font-size:clamp(24px,3vw,32px) !important; }
+  html.mat .ls-q-prompt{ font-family:'Outfit',sans-serif !important; font-weight:600; font-size:17px; }
+  html.mat .ls-opt{ font-family:'Outfit',sans-serif; font-size:15.5px; border-radius:12px; }
+  html.mat .ls-opt.ok{ background:#eef7f1; border-color:#2f7a52; }
+  html.mat .ls-opt.bad{ background:#fbefed; border-color:#e3b3ad; }
+  html.mat .ls-explain{ font-family:'Outfit',sans-serif; border-left-color:#ca4490; }
+  html.mat .ls-score{ font-family:'Playfair Display',Georgia,serif; }
+  html.mat .ls-score u{ border-bottom-color:#f6f1ae; }
+  html.mat.eg-dark .mat-plabel{ background:#3a2034; color:#f08cc4; }
+  html.mat.eg-dark .ls-opt.ok{ background:#1e3b2c; border-color:#3f9d6d; }
+  html.mat.eg-dark .ls-opt.bad{ background:#3d2226; border-color:#7a3b36; }
   /* MATURA — wersja ciemna (włącza się razem z trybem ciemnym całej strony) */
   html.mat.eg-dark{ --ink:#e8e6ef; --muted:#a29caf; --bg:#1a1b26; --card:#24263a; --line:#363850; }
   html.mat .bottom-bar a, html.mat .bottom-bar button, html.mat .np-toggle{ font-family:'Outfit',sans-serif !important; }
@@ -2022,8 +2039,10 @@
       <div class="ls-head">
         <h2 class="ls-title" id="lsTitle"></h2>
       </div>
+      <div class="gap-task hidden" id="lsTask"></div>
       <audio class="ls-audio" id="lsAudio" controls preload="metadata"></audio>
-      <p class="ls-hint">sugerowana liczba odsłuchań: 2</p>
+      <p class="ls-hint" id="lsHint">sugerowana liczba odsłuchań: 2</p>
+      <div class="mat-rtext hidden" id="lsText"></div>
       <div id="lsQuestions"></div>
       <div class="ls-err" id="lsErr"></div>
       <div class="ls-actions" id="lsActions">
@@ -2407,7 +2426,7 @@ async function markCompleted(score, scoreMax, answers){
     if(GAME.template === 'listening'){
       document.getElementById('coverModes').classList.add('hidden');
       document.getElementById('coverSpeak').classList.remove('hidden');
-      document.getElementById('startSpeakBtn').textContent = t('Słuchaj');
+      document.getElementById('startSpeakBtn').textContent = (GAME.matura && GAME.matura_section === 'reading') ? t('Czytaj') : t('Słuchaj');
     }
     // Reading: jeden przycisk „Czytaj"
     if(GAME.template === 'reading'){
@@ -2942,7 +2961,28 @@ function startListening(){
   // czy cwiczenie jest darmowe albo czy sluchacz ma dostep. Bez tego adres jest bezuzyteczny.
   const audio = document.getElementById('lsAudio');
   audio.classList.add('hidden');
-  if(GAME.audio_path){
+  // MATURA: polecenie nad zadaniem; w dziale Reading zamiast nagrania pokazujemy tekst
+  const matRead = !!(GAME.matura && GAME.matura_section === 'reading');
+  const lsTask = document.getElementById('lsTask');
+  const lsText = document.getElementById('lsText');
+  const lsHint = document.getElementById('lsHint');
+  if(lsTask){
+    var lsIns = GAME.matura ? (GAME.instruction || '').trim() : '';
+    if(lsIns){ var lsP = lsIns.split('||'); lsTask.textContent = (window.EG_LANG === 'en' ? lsP[0] : (lsP[1] || lsP[0])).split('##')[0].trim(); lsTask.classList.remove('hidden'); }
+    else lsTask.classList.add('hidden');
+  }
+  if(lsHint) lsHint.style.display = matRead ? 'none' : '';
+  if(lsText){
+    if(matRead){
+      lsText.innerHTML = LISTENING.map(function(l){
+        return '<div class="mat-para">' + (l.speaker ? '<span class="mat-plabel">' + escapeHtml(l.speaker) + '</span>' : '') + '<div class="mat-ptext">' + escapeHtml(l.text) + '</div></div>';
+      }).join('');
+      lsText.classList.remove('hidden');
+    } else { lsText.innerHTML = ''; lsText.classList.add('hidden'); }
+  }
+  if(matRead){
+    // brak nagrania w czytance — nic nie wczytujemy
+  } else if(GAME.audio_path){
     document.getElementById('lsErr').textContent = t('Wczytuję nagranie…');
     podajNagranie().then(function(url){
       if(url){
@@ -3041,7 +3081,7 @@ function sprawdzListening(){
       try{ var r = await _db.auth.getSession(); var s = r && r.data ? r.data.session : null; if(s && currentSlug) egShowAnswerDetails(currentSlug, s.user.id); }catch(e){}
     };
   })();
-  document.getElementById('lsScriptBtn').style.display = LISTENING.length ? '' : 'none';
+  document.getElementById('lsScriptBtn').style.display = (LISTENING.length && !(GAME.matura && GAME.matura_section === 'reading')) ? '' : 'none';
   document.getElementById('lsEnd').classList.remove('hidden');
   document.getElementById('lsEnd').scrollIntoView({ behavior:'smooth', block:'nearest' });
   // szczegóły odpowiedzi ucznia (jak w quizie) - żeby lektor i uczeń widzieli co dobrze/źle
