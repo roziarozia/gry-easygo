@@ -767,7 +767,7 @@ window.ewImgFallback = function(img){
   var CAT={gramatyka:'Gramatyka',slownictwo:'Słownictwo',reading:'Czytanka',listening:'Słuchanka',speaking:'Speaking',kultura:'Wiedza o krajach'};
   function shuffle(a){ for(var i=a.length-1;i>0;i--){ var j=Math.floor(Math.random()*(i+1)), x=a[i]; a[i]=a[j]; a[j]=x; } return a; }
   function esc(t){ return String(t==null?'':t).replace(/[&<>"]/g,function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]; }); }
-  fetch(URL_+'/rest/v1/games?published=eq.true&cover_url=not.is.null&select=slug,title,cover_url,category,level',
+  fetch(URL_+'/rest/v1/games?published=eq.true&matura=not.is.true&cover_url=not.is.null&select=slug,title,cover_url,category,level',
     { headers:{ apikey:KEY_, Authorization:'Bearer '+KEY_ } })
   .then(function(r){ return r.ok ? r.json() : []; })
   .then(function(rows){
