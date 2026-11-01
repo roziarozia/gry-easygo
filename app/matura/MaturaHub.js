@@ -36,6 +36,24 @@ export default function MaturaHub() {
   const [paywall, setPaywall] = useState(false);
   const [now, setNow] = useState(null);
 
+  // Teczki (lektora i „Praca domowa” ucznia) zamykają się po kliknięciu gdziekolwiek poza nimi i klawiszem Esc.
+  useEffect(() => {
+    if (!tkOpen && !hwOpen) return undefined;
+    const poza = (e) => {
+      if (e.target && e.target.closest && e.target.closest('.mt-tk')) return;
+      setTkOpen(false); setHwOpen(false);
+    };
+    const esc = (e) => { if (e.key === 'Escape') { setTkOpen(false); setHwOpen(false); } };
+    document.addEventListener('mousedown', poza);
+    document.addEventListener('touchstart', poza, { passive: true });
+    document.addEventListener('keydown', esc);
+    return () => {
+      document.removeEventListener('mousedown', poza);
+      document.removeEventListener('touchstart', poza);
+      document.removeEventListener('keydown', esc);
+    };
+  }, [tkOpen, hwOpen]);
+
   useEffect(() => {
     try { const l = localStorage.getItem('eg_matura_level'); if (l === 'basic' || l === 'ext') setLevel(l); } catch (e) {}
     setNow(Date.now());
