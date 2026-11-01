@@ -386,7 +386,7 @@
 
           <div class="only-ls">
           <hr class="sep">
-          <div class="section-title">Głosy (do 4 postaci)</div>
+          <div class="section-title">Głosy (do 5 postaci)</div>
           <div class="hint-i">Wybierz głos dla każdej postaci (pole 1 = pierwsza osoba w dialogu, pole 2 = druga, itd.). <b>Najprościej, gdy obie postacie są tej samej płci</b> — wtedy kolejność nie ma znaczenia. Jeśli różnych płci: wybierz, wygeneruj, odsłuchaj — i gdyby wyszło odwrotnie, zamień głosy miejscami.</div>
           <div class="hint-i" id="speakersHint" style="color:var(--magenta);"></div>
           <div class="grid2">
@@ -396,6 +396,10 @@
           <div class="grid2">
             <div class="field"><label>Głos C <span id="vCLabel" style="color:var(--magenta);">(3. postać)</span></label><select id="voiceC"></select></div>
             <div class="field"><label>Głos D <span id="vDLabel" style="color:var(--magenta);">(4. postać)</span></label><select id="voiceD"></select></div>
+          </div>
+          <div class="grid2">
+            <div class="field"><label>Głos E <span id="vELabel" style="color:var(--magenta);">(5. postać)</span></label><select id="voiceE"></select></div>
+            <div class="field"></div>
           </div>
           <div style="display:flex; gap:8px; flex-wrap:wrap;">
             <button class="btn" id="genListenBtn" style="flex:1; min-width:180px;">Generuj audio dialogu</button>
@@ -1117,7 +1121,7 @@
     // NIE zgadujemy, które pole trafi do której postaci — to zależy od funkcji
     // generującej i bywa odwrotne. Dlatego: wybierz głosy, WYGENERUJ i ODSŁUCHAJ;
     // jeśli płcie się zamieniły, zamień głosy miejscami i wygeneruj ponownie.
-    var labels=['vALabel','vBLabel','vCLabel','vDLabel'];
+    var labels=['vALabel','vBLabel','vCLabel','vDLabel','vELabel'];
     labels.forEach(function(lid, i){
       var el=$(lid); if(!el) return;
       el.textContent='('+(i+1)+'. postać)';
@@ -1136,7 +1140,7 @@
   $('addListenQBtn').addEventListener('click', function(){ $('listenQList').appendChild(qRow()); renumberGeneric('listenQList','Pytanie'); });
 
   // dropdowny głosów listening (A-D) + pusta opcja
-  ['voiceA','voiceB','voiceC','voiceD'].forEach(function(id){
+  ['voiceA','voiceB','voiceC','voiceD','voiceE'].forEach(function(id){
     var sel=$(id); var empty=document.createElement('option'); empty.value=''; empty.textContent='— brak —'; sel.appendChild(empty);
     VOICES.forEach(function(v){ var o=document.createElement('option'); o.value=v[0]; o.textContent=v[1]; sel.appendChild(o); });
   });
@@ -1145,7 +1149,7 @@
   $('genListenBtn').addEventListener('click', function(){
     if(!curId){ showMsg($('listenAudioMsg'),'Najpierw zapisz słuchankę, potem generuj audio.',false); return; }
     // zbierz wybrane głosy w kolejności A,B,C,D (pomijając puste) i WYŚLIJ do funkcji
-    var voices=[ $('voiceA').value, $('voiceB').value, $('voiceC').value, $('voiceD').value ].filter(function(v){ return v; });
+    var voices=[ $('voiceA').value, $('voiceB').value, $('voiceC').value, $('voiceD').value, $('voiceE').value ].filter(function(v){ return v; });
     $('genListenBtn').disabled=true;
     $('listenAudioMsg').innerHTML='<div class="msg" style="background:#fff4e5;color:#c77d1a;">Generuję audio dialogu… to potrwa kilkanaście sekund, nie zamykaj strony.</div>';
     sb.functions.invoke('generate-listening-audio', { body:{ game_id:curId, voices:voices } }).then(function(res){
@@ -1232,7 +1236,7 @@
     $('promptsList').innerHTML=''; $('wisList').innerHTML=''; $('linesList').innerHTML=''; $('listenQList').innerHTML='';
     $('gapsList').appendChild(gapRow()); renumber();
     $('readingVoice').value='en-US-Chirp3-HD-Achernar';
-    $('voiceA').value='en-US-Chirp3-HD-Charon'; $('voiceB').value='en-US-Chirp3-HD-Kore'; $('voiceC').value=''; $('voiceD').value='';
+    $('voiceA').value='en-US-Chirp3-HD-Charon'; $('voiceB').value='en-US-Chirp3-HD-Kore'; $('voiceC').value=''; $('voiceD').value=''; $('voiceE').value='';
     $('audioMsg').innerHTML=''; $('audioStatus').textContent=''; $('listenAudioMsg').innerHTML='';
     syncSections();
     $('deleteBtn').style.display='none';
@@ -1315,7 +1319,7 @@
           renumberGeneric('wisList','Słówko');
         });
       } else if(a.template==='listening'){
-        $('voiceA').value=a.voice_a||''; $('voiceB').value=a.voice_b||''; $('voiceC').value=a.voice_c||''; $('voiceD').value=a.voice_d||'';
+        $('voiceA').value=a.voice_a||''; $('voiceB').value=a.voice_b||''; $('voiceC').value=a.voice_c||''; $('voiceD').value=a.voice_d||''; $('voiceE').value=a.voice_e||'';
         sb.from('listening_lines').select('*').eq('game_id',id).order('position').then(function(r){
           var rows=r.data||[];
           if(!rows.length){ $('linesList').appendChild(lineRow()); }
@@ -1525,7 +1529,7 @@
     if(template==='reading') rec.reading_voice=$('readingVoice').value;
     if(template==='listening' && !isMR){
       rec.voice_a=$('voiceA').value||null; rec.voice_b=$('voiceB').value||null;
-      rec.voice_c=$('voiceC').value||null; rec.voice_d=$('voiceD').value||null;
+      rec.voice_c=$('voiceC').value||null; rec.voice_d=$('voiceD').value||null; rec.voice_e=$('voiceE').value||null;
     }
     if(rec.published && (!cur||!cur.published_at)) rec.published_at=new Date().toISOString();
 
