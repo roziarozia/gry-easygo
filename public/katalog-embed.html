@@ -4001,6 +4001,16 @@
           userHasAccess = !!(p && p.access === 'full');
           // pełny dostęp → schowaj filtry darmowe/płatne (są zbędne)
           try{ if(userHasAccess){ document.body.classList.add('eg-has-access'); if(curStatus==='platne'||curStatus==='darmowe'){ curStatus='wszystkie'; } } else { document.body.classList.remove('eg-has-access'); } }catch(e){}
+          // Wpis „access” w profilu bywa nieaktualny (np. uczeń lektora, który nie ma już subskrypcji).
+          // O kłódkach decyduje więc ta sama funkcja w bazie, która wydaje treść ćwiczeń (has_full_access):
+          // jeśli baza mówi „brak dostępu”, kłódki wracają, nawet gdy profil mówi „full”.
+          Promise.all([_sb.rpc('has_full_access'), _sb.rpc('is_admin')]).then(function(rs){
+            var real = !!((rs[0] && rs[0].data === true) || (rs[1] && rs[1].data === true));
+            if(real === userHasAccess) return;
+            userHasAccess = real;
+            try{ if(real){ document.body.classList.add('eg-has-access'); } else { document.body.classList.remove('eg-has-access'); } }catch(e){}
+            render();
+          }).catch(function(){});
           // praca domowa tylko dla ucznia przypisanego do lektora
           var isTeacherStudent = !!(p && p.access_source === 'teacher');
           applyLoginUI(true, isTeacherStudent);
