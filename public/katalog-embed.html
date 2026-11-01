@@ -108,21 +108,11 @@
     transition:color .15s;
   }
   .eg-account a:hover{ color:var(--eg-magenta); }
-  .eg-account .eg-panel-link{
-    background:var(--eg-magenta);
-    color:#fff;
-    padding:8px 16px;
-    border-radius:10px;
-  }
-  .eg-account .eg-panel-link:hover{ color:#fff; filter:brightness(1.06); }
-  .eg-account .eg-login-link{
-    background:var(--eg-card);
-    color:var(--eg-magenta);
-    border:1.5px solid var(--eg-magenta);
-    padding:8px 16px;
-    border-radius:10px;
-  }
-  .eg-account .eg-login-link:hover{ color:var(--eg-magenta); }
+  /* Panel lektora / Moje konto / Zaloguj się — same słowa, bez pigułek */
+  .eg-account .eg-panel-link{ color:var(--eg-muted); }
+  .eg-account .eg-panel-link:hover{ color:var(--eg-magenta); }
+  .eg-account .eg-login-link{ color:var(--eg-magenta); }
+  .eg-account .eg-login-link:hover{ color:var(--eg-magenta); opacity:.75; }
   /* przełącznik trybu jasny/ciemny */
   /* GORNY PASEK: linki do reszty swiata EasyGo po lewej, social + konto po prawej.
      Zajmuje puste 76px nad logo. Logo i haslo zostaja nietkniete. */
@@ -144,24 +134,17 @@
     display:inline-flex; align-items:center; gap:6px; transition:opacity .18s;
   }
   .eg-topbar-left a:hover{ opacity:.72; }
-  /* Wyróżniony przycisk OFERTA — wypełniony magenta (pigułka), żeby prowadził wzrok do oferty */
-  /* Przyciski nawigacji — jednakowy rozmiar (pigułki): Oferta (magenta), Opinie (żółte), Nauka (lawenda) */
+  /* Nawigacja w górnym pasku — same słowa (jak na stronie Matura), bez pigułek i ikonek.
+     Oferta w kolorze marki, żeby prowadziła wzrok, reszta spokojna. */
   .eg-nav-oferta, .eg-nav-op, .eg-nav-nauka{
-    display:inline-flex; align-items:center; gap:4px;
-    padding:5px 14px; border-radius:999px; font-family:'Nunito',sans-serif; font-size:12px; font-weight:700 !important;
-    letter-spacing:.01em; white-space:nowrap; text-decoration:none; cursor:pointer;
-    border:1.5px solid transparent; transition:background .18s, color .18s, transform .18s, border-color .18s;
+    display:inline-flex; align-items:center;
+    padding:0; border:0; background:none !important; border-radius:0;
+    font-size:14.5px; font-weight:600 !important; white-space:nowrap; text-decoration:none; cursor:pointer;
+    color:var(--eg-muted) !important; transition:color .15s;
   }
-  .eg-nav-oferta svg, .eg-nav-op svg, .eg-nav-nauka svg{ width:12px; height:12px; flex:0 0 auto; }
-  /* Oferta — wypełniona magenta */
-  .eg-nav-oferta{ color:#fff !important; background:var(--eg-magenta); }
-  .eg-nav-oferta:hover{ opacity:1 !important; background:#b33a7e; transform:translateY(-1px); }
-  /* Opinie — żółte tło (złoty kolor marki), białe litery */
-  .eg-nav-op{ color:#fff !important; background:var(--eg-gold,#f4c94c); }
-  .eg-nav-op:hover{ background:#eab827; color:#fff !important; transform:translateY(-1px); opacity:1 !important; }
-  /* Nauka — lawendowe tło, białe litery */
-  .eg-nav-nauka{ color:#fff !important; background:var(--eg-lavender,#a78dd9); }
-  .eg-nav-nauka:hover{ background:#9578cf; color:#fff !important; transform:translateY(-1px); opacity:1 !important; }
+  .eg-nav-oferta svg, .eg-nav-op svg, .eg-nav-nauka svg{ display:none; }
+  .eg-nav-oferta{ color:var(--eg-magenta) !important; }
+  .eg-nav-oferta:hover, .eg-nav-op:hover, .eg-nav-nauka:hover{ color:var(--eg-magenta) !important; opacity:1 !important; }
   .eg-topbar-right{ display:flex; align-items:center; gap:14px; }
   .eg-social{ display:flex; align-items:center; gap:10px; }
   .eg-social a{ color:var(--eg-magenta); display:inline-flex; transition:transform .18s, opacity .18s; }
@@ -183,7 +166,7 @@
       padding:12px 14px;
       position:relative;
     }
-    .eg-topbar-left{ order:1; gap:8px 10px; flex-wrap:wrap; justify-content:center; }
+    .eg-topbar-left{ order:1; gap:8px 18px; flex-wrap:wrap; justify-content:center; }
     .eg-topbar-left a span{ display:inline; }
     .eg-topbar-left a{ font-size:13.5px; }
     .eg-social{ order:2; margin-left:0; gap:16px; padding-left:14px; border-left:1px solid var(--eg-line); }
@@ -1381,7 +1364,7 @@
     .eg-topbar, .eg-hero, .eg-sort-wrap, .eg-wrap,
     .eg-active-filters, .eg-series-banner{ max-width:100%; }
     .eg-topbar-left a{ font-size:16px; }
-    .eg-nav-oferta, .eg-nav-op, .eg-nav-nauka{ font-size:13.5px; padding:6px 16px; }
+    .eg-nav-oferta, .eg-nav-op, .eg-nav-nauka{ font-size:16px; }
     .eg-account{ font-size:16px; }
     .eg-hero-title .eg-logo{ width:min(660px,84vw); }
     .eg-hero-tagline{ font-size:19px; }
@@ -1687,7 +1670,7 @@
   <div class="eg-topbar">
     <div class="eg-topbar-left">
       <a class="eg-nav-oferta" id="egOfertaNav" href="/oferta" title="Oferta i cennik EasyWonders">
-        <span data-i18n="OFERTA">OFERTA</span>
+        <span data-i18n="Oferta">Oferta</span>
       </a>
       <a class="eg-nav-op" id="egOpinieNav" href="/opinie" title="Opinie uczniów i poznaj Rózię">
         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 3.5l2.6 5.3 5.9.86-4.25 4.14 1 5.86L12 17.1l-5.25 2.76 1-5.86L3.5 9.66l5.9-.86L12 3.5z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></svg>
@@ -2055,7 +2038,7 @@
             <span><strong data-i18n="Konta dla całej szkoły językowej">Konta dla całej szkoły językowej</strong><br><span data-i18n="Właściciel subskrypcji zaprasza lektorów, przydziela im miejsca i dodaje uczniów. Każdy lektor prowadzi potem swoich uczniów - w grupach lub indywidualnie - zadaje im pracę domową i śledzi postępy.">Właściciel subskrypcji zaprasza lektorów, przydziela im miejsca i dodaje uczniów. Każdy lektor prowadzi potem swoich uczniów - w grupach lub indywidualnie - zadaje im pracę domową i śledzi postępy.</span></span>
           </li>
         </ul>
-        <p class="eg-how-cta" data-i18n="Załóż konto i korzystaj z pełnej wersji EasyWonders za darmo przez 14 dni, bez podawania karty. Potem wybierz plan w zakładce OFERTA albo zostań przy darmowych ćwiczeniach.">Załóż konto i korzystaj z pełnej wersji EasyWonders <strong>za darmo przez 14 dni</strong>, bez podawania karty. Potem wybierz plan w zakładce <strong>OFERTA</strong> albo zostań przy darmowych ćwiczeniach.</p>
+        <p class="eg-how-cta" data-i18n="Załóż konto i korzystaj z pełnej wersji EasyWonders za darmo przez 14 dni, bez podawania karty. Potem wybierz plan w zakładce Oferta albo zostań przy darmowych ćwiczeniach.">Załóż konto i korzystaj z pełnej wersji EasyWonders <strong>za darmo przez 14 dni</strong>, bez podawania karty. Potem wybierz plan w zakładce <strong>Oferta</strong> albo zostań przy darmowych ćwiczeniach.</p>
       </div>
     </div>
     <!-- seria i aktywne filtry stoją razem, jeden pod drugim, tuż nad kafelkami -->
@@ -4250,7 +4233,7 @@
     'Status „w trakcie”, notatkę (np. na którym slajdzie stanęliście) i „zrobione” ustawiasz prosto na kafelku ćwiczenia albo w Panelu lektora.': 'You set "in progress", your note (e.g. which slide you stopped at) and "done" right on the exercise tile or in the Teacher Panel.',
     'Więcej': 'More',
     'Ukryj': 'Hide',
-    'OFERTA': 'PRICING',
+    'Oferta': 'Pricing',
     'Zaloguj się': 'Log in',
     'Moje konto': 'My account',
     'Panel lektora': 'Teacher panel',
