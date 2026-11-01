@@ -184,20 +184,16 @@ export default function CatalogEmbed() {
 .egsv-stick{ position:sticky; top:0; z-index:50; padding:10px 16px 0; }
 .egsv-bar{ margin:0 auto; max-width:1180px; box-sizing:border-box;
   display:flex; flex-wrap:wrap; align-items:center; gap:8px 16px; padding:12px 14px 12px 18px;
-  background:#1d1a22; color:#fff; border-radius:14px; box-shadow:0 10px 24px rgba(29,26,34,.22); font-family:'Outfit','Segoe UI',Arial,sans-serif; }
-.egsv-k{ font-size:11.5px; font-weight:700; text-transform:uppercase; letter-spacing:1.6px; color:#1d1a22; background:#f6f1ae; padding:4px 10px; border-radius:999px; }
-.egsv-t{ font-size:15.5px; flex:1 1 220px; }
+  background:#ca4490; color:#fff; border-radius:14px; box-shadow:0 10px 24px rgba(202,68,144,.28); font-family:'Outfit','Segoe UI',Arial,sans-serif; }
+.egsv-k{ font-size:11.5px; font-weight:700; text-transform:uppercase; letter-spacing:1.6px; color:#ca4490; background:#fff; padding:4px 10px; border-radius:999px; }
+.egsv-t{ font-size:15.5px; flex:1 1 220px; color:#fff; }
 .egsv-t strong{ font-size:19px; font-weight:800; }
-.egsv-legend{ display:inline-flex; align-items:center; gap:6px; font-size:13px; color:#d9d4e2; }
-.egsv-legend i{ display:inline-block; width:12px; height:12px; border-radius:3px; margin-left:6px; }
+.egsv-legend{ display:inline-flex; align-items:center; gap:6px; font-size:13px; color:#fff; }
+.egsv-legend i{ display:inline-block; width:12px; height:12px; border-radius:3px; margin-left:6px; border:1.5px solid #fff; }
 .egsv-done{ background:#1e7e50; }
 .egsv-prog{ background:#a78dd9; }
 .egsv-x{ min-height:40px; padding:0 14px; border:1.5px solid #fff; border-radius:999px; background:transparent; color:#fff; font-family:inherit; font-size:14.5px; font-weight:600; cursor:pointer; }
-.egsv-x:hover{ background:#fff; color:#1d1a22; }
-html.eg-dark .egsv-bar{ background:#e8e6ef; color:#1a1b26; }
-html.eg-dark .egsv-legend{ color:#4f4959; }
-html.eg-dark .egsv-x{ border-color:#1a1b26; color:#1a1b26; }
-html.eg-dark .egsv-x:hover{ background:#1a1b26; color:#fff; }
+.egsv-x:hover{ background:#fff; color:#ca4490; }
 @media (max-width:640px){ .egsv-stick{ padding:0; } .egsv-bar{ border-radius:0 0 14px 14px; } .egsv-legend{ display:none; } }
 `}</style>
     <iframe
