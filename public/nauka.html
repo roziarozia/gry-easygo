@@ -397,8 +397,8 @@ window.ewImgFallback = function(img){
 
   <div class="trial-box" id="artTrial">
     <p class="tb-title">Przetestuj EasyWonders za darmo!</p>
-    <p class="tb-text">14 dni pełnego dostępu do wszystkich ćwiczeń, czytanek i słuchanek. Bez podpinania karty.</p>
-    <a class="tb-btn" href="/oferta">Wypróbuj 14 dni za darmo</a>
+    <p class="tb-text">Załóż konto i od razu masz 14 dni pełnego dostępu do wszystkich ćwiczeń, czytanek i słuchanek. Bez podpinania karty.</p>
+    <a class="tb-btn" href="/logowanie?rejestracja">Załóż konto za darmo</a>
   </div>
 
   <div class="art-author">
@@ -478,11 +478,12 @@ window.ewImgFallback = function(img){
           });
           return;
         }
-        sb.from('profiles').select('subscription_status').eq('id', ses.user.id).single().then(function(pr){
-          if(pr && pr.data && pr.data.subscription_status){
+        sb.from('profiles').select('subscription_status,trial_started_at').eq('id', ses.user.id).single().then(function(pr){
+          if(pr && pr.data && (pr.data.subscription_status || pr.data.trial_started_at)){
             t.querySelector('.tb-title').textContent = 'Wróć do pełnego dostępu';
             t.querySelector('.tb-text').textContent = 'Wszystkie ćwiczenia, czytanki i słuchanki czekają na Ciebie. Wybierz plan i ucz się dalej bez ograniczeń.';
             t.querySelector('.tb-btn').textContent = 'Zobacz ofertę';
+            t.querySelector('.tb-btn').setAttribute('href', '/oferta');
           }
         });
       });
