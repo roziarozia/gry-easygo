@@ -218,8 +218,16 @@ export default function Konto() {
         if(norm !== 'usun'){ msg($('delMsg'), 'Anulowano — konto nie zostało usunięte.', 'err'); return; }
         $('delBtn').disabled = true;
         var emailToNotify = me && me.email ? me.email : null;
-        if(emailToNotify){ try{ await sb.functions.invoke('notify-account-deleted', { body: { user_email: emailToNotify } }); }catch(e){} }
-        var r = await sb.rpc('delete_my_account');
+        // Funkcja anuluje subskrypcję, usuwa konto i dopiero wtedy wysyła maila „konto usunięte”.
+        var usunietoPrzezFunkcje = false;
+        if(emailToNotify){
+          try{
+            var fr = await sb.functions.invoke('notify-account-deleted', { body: { user_email: emailToNotify } });
+            if(fr && fr.data && fr.data.deleted === true) usunietoPrzezFunkcje = true;
+          }catch(e){}
+        }
+        // Funkcja już usunęła konto -> nie wołamy RPC drugi raz. W każdym innym przypadku RPC jak dotąd.
+        var r = usunietoPrzezFunkcje ? { data: 'ok', error: null } : await sb.rpc('delete_my_account');
         if(r.error || (r.data && String(r.data).startsWith('error'))){ $('delBtn').disabled = false; msg($('delMsg'), (!r.error && r.data) ? String(r.data).replace(/^error:\s*/, '') : 'Nie udało się usunąć konta. Spróbuj ponownie.', 'err'); return; }
         if(analyticsEnabled){
           posthog.capture('account_deleted', {
