@@ -9,7 +9,7 @@ export const metadata = {
     default: 'EasyWonders — miejsce, które otwiera drzwi',
     template: '%s | EasyWonders',
   },
-  description: 'Interaktywne ćwiczenia do nauki angielskiego online: gramatyka, słownictwo, quizy, słuchanie i konwersacje. Poziomy A1–C2. Zaczynamy wspólną przygodę?',
+  description: 'Interaktywne ćwiczenia do nauki angielskiego online: gramatyka, słownictwo, quizy, słuchanie i konwersacje. Poziomy A1–C1. Zaczynamy wspólną przygodę?',
   openGraph: DEFAULT_OG,
   twitter: {
     card: 'summary_large_image',
