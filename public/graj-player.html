@@ -1822,6 +1822,7 @@
     'Wczytuję nagranie…': 'Loading audio…',
     'Nagranie nie jest jeszcze gotowe.': 'The audio isn\u2019t ready yet.',
     'sugerowana liczba odsłuchań: 2': 'Recommended: listen twice',
+    'Każdy tekst usłyszysz dwa razy, jak na egzaminie. Przed nagraniem przeczytaj pytania.': 'You will hear each text twice, as in the exam. Read the questions before you listen.',
     'Twój wynik: ': 'Your score: ',
     'Kliknij, aby zobaczyć szczegóły': 'Click to see details',
     'Świetna robota!': 'Great job!',
@@ -3091,7 +3092,11 @@ function startListening(){
     if(lsIns){ var lsP = lsIns.split('||'); lsTask.textContent = (window.EG_LANG === 'en' ? lsP[0] : (lsP[1] || lsP[0])).split('##')[0].trim(); lsTask.classList.remove('hidden'); }
     else lsTask.classList.add('hidden');
   }
-  if(lsHint) lsHint.style.display = matRead ? 'none' : '';
+  if(lsHint){
+    lsHint.style.display = matRead ? 'none' : '';
+    // MATURA: nagranie i tak leci dwa razy, wiec zamiast "sugerowanej liczby odsluchan" krotka wskazowka
+    lsHint.textContent = GAME.matura ? t('Każdy tekst usłyszysz dwa razy, jak na egzaminie. Przed nagraniem przeczytaj pytania.') : t('sugerowana liczba odsłuchań: 2');
+  }
   if(lsText){
     if(matRead){
       lsText.innerHTML = LISTENING.map(function(l){
@@ -3205,9 +3210,9 @@ function sprawdzListening(){
   // transkrypcje przygotowujemy, ale odslaniamy dopiero na zyczenie (przycisk)
   if(LISTENING.length){
     document.getElementById('lsScript').innerHTML =
-      '<p class="ls-script-h" data-i18n="Transkrypcja">Transkrypcja</p>' + LISTENING.map(function(l){
+      '<p class="ls-script-h" data-i18n="Transkrypcja">Transkrypcja</p>' + (GAME.matura ? matTranskrypcja() : LISTENING.map(function(l){
         return '<div class="ls-line"><span class="ls-who">' + escapeHtml(l.speaker) + ':</span> ' + escapeHtml(l.text) + '</div>';
-      }).join('');
+      }).join(''));
   }
 
   // chowamy przycisk sprawdzania, pokazujemy porzadne zakonczenie z wyjsciem
@@ -3244,12 +3249,41 @@ function sprawdzListening(){
   markCompleted(punkty, QUESTIONS.length, lsAnswersDetail);
 }
 
+// MATURA: transkrypcja ulozona jak w arkuszu CKE - teksty pod naglowkami (Tekst 1, Tekst 2...),
+// imie mowcy tylko tam, gdzie w tekscie rozmawia kilka osob; zapowiedzi lektora ("One.") staja sie naglowkami.
+function matTranskrypcja(){
+  var en = window.EG_LANG === 'en';
+  var LICZ = { one:1, two:2, three:3, four:4, five:5, six:6, seven:7, eight:8, nine:9, ten:10 };
+  var grupy = [], biez = null;
+  var kazdaOsobno = LISTENING.length > 1 && LISTENING.every(function(l){ return /^(wypowied[źz]|speaker|tekst|text)\s*\d+/i.test(l.speaker || ''); });
+  LISTENING.forEach(function(l){
+    var sp = String(l.speaker || '');
+    if(/^narrator$/i.test(sp)){
+      var m = String(l.text || '').toLowerCase().match(/(one|two|three|four|five|six|seven|eight|nine|ten)/);
+      biez = { nag: m ? (en ? 'Text ' : 'Tekst ') + LICZ[m[1]] : '', linie: [] }; grupy.push(biez); return;
+    }
+    if(kazdaOsobno){
+      var n = sp.match(/\d+/);
+      grupy.push({ nag: (/^wypowied/i.test(sp) ? (en ? 'Speaker ' : 'Wypowiedź ') : (en ? 'Text ' : 'Tekst ')) + (n ? n[0] : ''), linie: [l] }); return;
+    }
+    if(!biez){ biez = { nag: '', linie: [] }; grupy.push(biez); }
+    biez.linie.push(l);
+  });
+  return grupy.map(function(g){
+    var mowcy = {}; g.linie.forEach(function(l){ mowcy[l.speaker] = 1; });
+    var dialog = Object.keys(mowcy).length > 1;
+    return (g.nag ? '<div class="mat-tgroup">' + escapeHtml(g.nag) + '</div>' : '') + g.linie.map(function(l){
+      return '<div class="ls-line">' + (dialog ? '<span class="ls-who">' + escapeHtml(l.speaker) + ':</span> ' : '') + escapeHtml(l.text) + '</div>';
+    }).join('');
+  }).join('');
+}
+
 document.getElementById('lsCheckBtn').addEventListener('click', sprawdzListening);
 
 document.getElementById('lsScriptBtn').addEventListener('click', function(){
   const sc = document.getElementById('lsScript');
   const ukryta = sc.classList.toggle('hidden');
-  this.textContent = ukryta ? 'Zobacz transkrypcję' : 'Ukryj transkrypcję';
+  this.textContent = ukryta ? t('Zobacz transkrypcję') : t('Ukryj transkrypcję');
   if(!ukryta) sc.scrollIntoView({ behavior:'smooth', block:'start' });
 });
 
