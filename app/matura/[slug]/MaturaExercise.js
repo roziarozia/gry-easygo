@@ -2,6 +2,7 @@
 import { useEffect, useState } from 'react';
 import { supabase } from '../../../lib/supabase';
 import GameEmbed from '../../cwiczenie/[slug]/GameEmbed';
+import WritingTask from './WritingTask';
 import { sectionOf, taskName, MT_FONTS } from '../maturaData';
 import ThemeToggle, { THEME_CSS, MaturaFooter, FOOTER_CSS } from '../ThemeToggle';
 
@@ -10,16 +11,18 @@ import ThemeToggle, { THEME_CSS, MaturaFooter, FOOTER_CSS } from '../ThemeToggle
 export default function MaturaExercise({ slug, initial }) {
   const [game, setGame] = useState(initial);
   const [next, setNext] = useState(null);
+  const [tried, setTried] = useState(!!initial); // szkic dociągamy w przeglądarce — do tego czasu nie wiemy, jaki to typ
 
   useEffect(() => {
     (async () => {
       let g = initial;
       if (!g) {
         const r = await supabase.from('games')
-          .select('slug,title,learn_text,description,matura_level,matura_section,matura_task,exercise_no')
+          .select('slug,title,learn_text,description,matura_level,matura_section,matura_task,exercise_no,is_premium')
           .eq('slug', slug).eq('matura', true).maybeSingle();
         g = r.data || null;
         setGame(g);
+        setTried(true);
       }
       if (!g) return;
       const sib = await supabase.from('games')
@@ -47,7 +50,9 @@ export default function MaturaExercise({ slug, initial }) {
         </nav>
       </div>
 
-      <GameEmbed slug={slug} />
+      {game && game.matura_section === 'writing'
+        ? <WritingTask slug={slug} level={game.matura_level} isPremium={!!game.is_premium} />
+        : tried ? <GameEmbed slug={slug} /> : null}
 
       <div className="mx-wrap">
         <div className="mx-foot">
