@@ -8,6 +8,15 @@ import { analyticsEnabled } from '../PostHogInit';
 // reset/zmiana hasła, usuwanie konta, wylogowanie) przeniesiona 1:1.
 export default function Konto() {
   useEffect(() => {
+    // Wejście ze strony Matura (/konto?powrot=matura): powrót prowadzi z powrotem na maturę, nie na stronę główną.
+    try {
+      if (new URLSearchParams(window.location.search).get('powrot') === 'matura') {
+        var bl = document.getElementById('backLink');
+        if (bl) { bl.setAttribute('href', '/matura'); bl.textContent = '← Wróć do matury'; }
+        var bt = document.getElementById('backTop');
+        if (bt) bt.style.display = '';
+      }
+    } catch (e) {}
     const SUPA_URL = 'https://svjrdyxwqznbzxqeytdn.supabase.co';
     const SUPA_KEY = 'sb_publishable_TNCq1UAMAvLO0Z5Mt8QOig_OvsxhhyJ';
 
@@ -293,6 +302,7 @@ export default function Konto() {
         <div className="brand">
           <a className="logo" href="/" title="Powrót na stronę główną"><span className="e">Easy</span><span className="w">Wonders</span></a>
           <div className="sub">Moje konto</div>
+          <a id="backTop" className="back-top" href="/matura" style={{ display: 'none' }}>← Wróć do matury</a>
         </div>
 
         <div id="notLogged" className="card hidden" style={{ textAlign: 'center' }}>
@@ -353,7 +363,7 @@ export default function Konto() {
           </div>
 
           <div className="top-actions">
-            <a href="/">← Wróć do ćwiczeń</a>
+            <a href="/" id="backLink">← Wróć do ćwiczeń</a>
             &nbsp;·&nbsp;
             <a href="#" id="logoutLink">Wyloguj</a>
           </div>
@@ -400,6 +410,8 @@ const CSS = `
   .msg.ok{ color:#1e7e50; }
   .msg.err{ color:#c0392b; }
   .top-actions{ text-align:center; margin-top:8px; }
+  .back-top{ display:table; margin:12px auto 0; color:var(--eg-violet); text-decoration:none; font-weight:700; font-size:14px; }
+  .back-top:hover{ text-decoration:underline; }
   .top-actions a{ color:var(--eg-violet); text-decoration:none; font-weight:700; font-size:14px; }
   .hidden{ display:none; }
   .who{ text-align:center; color:var(--eg-muted); font-size:14px; margin-bottom:22px; }
