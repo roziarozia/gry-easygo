@@ -152,7 +152,9 @@ export default function WritingTask({ slug, level, isPremium }) {
 
   const words = countWords(viewing ? (sub && sub.body) : body);
   const range = (task && task.words) || (level === 'ext' ? [200, 250] : [100, 150]);
-  const wState = words === 0 ? '' : words < range[0] ? 'low' : words > range[1] ? 'high' : 'ok';
+  // Limit to wskazówka: liczymy słowa, ale dłuższego tekstu nie blokujemy ani nie oznaczamy jako błąd.
+  // Słowa podane na początku wypowiedzi (task.start) nie wliczają się do limitu — jak na maturze.
+  const wState = words === 0 ? '' : words < range[0] ? 'low' : 'ok';
   const maxTotal = crit.reduce((a, c) => a + c[2], 0);
 
   if (!ready) return <div className="wt"><style dangerouslySetInnerHTML={{ __html: CSS }} /><p className="wt-muted">Wczytujemy temat…</p></div>;
@@ -189,12 +191,12 @@ export default function WritingTask({ slug, level, isPremium }) {
               <ul className="wt-bul">{task.bullets.map((b, i) => <li key={i}>{b}</li>)}</ul>
             )}
             {task.task && <p className="wt-lead">{task.task}</p>}
-            {task.start && <p className="wt-note">Rozpocznij wypowiedź od: <strong>{task.start}</strong></p>}
+            {task.start && <p className="wt-note">Początek wypowiedzi jest już napisany. Kontynuuj go w polu poniżej.</p>}
             {task.sign && <p className="wt-note">Podpisz się jako <strong>{task.sign}</strong>.</p>}
             <p className="wt-note">
               {level === 'ext'
                 ? <>Wypowiedź powinna zawierać <strong>{range[0]}–{range[1]} wyrazów</strong> i spełniać wszystkie wymogi typowe dla formy wskazanej w poleceniu.</>
-                : <>Pamiętaj, że długość wypowiedzi powinna wynosić <strong>od {range[0]} do {range[1]} wyrazów</strong>.</>}
+                : <>Pamiętaj, że długość wypowiedzi powinna wynosić <strong>od {range[0]} do {range[1]} wyrazów</strong>{task.start ? ' (nie licząc wyrazów podanych na początku wypowiedzi)' : ''}.</>}
             </p>
             {(task.tip || (Array.isArray(task.phrases) && task.phrases.length > 0)) && (
               <details className="wt-help">
@@ -214,11 +216,12 @@ export default function WritingTask({ slug, level, isPremium }) {
             </div>
 
             {viewing ? (
-              sub && sub.body ? <div className="wt-read">{sub.body}</div> : <p className="wt-muted">Uczeń jeszcze nie zaczął pisać tego tekstu.</p>
+              sub && sub.body ? <div className="wt-read">{task.start && <span className="wt-given">{task.start}{'\n'}</span>}{sub.body}</div> : <p className="wt-muted">Uczeń jeszcze nie zaczął pisać tego tekstu.</p>
             ) : (
               <>
-                <textarea className="wt-area" lang="en" spellCheck={false} value={body} readOnly={!canEdit}
-                  onChange={(e) => onChange(e.target.value)} placeholder={task.start ? task.start + '\n\n…' : 'Zacznij pisać tutaj…'} aria-label="Twój tekst" />
+                {task.start && <div className="wt-start" lang="en" aria-label="Początek wypowiedzi">{task.start}</div>}
+                <textarea className={'wt-area' + (task.start ? ' wt-area-cont' : '')} lang="en" spellCheck={false} value={body} readOnly={!canEdit}
+                  onChange={(e) => onChange(e.target.value)} placeholder={task.start ? 'Pisz dalej…' : 'Zacznij pisać tutaj…'} aria-label="Twój tekst" />
                 <div className="wt-status">
                   {!user ? <span>Tekst zapisuje się tylko w tej przeglądarce. <a href={'/logowanie?powrot=' + encodeURIComponent('matura/' + slug)}>Zaloguj się</a>, żeby zapisać go na swoim koncie.</span>
                     : graded ? <span>Lektor ocenił ten tekst {sub.graded_at ? fmtTime(sub.graded_at) : ''}. Nie można go już zmieniać.</span>
@@ -315,6 +318,10 @@ const CSS = `
 .wt-count span{ font-weight:500; }
 .wt-count.ok{ color:#1e7e50; } .wt-count.low, .wt-count.high{ color:#b4662a; }
 .wt-area{ width:100%; box-sizing:border-box; min-height:320px; resize:vertical; border:1.5px solid #ddd6e6; border-radius:14px; padding:14px 16px; font-family:'Outfit',system-ui,sans-serif; font-size:17px; line-height:1.65; color:#1d1a22; background:#fffdf8; }
+.wt-start{ white-space:pre-wrap; font-size:17px; line-height:1.65; color:#4f4959; background:#f6f3ee; border:1.5px solid #ddd6e6; border-bottom:none; border-radius:14px 14px 0 0; padding:14px 16px 10px; font-style:italic; }
+.wt-area-cont{ border-radius:0 0 14px 14px; border-top-style:dashed; }
+.wt-given{ color:#7a7385; font-style:italic; }
+html.eg-dark .wt-start{ background:#1a1b26; border-color:#41435c; color:#a29caf; }
 .wt-area:focus{ outline:none; border-color:#ca4490; box-shadow:0 0 0 3px rgba(202,68,144,.14); }
 .wt-area[readonly]{ background:#f6f3ee; }
 .wt-fb-area{ min-height:120px; font-size:16px; }
