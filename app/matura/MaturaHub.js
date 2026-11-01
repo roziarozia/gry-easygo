@@ -27,7 +27,7 @@ export default function MaturaHub() {
   const [tkOpen, setTkOpen] = useState(false);
   const [hwOpen, setHwOpen] = useState(false); // teczka „Praca domowa” ucznia lektora
   const [hwAt, setHwAt] = useState({}); // slug -> kiedy lektor zadał
-  const [hwMore, setHwMore] = useState({ todo: false, done: false }); // rozwinięte pełne listy
+  const [hwPage, setHwPage] = useState({ todo: 0 }); // strona listy w teczce (po 5 zadań)
   const [toast, setToast] = useState('');
   const [busy, setBusy] = useState('');
   const [level, setLevel] = useState('basic');
@@ -229,17 +229,27 @@ export default function MaturaHub() {
               const isDone = (g) => typeof myHw[g.slug] === 'string' || !!myDone[g.slug];
               // do zrobienia: najnowsze zadane na górze; zrobione: ostatnio zrobione na górze.
               // Pokazujemy kilka, resztę po kliknięciu — żeby długa lista nie rozciągała teczki.
-              const doneAt = (g) => (typeof myHw[g.slug] === 'string' ? myHw[g.slug] : '') || ((myDone[g.slug] || {}).at || '');
               const todo = list.filter((g) => !isDone(g)).sort((a, b) => String(hwAt[b.slug] || '').localeCompare(String(hwAt[a.slug] || '')));
-              const done = list.filter(isDone).sort((a, b) => String(doneAt(b)).localeCompare(String(doneAt(a))));
-              const TODO_MAX = 5, DONE_MAX = 3;
-              const todoShown = hwMore.todo ? todo : todo.slice(0, TODO_MAX);
-              const doneShown = hwMore.done ? done : done.slice(0, DONE_MAX);
-              const more = (key, n, label) => (
-                <button type="button" className="mt-hw-more" onClick={() => setHwMore({ ...hwMore, [key]: !hwMore[key] })}>
-                  {hwMore[key] ? 'Zwiń' : label + ' (' + n + ')'}
-                </button>
-              );
+              // Zrobione zadania widać w Postępach na stronie głównej i jako oznaczone kwadraciki na liście zadań,
+              // więc teczka pokazuje tylko to, co jest jeszcze do zrobienia.
+              if (!todo.length) return null;
+              // Listy dzielimy na strony: teczka zawsze ma podobną wysokość, nawet przy setkach zadań.
+              const PER = { todo: 5 };
+              const pageOf = (key, arr) => Math.min(hwPage[key] || 0, Math.max(0, Math.ceil(arr.length / PER[key]) - 1));
+              const slice = (key, arr) => { const p0 = pageOf(key, arr); return arr.slice(p0 * PER[key], (p0 + 1) * PER[key]); };
+              const pager = (key, arr) => {
+                const pages = Math.ceil(arr.length / PER[key]);
+                if (pages <= 1) return null;
+                const p0 = pageOf(key, arr);
+                const from = p0 * PER[key] + 1, to = Math.min(arr.length, (p0 + 1) * PER[key]);
+                return (
+                  <div className="mt-hw-pager">
+                    <button type="button" disabled={p0 === 0} onClick={() => setHwPage({ ...hwPage, [key]: p0 - 1 })} aria-label="Nowsze">‹ Nowsze</button>
+                    <span>{from}–{to} z {arr.length}</span>
+                    <button type="button" disabled={p0 >= pages - 1} onClick={() => setHwPage({ ...hwPage, [key]: p0 + 1 })} aria-label="Starsze">Starsze ›</button>
+                  </div>
+                );
+              };
               const item = (g) => {
                 const sec = SECTIONS.find((x) => x.id === g.matura_section);
                 const lvl = BOTH_LEVELS.includes(g.matura_section) ? 'matura ustna' : (g.matura_level === 'ext' ? 'rozszerzenie' : 'podstawa');
@@ -247,7 +257,6 @@ export default function MaturaHub() {
                   <a key={g.slug} className="mt-tk-item" href={'/matura/' + g.slug}>
                     <span className="mt-tk-av">{sec ? sec.roman : '•'}</span>
                     <span className="mt-hw-t">{g.title}<small>{(sec ? sec.en + ' · ' : '') + (taskName(g.matura_level, g.matura_section, g.matura_task) || '') + ' · ' + lvl}</small></span>
-                    {isDone(g) && <span className="mt-hw-ok">zrobione</span>}
                   </a>
                 );
               };
@@ -261,13 +270,9 @@ export default function MaturaHub() {
                   {hwOpen && (
                     <div className="mt-tk-panel mt-hw-panel">
                       <div className="mt-tk-k">Praca domowa od lektora</div>
-                      {todo.length > 0 && <div className="mt-tk-group">Do zrobienia · {todo.length}</div>}
-                      {todoShown.map(item)}
-                      {todo.length > TODO_MAX && more('todo', todo.length, 'Pokaż wszystkie do zrobienia')}
-                      {todo.length === 0 && <div className="mt-tk-empty">Wszystko zrobione. Brawo!</div>}
-                      {done.length > 0 && <div className="mt-tk-group">Zrobione · {done.length}</div>}
-                      {doneShown.map(item)}
-                      {done.length > DONE_MAX && more('done', done.length, 'Pokaż wszystkie zrobione')}
+                      <div className="mt-tk-group">Do zrobienia · {todo.length}</div>
+                      {slice('todo', todo).map(item)}
+                      {pager('todo', todo)}
                     </div>
                   )}
                 </div>
@@ -686,8 +691,10 @@ a.mt-tk-item{ text-decoration:none; color:inherit; }
 .mt-hw-t small{ font-size:12px; font-weight:500; color:#7a7385; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
 .mt-hw-t{ flex:1; }
 .mt-hw-panel{ width:340px; }
-button.mt-hw-more{ display:block; width:100%; margin:2px 0 4px; padding:8px; border:none; border-radius:10px; background:transparent; color:#ca4490; font-family:'Outfit',sans-serif; font-size:13.5px; font-weight:600; text-align:left; cursor:pointer; }
-button.mt-hw-more:hover{ background:#fdf1f7; }
+.mt-hw-pager{ display:flex; align-items:center; justify-content:space-between; gap:8px; margin:4px 0 6px; padding:0 4px; font-size:12.5px; color:#7a7385; }
+.mt-hw-pager button{ border:none; background:transparent; color:#ca4490; font-family:'Outfit',sans-serif; font-size:13px; font-weight:600; padding:6px 8px; border-radius:8px; cursor:pointer; }
+.mt-hw-pager button:hover:not(:disabled){ background:#fdf1f7; }
+.mt-hw-pager button:disabled{ color:#c9c3cf; cursor:default; }
 .mt-hw-ok{ margin-left:auto; flex:none; font-size:11.5px; font-weight:700; color:#1e7e50; background:#e3f3ea; padding:2px 8px; border-radius:999px; white-space:nowrap; }
 .mt-tk-exit .mt-tk-av{ background:#fdf1f7; color:#ca4490; font-size:17px; }
 .mt-view{ position:sticky; top:0; z-index:45; display:flex; flex-wrap:wrap; align-items:center; gap:8px 16px; margin:0 0 14px; padding:12px 14px 12px 18px; background:#1d1a22; color:#fff; border-radius:14px; box-shadow:0 10px 24px rgba(29,26,34,.18); }
@@ -727,8 +734,10 @@ html.eg-dark .mt-tk-item.on{ background:#3a2034; color:#f08cc4; }
 html.eg-dark .mt-tk-av{ background:#3b3820; color:#f6f1ae; }
 html.eg-dark .mt-tk-exit{ color:#f08cc4; }
 html.eg-dark .mt-hw-t small{ color:#a29caf; }
-html.eg-dark button.mt-hw-more{ color:#f08cc4; }
-html.eg-dark button.mt-hw-more:hover{ background:#3a2034; }
+html.eg-dark .mt-hw-pager{ color:#a29caf; }
+html.eg-dark .mt-hw-pager button{ color:#f08cc4; }
+html.eg-dark .mt-hw-pager button:hover:not(:disabled){ background:#3a2034; }
+html.eg-dark .mt-hw-pager button:disabled{ color:#55536a; }
 html.eg-dark .mt-hw-ok{ background:#1f3a2c; color:#8fd3ae; }
 html.eg-dark .mt-view{ background:#e8e6ef; color:#1a1b26; }
 html.eg-dark .mt-view-legend{ color:#4f4959; }
