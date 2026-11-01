@@ -51,7 +51,7 @@ export default async function HomePage() {
           Wizualnie ukryta — wygląd zapewnia osadzony katalog poniżej. */}
       <div style={{ position: 'absolute', width: 1, height: 1, overflow: 'hidden', clip: 'rect(0 0 0 0)' }} aria-hidden="false">
         <h1>Interaktywne ćwiczenia do nauki angielskiego online</h1>
-        <p>Ćwicz angielski online: gramatyka, słownictwo, quizy, uzupełnianie luk i konwersacje. Poziomy A1–C2.</p>
+        <p>Ćwicz angielski online: gramatyka, słownictwo, quizy, uzupełnianie luk i konwersacje. Poziomy A1–C1.</p>
         <p>
           EasyWonders prowadzi szkoła <a href="https://easygo-english.pl">EasyGo English</a> z Warszawy.
         </p>
