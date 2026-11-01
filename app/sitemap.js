@@ -1,4 +1,4 @@
-import { getPublishedGames, supabase } from '../lib/supabase';
+import { getPublishedGames, getPublishedMatura, supabase } from '../lib/supabase';
 import { SITE } from '../lib/site';
 
 // Mapa strony dla Google - automatycznie z bazy (nowe ćwiczenia i artykuły same się dopiszą)
@@ -15,7 +15,7 @@ async function getPublishedArticles() {
 
 export default async function sitemap() {
   const base = SITE;
-  const [games, articles] = await Promise.all([getPublishedGames(), getPublishedArticles()]);
+  const [games, articles, matura] = await Promise.all([getPublishedGames(), getPublishedArticles(), getPublishedMatura()]);
   const exercisePages = games.map((g) => ({
     url: `${base}/cwiczenie/${g.slug}`,
     lastModified: g.created_at ? new Date(g.created_at) : new Date(),
@@ -28,10 +28,21 @@ export default async function sitemap() {
     changeFrequency: 'monthly',
     priority: 0.7,
   }));
+  // Część maturalna trafia do mapy dopiero, gdy jest w niej choć jedno opublikowane ćwiczenie.
+  const maturaPages = matura.length ? [
+    { url: `${base}/matura`, lastModified: new Date(), changeFrequency: 'weekly', priority: 0.9 },
+    ...matura.map((g) => ({
+      url: `${base}/matura/${g.slug}`,
+      lastModified: new Date(g.published_at || g.created_at || Date.now()),
+      changeFrequency: 'monthly',
+      priority: 0.7,
+    })),
+  ] : [];
   return [
     { url: base, lastModified: new Date(), changeFrequency: 'weekly', priority: 1 },
     { url: `${base}/nauka`, lastModified: new Date(), changeFrequency: 'weekly', priority: 0.9 },
     { url: `${base}/opinie`, lastModified: new Date(), changeFrequency: 'monthly', priority: 0.5 },
+    ...maturaPages,
     ...articlePages,
     ...exercisePages,
   ];
