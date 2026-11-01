@@ -298,16 +298,16 @@ export default function MaturaHub() {
             <div className="mt-access-k">Od redakcji: o dostępie</div>
             <p>
               Pierwsze ćwiczenie w każdym typie zadania jest darmowe. Wszystkie zadania maturalne odblokujesz w pełnej wersji EasyWonders.
-              {' '}<strong>Przez 14 dni możesz ją sprawdzić za darmo, bez podpinania karty.</strong>
+              {' '}<strong>{access === 'guest' ? 'Załóż konto, a przez 14 dni masz pełną wersję za darmo, bez podpinania karty.' : 'Wybierz plan, żeby mieć je wszystkie.'}</strong>
             </p>
             <div className="mt-access-btns">
               {access === 'guest' ? (
                 <>
-                  <a className="mt-btn" href="/oferta">Wypróbuj za darmo</a>
+                  <a className="mt-btn" href="/logowanie?rejestracja&powrot=matura">Załóż konto za darmo</a>
                   <a className="mt-btn mt-btn-ghost" href="/logowanie?powrot=matura">Mam konto, zaloguj się</a>
                 </>
               ) : (
-                <a className="mt-btn" href="/oferta">Rozpocznij 14 dni za darmo</a>
+                <a className="mt-btn" href="/oferta">Zobacz ofertę</a>
               )}
             </div>
           </section>
@@ -454,15 +454,15 @@ export default function MaturaHub() {
           <div className="mt-modal" role="dialog" aria-label="Dostęp do ćwiczenia" onClick={(e) => e.stopPropagation()}>
             <div className="mt-kicker">Od redakcji</div>
             <h3>To ćwiczenie jest w pełnej wersji</h3>
-            <p>Pierwsze ćwiczenie w każdym typie zadania jest darmowe, a resztę odblokujesz w pełnej wersji EasyWonders. Przez 14 dni możesz ją sprawdzić za darmo, bez podpinania karty.</p>
+            <p>Pierwsze ćwiczenie w każdym typie zadania jest darmowe, a resztę odblokujesz w pełnej wersji EasyWonders. {access === 'guest' ? 'Załóż konto, a przez 14 dni masz pełną wersję za darmo, bez podpinania karty.' : 'Wybierz plan, żeby mieć dostęp do wszystkich zadań.'}</p>
             <div className="mt-access-btns">
               {access === 'guest' ? (
                 <>
-                  <a className="mt-btn" href="/oferta">Wypróbuj za darmo</a>
+                  <a className="mt-btn" href="/logowanie?rejestracja&powrot=matura">Załóż konto za darmo</a>
                   <a className="mt-btn mt-btn-ghost" href="/logowanie?powrot=matura">Mam konto, zaloguj się</a>
                 </>
               ) : (
-                <a className="mt-btn" href="/oferta">Rozpocznij 14 dni za darmo</a>
+                <a className="mt-btn" href="/oferta">Zobacz ofertę</a>
               )}
             </div>
             <button type="button" className="mt-link mt-close" onClick={() => setPaywall(false)}>Wróć do listy</button>
