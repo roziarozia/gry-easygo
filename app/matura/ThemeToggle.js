@@ -69,6 +69,7 @@ export function MaturaFooter() {
         <a href="mailto:info@easygo-english.pl">Kontakt</a>
       </nav>
       <p className="mt-foot-note">Masz pytanie albo coś nie działa? Napisz do nas: <a href="mailto:info@easygo-english.pl">info@easygo-english.pl</a></p>
+      <p className="mt-foot-legal">Ćwiczenia są autorskie i wzorowane na formule egzaminu maturalnego. EasyWonders nie jest związane z Centralną Komisją Egzaminacyjną.</p>
       <p className="mt-foot-copy">© {new Date().getFullYear()} EasyWonders</p>
     </footer>
   );
@@ -83,10 +84,12 @@ export const FOOTER_CSS = `
 .mt-foot-note{ margin:16px 0 0; font-size:13.5px; color:#7a7385; }
 .mt-foot-note a{ color:#ca4490 !important; font-weight:600; text-decoration:none; }
 .mt-foot-copy{ margin:8px 0 0; font-size:12.5px; color:#a49dad; }
+.mt-foot-legal{ max-width:560px; margin:14px auto 0; font-size:12.5px; line-height:1.5; color:#a49dad; }
 html.eg-dark .mt-foot{ border-color:#363850; }
 html.eg-dark .mt-foot-links a{ color:#a29caf !important; }
 html.eg-dark .mt-foot-note{ color:#a29caf; }
 html.eg-dark .mt-foot-note a{ color:#f08cc4 !important; }
 html.eg-dark .mt-foot-copy{ color:#6f6a80; }
+html.eg-dark .mt-foot-legal{ color:#6f6a80; }
 @media (max-width:600px){ .mt-foot{ padding:24px 16px 32px; } }
 `;
