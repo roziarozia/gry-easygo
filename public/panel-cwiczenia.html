@@ -96,7 +96,12 @@
   .gm{ display:flex; gap:5px; flex-wrap:wrap; align-items:center; }
   .pill{ font-size:10.5px; font-weight:700; padding:2px 8px; border-radius:999px; letter-spacing:.02em; }
   .pill-pub{ background:#e9f7f0; color:var(--green); } .pill-draft{ background:#f3eff8; color:var(--muted); }
-  .pill-lvl{ background:#fbeaf3; color:var(--magenta); } .pill-type{ background:#ede7f7; color:var(--lavender); }
+  .pill-lvl{ background:#fbeaf3; color:var(--magenta); } .pill-mat{ background:#1a1a1a; color:#f5f1e8; }
+  .mat-box{ border:1.5px solid #e6e1d6; border-radius:14px; padding:14px 16px; margin:6px 0 14px; background:#fbf9f4; }
+  .mat-box .mat-head{ display:flex; align-items:center; gap:8px; font-weight:700; }
+  .mat-box .mat-head input{ width:auto; }
+  .mat-fields{ margin-top:12px; }
+  .mat-fields.hidden{ display:none; } .pill-type{ background:#ede7f7; color:var(--lavender); }
 
   .gm span.slug{ font-size:11px; color:var(--muted); }
 
@@ -192,6 +197,11 @@
           <option value="reading">reading</option>
           <option value="listening">listening</option>
           <option value="kultura">wiedza o krajach</option>
+        </select>
+        <select id="fltMatura">
+          <option value="all">Matura: wszystkie</option>
+          <option value="yes">Tylko maturalne</option>
+          <option value="no">Bez maturalnych</option>
         </select>
         <select id="fltLevel">
           <option value="all">Poziom: wszystkie</option>
@@ -295,6 +305,24 @@
           <div class="check field"><input type="checkbox" id="fPremium"><label style="margin:0;">Premium (płatne)</label></div>
           <div class="check field"><input type="checkbox" id="fKids"><label style="margin:0;">Dla dzieci</label></div>
           <div class="check field"><input type="checkbox" id="fPub"><label style="margin:0;">Opublikowane</label></div>
+        </div>
+
+        <!-- MATURA -->
+        <div class="mat-box">
+          <label class="mat-head"><input type="checkbox" id="fMatura"> Ćwiczenie maturalne <span class="hint-i">pokazuje się na /matura w odpowiednim dziale</span></label>
+          <div class="mat-fields hidden" id="matFields">
+            <div class="grid3">
+              <div class="field"><label>Poziom matury</label>
+                <select id="fMatLevel"><option value="basic">podstawowy</option><option value="ext">rozszerzony</option></select>
+              </div>
+              <div class="field"><label>Dział</label>
+                <select id="fMatSection"><option value="listening">Listening</option><option value="reading">Reading</option><option value="use">Use of English (środki językowe)</option></select>
+              </div>
+              <div class="field"><label>Typ zadania</label>
+                <select id="fMatTask"></select>
+              </div>
+            </div>
+          </div>
         </div>
 
         <!-- OKŁADKA -->
@@ -622,8 +650,37 @@
     ['en-US-Chirp3-HD-Umbriel','Umbriel (męski)'],
     ['en-US-Chirp3-HD-Zubenelgenubi','Zubenelgenubi (męski)']
   ];
+  var MATURA_TASKS={
+    basic:{
+      listening:[['l_match','Dobieranie wypowiedzi do zdań'],['l_mc','Wybór wielokrotny A/B/C'],['l_notes','Uzupełnianie notatki']],
+      reading:[['r_headings','Dobieranie nagłówków do akapitów'],['r_texts','Zdania do tekstów + luki w e-mailu'],['r_mc','Wybór wielokrotny A/B/C/D'],['r_gaps','Wstawianie zdań w luki']],
+      use:[['u_dialogues','Minidialogi A/B/C'],['u_twosent','Jedno słowo do dwóch zdań'],['u_onegap','Tekst z lukami: jedno słowo'],['u_transform','Przekształcenia ze słowem kluczowym']]
+    },
+    ext:{
+      listening:[['l_mc','Wybór wielokrotny'],['l_match','Dobieranie zdań do wypowiedzi'],['l_notes','Uzupełnianie notatek']],
+      reading:[['r_match','Dobieranie zdań lub pytań do tekstów'],['r_gaps','Wstawianie fragmentów w luki'],['r_mc','Wybór wielokrotny A/B/C/D + dokańczanie zdań']],
+      use:[['u_mc','Wybór wielokrotny w tekście'],['u_wordform','Słowotwórstwo'],['u_brackets','Luki z wyrazami w nawiasach / tłumaczenie fragmentów']]
+    }
+  };
+  function fillMatTasks(keep){
+    var lv=$('fMatLevel').value, sec=$('fMatSection').value;
+    var list=(MATURA_TASKS[lv]||{})[sec]||[];
+    $('fMatTask').innerHTML=list.map(function(t){ return '<option value="'+t[0]+'">'+t[1]+'</option>'; }).join('');
+    if(keep && list.some(function(t){ return t[0]===keep; })) $('fMatTask').value=keep;
+  }
+  function syncMatura(){ $('matFields').classList.toggle('hidden', !$('fMatura').checked); }
+  function setMatura(on, level, section, task){
+    $('fMatura').checked=!!on;
+    $('fMatLevel').value=level||'basic';
+    $('fMatSection').value=section||'use';
+    fillMatTasks(task||'');
+    syncMatura();
+  }
+  $('fMatura').addEventListener('change', syncMatura);
+  $('fMatLevel').addEventListener('change', function(){ fillMatTasks($('fMatTask').value); });
+  $('fMatSection').addEventListener('change', function(){ fillMatTasks($('fMatTask').value); });
   function loadList(){
-    sb.from('games').select('id,slug,title,template,category,level,published,sort_order,created_at,cover_url')
+    sb.from('games').select('id,slug,title,template,category,level,published,sort_order,created_at,cover_url,matura')
       .order('sort_order',{ascending:false}).order('created_at',{ascending:false})
       .then(function(res){
         if(res.error){ $('glist').innerHTML='<div class="msg msg-err">Nie udało się wczytać: '+esc(res.error.message)+'</div>'; return; }
@@ -632,13 +689,15 @@
   }
   function renderList(){
     var q=($('listSearch').value||'').toLowerCase();
-    var fStatus=$('fltStatus').value, fCat=$('fltCat').value, fLevel=$('fltLevel').value;
+    var fStatus=$('fltStatus').value, fCat=$('fltCat').value, fLevel=$('fltLevel').value, fMat=$('fltMatura').value;
     var items=ALL.filter(function(g){
       if(curType!=='all' && g.template!==curType) return false;
       if(fStatus==='pub' && !g.published) return false;
       if(fStatus==='draft' && g.published) return false;
       if(fCat!=='all' && g.category!==fCat) return false;
       if(fLevel!=='all' && g.level!==fLevel) return false;
+      if(fMat==='yes' && !g.matura) return false;
+      if(fMat==='no' && g.matura) return false;
       if(q && (g.title||'').toLowerCase().indexOf(q)===-1 && (g.slug||'').toLowerCase().indexOf(q)===-1) return false;
       return true;
     });
@@ -653,7 +712,7 @@
     $('glist').innerHTML=pageItems.map(function(g){
       var pub=g.published?'<span class="pill pill-pub">opublikowane</span>':'<span class="pill pill-draft">szkic</span>';
       var lvl=g.level?'<span class="pill pill-lvl">'+esc(g.level)+'</span>':'';
-      var typ='<span class="pill pill-type">'+esc(g.template)+'</span>';
+      var typ='<span class="pill pill-type">'+esc(g.template)+'</span>'+(g.matura?'<span class="pill pill-mat">matura</span>':'');
       var cover = g.cover_url
         ? '<div class="gcover"><img src="'+esc(g.cover_url)+'" alt="" loading="lazy"></div>'
         : '<div class="gcover gcover-empty">bez okładki</div>';
@@ -700,6 +759,7 @@
   $('fltStatus').addEventListener('change', resetPageAndRender);
   $('fltCat').addEventListener('change', resetPageAndRender);
   $('fltLevel').addEventListener('change', resetPageAndRender);
+  $('fltMatura').addEventListener('change', resetPageAndRender);
   $('typeFilter').querySelectorAll('.typechip').forEach(function(b){
     b.addEventListener('click', function(){
       curType=b.getAttribute('data-type');
@@ -1150,6 +1210,7 @@
     $('fBg').value=''; $('fSlideLabel').value='';
     $('fKeywords').value=''; $('fSort').value='0'; $('fLearn').value=''; updLearnCount(); $('fSeoTitle').value=''; updSeoCount();
     $('fPremium').checked=false; $('fKids').checked=false; $('fPub').checked=false;
+    setMatura(false,'basic','use','');
     renderCover(''); $('coverSlot').removeAttribute('data-url');
     $('slugPrev').textContent='slug';
     $('gapsList').innerHTML=''; $('questionsList').innerHTML=''; $('slidesList').innerHTML='';
@@ -1182,6 +1243,7 @@
       $('fLearn').value=a.learn_text||''; updLearnCount();
       $('fSeoTitle').value=a.seo_title||''; updSeoCount();
       $('fPremium').checked=!!a.is_premium; $('fKids').checked=!!a.for_kids; $('fPub').checked=!!a.published;
+      setMatura(!!a.matura, a.matura_level, a.matura_section, a.matura_task);
       renderCover(a.cover_url||''); $('coverSlot').removeAttribute('data-url');
       $('slugPrev').textContent=a.slug||'slug';
       $('deleteBtn').style.display='';
@@ -1411,6 +1473,7 @@
       });
       if(!qData.length) err='Dodaj przynajmniej jedno pytanie.';
     }
+    if(!err && $('fMatura').checked && !$('fMatTask').value) err='Matura: wybierz typ zadania.';
     if(err){ showMsg($('saveMsg'),err,false); return; }
 
     var coverUrl=$('coverSlot').getAttribute('data-url');
@@ -1430,7 +1493,11 @@
       seo_title:typo($('fSeoTitle').value).replace(/\.$/,'')||null,
       sort_order:parseInt($('fSort').value,10)||0,
       is_premium:$('fPremium').checked, for_kids:$('fKids').checked,
-      published:$('fPub').checked, cover_url:coverUrl
+      published:$('fPub').checked, cover_url:coverUrl,
+      matura:$('fMatura').checked,
+      matura_level:$('fMatura').checked?$('fMatLevel').value:null,
+      matura_section:$('fMatura').checked?$('fMatSection').value:null,
+      matura_task:$('fMatura').checked?$('fMatTask').value:null
     };
     if(template==='reading') rec.reading_voice=$('readingVoice').value;
     if(template==='listening'){
