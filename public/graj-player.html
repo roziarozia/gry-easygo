@@ -2460,7 +2460,7 @@ async function markCompleted(score, scoreMax, answers){
     if(GAME.template === 'listening'){
       document.getElementById('coverModes').classList.add('hidden');
       document.getElementById('coverSpeak').classList.remove('hidden');
-      document.getElementById('startSpeakBtn').textContent = (GAME.matura && GAME.matura_section === 'reading') ? t('Czytaj') : t('Słuchaj');
+      document.getElementById('startSpeakBtn').textContent = matIsRead() ? t('Czytaj') : t('Słuchaj');
     }
     // Reading: jeden przycisk „Czytaj"
     if(GAME.template === 'reading'){
@@ -2988,6 +2988,11 @@ let lsWybor = {};
 
 // ===== MATURA: dobieranie (lista opcji raz, przy pytaniu same litery) + luki w wiadomości =====
 // Pytanie z JEDNĄ opcją = luka do wpisania (opcja = poprawne odpowiedzi oddzielone |).
+// MATURA: zadanie z tekstem do czytania zamiast nagrania — dział Reading oraz Use of English
+// w formie tekstu z lukami (szablon listening bez nagrania, np. wybór wielokrotny w tekście).
+function matIsRead(){
+  return !!(GAME && GAME.matura && (GAME.matura_section === 'reading' || (GAME.matura_section === 'use' && GAME.template === 'listening')));
+}
 function matIsOpen(q){ return Array.isArray(q.options) && q.options.length === 1; }
 function matLetter(o){
   var m = String(o).match(/^\s*([A-H])[.)]\s+/) || String(o).match(/^\s*(?:Tekst|Text)\s+([A-H])\s*$/i);
@@ -3073,7 +3078,7 @@ function startListening(){
   const audio = document.getElementById('lsAudio');
   audio.classList.add('hidden');
   // MATURA: polecenie nad zadaniem; w dziale Reading zamiast nagrania pokazujemy tekst
-  const matRead = !!(GAME.matura && GAME.matura_section === 'reading');
+  const matRead = matIsRead();
   const lsTask = document.getElementById('lsTask');
   const lsText = document.getElementById('lsText');
   const lsHint = document.getElementById('lsHint');
@@ -3127,7 +3132,8 @@ function startListening(){
            + '<input type="radio" name="lsq' + i + '" value="' + j + '">'
            + '<span>' + escapeHtml(o) + '</span></label>';
     }).join('');
-    return '<div class="ls-q"><p class="ls-q-prompt">' + (i+1) + '. ' + escapeHtml(String(q.prompt || '').replace(/^\s*\d+[.)]\s+/, '')) + '</p>'
+    var lsPr = String(q.prompt || '').replace(/^\s*\d+[.)]\s+/, '');
+    return '<div class="ls-q"><p class="ls-q-prompt">' + ((GAME.matura && /^(Luka|Gap)\s*\d+/i.test(lsPr)) ? '' : (i+1) + '. ') + escapeHtml(lsPr) + '</p>'
          + opts + '<p class="ls-explain hidden" id="lsExp' + i + '"></p></div>';
   }).join('');
 
@@ -3214,7 +3220,7 @@ function sprawdzListening(){
       try{ var r = await _db.auth.getSession(); var s = r && r.data ? r.data.session : null; if(s && currentSlug) egShowAnswerDetails(currentSlug, s.user.id); }catch(e){}
     };
   })();
-  document.getElementById('lsScriptBtn').style.display = (LISTENING.length && !(GAME.matura && GAME.matura_section === 'reading')) ? '' : 'none';
+  document.getElementById('lsScriptBtn').style.display = (LISTENING.length && !matIsRead()) ? '' : 'none';
   document.getElementById('lsEnd').classList.remove('hidden');
   document.getElementById('lsEnd').scrollIntoView({ behavior:'smooth', block:'nearest' });
   // szczegóły odpowiedzi ucznia (jak w quizie) - żeby lektor i uczeń widzieli co dobrze/źle
