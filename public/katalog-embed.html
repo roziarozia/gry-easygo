@@ -894,6 +894,9 @@
     background:#efeafc; border:1.5px solid var(--eg-violet); border-radius:12px;
   }
   .eg-student-mode.eg-on{ display:flex; }
+  /* na stronie głównej pasek pokazuje rodzic (przyklejony u góry ekranu) — tu zostawiamy tylko „jak to działa?” */
+  .eg-student-mode.eg-on.eg-sm-parent{ background:transparent; border-color:transparent; padding:0 4px; margin-bottom:8px; }
+  .eg-student-mode.eg-sm-parent .eg-sm-text, .eg-student-mode.eg-sm-parent .eg-sm-legend, .eg-student-mode.eg-sm-parent .eg-sm-exit{ display:none; }
   .eg-sm-text{ font-family:'Quicksand',sans-serif; font-weight:700; font-size:14px; color:var(--eg-ink); }
   .eg-sm-help{
     font-family:'Nunito',sans-serif; font-size:12.5px; font-weight:700; color:var(--eg-violet);
@@ -2649,6 +2652,7 @@
       var nm = document.getElementById('egSmName');
       if(nm) nm.textContent = target.name;
       if(sm) sm.classList.add('eg-on');
+      svNotifyParent(target.name);
       svShowHwFilter(true);
       buildTeczkaPanel();
       closeTeczka();
@@ -2676,11 +2680,31 @@
     }
     var sm = document.getElementById('egStudentMode');
     if(sm) sm.classList.remove('eg-on');
+    svNotifyParent(null);
     svShowHwFilter(false);
     buildTeczkaPanel();
     closeTeczka();
     render();
   }
+
+  // Pasek „Podgląd ucznia” na stronie głównej rysuje RODZIC (CatalogEmbed), bo iframe ma wysokość
+  // całego katalogu i przyklejony pasek w środku nie zostałby na ekranie. Gdy rodzic potwierdzi,
+  // że pokazał pasek, chowamy tutejszy baner (bez potwierdzenia — np. katalog otwarty sam — baner zostaje).
+  function svNotifyParent(name){
+    try{
+      if(window.parent && window.parent !== window){
+        window.parent.postMessage({ egStudentView: name ? { name: String(name) } : null }, window.location.origin);
+      }
+    }catch(e){}
+  }
+  window.addEventListener('message', function(e){
+    if(e.origin !== window.location.origin || !e.data) return;
+    if(e.data.egExitStudentView && svViewing) exitStudentView();
+    if('egSvBarShown' in e.data){
+      var sm = document.getElementById('egStudentMode');
+      if(sm) sm.classList.toggle('eg-sm-parent', !!e.data.egSvBarShown);
+    }
+  });
 
   // Zadaj / usuń pracę domową oglądanemu uczniowi (zapis na koncie ucznia, jak w panelu lektora)
   function svToast(msg){
