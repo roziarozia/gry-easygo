@@ -5,18 +5,34 @@ export const SECTIONS = [
   { id: 'listening', roman: 'I', en: 'Listening', pl: 'Rozumienie ze słuchu' },
   { id: 'reading', roman: 'II', en: 'Reading', pl: 'Rozumienie tekstów pisanych' },
   { id: 'use', roman: 'III', en: 'Use of English', pl: 'Znajomość środków językowych' },
+  { id: 'writing', roman: 'IV', en: 'Writing', pl: 'Wypowiedź pisemna' },
+  { id: 'speaking', roman: 'V', en: 'Oral exam', pl: 'Matura ustna' },
 ];
+
+// Matura ustna jest jedna (bez poziomów), więc jej zadania pokazujemy przy obu poziomach.
+const ORAL = [['o_intro', 'Rozmowa wstępna'], ['o_role', 'Rozmowa z odgrywaniem roli'], ['o_picture', 'Opis ilustracji'], ['o_stimulus', 'Materiał stymulujący']];
+export const BOTH_LEVELS = ['speaking'];
+
+// Kryteria oceny wypowiedzi pisemnej (zasady oceniania CKE, formuła 2023).
+export const WRITING_CRITERIA = {
+  basic: [['tresc', 'Treść', 5], ['spojnosc', 'Spójność i logika wypowiedzi', 2], ['zakres', 'Zakres środków językowych', 3], ['poprawnosc', 'Poprawność środków językowych', 2]],
+  ext: [['zgodnosc', 'Zgodność z poleceniem', 5], ['spojnosc', 'Spójność i logika wypowiedzi', 2], ['zakres', 'Zakres środków językowych', 3], ['poprawnosc', 'Poprawność środków językowych', 3]],
+};
 
 export const TASKS = {
   basic: {
     listening: [['l_match', 'Dobieranie wypowiedzi do zdań'], ['l_mc', 'Wybór wielokrotny'], ['l_notes', 'Uzupełnianie luk w notatce']],
     reading: [['r_headings', 'Dobieranie nagłówków'], ['r_texts', 'Dobieranie tekstów do zdań'], ['r_mc', 'Wybór wielokrotny'], ['r_gaps', 'Wstawianie zdań w luki']],
     use: [['u_dialogues', 'Minidialogi'], ['u_paraphrase', 'Znaczenie fragmentu zdania'], ['u_twosent', 'Jedno słowo do dwóch zdań'], ['u_box', 'Wyrazy z ramki'], ['u_onegap', 'Luki: jeden wyraz'], ['u_transform', 'Przekształcenia zdań']],
+    writing: [['w_email', 'E-mail'], ['w_blog', 'Wpis na blogu']],
+    speaking: ORAL,
   },
   ext: {
     listening: [['l_mc', 'Wybór wielokrotny'], ['l_match', 'Dobieranie zdań do wypowiedzi'], ['l_notes', 'Uzupełnianie luk w zdaniach']],
     reading: [['r_match', 'Dobieranie pytań do tekstu'], ['r_gaps', 'Wstawianie zdań w luki'], ['r_mc', 'Wybór wielokrotny'], ['r_complete', 'Uzupełnianie zdań']],
     use: [['u_mc', 'Wybór wielokrotny w tekście'], ['u_wordform', 'Słowotwórstwo'], ['u_transform', 'Przekształcenia zdań']],
+    writing: [['w_opinion', 'Rozprawka opiniująca'], ['w_proscons', 'Rozprawka za i przeciw'], ['w_article', 'Artykuł publicystyczny'], ['w_letter', 'List formalny']],
+    speaking: ORAL,
   },
 };
 
