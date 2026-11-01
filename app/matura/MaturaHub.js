@@ -92,7 +92,6 @@ export default function MaturaHub() {
   }, [games, grouped, done, level, access]);
 
   const mat = games.filter((g) => g.matura_level === level);
-  const points = mat.reduce((s, g) => s + (done[g.slug] && done[g.slug].score ? done[g.slug].score : 0), 0);
   const doneCount = mat.filter((g) => done[g.slug]).length;
   const drafts = isAdmin ? games.filter((g) => !g.published).length : 0;
 
@@ -148,8 +147,7 @@ export default function MaturaHub() {
             )}
             <div className="mt-next-stats">
               <div><strong>{days === null ? '…' : days}</strong><span>dni do matury</span></div>
-              <div><strong>{points}</strong><span>{points === 1 ? 'punkt' : 'punktów'}</span></div>
-              <div><strong>{doneCount}</strong><span>zrobionych ćwiczeń</span></div>
+              <div><strong>{doneCount}<small>/{mat.length}</small></strong><span>zrobione ćwiczenia ({level === 'ext' ? 'rozszerzenie' : 'podstawa'})</span></div>
             </div>
           </div>
         </section>
@@ -324,9 +322,10 @@ body{ margin:0; background:#fbfaf6; }
 .mt-next{ flex:1 1 320px; background:#fff; border:1px solid #ebe6dc; border-radius:20px; padding:24px; display:flex; flex-direction:column; gap:12px; box-shadow:0 10px 30px rgba(29,26,34,.06); }
 .mt-next-k{ font-size:12.5px; text-transform:uppercase; letter-spacing:1.8px; font-weight:700; color:#ca4490; }
 .mt-next-t{ font-family:'Playfair Display',Georgia,serif; font-weight:700; font-size:25px; line-height:1.2; }
-.mt-next-stats{ display:grid; grid-template-columns:repeat(3, minmax(0,1fr)); gap:10px; padding-top:16px; margin-top:auto; border-top:1px solid #efeae1; }
+.mt-next-stats{ display:grid; grid-template-columns:repeat(2, minmax(0,1fr)); gap:10px; padding-top:16px; margin-top:auto; border-top:1px solid #efeae1; }
 .mt-next-stats div{ display:flex; flex-direction:column; gap:2px; }
 .mt-next-stats strong{ font-family:'Playfair Display',Georgia,serif; font-size:30px; font-weight:800; line-height:1; color:#1d1a22; }
+.mt-next-stats small{ font-size:.6em; font-weight:700; color:#a49dad; }
 .mt-next-stats span{ font-size:12.5px; color:#7a7385; line-height:1.3; }
 .mt-btn{ display:inline-flex; align-items:center; justify-content:center; gap:7px; min-height:46px; padding:0 20px; font-family:'Outfit',sans-serif; font-size:15.5px; font-weight:600; text-decoration:none; cursor:pointer; background:#ca4490; color:#fff !important; border:1.5px solid #ca4490; border-radius:12px; transition:background .15s, transform .1s; }
 .mt-btn:hover{ background:#b13a7e; border-color:#b13a7e; }
