@@ -356,6 +356,7 @@
   .eg-matura-sub{ font-family:'Outfit',sans-serif; font-size:14px; font-weight:600; letter-spacing:1.4px; text-transform:uppercase; color:var(--eg-muted); margin-top:6px; }
   .eg-matura-go{ font-family:'Outfit',sans-serif; font-size:16px; font-weight:700; color:var(--eg-magenta); margin-top:6px; }
   .eg-matura:hover .eg-matura-go{ text-decoration:underline; text-underline-offset:3px; }
+  .eg-matura-pv{ display:block; max-width:420px; margin-top:10px; padding:6px 12px; border-radius:10px; background:#f6f1ae; color:#5b4d10; font-family:'Outfit',sans-serif; font-size:12.5px; font-weight:600; line-height:1.4; text-align:center; }
   html.eg-dark .eg-matura{ border-color:#e8e6ef; }
   html.eg-dark .eg-matura-h{ color:#e8e6ef; }
   html.eg-dark .eg-hero-title .eg-logo-light{ display:none; }
@@ -4689,15 +4690,25 @@
     { headers:{ apikey:KEY_, Authorization:'Bearer '+KEY_ } })
   .then(function(r){ return r.ok ? r.json() : []; })
   .then(function(rows){
-    if(!rows || !rows.length) return;
+    if(rows && rows.length){ pokazMature(false); return; }
+    // Przed startem: napis widzi tylko administratorka (podgląd), nikt inny.
+    var sb = window._egSb; if(!sb || !sb.rpc) return;
+    sb.rpc('is_admin').then(function(r){ if(r && r.data === true) pokazMature(true); });
+  }).catch(function(){});
+  function pokazMature(podglad){
     var a = document.getElementById('egMatura'); if(!a) return;
     if(!document.getElementById('egMtFont')){
       var l = document.createElement('link'); l.id = 'egMtFont'; l.rel = 'stylesheet';
       l.href = 'https://fonts.googleapis.com/css2?family=Playfair+Display:wght@900&display=swap';
       document.head.appendChild(l);
     }
+    if(podglad && !document.getElementById('egMaturaPv')){
+      var n = document.createElement('span'); n.id = 'egMaturaPv'; n.className = 'eg-matura-pv';
+      n.textContent = 'Podgląd: widzisz to tylko Ty. Napis pojawi się dla wszystkich po opublikowaniu pierwszego ćwiczenia maturalnego.';
+      a.appendChild(n);
+    }
     a.hidden = false;
-  }).catch(function(){});
+  }
 })();
 </script>
 
