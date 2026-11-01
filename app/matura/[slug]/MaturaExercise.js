@@ -3,7 +3,7 @@ import { useEffect, useState } from 'react';
 import { supabase } from '../../../lib/supabase';
 import GameEmbed from '../../cwiczenie/[slug]/GameEmbed';
 import { sectionOf, taskName, MT_FONTS } from '../maturaData';
-import ThemeToggle, { THEME_CSS } from '../ThemeToggle';
+import ThemeToggle, { THEME_CSS, MaturaFooter, FOOTER_CSS } from '../ThemeToggle';
 
 // Ćwiczenie maturalne: gazetowy nagłówek ze ścieżką, odtwarzacz (sam przełącza się
 // na skórkę maturalną) i przejście do następnego ćwiczenia tego samego typu.
@@ -35,7 +35,7 @@ export default function MaturaExercise({ slug, initial }) {
 
   return (
     <div className="mx">
-      <style dangerouslySetInnerHTML={{ __html: MT_FONTS + CSS + THEME_CSS }} />
+      <style dangerouslySetInnerHTML={{ __html: MT_FONTS + CSS + THEME_CSS + FOOTER_CSS }} />
       <div className="mx-wrap">
         <nav className="mx-crumbs" aria-label="Ścieżka">
           <a href="/matura" className="mx-home">Matura</a>
@@ -59,13 +59,14 @@ export default function MaturaExercise({ slug, initial }) {
           </div>
         )}
       </div>
+      <MaturaFooter />
     </div>
   );
 }
 
 const CSS = `
 body{ margin:0; background:#fbfaf6; }
-.mx{ min-height:100vh; background:#fbfaf6; color:#1d1a22; font-family:'Outfit',system-ui,sans-serif; padding-bottom:56px; }
+.mx{ min-height:100vh; background:#fbfaf6; color:#1d1a22; font-family:'Outfit',system-ui,sans-serif; }
 .mx a{ color:#1d1a22; }
 .mx a:hover{ color:#ca4490; }
 .mx-wrap{ max-width:1120px; margin:0 auto; padding:0 16px; }
