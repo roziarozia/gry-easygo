@@ -84,6 +84,7 @@ export default function Logowanie() {
 
   function backTarget() {
     const params = new URLSearchParams(window.location.search || '');
+    if (params.get('powrot') === 'matura') return '/matura';
     return params.get('powrot') === 'oferta' ? '/oferta' : REDIRECT_AFTER;
   }
 
