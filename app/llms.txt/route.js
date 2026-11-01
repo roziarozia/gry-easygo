@@ -32,8 +32,9 @@ function line(s, max) {
 }
 
 export async function GET() {
-  const [games, articles] = await Promise.all([
-    rest('games?select=slug,title,level,category,learn_text,description,sort_order&published=eq.true&order=sort_order.asc'),
+  const [games, matura, articles] = await Promise.all([
+    rest('games?select=slug,title,level,category,learn_text,description,sort_order&published=eq.true&matura=not.is.true&order=sort_order.asc'),
+    rest('games?select=slug,title,matura_level,matura_section,learn_text,description,exercise_no&published=eq.true&matura=eq.true&order=exercise_no.asc'),
     rest('articles?select=slug,title,excerpt,category,level&published=eq.true&order=sort_order.desc'),
   ]);
 
@@ -49,6 +50,7 @@ export async function GET() {
   out.push(`- [Katalog ćwiczeń](${SITE}/): wszystkie ćwiczenia z filtrami poziomu (A1–C2) i rodzaju (gramatyka, słownictwo, czytanki, słuchanie, konwersacje)`);
   out.push(`- [Nauka – artykuły](${SITE}/nauka): wyjaśnienia gramatyki i słownictwa po polsku, z przykładami i tabelami`);
   out.push(`- [Oferta](${SITE}/oferta): plany dla uczniów i lektorów`);
+  if (matura.length) out.push(`- [Matura z angielskiego](${SITE}/matura): ćwiczenia wzorowane na arkuszach maturalnych (Listening, Reading, Use of English), z poleceniami jak na maturze`);
   out.push(`- [Opinie](${SITE}/opinie): opinie użytkowników`);
   out.push('');
 
@@ -58,6 +60,18 @@ export async function GET() {
     for (const a of articles) {
       const meta = [ART_LABEL[a.category] || '', a.level || ''].filter(Boolean).join(', ');
       out.push(`- [${line(a.title, 120)}](${SITE}/nauka/${encodeURIComponent(a.slug)})${meta ? ' (' + meta + ')' : ''}: ${line(a.excerpt, 220)}`);
+    }
+    out.push('');
+  }
+
+  if (matura.length) {
+    const SEC = { listening: 'Listening', reading: 'Reading', use: 'Use of English' };
+    out.push('## Matura z angielskiego');
+    out.push('');
+    for (const x of matura) {
+      const meta = [x.matura_level === 'ext' ? 'poziom rozszerzony' : 'poziom podstawowy', SEC[x.matura_section] || ''].filter(Boolean).join(', ');
+      const opis = line(x.learn_text || x.description, 200);
+      out.push(`- [${line(x.title, 120)}](${SITE}/matura/${encodeURIComponent(x.slug)}) (${meta})${opis ? ': ' + opis : ''}`);
     }
     out.push('');
   }
