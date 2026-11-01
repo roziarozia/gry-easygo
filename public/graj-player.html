@@ -1658,6 +1658,10 @@
   html.mat .ls-score{ font-family:'Playfair Display',Georgia,serif; }
   html.mat .ls-score u{ border-bottom-color:#f6f1ae; }
   html.mat.eg-dark .mat-plabel{ background:#3a2034; color:#f08cc4; }
+  /* nagłówek „Tekst 1” nad pytaniami do danego tekstu */
+  .mat-tgroup{ display:inline-block; margin:18px 0 10px; padding:4px 12px; border-radius:8px; background:#fdf1f7; color:#ca4490; font-family:'Outfit',sans-serif; font-weight:700; font-size:14px; letter-spacing:.3px; }
+  .mat-tgroup:first-child{ margin-top:0; }
+  html.mat.eg-dark .mat-tgroup{ background:#3a2034; color:#f08cc4; }
   /* MATURA: dobieranie — lista opcji raz, przy pytaniu same litery */
   .mat-pool{ margin:14px 0 6px; padding:14px 16px; border-radius:14px; background:#f6f1ae; text-align:left; }
   .mat-pool-row{ display:flex; gap:12px; align-items:flex-start; padding:5px 0; font-family:'Outfit',sans-serif; font-size:15.5px; line-height:1.5; color:#1d1a22; }
@@ -3125,17 +3129,26 @@ function startListening(){
   const mm = matMatchInfo();
   if(mm){
     box.innerHTML = matRenderQuestions(mm);
-  } else
+  } else {
+  // MATURA: „Tekst 1.” / „Text 1.” na początku pytania = nagłówek grupy nad pytaniami do tego tekstu
+  var lsGrupa = null;
   box.innerHTML = QUESTIONS.map(function(q, i){
+    var lsNag = '';
+    var lsTx = GAME.matura ? String(q.prompt || '').match(/^\s*((?:Tekst|Text)\s*\d+)\.?\s+/i) : null;
+    if(lsTx){
+      if(lsTx[1] !== lsGrupa){ lsNag = '<div class="mat-tgroup">' + escapeHtml(lsTx[1]) + '</div>'; lsGrupa = lsTx[1]; }
+      q = Object.assign({}, q, { prompt: String(q.prompt).slice(lsTx[0].length) });
+    }
     const opts = (Array.isArray(q.options) ? q.options : []).map(function(o, j){
       return '<label class="ls-opt" data-q="' + i + '" data-o="' + j + '">'
            + '<input type="radio" name="lsq' + i + '" value="' + j + '">'
            + '<span>' + escapeHtml(o) + '</span></label>';
     }).join('');
     var lsPr = String(q.prompt || '').replace(/^\s*\d+[.)]\s+/, '');
-    return '<div class="ls-q"><p class="ls-q-prompt">' + ((GAME.matura && /^(Luka|Gap)\s*\d+/i.test(lsPr)) ? '' : (i+1) + '. ') + escapeHtml(lsPr) + '</p>'
+    return lsNag + '<div class="ls-q"><p class="ls-q-prompt">' + ((GAME.matura && /^(Luka|Gap)\s*\d+/i.test(lsPr)) ? '' : (i+1) + '. ') + escapeHtml(lsPr) + '</p>'
          + opts + '<p class="ls-explain hidden" id="lsExp' + i + '"></p></div>';
   }).join('');
+  }
 
   box.oninput = function(e){ if(e.target && e.target.classList && e.target.classList.contains('mat-open')) document.getElementById('lsErr').textContent = ''; };
   box.onchange = function(e){
