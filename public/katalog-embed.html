@@ -2985,7 +2985,8 @@
     var q = norm(curSearch);
     var list = allGames.filter(function(g){
       // ćwiczenia maturalne są na /matura; w katalogu tylko jako zadana praca domowa
-      if(g.matura && !homeworkSet[g.slug]) return false;
+      // albo w filtrze „Zrobione”, gdy uczeń je ukończył (z wynikiem, jak każde inne ćwiczenie)
+      if(g.matura && !homeworkSet[g.slug] && !(curStatus === 'zrobione' && completedSet[g.slug])) return false;
       // ukryj Speaking dla ucznia podpiętego pod lektora, który nie ma go włączonego —
       // ALE jeśli lektor przypisał to ćwiczenie jako pracę domową LUB zaliczył je uczniowi, uczeń MUSI móc je zobaczyć
       if(hideSpeaking && (g.category === 'speaking' || g.template === 'speaking') && !homeworkSet[g.slug] && completedSet[g.slug] !== 'teacher') return false;
