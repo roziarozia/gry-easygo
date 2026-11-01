@@ -18,11 +18,11 @@ export default function MaturaHub() {
   const [drawer, setDrawer] = useState(null); // {section, task}
   const [filter, setFilter] = useState('all');
   const [paywall, setPaywall] = useState(false);
-  const [days, setDays] = useState(null);
+  const [now, setNow] = useState(null);
 
   useEffect(() => {
     try { const l = localStorage.getItem('eg_matura_level'); if (l === 'basic' || l === 'ext') setLevel(l); } catch (e) {}
-    setDays(daysToExam(Date.now()));
+    setNow(Date.now());
     (async () => {
       let session = null;
       try { const r = await supabase.auth.getSession(); session = r.data.session; } catch (e) {}
@@ -148,7 +148,7 @@ export default function MaturaHub() {
               <div className="mt-next-t">{ready ? 'Ćwiczenia na tym poziomie są w przygotowaniu.' : 'Wczytujemy ćwiczenia…'}</div>
             )}
             <div className="mt-next-stats">
-              <div><strong>{days === null ? '…' : days}</strong><span>dni do matury</span></div>
+              <div><strong>{now === null ? '…' : daysToExam(now, level)}</strong><span>dni do matury ({level === 'ext' ? 'rozszerzenie, 7 maja' : 'podstawa, 6 maja'})</span></div>
               <div><strong>{doneCount}<small>/{mat.length}</small></strong><span>zrobione ćwiczenia ({level === 'ext' ? 'rozszerzenie' : 'podstawa'})</span></div>
             </div>
           </div>
