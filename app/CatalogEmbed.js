@@ -16,6 +16,14 @@ export default function CatalogEmbed() {
   // Pop-up z demo panelu lektora — renderowany TUTAJ (u rodzica), żeby był
   // przypięty do ekranu, a nie rozciągnięty na całą wysokość iframe katalogu.
   const [demoUrl, setDemoUrl] = useState(null);
+
+  // Teczka lektora: gdy katalog (iframe) jest w trybie „oczami ucznia”, pokazujemy TU (u rodzica)
+  // przyklejony pasek. Iframe ma wysokość całego katalogu, więc pasek w jego środku nie mógłby
+  // zostać na ekranie przy przewijaniu. null = brak podglądu, tekst = imię oglądanego ucznia.
+  const [svName, setSvName] = useState(null);
+  function svExit() {
+    try { ref.current && ref.current.contentWindow.postMessage({ egExitStudentView: true }, window.location.origin); } catch (e) {}
+  }
   useEffect(() => {
     if (!demoUrl) return;
     const onKey = (e) => { if (e.key === 'Escape') setDemoUrl(null); };
@@ -98,6 +106,13 @@ export default function CatalogEmbed() {
     } catch (err) {}
 
     function onMsg(e) {
+      // podgląd ucznia włączony/wyłączony w katalogu (tylko wiadomości z naszej domeny)
+      if (e.origin === window.location.origin && e.data && 'egStudentView' in e.data) {
+        const sv = e.data.egStudentView;
+        setSvName(sv && sv.name ? String(sv.name) : null);
+        // potwierdź katalogowi, że pasek jest u rodzica (wtedy chowa swój baner)
+        try { e.source && e.source.postMessage({ egSvBarShown: !!(sv && sv.name) }, window.location.origin); } catch (err) {}
+      }
       if (e.data && typeof e.data.egCatalogHeight === 'number' && ref.current) {
         ref.current.style.height = Math.max(600, e.data.egCatalogHeight) + 'px';
       }
@@ -154,6 +169,37 @@ export default function CatalogEmbed() {
 
   return (
     <>
+    <div style={{ position: 'relative' }}>
+    {svName && (
+      <div className="egsv-stick">
+        <div className="egsv-bar" role="status">
+          <span className="egsv-k">Podgląd ucznia</span>
+          <span className="egsv-t">Widzisz stronę oczami: <strong>{svName}</strong></span>
+          <span className="egsv-legend"><i className="egsv-done" />zrobione<i className="egsv-prog" />w trakcie</span>
+          <button type="button" className="egsv-x" onClick={svExit}>Zamknij podgląd <span aria-hidden="true">×</span></button>
+        </div>
+      </div>
+    )}
+    <style>{`
+.egsv-stick{ position:sticky; top:0; z-index:50; padding:10px 16px 0; }
+.egsv-bar{ margin:0 auto; max-width:1180px; box-sizing:border-box;
+  display:flex; flex-wrap:wrap; align-items:center; gap:8px 16px; padding:12px 14px 12px 18px;
+  background:#1d1a22; color:#fff; border-radius:14px; box-shadow:0 10px 24px rgba(29,26,34,.22); font-family:'Outfit','Segoe UI',Arial,sans-serif; }
+.egsv-k{ font-size:11.5px; font-weight:700; text-transform:uppercase; letter-spacing:1.6px; color:#1d1a22; background:#f6f1ae; padding:4px 10px; border-radius:999px; }
+.egsv-t{ font-size:15.5px; flex:1 1 220px; }
+.egsv-t strong{ font-size:19px; font-weight:800; }
+.egsv-legend{ display:inline-flex; align-items:center; gap:6px; font-size:13px; color:#d9d4e2; }
+.egsv-legend i{ display:inline-block; width:12px; height:12px; border-radius:3px; margin-left:6px; }
+.egsv-done{ background:#1e7e50; }
+.egsv-prog{ background:#a78dd9; }
+.egsv-x{ min-height:40px; padding:0 14px; border:1.5px solid #fff; border-radius:999px; background:transparent; color:#fff; font-family:inherit; font-size:14.5px; font-weight:600; cursor:pointer; }
+.egsv-x:hover{ background:#fff; color:#1d1a22; }
+html.eg-dark .egsv-bar{ background:#e8e6ef; color:#1a1b26; }
+html.eg-dark .egsv-legend{ color:#4f4959; }
+html.eg-dark .egsv-x{ border-color:#1a1b26; color:#1a1b26; }
+html.eg-dark .egsv-x:hover{ background:#1a1b26; color:#fff; }
+@media (max-width:640px){ .egsv-stick{ padding:0; } .egsv-bar{ border-radius:0 0 14px 14px; } .egsv-legend{ display:none; } }
+`}</style>
     <iframe
       ref={ref}
       src={src}
@@ -161,6 +207,7 @@ export default function CatalogEmbed() {
       scrolling="no"
       style={{ width: '100%', height: 900, border: 'none', display: 'block', overflow: 'hidden' }}
     />
+    </div>
       {demoUrl && (
         <div onClick={() => setDemoUrl(null)} style={{ position: 'fixed', inset: 0, background: 'rgba(46,42,51,.55)', zIndex: 9999, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 16 }}>
           <div onClick={(e) => e.stopPropagation()} style={{ position: 'relative', background: '#fff', borderRadius: 18, width: '100%', maxWidth: 960, height: '86vh', overflow: 'hidden', boxShadow: '0 24px 70px rgba(0,0,0,.35)' }}>
