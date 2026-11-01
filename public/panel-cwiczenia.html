@@ -237,6 +237,7 @@
               <option value="listening">listening (słuchanka)</option>
               <option value="mat-reading">czytanie maturalne (tekst + pytania)</option>
               <option value="mat-writing">wypracowanie maturalne (Writing)</option>
+              <option value="mat-oral">matura ustna (Oral exam)</option>
               <option value="speaking">speaking (rozmowa)</option>
               <option value="article-gap">article-gap (luki w tekście)</option>
               <option value="what-is-it">what-is-it (słówka z obrazkami)</option>
@@ -468,6 +469,48 @@
           </div>
           <div class="field"><label>Wskazówka (opcjonalnie)</label><textarea id="wTip" rows="2"></textarea></div>
           <div class="field"><label>Przydatne zwroty <span class="hint-i">jeden w linii: English | po polsku</span></label><textarea id="wPhr" rows="6" placeholder="In my opinion, … | Moim zdaniem…"></textarea></div>
+        </div>
+
+        <!-- MATURA USTNA -->
+        <div id="oralSection" class="hidden">
+          <h3 style="margin:18px 0 6px;">Zestaw do matury ustnej</h3>
+          <p class="hint-i" style="margin:0 0 10px;">Część egzaminu wybierasz w polu „Typ zadania” wyżej. Rozmowa wstępna: same pytania. Odgrywanie roli: sytuacja, 4 kwestie i kwestie egzaminującego. Opis ilustracji: 1 zdjęcie i 3 pytania. Materiał stymulujący: sytuacja, 3 zdjęcia i 2 pytania.</p>
+          <div class="field"><label>Sytuacja</label><textarea id="oSit" rows="3"></textarea></div>
+          <div class="field"><label>Kwestie do omówienia (odgrywanie roli) <span class="hint-i">jedna w linii</span></label><textarea id="oEl" rows="4"></textarea></div>
+          <div class="field"><label>Pierwsza kwestia egzaminującego (odgrywanie roli)</label><input type="text" id="oStart"></div>
+          <div class="field"><label>Kwestie egzaminującego (odgrywanie roli) <span class="hint-i">jedna w linii</span></label><textarea id="oExam" rows="4"></textarea></div>
+          <div class="field"><label>Pytania egzaminującego <span class="hint-i">jedno w linii</span></label><textarea id="oQ" rows="4"></textarea></div>
+          <div id="oImgs">
+            <div class="oimg" data-i="0">
+              <div class="oimg-prev"></div>
+              <div class="field" style="margin:6px 0 4px;"><label>Ilustracja 1: podpis <span class="hint-i">np. „Spływ kajakowy” (przy wyborze 1 z 3)</span></label><input type="text" class="oimg-label"></div>
+              <div class="field" style="margin:0 0 4px;"><label>Co ma być na zdjęciu <span class="hint-i">widać to tylko, dopóki nie wgrasz zdjęcia</span></label><input type="text" class="oimg-hint"></div>
+              <input type="file" class="oimg-file" accept="image/*">
+              <button type="button" class="btn btn-soft btn-sm oimg-up">Wgraj zdjęcie</button>
+              <button type="button" class="btn btn-soft btn-sm oimg-clear">Usuń zdjęcie</button>
+              <span class="hint-i oimg-msg"></span>
+            </div>
+            <div class="oimg" data-i="1">
+              <div class="oimg-prev"></div>
+              <div class="field" style="margin:6px 0 4px;"><label>Ilustracja 2: podpis <span class="hint-i">np. „Spływ kajakowy” (przy wyborze 1 z 3)</span></label><input type="text" class="oimg-label"></div>
+              <div class="field" style="margin:0 0 4px;"><label>Co ma być na zdjęciu <span class="hint-i">widać to tylko, dopóki nie wgrasz zdjęcia</span></label><input type="text" class="oimg-hint"></div>
+              <input type="file" class="oimg-file" accept="image/*">
+              <button type="button" class="btn btn-soft btn-sm oimg-up">Wgraj zdjęcie</button>
+              <button type="button" class="btn btn-soft btn-sm oimg-clear">Usuń zdjęcie</button>
+              <span class="hint-i oimg-msg"></span>
+            </div>
+            <div class="oimg" data-i="2">
+              <div class="oimg-prev"></div>
+              <div class="field" style="margin:6px 0 4px;"><label>Ilustracja 3: podpis <span class="hint-i">np. „Spływ kajakowy” (przy wyborze 1 z 3)</span></label><input type="text" class="oimg-label"></div>
+              <div class="field" style="margin:0 0 4px;"><label>Co ma być na zdjęciu <span class="hint-i">widać to tylko, dopóki nie wgrasz zdjęcia</span></label><input type="text" class="oimg-hint"></div>
+              <input type="file" class="oimg-file" accept="image/*">
+              <button type="button" class="btn btn-soft btn-sm oimg-up">Wgraj zdjęcie</button>
+              <button type="button" class="btn btn-soft btn-sm oimg-clear">Usuń zdjęcie</button>
+              <span class="hint-i oimg-msg"></span>
+            </div>
+          </div>
+          <div class="field"><label>Wskazówka (opcjonalnie)</label><textarea id="oTip" rows="2"></textarea></div>
+          <div class="field"><label>Przydatne zwroty <span class="hint-i">jeden w linii: English | po polsku</span></label><textarea id="oPhr" rows="6"></textarea></div>
         </div>
 
         <div class="stickybar">
@@ -831,6 +874,64 @@
     return d;
   }
 
+  // ===== MATURA USTNA: pola <-> task_content.data =====
+  // Ile zdjęć ma dana część: opis ilustracji 1, materiał stymulujący 3, reszta 0.
+  function oImgCount(){ var t=$('fMatTask').value; return t==='o_picture'?1:(t==='o_stimulus'?3:0); }
+  function oSyncImgs(){
+    var n=oImgCount();
+    document.querySelectorAll('#oImgs .oimg').forEach(function(el,i){ el.style.display = i<n ? '' : 'none'; });
+  }
+  $('fMatTask').addEventListener('change', oSyncImgs);
+  function oRenderImg(el){
+    var u=el.getAttribute('data-url')||'';
+    el.querySelector('.oimg-prev').innerHTML = u ? '<img src="'+esc(u)+'" style="max-width:220px;border-radius:8px;border:1px solid var(--line);">' : '<div class="cover-prev-ph" style="max-width:220px;">Brak zdjęcia</div>';
+  }
+  document.querySelectorAll('#oImgs .oimg').forEach(function(el){
+    oRenderImg(el);
+    el.querySelector('.oimg-up').addEventListener('click', function(){
+      var f=el.querySelector('.oimg-file').files[0], m=el.querySelector('.oimg-msg');
+      if(!f){ m.textContent='Wybierz plik.'; return; }
+      var path='matura-ustna/'+(slugify($('fSlug').value)||'zestaw')+'-'+el.getAttribute('data-i')+'-'+Date.now()+'.'+((f.name.split('.').pop()||'jpg').toLowerCase());
+      m.textContent='Wgrywam…';
+      sb.storage.from(BUCKET).upload(path,f,{upsert:true,contentType:f.type}).then(function(res){
+        if(res.error){ m.textContent='Błąd: '+res.error.message; return; }
+        el.setAttribute('data-url', sb.storage.from(BUCKET).getPublicUrl(path).data.publicUrl);
+        oRenderImg(el); m.textContent='Wgrano. Zapisz ćwiczenie.';
+      });
+    });
+    el.querySelector('.oimg-clear').addEventListener('click', function(){
+      el.setAttribute('data-url',''); oRenderImg(el); el.querySelector('.oimg-msg').textContent='Usunięto. Zapisz ćwiczenie.';
+    });
+  });
+  function oFill(d){
+    d=d||{};
+    $('oSit').value=d.situation||''; $('oEl').value=(d.elements||[]).join('\n');
+    $('oStart').value=d.examiner_start||''; $('oExam').value=(d.examiner||[]).join('\n');
+    $('oQ').value=(d.questions||[]).join('\n'); $('oTip').value=d.tip||'';
+    $('oPhr').value=(d.phrases||[]).map(function(p){ return (p[0]||'')+(p[1]?' | '+p[1]:''); }).join('\n');
+    document.querySelectorAll('#oImgs .oimg').forEach(function(el,i){
+      var im=(d.images||[])[i]||{};
+      el.setAttribute('data-url', im.url||''); el.querySelector('.oimg-label').value=im.label||''; el.querySelector('.oimg-hint').value=im.hint||'';
+      el.querySelector('.oimg-msg').textContent=''; el.querySelector('.oimg-file').value=''; oRenderImg(el);
+    });
+    oSyncImgs();
+  }
+  function oCollect(){
+    var lines=function(id){ return $(id).value.split('\n').map(function(x){ return x.trim(); }).filter(Boolean); };
+    var imgs=[]; var n=oImgCount();
+    document.querySelectorAll('#oImgs .oimg').forEach(function(el,i){
+      if(i>=n) return;
+      var im={ url:el.getAttribute('data-url')||'', label:el.querySelector('.oimg-label').value.trim(), hint:el.querySelector('.oimg-hint').value.trim() };
+      if(!im.label) delete im.label; if(!im.hint) delete im.hint;
+      imgs.push(im);
+    });
+    var d={ kind:'oral', part:$('fMatTask').value, situation:$('oSit').value.trim(), elements:lines('oEl'),
+      examiner_start:$('oStart').value.trim(), examiner:lines('oExam'), questions:lines('oQ'), images:imgs, tip:$('oTip').value.trim(),
+      phrases:lines('oPhr').map(function(l){ var i=l.indexOf('|'); return i<0?[l,'']:[l.slice(0,i).trim(), l.slice(i+1).trim()]; }) };
+    Object.keys(d).forEach(function(k){ if(d[k]==='' || (Array.isArray(d[k]) && !d[k].length)) delete d[k]; });
+    return d;
+  }
+
   // ===== PRZEŁĄCZANIE SEKCJI wg typu =====
   function syncSections(){
     var t=$('fTemplate').value;
@@ -842,6 +943,8 @@
     $('listeningSection').classList.toggle('hidden', !(t==='listening'||t==='mat-reading'));
     $('listeningSection').classList.toggle('mat-read', t==='mat-reading');
     $('writingSection').classList.toggle('hidden', t!=='mat-writing');
+    $('oralSection').classList.toggle('hidden', t!=='mat-oral');
+    oSyncImgs();
   }
   $('fTemplate').addEventListener('change', function(){
     // czytanie maturalne = zawsze ćwiczenie maturalne w dziale Reading
@@ -849,6 +952,10 @@
       setMatura(true, $('fMatLevel').value, 'writing', $('fMatSection').value==='writing' ? $('fMatTask').value : '');
       $('fCat').value='writing';
       if(!$('wMin').value || !$('wMax').value || ($('wMin').value==='100' && $('wMax').value==='150')) wSetRange();
+    }
+    if($('fTemplate').value==='mat-oral'){
+      setMatura(true, 'basic', 'speaking', $('fMatSection').value==='speaking' ? $('fMatTask').value : '');
+      $('fCat').value='speaking';
     }
     if($('fTemplate').value==='mat-reading'){
       setMatura(true, $('fMatLevel').value, 'reading', $('fMatSection').value==='reading' ? $('fMatTask').value : '');
@@ -1288,7 +1395,7 @@
     $('fKeywords').value=''; $('fSort').value='0'; $('fLearn').value=''; updLearnCount(); $('fSeoTitle').value=''; updSeoCount();
     $('fPremium').checked=false; $('fKids').checked=false; $('fPub').checked=false;
     setMatura(false,'basic','use','');
-    wFill({});
+    wFill({}); oFill({});
     renderCover(''); $('coverSlot').removeAttribute('data-url');
     $('slugPrev').textContent='slug';
     $('gapsList').innerHTML=''; $('questionsList').innerHTML=''; $('slidesList').innerHTML='';
@@ -1323,6 +1430,10 @@
       $('fPremium').checked=!!a.is_premium; $('fKids').checked=!!a.for_kids; $('fPub').checked=!!a.published;
       setMatura(!!a.matura, a.matura_level, a.matura_section, a.matura_task);
       if(a.template==='listening' && a.matura && a.matura_section==='reading') $('fTemplate').value='mat-reading';
+      if(a.template==='oral'){
+        $('fTemplate').value='mat-oral'; oFill({});
+        sb.from('task_content').select('data').eq('game_id',id).maybeSingle().then(function(r){ oFill(r.data?r.data.data:{}); });
+      }
       if(a.template==='writing'){
         $('fTemplate').value='mat-writing'; wFill({});
         sb.from('task_content').select('data').eq('game_id',id).maybeSingle().then(function(r){ wFill(r.data?r.data.data:{}); });
@@ -1416,6 +1527,7 @@
   var TYPE_KW={
     'mat-reading':['matura','reading','czytanie ze zrozumieniem'],
     'mat-writing':['matura','writing','wypowiedź pisemna','wypracowanie'],
+    'mat-oral':['matura','matura ustna','oral exam','speaking'],
     'gap-fill':['gap-fill','uzupełnianie luk','ćwiczenie'],
     'quiz':['quiz','wybór odpowiedzi','ćwiczenie'],
     'reading':['reading','czytanka','czytanie'],
@@ -1461,6 +1573,8 @@
     if(isMR) template='listening';
     var isMW = (template==='mat-writing');
     if(isMW) template='writing';
+    var isMO = (template==='mat-oral');
+    if(isMO) template='oral';
     if(!title){ showMsg($('saveMsg'),'Podaj tytuł.',false); return; }
     if(!slug){ showMsg($('saveMsg'),'Podaj slug (adres).',false); return; }
     if(!$('fLearn').value.trim()){
@@ -1469,8 +1583,8 @@
 
     // zbierz pozycje
     var gapData=[], qData=[], slideData=[], promptData=[], wisData=[], lineData=[], listenQData=[], err='';
-    if(template==='writing'){
-      // temat wypracowania zbiera wCollect() — tu nie ma pozycji do zebrania
+    if(template==='writing' || template==='oral'){
+      // treść zbierają wCollect() / oCollect() — tu nie ma pozycji do zebrania
     } else if(template==='speaking'){
       $('promptsList').querySelectorAll('.item').forEach(function(it){
         var t=it.querySelector('.sp-text').value.trim();
@@ -1599,6 +1713,7 @@
       matura_task:$('fMatura').checked?$('fMatTask').value:null
     };
     if(isMR){ rec.matura=true; rec.matura_section='reading'; rec.matura_level=$('fMatLevel').value; rec.matura_task=$('fMatTask').value||null; }
+    if(isMO){ rec.matura=true; rec.matura_section='speaking'; rec.matura_level='basic'; rec.matura_task=$('fMatTask').value||null; }
     if(isMW){ rec.matura=true; rec.matura_section='writing'; rec.matura_level=$('fMatLevel').value; rec.matura_task=$('fMatTask').value||null; }
     if(template==='reading') rec.reading_voice=$('readingVoice').value;
     if(template==='listening' && !isMR){
@@ -1618,8 +1733,8 @@
         showMsg($('saveMsg'),'Błąd zapisu: '+m,false); return;
       }
       var gid=res.data.id; curId=gid; cur=res.data;
-      if(template==='writing'){
-        sb.from('task_content').upsert({ game_id:gid, data:wCollect(), updated_at:new Date().toISOString() }).then(function(r){
+      if(template==='writing' || template==='oral'){
+        sb.from('task_content').upsert({ game_id:gid, data:(template==='oral'?oCollect():wCollect()), updated_at:new Date().toISOString() }).then(function(r){
           if(r.error){ $('saveBtn').disabled=false; showMsg($('saveMsg'),'Ćwiczenie zapisane, ale błąd zapisu tematu: '+r.error.message,false); return; }
           finishSave(res.data);
         });
@@ -1707,7 +1822,7 @@
     if(!curId) return;
     if(!confirm('Na pewno usunąć to ćwiczenie? Tej operacji nie można cofnąć.')) return;
     var t=$('fTemplate').value;
-    var tables={'gap-fill':['gaps'],'article-gap':['gaps'],'quiz':['questions'],'reading':['reading_slides'],'speaking':['speaking_prompts'],'what-is-it':['slides'],'listening':['listening_lines','questions'],'mat-reading':['listening_lines','questions'],'mat-writing':['task_content']};
+    var tables={'gap-fill':['gaps'],'article-gap':['gaps'],'quiz':['questions'],'reading':['reading_slides'],'speaking':['speaking_prompts'],'what-is-it':['slides'],'listening':['listening_lines','questions'],'mat-reading':['listening_lines','questions'],'mat-writing':['task_content'],'mat-oral':['task_content']};
     var toDel=(tables[t]||['gaps']).slice();
     function delNext(){
       if(!toDel.length){
