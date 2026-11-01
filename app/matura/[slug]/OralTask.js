@@ -111,7 +111,7 @@ export default function OralTask({ slug, task: partKey }) {
           <h2 className="ot-h">Ten zestaw jest w pełnej wersji</h2>
           <p>Pierwszy zestaw w każdej części matury ustnej jest darmowy, a resztę odblokujesz w pełnej wersji EasyWonders. {user ? 'Wybierz plan, żeby mieć dostęp do wszystkich.' : 'Załóż konto, a przez 14 dni masz pełną wersję za darmo, bez podpinania karty.'}</p>
           <div className="ot-btns">
-            <a className="ot-btn" href={user ? '/oferta' : '/logowanie?rejestracja&powrot=matura'}>{user ? 'Zobacz ofertę' : 'Załóż konto za darmo'}</a>
+            <a className="ot-btn" href={user ? '/oferta?powrot=matura' : '/logowanie?rejestracja&powrot=matura'}>{user ? 'Zobacz ofertę' : 'Załóż konto za darmo'}</a>
             {!user && <a className="ot-btn ot-ghost" href={'/logowanie?powrot=' + encodeURIComponent('matura/' + slug)}>Mam konto, zaloguj się</a>}
           </div>
         </section>
