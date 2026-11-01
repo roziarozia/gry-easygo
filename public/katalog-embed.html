@@ -2324,7 +2324,7 @@
     if(!currentStudentId){ box.style.display = 'none'; var sh=document.getElementById('egProgressShow'); if(sh) sh.style.display = 'none'; return; }
     // zbiór ćwiczeń dostępnych dla ucznia, zawężony do wybranego zakresu
     var scoped = allGames.filter(function(g){
-      if(g.matura && !homeworkSet[g.slug]) return false; // matura ma własną stronę /matura
+      if(g.matura) return false; // matura ma własną stronę /matura i własny licznik postępu
       if(hideSpeaking && (g.category === 'speaking' || g.template === 'speaking') && !homeworkSet[g.slug] && completedSet[g.slug] !== 'teacher') return false;
       if(!(userHasAccess || !g.is_premium)) return false;
       return inProgressScope(g);
