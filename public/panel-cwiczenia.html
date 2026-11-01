@@ -236,6 +236,7 @@
               <option value="reading">reading (czytanka)</option>
               <option value="listening">listening (słuchanka)</option>
               <option value="mat-reading">czytanie maturalne (tekst + pytania)</option>
+              <option value="mat-writing">wypracowanie maturalne (Writing)</option>
               <option value="speaking">speaking (rozmowa)</option>
               <option value="article-gap">article-gap (luki w tekście)</option>
               <option value="what-is-it">what-is-it (słówka z obrazkami)</option>
@@ -249,6 +250,7 @@
               <option value="reading">reading</option>
               <option value="listening">listening</option>
               <option value="kultura">wiedza o krajach</option>
+              <option value="writing">writing (wypracowanie)</option>
             </select>
           </div>
           <div class="field"><label>Poziom</label>
@@ -319,7 +321,7 @@
                 <select id="fMatLevel"><option value="basic">podstawowy</option><option value="ext">rozszerzony</option></select>
               </div>
               <div class="field"><label>Dział</label>
-                <select id="fMatSection"><option value="listening">Listening</option><option value="reading">Reading</option><option value="use">Use of English (środki językowe)</option></select>
+                <select id="fMatSection"><option value="listening">Listening</option><option value="reading">Reading</option><option value="use">Use of English (środki językowe)</option><option value="writing">Writing (wypowiedź pisemna)</option><option value="speaking">Oral exam (matura ustna)</option></select>
               </div>
               <div class="field"><label>Typ zadania</label>
                 <select id="fMatTask"></select>
@@ -445,6 +447,27 @@
           <audio id="readPlayer" controls style="width:100%; margin-top:10px; display:none;"></audio>
           <div id="audioMsg"></div>
           <div class="hint-i" id="audioStatus"></div>
+        </div>
+
+        <!-- WYPRACOWANIE MATURALNE -->
+        <div id="writingSection" class="hidden">
+          <h3 style="margin:18px 0 6px;">Temat wypracowania</h3>
+          <p class="hint-i" style="margin:0 0 10px;">Uczeń widzi to jako polecenie. Na podstawie: sytuacja + wstęp + 4 punkty (np. „W e-mailu do kolegi z USA:”). Na rozszerzeniu: sytuacja + jedno zdanie polecenia („Napisz rozprawkę, w której…”).</p>
+          <div class="field"><label>Sytuacja</label><textarea id="wSit" rows="2"></textarea></div>
+          <div class="field"><label>Wstęp do punktów (podstawa)</label><input type="text" id="wLead" placeholder="W e-mailu do kolegi z USA:"></div>
+          <div class="field"><label>Punkty polecenia (podstawa) <span class="hint-i">jeden w linii</span></label><textarea id="wBullets" rows="4"></textarea></div>
+          <div class="field"><label>Polecenie (rozszerzenie)</label><textarea id="wTask" rows="3" placeholder="Napisz rozprawkę, w której…"></textarea></div>
+          <div class="grid3">
+            <div class="field"><label>Rozpocznij od (opcjonalnie)</label><input type="text" id="wStart" placeholder="Hi Jake,"></div>
+            <div class="field"><label>Podpis (opcjonalnie)</label><input type="text" id="wSign" placeholder="XYZ"></div>
+            <div class="field"><label>Forma</label><input type="text" id="wForm" placeholder="e-mail / rozprawka / artykuł / list formalny"></div>
+          </div>
+          <div class="grid2">
+            <div class="field"><label>Minimum słów</label><input type="number" id="wMin" value="100"></div>
+            <div class="field"><label>Maksimum słów</label><input type="number" id="wMax" value="150"></div>
+          </div>
+          <div class="field"><label>Wskazówka (opcjonalnie)</label><textarea id="wTip" rows="2"></textarea></div>
+          <div class="field"><label>Przydatne zwroty <span class="hint-i">jeden w linii: English | po polsku</span></label><textarea id="wPhr" rows="6" placeholder="In my opinion, … | Moim zdaniem…"></textarea></div>
         </div>
 
         <div class="stickybar">
@@ -665,12 +688,16 @@
     basic:{
       listening:[['l_match','Dobieranie wypowiedzi do zdań'],['l_mc','Wybór wielokrotny A/B/C'],['l_notes','Uzupełnianie luk w notatce lub ulotce']],
       reading:[['r_headings','Dobieranie nagłówków do części tekstu'],['r_texts','Dobieranie tekstów do zdań + luki w wiadomości'],['r_mc','Wybór wielokrotny A/B/C/D'],['r_gaps','Wstawianie zdań w luki']],
-      use:[['u_dialogues','Minidialogi A/B/C'],['u_paraphrase','Znaczenie wyróżnionego fragmentu A/B/C'],['u_twosent','Jedno słowo do dwóch zdań'],['u_box','Wyrazy z ramki w odpowiedniej formie'],['u_onegap','Tekst z lukami: jedno słowo'],['u_transform','Przekształcenia ze słowem kluczowym']]
+      use:[['u_dialogues','Minidialogi A/B/C'],['u_paraphrase','Znaczenie wyróżnionego fragmentu A/B/C'],['u_twosent','Jedno słowo do dwóch zdań'],['u_box','Wyrazy z ramki w odpowiedniej formie'],['u_onegap','Tekst z lukami: jedno słowo'],['u_transform','Przekształcenia ze słowem kluczowym']],
+      writing:[['w_email','E-mail'],['w_blog','Wpis na blogu']],
+      speaking:[['o_intro','Rozmowa wstępna'],['o_role','Rozmowa z odgrywaniem roli'],['o_picture','Opis ilustracji'],['o_stimulus','Materiał stymulujący']]
     },
     ext:{
       listening:[['l_mc','Wybór wielokrotny'],['l_match','Dobieranie zdań do wypowiedzi'],['l_notes','Uzupełnianie luk w zdaniach']],
       reading:[['r_match','Dobieranie pytań do części tekstu'],['r_gaps','Wstawianie zdań w luki'],['r_mc','Wybór wielokrotny A/B/C/D'],['r_complete','Uzupełnianie zdań na podstawie tekstu']],
-      use:[['u_mc','Wybór wielokrotny w tekście'],['u_wordform','Słowotwórstwo'],['u_transform','Przekształcenia ze słowem kluczowym']]
+      use:[['u_mc','Wybór wielokrotny w tekście'],['u_wordform','Słowotwórstwo'],['u_transform','Przekształcenia ze słowem kluczowym']],
+      writing:[['w_opinion','Rozprawka opiniująca'],['w_proscons','Rozprawka za i przeciw'],['w_article','Artykuł publicystyczny'],['w_letter','List formalny']],
+      speaking:[['o_intro','Rozmowa wstępna'],['o_role','Rozmowa z odgrywaniem roli'],['o_picture','Opis ilustracji'],['o_stimulus','Materiał stymulujący']]
     }
   };
   function fillMatTasks(keep){
@@ -779,6 +806,31 @@
     });
   });
 
+  // ===== WYPRACOWANIE MATURALNE: pola <-> task_content.data =====
+  function wSetRange(){
+    var ext=$('fMatLevel').value==='ext';
+    $('wMin').value=ext?200:100; $('wMax').value=ext?250:150;
+  }
+  $('fMatLevel').addEventListener('change', function(){ if($('fTemplate').value==='mat-writing') wSetRange(); });
+  function wFill(d){
+    d=d||{};
+    $('wSit').value=d.situation||''; $('wLead').value=d.lead||'';
+    $('wBullets').value=(d.bullets||[]).join('\n'); $('wTask').value=d.task||'';
+    $('wStart').value=d.start||''; $('wSign').value=d.sign||''; $('wForm').value=d.form||'';
+    $('wMin').value=(d.words&&d.words[0])||100; $('wMax').value=(d.words&&d.words[1])||150;
+    $('wTip').value=d.tip||'';
+    $('wPhr').value=(d.phrases||[]).map(function(p){ return (p[0]||'')+(p[1]?' | '+p[1]:''); }).join('\n');
+  }
+  function wCollect(){
+    var lines=function(id){ return $(id).value.split('\n').map(function(x){ return x.trim(); }).filter(Boolean); };
+    var d={ kind:'writing', form:$('wForm').value.trim(), situation:$('wSit').value.trim(), lead:$('wLead').value.trim(),
+      bullets:lines('wBullets'), task:$('wTask').value.trim(), start:$('wStart').value.trim(), sign:$('wSign').value.trim(),
+      words:[parseInt($('wMin').value,10)||0, parseInt($('wMax').value,10)||0], tip:$('wTip').value.trim(),
+      phrases:lines('wPhr').map(function(l){ var i=l.indexOf('|'); return i<0?[l,'']:[l.slice(0,i).trim(), l.slice(i+1).trim()]; }) };
+    Object.keys(d).forEach(function(k){ if(d[k]==='' || (Array.isArray(d[k]) && !d[k].length)) delete d[k]; });
+    return d;
+  }
+
   // ===== PRZEŁĄCZANIE SEKCJI wg typu =====
   function syncSections(){
     var t=$('fTemplate').value;
@@ -789,9 +841,15 @@
     $('whatisitSection').classList.toggle('hidden', t!=='what-is-it');
     $('listeningSection').classList.toggle('hidden', !(t==='listening'||t==='mat-reading'));
     $('listeningSection').classList.toggle('mat-read', t==='mat-reading');
+    $('writingSection').classList.toggle('hidden', t!=='mat-writing');
   }
   $('fTemplate').addEventListener('change', function(){
     // czytanie maturalne = zawsze ćwiczenie maturalne w dziale Reading
+    if($('fTemplate').value==='mat-writing'){
+      setMatura(true, $('fMatLevel').value, 'writing', $('fMatSection').value==='writing' ? $('fMatTask').value : '');
+      $('fCat').value='writing';
+      if(!$('wMin').value || !$('wMax').value || ($('wMin').value==='100' && $('wMax').value==='150')) wSetRange();
+    }
     if($('fTemplate').value==='mat-reading'){
       setMatura(true, $('fMatLevel').value, 'reading', $('fMatSection').value==='reading' ? $('fMatTask').value : '');
       if($('fCat').value!=='reading') $('fCat').value='reading';
@@ -1230,6 +1288,7 @@
     $('fKeywords').value=''; $('fSort').value='0'; $('fLearn').value=''; updLearnCount(); $('fSeoTitle').value=''; updSeoCount();
     $('fPremium').checked=false; $('fKids').checked=false; $('fPub').checked=false;
     setMatura(false,'basic','use','');
+    wFill({});
     renderCover(''); $('coverSlot').removeAttribute('data-url');
     $('slugPrev').textContent='slug';
     $('gapsList').innerHTML=''; $('questionsList').innerHTML=''; $('slidesList').innerHTML='';
@@ -1264,6 +1323,10 @@
       $('fPremium').checked=!!a.is_premium; $('fKids').checked=!!a.for_kids; $('fPub').checked=!!a.published;
       setMatura(!!a.matura, a.matura_level, a.matura_section, a.matura_task);
       if(a.template==='listening' && a.matura && a.matura_section==='reading') $('fTemplate').value='mat-reading';
+      if(a.template==='writing'){
+        $('fTemplate').value='mat-writing'; wFill({});
+        sb.from('task_content').select('data').eq('game_id',id).maybeSingle().then(function(r){ wFill(r.data?r.data.data:{}); });
+      }
       renderCover(a.cover_url||''); $('coverSlot').removeAttribute('data-url');
       $('slugPrev').textContent=a.slug||'slug';
       $('deleteBtn').style.display='';
@@ -1352,6 +1415,7 @@
   // ===== PROPOZYCJA SŁÓW KLUCZOWYCH =====
   var TYPE_KW={
     'mat-reading':['matura','reading','czytanie ze zrozumieniem'],
+    'mat-writing':['matura','writing','wypowiedź pisemna','wypracowanie'],
     'gap-fill':['gap-fill','uzupełnianie luk','ćwiczenie'],
     'quiz':['quiz','wybór odpowiedzi','ćwiczenie'],
     'reading':['reading','czytanka','czytanie'],
@@ -1395,6 +1459,8 @@
     // czytanie maturalne zapisujemy jako szablon listening (tekst + pytania) w dziale Reading
     var isMR = (template==='mat-reading');
     if(isMR) template='listening';
+    var isMW = (template==='mat-writing');
+    if(isMW) template='writing';
     if(!title){ showMsg($('saveMsg'),'Podaj tytuł.',false); return; }
     if(!slug){ showMsg($('saveMsg'),'Podaj slug (adres).',false); return; }
     if(!$('fLearn').value.trim()){
@@ -1403,7 +1469,9 @@
 
     // zbierz pozycje
     var gapData=[], qData=[], slideData=[], promptData=[], wisData=[], lineData=[], listenQData=[], err='';
-    if(template==='speaking'){
+    if(template==='writing'){
+      // temat wypracowania zbiera wCollect() — tu nie ma pozycji do zebrania
+    } else if(template==='speaking'){
       $('promptsList').querySelectorAll('.item').forEach(function(it){
         var t=it.querySelector('.sp-text').value.trim();
         if(t) promptData.push({ position:promptData.length+1, text:t,
@@ -1499,6 +1567,11 @@
       });
       if(!qData.length) err='Dodaj przynajmniej jedno pytanie.';
     }
+    if(isMW){
+      var wd=wCollect();
+      if(!wd.situation && !wd.task) err='Wypracowanie: wpisz sytuację albo polecenie.';
+      else if(!(wd.words[0]>0 && wd.words[1]>=wd.words[0])) err='Wypracowanie: podaj poprawny zakres słów.';
+    }
     if(!err && $('fMatura').checked && !$('fMatTask').value) err='Matura: wybierz typ zadania.';
     if(err){ showMsg($('saveMsg'),err,false); return; }
 
@@ -1526,6 +1599,7 @@
       matura_task:$('fMatura').checked?$('fMatTask').value:null
     };
     if(isMR){ rec.matura=true; rec.matura_section='reading'; rec.matura_level=$('fMatLevel').value; rec.matura_task=$('fMatTask').value||null; }
+    if(isMW){ rec.matura=true; rec.matura_section='writing'; rec.matura_level=$('fMatLevel').value; rec.matura_task=$('fMatTask').value||null; }
     if(template==='reading') rec.reading_voice=$('readingVoice').value;
     if(template==='listening' && !isMR){
       rec.voice_a=$('voiceA').value||null; rec.voice_b=$('voiceB').value||null;
@@ -1544,6 +1618,13 @@
         showMsg($('saveMsg'),'Błąd zapisu: '+m,false); return;
       }
       var gid=res.data.id; curId=gid; cur=res.data;
+      if(template==='writing'){
+        sb.from('task_content').upsert({ game_id:gid, data:wCollect(), updated_at:new Date().toISOString() }).then(function(r){
+          if(r.error){ $('saveBtn').disabled=false; showMsg($('saveMsg'),'Ćwiczenie zapisane, ale błąd zapisu tematu: '+r.error.message,false); return; }
+          finishSave(res.data);
+        });
+        return;
+      }
       if(template==='listening'){
         // dwie tabele: listening_lines + questions
         saveChildrenSafely('listening_lines', gid, lineData, 'listening', res.data, function(){
@@ -1626,7 +1707,7 @@
     if(!curId) return;
     if(!confirm('Na pewno usunąć to ćwiczenie? Tej operacji nie można cofnąć.')) return;
     var t=$('fTemplate').value;
-    var tables={'gap-fill':['gaps'],'article-gap':['gaps'],'quiz':['questions'],'reading':['reading_slides'],'speaking':['speaking_prompts'],'what-is-it':['slides'],'listening':['listening_lines','questions'],'mat-reading':['listening_lines','questions']};
+    var tables={'gap-fill':['gaps'],'article-gap':['gaps'],'quiz':['questions'],'reading':['reading_slides'],'speaking':['speaking_prompts'],'what-is-it':['slides'],'listening':['listening_lines','questions'],'mat-reading':['listening_lines','questions'],'mat-writing':['task_content']};
     var toDel=(tables[t]||['gaps']).slice();
     function delNext(){
       if(!toDel.length){
