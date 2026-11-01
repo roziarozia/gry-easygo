@@ -334,6 +334,12 @@
      choć jedno opublikowane ćwiczenie maturalne (skrypt niżej). */
   .eg-matura{ display:flex; flex-direction:column; align-items:center; gap:2px; width:max-content; max-width:100%; margin:22px auto 4px; padding:14px 34px 16px; text-decoration:none !important; color:var(--eg-ink) !important; border-top:2px solid var(--eg-ink); border-bottom:2px solid var(--eg-ink); transition:transform .15s ease; }
   .eg-matura[hidden]{ display:none; }
+  .eg-matura.eg-matura-soon{ cursor:default; }
+  .eg-mt-when{ display:block; }
+  .eg-mt-clock{ display:block; margin-top:4px; font-family:'Outfit',sans-serif; font-size:24px; font-weight:700; letter-spacing:.5px; font-variant-numeric:tabular-nums; color:var(--eg-ink); }
+  html.eg-dark .eg-mt-clock{ color:#e8e6ef; }
+  .eg-matura.eg-matura-soon:hover{ transform:none; }
+  .eg-matura.eg-matura-soon:hover .eg-matura-go{ text-decoration:none; }
   /* okładka ćwiczenia maturalnego (bez obrazka) — w katalogu tylko jako praca domowa */
   .eg-thumb-mat{ position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:4px; background:#f6f1ae; color:#1d1a22; }
   .eg-thumb-mat-h{ font-family:'Playfair Display',Georgia,serif; font-weight:900; font-size:30px; letter-spacing:-.5px; line-height:1; }
@@ -4757,28 +4763,59 @@
 <script>
 (function(){
   var URL_='https://svjrdyxwqznbzxqeytdn.supabase.co', KEY_='sb_publishable_TNCq1UAMAvLO0Z5Mt8QOig_OvsxhhyJ';
-  // MATURA: napis pod logo pojawia się sam, gdy opublikujesz pierwsze ćwiczenie maturalne
-  fetch(URL_+'/rest/v1/games?published=eq.true&matura=eq.true&select=slug&limit=1',
-    { headers:{ apikey:KEY_, Authorization:'Bearer '+KEY_ } })
-  .then(function(r){ return r.ok ? r.json() : []; })
-  .then(function(rows){
-    if(rows && rows.length){ pokazMature(false); return; }
-    // Przed startem: napis widzi tylko administratorka (podgląd), nikt inny.
-    var sb = window._egSb; if(!sb || !sb.rpc) return;
-    sb.rpc('is_admin').then(function(r){ if(r && r.data === true) pokazMature(true); });
-  }).catch(function(){});
-  function pokazMature(podglad){
-    var a = document.getElementById('egMatura'); if(!a) return;
+  // MATURA: napis pod logo widzą wszyscy. Do startu (MT_START) jest zapowiedzią z odliczaniem (dni, godziny,
+  // minuty, sekundy) i nie da się w niego kliknąć — klikać może tylko administratorka. W chwili startu napis
+  // sam zamienia się w link na /matura dla wszystkich.
+  var MT_START = Date.UTC(2026, 11, 1, 14, 0, 0); // 1 grudnia 2026, 15:00 czasu polskiego
+  var en = window.EG_LANG === 'en';
+  var a0 = document.getElementById('egMatura'); if(!a0) return;
+  var goEl = a0.querySelector('.eg-matura-go');
+  var goOrig = goEl ? goEl.innerHTML : '';
+  var admin = false, timer = null;
+  if(Date.now() >= MT_START){ pokazMature('start'); return; }
+  pokazMature('zapowiedz');
+  var sb = window._egSb;
+  if(sb && sb.rpc){ sb.rpc('is_admin').then(function(r){ if(r && r.data === true){ admin = true; pokazMature('admin'); } }).catch(function(){}); }
+
+  function dwa(n){ return (n < 10 ? '0' : '') + n; }
+  function odliczanie(){
+    var ms = MT_START - Date.now();
+    if(ms <= 0){ clearInterval(timer); timer = null; pokazMature('start'); return; }
+    var s = Math.floor(ms / 1000);
+    var d = Math.floor(s / 86400), h = Math.floor(s % 86400 / 3600), m = Math.floor(s % 3600 / 60), sek = s % 60;
+    var dni = en ? (d === 1 ? 'day' : 'days') : (d === 1 ? 'dzień' : 'dni');
+    var el = document.getElementById('egMtClock');
+    if(el) el.textContent = (d > 0 ? d + ' ' + dni + ' ' : '') + dwa(h) + ':' + dwa(m) + ':' + dwa(sek);
+  }
+  function pokazMature(tryb){
+    var a = a0;
     if(!document.getElementById('egMtFont')){
       var l = document.createElement('link'); l.id = 'egMtFont'; l.rel = 'stylesheet';
       l.href = 'https://fonts.googleapis.com/css2?family=Playfair+Display:wght@900&display=swap';
       document.head.appendChild(l);
     }
-    if(podglad && !document.getElementById('egMaturaPv')){
-      var n = document.createElement('span'); n.id = 'egMaturaPv'; n.className = 'eg-matura-pv';
-      n.textContent = 'Podgląd: widzisz to tylko Ty. Napis pojawi się dla wszystkich po opublikowaniu pierwszego ćwiczenia maturalnego.';
-      a.appendChild(n);
+    if(tryb === 'start'){
+      if(goEl) goEl.innerHTML = goOrig;
+      var pv = document.getElementById('egMaturaPv'); if(pv) pv.remove();
+      a.setAttribute('href', '/matura'); a.removeAttribute('aria-disabled'); a.classList.remove('eg-matura-soon');
+      a.hidden = false; return;
     }
+    if(goEl && !document.getElementById('egMtClock')){
+      goEl.innerHTML = '<span class="eg-mt-when">' + (en ? 'Coming December 1 at 3 p.m.' : 'Startujemy 1 grudnia o 15:00') + '</span>' +
+        '<span class="eg-mt-clock" id="egMtClock" aria-live="off"></span>';
+    }
+    if(tryb === 'zapowiedz'){
+      a.removeAttribute('href'); a.setAttribute('aria-disabled', 'true'); a.classList.add('eg-matura-soon');
+    } else {
+      a.setAttribute('href', '/matura'); a.removeAttribute('aria-disabled'); a.classList.remove('eg-matura-soon');
+      if(!document.getElementById('egMaturaPv')){
+        var n = document.createElement('span'); n.id = 'egMaturaPv'; n.className = 'eg-matura-pv';
+        n.textContent = 'Widzisz to jako administratorka: Ty możesz już wejść. Pozostali widzą odliczanie i nie mogą kliknąć aż do 1 grudnia, 15:00.';
+        a.appendChild(n);
+      }
+    }
+    odliczanie();
+    if(!timer) timer = setInterval(odliczanie, 1000);
     a.hidden = false;
   }
 })();
