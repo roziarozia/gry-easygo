@@ -2,7 +2,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { supabase } from '../../lib/supabase';
 import { SECTIONS, TASKS, daysToExam, MT_FONTS } from './maturaData';
-import ThemeToggle, { THEME_CSS } from './ThemeToggle';
+import ThemeToggle, { THEME_CSS, MaturaFooter, FOOTER_CSS } from './ThemeToggle';
 
 // Strona /matura — gazetowy „spis treści” ćwiczeń maturalnych.
 // Ćwiczenia, postępy i dostęp są czytane z tej samej bazy co reszta EasyWonders,
@@ -109,7 +109,7 @@ export default function MaturaHub() {
 
   return (
     <div className="mt">
-      <style dangerouslySetInnerHTML={{ __html: MT_FONTS + CSS + THEME_CSS }} />
+      <style dangerouslySetInnerHTML={{ __html: MT_FONTS + CSS + THEME_CSS + FOOTER_CSS }} />
       <div className="mt-wrap">
         <div className="mt-top">
           <a href="/" className="mt-logo"><span style={{ color: '#ca4490' }}>Easy</span><span style={{ color: '#c8930f' }}>Wonders</span></a>
@@ -233,6 +233,7 @@ export default function MaturaHub() {
           <span>w słuchaniu i czytaniu poprawna odpowiedź zwykle mówi to samo co tekst, ale innymi słowami.</span>
           <a href="/nauka">Więcej na blogu</a>
         </div>
+      <MaturaFooter />
       </div>
 
       {drawer && (
@@ -305,7 +306,7 @@ body{ margin:0; background:#fbfaf6; }
 .mt{ min-height:100vh; background:#fbfaf6; color:#1d1a22; font-family:'Outfit',system-ui,sans-serif; }
 .mt *{ box-sizing:border-box; }
 .mt a{ color:inherit; }
-.mt-wrap{ max-width:1080px; margin:0 auto; padding:0 24px 80px; }
+.mt-wrap{ max-width:1080px; margin:0 auto; padding:0 24px; }
 .mt-top{ display:flex; flex-wrap:wrap; justify-content:space-between; align-items:center; gap:12px; padding:18px 0; font-size:15px; }
 .mt-logo{ text-decoration:none; font-family:'Outfit',sans-serif; font-weight:700; font-size:21px; letter-spacing:-.5px; }
 .mt-nav{ display:flex; flex-wrap:wrap; align-items:center; gap:22px; font-weight:500; }
@@ -426,7 +427,7 @@ html.eg-dark .mt-tile.done{ background:#ca4490; border-color:#ca4490; color:#fff
 html.eg-dark .mt-legend i{ background:#24263a; border-color:#4a4c66; }
 html.eg-dark .mt-legend .lg-done{ background:#ca4490; border-color:#ca4490; }
 @media (max-width:600px){
-  .mt-wrap{ padding:0 16px 56px; }
+  .mt-wrap{ padding:0 16px; }
   .mt-box{ padding:20px 16px 8px; }
   .mt-box-head h3{ font-size:26px; }
   .mt-row .mt-btn{ min-width:88px; padding:0 14px; }
