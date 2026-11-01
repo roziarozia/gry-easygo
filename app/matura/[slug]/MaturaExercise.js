@@ -37,6 +37,7 @@ export default function MaturaExercise({ slug, initial }) {
     <div className="mx">
       <style dangerouslySetInnerHTML={{ __html: MT_FONTS + CSS + THEME_CSS + FOOTER_CSS }} />
       <div className="mx-wrap">
+        {game && <h1 className="mx-sr">{game.title}</h1>}
         <nav className="mx-crumbs" aria-label="Ścieżka">
           <a href="/matura" className="mx-home">Matura</a>
           {sec && <><span aria-hidden="true">/</span><a href="/matura">{sec.en}</a></>}
@@ -65,6 +66,7 @@ export default function MaturaExercise({ slug, initial }) {
 }
 
 const CSS = `
+.mx-sr{ position:absolute; width:1px; height:1px; overflow:hidden; clip:rect(0 0 0 0); white-space:nowrap; }
 body{ margin:0; background:#fbfaf6; }
 .mx{ min-height:100vh; background:#fbfaf6; color:#1d1a22; font-family:'Outfit',system-ui,sans-serif; }
 .mx a{ color:#1d1a22; }
