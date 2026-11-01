@@ -347,6 +347,17 @@
     margin:0 auto; position:relative; z-index:1;
   }
   .eg-hero-title .eg-logo-dark{ display:none; }
+  /* Napis „Matura” pod logo — prowadzi na /matura; pokazuje się dopiero, gdy jest
+     choć jedno opublikowane ćwiczenie maturalne (skrypt niżej). */
+  .eg-matura{ display:flex; flex-direction:column; align-items:center; gap:2px; width:max-content; max-width:100%; margin:22px auto 4px; padding:14px 34px 16px; text-decoration:none !important; color:var(--eg-ink) !important; border-top:2px solid var(--eg-ink); border-bottom:2px solid var(--eg-ink); transition:transform .15s ease; }
+  .eg-matura[hidden]{ display:none; }
+  .eg-matura:hover{ transform:translateY(-2px); }
+  .eg-matura-h{ font-family:'Playfair Display',Georgia,serif; font-weight:900; font-size:clamp(42px,6vw,60px); line-height:1; letter-spacing:-1px; color:var(--eg-ink); }
+  .eg-matura-sub{ font-family:'Outfit',sans-serif; font-size:14px; font-weight:600; letter-spacing:1.4px; text-transform:uppercase; color:var(--eg-muted); margin-top:6px; }
+  .eg-matura-go{ font-family:'Outfit',sans-serif; font-size:16px; font-weight:700; color:var(--eg-magenta); margin-top:6px; }
+  .eg-matura:hover .eg-matura-go{ text-decoration:underline; text-underline-offset:3px; }
+  html.eg-dark .eg-matura{ border-color:#e8e6ef; }
+  html.eg-dark .eg-matura-h{ color:#e8e6ef; }
   html.eg-dark .eg-hero-title .eg-logo-light{ display:none; }
   html.eg-dark .eg-hero-title .eg-logo-dark{ display:block; }
   @media (max-width:560px){ .eg-hero-title .eg-logo{ width:min(330px,88vw); } }
@@ -1722,6 +1733,11 @@
       </span>
     </h1>
     <p class="eg-hero-tagline"><span data-i18n="Miejsce, które otwiera drzwi">Miejsce, które otwiera drzwi</span><br><span data-i18n="To co, zaczynamy przygodę z językiem angielskim?">To co, zaczynamy przygodę z językiem angielskim?</span> 🩷</p>
+    <a class="eg-matura" id="egMatura" href="/matura" target="_top" hidden>
+      <span class="eg-matura-h">Matura</span>
+      <span class="eg-matura-sub" data-i18n="z angielskiego · ćwiczenia jak na egzaminie">z angielskiego · ćwiczenia jak na egzaminie</span>
+      <span class="eg-matura-go"><span data-i18n="Zapraszamy maturzystów">Zapraszamy maturzystów</span> <span aria-hidden="true">→</span></span>
+    </a>
     <div class="eg-blogban" id="egBlogBan">
       <div class="eg-bb-left">
         <h2 class="eg-bb-title"><span data-i18n="Ucz się teorii z blogiem,">Ucz się teorii z blogiem,</span><span data-i18n="wróć tu po ćwiczenia!">wróć tu po ćwiczenia!</span></h2>
@@ -3733,7 +3749,7 @@
     searchInput.focus();
   });
 
-  fetch(SUPA_URL + '/rest/v1/games?published=eq.true&select=slug,title,description,category,level,cover_url,slide_count_label,sort_order,exercise_no,keywords,series,is_premium,for_kids,created_at,published_at&order=sort_order.asc',
+  fetch(SUPA_URL + '/rest/v1/games?published=eq.true&matura=not.is.true&select=slug,title,description,category,level,cover_url,slide_count_label,sort_order,exercise_no,keywords,series,is_premium,for_kids,created_at,published_at&order=sort_order.asc',
     { headers: { apikey: SUPA_KEY, Authorization: 'Bearer ' + SUPA_KEY } })
   .then(function(r){ return r.json(); })
   .then(function(rows){
@@ -4666,6 +4682,26 @@
 </script>
 
 <script>
+(function(){
+  var URL_='https://svjrdyxwqznbzxqeytdn.supabase.co', KEY_='sb_publishable_TNCq1UAMAvLO0Z5Mt8QOig_OvsxhhyJ';
+  // MATURA: napis pod logo pojawia się sam, gdy opublikujesz pierwsze ćwiczenie maturalne
+  fetch(URL_+'/rest/v1/games?published=eq.true&matura=eq.true&select=slug&limit=1',
+    { headers:{ apikey:KEY_, Authorization:'Bearer '+KEY_ } })
+  .then(function(r){ return r.ok ? r.json() : []; })
+  .then(function(rows){
+    if(!rows || !rows.length) return;
+    var a = document.getElementById('egMatura'); if(!a) return;
+    if(!document.getElementById('egMtFont')){
+      var l = document.createElement('link'); l.id = 'egMtFont'; l.rel = 'stylesheet';
+      l.href = 'https://fonts.googleapis.com/css2?family=Playfair+Display:wght@900&display=swap';
+      document.head.appendChild(l);
+    }
+    a.hidden = false;
+  }).catch(function(){});
+})();
+</script>
+
+<script>
 /* RUCHOMY BANER: co 4,5 s nowe hasło + pasująca okładka ćwiczenia. Pauza po najechaniu myszką. */
 (function(){
   var box=document.getElementById('egHpro'); if(!box) return;
@@ -4705,7 +4741,7 @@
   img.onload=function(){ img.style.visibility=''; };
 
   var URL_='https://svjrdyxwqznbzxqeytdn.supabase.co', KEY_='sb_publishable_TNCq1UAMAvLO0Z5Mt8QOig_OvsxhhyJ';
-  fetch(URL_+'/rest/v1/games?published=eq.true&cover_url=not.is.null&select=slug,title,cover_url,category,for_kids,published_at&order=published_at.desc.nullslast',
+  fetch(URL_+'/rest/v1/games?published=eq.true&matura=not.is.true&cover_url=not.is.null&select=slug,title,cover_url,category,for_kids,published_at&order=published_at.desc.nullslast',
     { headers:{ apikey:KEY_, Authorization:'Bearer '+KEY_ } })
   .then(function(r){ return r.ok ? r.json() : []; })
   .then(function(rows){
