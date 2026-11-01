@@ -69,7 +69,7 @@ export default async function MaturaExercisePage({ params }) {
       {jsonLd && <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />}
       <MaturaExercise slug={params.slug} initial={game ? {
         slug: game.slug, title: game.title, learn_text: game.learn_text || '', description: game.description || '',
-        matura_level: game.matura_level, matura_section: game.matura_section, matura_task: game.matura_task, exercise_no: game.exercise_no,
+        matura_level: game.matura_level, matura_section: game.matura_section, matura_task: game.matura_task, exercise_no: game.exercise_no, is_premium: !!game.is_premium,
       } : null} />
     </>
   );
