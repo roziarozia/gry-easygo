@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react';
 import { supabase } from '../../../lib/supabase';
 import GameEmbed from '../../cwiczenie/[slug]/GameEmbed';
 import WritingTask from './WritingTask';
+import OralTask from './OralTask';
 import { sectionOf, taskName, MT_FONTS } from '../maturaData';
 import ThemeToggle, { THEME_CSS, MaturaFooter, FOOTER_CSS } from '../ThemeToggle';
 
@@ -45,14 +46,16 @@ export default function MaturaExercise({ slug, initial }) {
           <a href="/matura" className="mx-home">Matura</a>
           {sec && <><span aria-hidden="true">/</span><a href="/matura">{sec.en}</a></>}
           {task && <><span aria-hidden="true">/</span><span>{task}{game.exercise_no ? `, nr ${game.exercise_no}` : ''}</span></>}
-          <span className="mx-level">{game && game.matura_level === 'ext' ? 'Poziom rozszerzony' : 'Poziom podstawowy'}</span>
+          <span className="mx-level">{game && game.matura_section === 'speaking' ? 'Matura ustna' : game && game.matura_level === 'ext' ? 'Poziom rozszerzony' : 'Poziom podstawowy'}</span>
           <ThemeToggle />
         </nav>
       </div>
 
       {game && game.matura_section === 'writing'
         ? <WritingTask slug={slug} level={game.matura_level} isPremium={!!game.is_premium} />
-        : tried ? <GameEmbed slug={slug} /> : null}
+        : game && game.matura_section === 'speaking'
+          ? <OralTask slug={slug} task={game.matura_task} />
+          : tried ? <GameEmbed slug={slug} /> : null}
 
       <div className="mx-wrap">
         <div className="mx-foot">
