@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react';
 import { supabase } from '../../../lib/supabase';
 import GameEmbed from '../../cwiczenie/[slug]/GameEmbed';
 import { sectionOf, taskName, MT_FONTS } from '../maturaData';
+import ThemeToggle, { THEME_CSS } from '../ThemeToggle';
 
 // Ćwiczenie maturalne: gazetowy nagłówek ze ścieżką, odtwarzacz (sam przełącza się
 // na skórkę maturalną) i przejście do następnego ćwiczenia tego samego typu.
@@ -34,13 +35,14 @@ export default function MaturaExercise({ slug, initial }) {
 
   return (
     <div className="mx">
-      <style dangerouslySetInnerHTML={{ __html: MT_FONTS + CSS }} />
+      <style dangerouslySetInnerHTML={{ __html: MT_FONTS + CSS + THEME_CSS }} />
       <div className="mx-wrap">
         <nav className="mx-crumbs" aria-label="Ścieżka">
           <a href="/matura" className="mx-home">Matura</a>
           {sec && <><span aria-hidden="true">/</span><a href="/matura">{sec.en}</a></>}
           {task && <><span aria-hidden="true">/</span><span>{task}{game.exercise_no ? `, nr ${game.exercise_no}` : ''}</span></>}
           <span className="mx-level">{game && game.matura_level === 'ext' ? 'Poziom rozszerzony' : 'Poziom podstawowy'}</span>
+          <ThemeToggle />
         </nav>
       </div>
 
@@ -77,5 +79,14 @@ body{ margin:0; background:#fbfaf6; }
 .mx-next:hover{ background:#b13a7e; }
 .mx-learn{ margin-top:22px; background:#fff; border:1px solid #ebe6dc; border-radius:20px; padding:18px 22px; font-size:16px; line-height:1.6; color:#4f4959; }
 .mx-learn-k{ font-family:'Playfair Display',Georgia,serif; font-style:italic; font-size:18px; color:#1d1a22; }
+html.eg-dark body{ background:#1a1b26; }
+html.eg-dark .mx{ background:#1a1b26; color:#e8e6ef; }
+html.eg-dark .mx a, html.eg-dark .mx-home{ color:#e8e6ef !important; }
+html.eg-dark .mx-crumbs{ border-color:#e8e6ef; color:#a29caf; }
+html.eg-dark .mx-crumbs a{ color:#a29caf !important; }
+html.eg-dark .mx-level{ background:#3a2034; color:#f08cc4; }
+html.eg-dark .mx-next{ color:#fff !important; }
+html.eg-dark .mx-learn{ background:#24263a; border-color:#363850; color:#c4bfcf; }
+html.eg-dark .mx-learn-k{ color:#e8e6ef; }
 @media (max-width:600px){ .mx-level{ margin-left:0; } }
 `;
