@@ -55,3 +55,38 @@ export const THEME_CSS = `
 html.eg-dark .mt-theme{ background:#24263a; border-color:#4a4c66; color:#e8e6ef; }
 html.eg-dark .mt-theme:hover{ border-color:#f08cc4; color:#f08cc4; }
 `;
+
+// Stopka części maturalnej (ta sama na /matura i na stronach ćwiczeń).
+export function MaturaFooter() {
+  return (
+    <footer className="mt-foot">
+      <a href="/" className="mt-foot-logo"><span style={{ color: '#ca4490' }}>Easy</span><span style={{ color: '#c8930f' }}>Wonders</span></a>
+      <nav className="mt-foot-links" aria-label="Stopka">
+        <a href="/">Ćwiczenia</a>
+        <a href="/nauka">Blog</a>
+        <a href="/regulamin">Regulamin</a>
+        <a href="/polityka-prywatnosci">Polityka prywatności</a>
+        <a href="mailto:info@easygo-english.pl">Kontakt</a>
+      </nav>
+      <p className="mt-foot-note">Masz pytanie albo coś nie działa? Napisz do nas: <a href="mailto:info@easygo-english.pl">info@easygo-english.pl</a></p>
+      <p className="mt-foot-copy">© {new Date().getFullYear()} EasyWonders</p>
+    </footer>
+  );
+}
+
+export const FOOTER_CSS = `
+.mt-foot{ max-width:1080px; margin:48px auto 0; padding:28px 24px 36px; border-top:1px solid #e3ddd1; text-align:center; font-family:'Outfit',sans-serif; }
+.mt-foot-logo{ display:inline-block; font-weight:700; font-size:20px; letter-spacing:-.5px; text-decoration:none; }
+.mt-foot-links{ display:flex; flex-wrap:wrap; justify-content:center; gap:8px 22px; margin-top:14px; font-size:14.5px; font-weight:500; }
+.mt-foot-links a{ color:#5b5566 !important; text-decoration:none; }
+.mt-foot-links a:hover{ color:#ca4490 !important; }
+.mt-foot-note{ margin:16px 0 0; font-size:13.5px; color:#7a7385; }
+.mt-foot-note a{ color:#ca4490 !important; font-weight:600; text-decoration:none; }
+.mt-foot-copy{ margin:8px 0 0; font-size:12.5px; color:#a49dad; }
+html.eg-dark .mt-foot{ border-color:#363850; }
+html.eg-dark .mt-foot-links a{ color:#a29caf !important; }
+html.eg-dark .mt-foot-note{ color:#a29caf; }
+html.eg-dark .mt-foot-note a{ color:#f08cc4 !important; }
+html.eg-dark .mt-foot-copy{ color:#6f6a80; }
+@media (max-width:600px){ .mt-foot{ padding:24px 16px 32px; } }
+`;
