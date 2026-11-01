@@ -1,7 +1,7 @@
 'use client';
 import { useEffect, useMemo, useState } from 'react';
 import { supabase } from '../../lib/supabase';
-import { SECTIONS, TASKS, daysToExam, MT_FONTS } from './maturaData';
+import { SECTIONS, TASKS, BOTH_LEVELS, daysToExam, MT_FONTS } from './maturaData';
 import ThemeToggle, { THEME_CSS, MaturaFooter, FOOTER_CSS } from './ThemeToggle';
 
 // Strona /matura — gazetowy „spis treści” ćwiczeń maturalnych.
@@ -22,6 +22,8 @@ export default function MaturaHub() {
   const [viewing, setViewing] = useState(null); // {id, name} albo null
   const [vDone, setVDone] = useState({});
   const [vHw, setVHw] = useState({});
+  const [vWr, setVWr] = useState({}); // slug -> {status, score, max} — wypracowania oglądanego ucznia
+  const [pending, setPending] = useState({}); // studentId -> liczba wypracowań do sprawdzenia
   const [tkOpen, setTkOpen] = useState(false);
   const [toast, setToast] = useState('');
   const [busy, setBusy] = useState('');
@@ -77,6 +79,13 @@ export default function MaturaHub() {
       .sort((a, b) => a.name.localeCompare(b.name));
     const gs = (gr.data || []).map((x) => ({ id: x.id, name: x.name })).sort((a, b) => a.name.localeCompare(b.name));
     setStudents(st); setGroups(gs);
+    // wypracowania oddane do sprawdzenia (RLS: lektor widzi tylko swoich uczniów)
+    try {
+      const ws = await supabase.from('writing_submissions').select('user_id').eq('status', 'submitted');
+      const pc = {};
+      (ws.data || []).forEach((w) => { pc[w.user_id] = (pc[w.user_id] || 0) + 1; });
+      setPending(pc);
+    } catch (e) {}
     try {
       const sv = JSON.parse(sessionStorage.getItem('egSvViewing') || 'null');
       const s = sv && st.find((x) => x.id === sv.id);
@@ -86,21 +95,24 @@ export default function MaturaHub() {
 
   async function enterView(s) {
     setTkOpen(false);
-    const [gc, hw] = await Promise.all([
+    const [gc, hw, wr] = await Promise.all([
       supabase.from('game_completions').select('game_slug,score,score_max,completed_at').eq('user_id', s.id),
       supabase.from('homework').select('game_slug,completed_at').eq('student_id', s.id),
+      supabase.from('writing_submissions').select('game_slug,status,score,score_max').eq('user_id', s.id),
     ]);
     if (gc.error || hw.error) { showToast('Nie udało się wczytać postępów ucznia. Spróbuj ponownie.'); return; }
     const d = {};
     (gc.data || []).forEach((c) => { d[c.game_slug] = { score: c.score, max: c.score_max, at: c.completed_at }; });
     const h = {};
     (hw.data || []).forEach((r) => { h[r.game_slug] = r.completed_at || true; });
-    setVDone(d); setVHw(h); setViewing({ id: s.id, name: s.name });
+    const w = {};
+    (wr.data || []).forEach((r) => { w[r.game_slug] = { status: r.status, score: r.score, max: r.score_max }; });
+    setVDone(d); setVHw(h); setVWr(w); setViewing({ id: s.id, name: s.name });
     try { sessionStorage.setItem('egSvViewing', JSON.stringify({ id: s.id, name: s.name })); } catch (e) {}
   }
 
   function exitView() {
-    setViewing(null); setVDone({}); setVHw({}); setTkOpen(false);
+    setViewing(null); setVDone({}); setVHw({}); setVWr({}); setTkOpen(false);
     try { sessionStorage.removeItem('egSvViewing'); } catch (e) {}
   }
 
@@ -135,11 +147,13 @@ export default function MaturaHub() {
   }
 
   const locked = (g) => g.is_premium && access !== 'full';
+  // Matura ustna nie ma poziomów — jej zadania widać przy podstawie i przy rozszerzeniu.
+  const onLevel = (g) => g.matura_level === level || BOTH_LEVELS.includes(g.matura_section);
 
   // Ćwiczenia pogrupowane: dział -> typ zadania -> lista (wg numeru)
   const grouped = useMemo(() => {
     const out = {};
-    games.filter((g) => g.matura_level === level).forEach((g) => {
+    games.filter(onLevel).forEach((g) => {
       out[g.matura_section] = out[g.matura_section] || {};
       (out[g.matura_section][g.matura_task] = out[g.matura_section][g.matura_task] || []).push(g);
     });
@@ -153,7 +167,7 @@ export default function MaturaHub() {
 
   // „Twoje następne ćwiczenie”: kontynuacja typu, który uczeń robił ostatnio; inaczej pierwsze darmowe.
   const nextUp = useMemo(() => {
-    const mine = games.filter((g) => g.matura_level === level && done[g.slug])
+    const mine = games.filter((g) => onLevel(g) && done[g.slug])
       .sort((a, b) => String(done[b.slug].at).localeCompare(String(done[a.slug].at)));
     if (mine.length) {
       const last = mine[0];
@@ -173,7 +187,7 @@ export default function MaturaHub() {
     return null;
   }, [games, grouped, done, level, access]);
 
-  const mat = games.filter((g) => g.matura_level === level);
+  const mat = games.filter(onLevel);
   const doneCount = mat.filter((g) => done[g.slug]).length;
   const drafts = isAdmin ? games.filter((g) => !g.published).length : 0;
 
@@ -201,7 +215,9 @@ export default function MaturaHub() {
             {teacherId && (students.length > 0 || groups.length > 0) && (
               <div className={'mt-tk' + (tkOpen ? ' open' : '')}>
                 <button type="button" className="mt-tk-btn" aria-expanded={tkOpen} onClick={() => setTkOpen(!tkOpen)}>
-                  <TeczkaIcon />Teczka uczniów<span className="mt-tk-caret" aria-hidden="true">▾</span>
+                  <TeczkaIcon />Teczka uczniów
+                  {Object.values(pending).reduce((a, b) => a + b, 0) > 0 && <span className="mt-tk-dot" title="Wypracowania do sprawdzenia">{Object.values(pending).reduce((a, b) => a + b, 0)}</span>}
+                  <span className="mt-tk-caret" aria-hidden="true">▾</span>
                 </button>
                 {tkOpen && (
                   <div className="mt-tk-panel">
@@ -213,7 +229,7 @@ export default function MaturaHub() {
                         <div key={gr.id}>
                           <div className="mt-tk-group">{gr.name} · {mem.length} uczn.</div>
                           {mem.length === 0 && <div className="mt-tk-empty">Brak uczniów w grupie</div>}
-                          {mem.map((x) => <StudentItem key={x.id} s={x} active={viewing && viewing.id === x.id} onPick={enterView} />)}
+                          {mem.map((x) => <StudentItem key={x.id} s={x} pending={pending[x.id]} active={viewing && viewing.id === x.id} onPick={enterView} />)}
                         </div>
                       );
                     })}
@@ -223,7 +239,7 @@ export default function MaturaHub() {
                       return (
                         <div>
                           <div className="mt-tk-group">{groups.length ? 'Bez grupy' : 'Uczniowie'}</div>
-                          {rest.map((x) => <StudentItem key={x.id} s={x} active={viewing && viewing.id === x.id} onPick={enterView} />)}
+                          {rest.map((x) => <StudentItem key={x.id} s={x} pending={pending[x.id]} active={viewing && viewing.id === x.id} onPick={enterView} />)}
                         </div>
                       );
                     })()}
@@ -309,12 +325,15 @@ export default function MaturaHub() {
         </div>
 
         <div className="mt-grid">
-          {SECTIONS.map((s, si) => {
+          {[['listening', 'use'], ['reading', 'writing', 'speaking']].map((col, ci) => (
+          <div className="mt-col" key={ci}>
+          {SECTIONS.filter((s) => col.includes(s.id)).sort((a, b) => col.indexOf(a.id) - col.indexOf(b.id)).map((s) => {
+            const si = SECTIONS.indexOf(s);
             const types = (TASKS[level][s.id] || []).filter(([t]) => ((grouped[s.id] || {})[t] || []).length);
             const all = types.flatMap(([t]) => grouped[s.id][t]);
             const d = all.filter((g) => done[g.slug]).length;
             return (
-              <section className={'mt-box mt-box-' + s.id} key={s.id}>
+              <section className={'mt-box mt-box-' + s.id} key={s.id} style={{ order: si }}>
                 <div className="mt-box-head">
                   <div>
                     <div className="mt-num">0{si + 1}</div>
@@ -338,6 +357,7 @@ export default function MaturaHub() {
                           <span className="mt-bar"><span style={{ width: Math.round((100 * dd) / list.length) + '%' }} /></span>
                           <span>{dd} z {list.length}</span>
                           {list.some((g) => hwMap[g.slug]) && <span className="mt-hw-pill">praca domowa: {list.filter((g) => hwMap[g.slug]).length}</span>}
+                          {viewing && list.some((g) => vWr[g.slug] && vWr[g.slug].status === 'submitted') && <span className="mt-due-pill">do sprawdzenia: {list.filter((g) => vWr[g.slug] && vWr[g.slug].status === 'submitted').length}</span>}
                           <button type="button" className="mt-link" onClick={() => { setDrawer({ section: s.id, task }); setFilter('all'); }}>lista</button>
                         </div>
                       </div>
@@ -350,6 +370,8 @@ export default function MaturaHub() {
               </section>
             );
           })}
+          </div>
+          ))}
         </div>
 
         <div className="mt-tip">
@@ -387,7 +409,11 @@ export default function MaturaHub() {
                       <div className="mt-vmain">
                         <div className="mt-vtitle">{g.title}</div>
                         <div className="mt-vmeta">
-                          {r ? (r.max ? <span className="mt-vscore">{r.score}/{r.max} · {pct}%</span> : <span className="mt-vscore">zrobione</span>) : <span>jeszcze nie zrobione</span>}
+                          {vWr[g.slug] ? (
+                            vWr[g.slug].status === 'graded' ? <span className="mt-vscore">oceniono: {vWr[g.slug].score}/{vWr[g.slug].max}</span>
+                              : vWr[g.slug].status === 'submitted' ? <span className="mt-due-pill">do sprawdzenia</span>
+                                : <span>uczeń jeszcze pisze (szkic)</span>
+                          ) : r ? (r.max ? <span className="mt-vscore">{r.score}/{r.max} · {pct}%</span> : <span className="mt-vscore">zrobione</span>) : <span>jeszcze nie zrobione</span>}
                           {hwv && hwv !== true && <span>· praca domowa zrobiona {new Date(hwv).toLocaleDateString('pl-PL')}</span>}
                           {!g.published && <span>· szkic</span>}
                         </div>
@@ -447,11 +473,12 @@ export default function MaturaHub() {
   );
 }
 
-function StudentItem({ s, active, onPick }) {
+function StudentItem({ s, active, onPick, pending }) {
   const ini = (s.name || '?').trim().split(/\s+/).map((w) => w[0] || '').join('').slice(0, 2).toUpperCase();
   return (
     <button type="button" className={'mt-tk-item' + (active ? ' on' : '')} onClick={() => onPick(s)}>
       <span className="mt-tk-av">{ini}</span>{s.name}
+      {pending > 0 && <span className="mt-tk-due" title="Wypracowania do sprawdzenia">{pending} do sprawdzenia</span>}
     </button>
   );
 }
@@ -518,11 +545,19 @@ body{ margin:0; background:#fbfaf6; }
 .mt-toggle{ display:flex; background:#f0ece4; border-radius:12px; padding:4px; gap:4px; }
 .mt-toggle button{ border:none; cursor:pointer; padding:0 18px; min-height:40px; border-radius:9px; font-family:'Outfit',sans-serif; font-size:15px; font-weight:500; background:transparent; color:#5b5566; }
 .mt-toggle button.on{ background:#fff; color:#1d1a22; font-weight:700; box-shadow:0 2px 8px rgba(29,26,34,.08); }
-.mt-grid{ display:grid; grid-template-columns:repeat(auto-fit, minmax(min(100%, 380px), 1fr)); gap:20px; align-items:start; }
+.mt-grid{ display:grid; grid-template-columns:1fr 1fr; gap:20px; align-items:start; }
+.mt-col{ display:flex; flex-direction:column; gap:20px; min-width:0; }
+@media (max-width:820px){ .mt-grid{ display:flex; flex-direction:column; } .mt-col{ display:contents; } }
+.mt-due-pill{ font-size:12px; font-weight:700; color:#fff; background:#ca4490; padding:3px 9px; border-radius:999px; }
+.mt-tk-due{ margin-left:auto; font-size:11.5px; font-weight:700; color:#fff; background:#ca4490; padding:2px 8px; border-radius:999px; white-space:nowrap; }
+.mt-tk-dot{ display:inline-flex; align-items:center; justify-content:center; min-width:20px; height:20px; padding:0 6px; margin-left:4px; border-radius:999px; background:#ca4490; color:#fff; font-size:11.5px; font-weight:700; }
+html.eg-dark .mt-box-speaking::before{ background:#e8e6ef; }
 .mt-box{ position:relative; background:#fff; border:1px solid #ebe6dc; border-radius:20px; padding:24px 24px 10px; min-width:0; overflow:hidden; }
 .mt-box::before{ content:''; position:absolute; left:0; right:0; top:0; height:5px; background:#ca4490; }
 .mt-box-reading::before{ background:#a78dd9; }
 .mt-box-use::before{ background:#e0a91c; }
+.mt-box-writing::before{ background:#1e7e50; }
+.mt-box-speaking::before{ background:#1d1a22; }
 .mt-box-head{ display:flex; align-items:flex-end; justify-content:space-between; gap:12px; padding-bottom:14px; border-bottom:1px solid #efeae1; }
 .mt-num{ font-size:13px; font-weight:700; letter-spacing:1.5px; color:#a49dad; margin-bottom:2px; }
 .mt-box-head h3{ margin:0; font-family:'Playfair Display',Georgia,serif; font-weight:800; font-size:30px; line-height:1.05; letter-spacing:-.4px; }
