@@ -38,7 +38,38 @@ export default function PanelLektora() {
       s.textContent = code;
       document.body.appendChild(s);
     }
-    if(window.supabase){ runPanel(); }
+    // PODGLĄD DLA ODWIEDZAJĄCYCH (?demo=1): ten sam panel, ale na przykładowych danych z /demo-panelu-dane.js
+    // (nic nie jest zapisywane w bazie, nikt nie dostaje maili). Dzięki temu podgląd zawsze wygląda jak aktualny panel.
+    var demo = false;
+    try{ demo = new URLSearchParams(window.location.search).get('demo') === '1'; }catch(e){}
+    if(demo){
+      var dcss = document.createElement('style');
+      dcss.id = 'panel-lektora-demo-css';
+      dcss.textContent =
+        '.topbar{display:none !important}' +
+        '.eg-demo-pasek{background:#f6f1ae;color:#2e2a33;text-align:center;font-family:Nunito,sans-serif;font-size:13.5px;font-weight:700;line-height:1.5;padding:10px 16px;border-bottom:1.5px solid #e9e2a0}' +
+        '.eg-demo-pasek a{color:#ca4490;text-decoration:underline;margin-left:6px;white-space:nowrap}' +
+        'html.eg-dark .eg-demo-pasek{background:#3d3a1f;color:#f3eec2;border-bottom-color:#55502a}' +
+        'html.eg-dark .eg-demo-pasek a{color:#f08cc4}';
+      document.head.appendChild(dcss);
+      if(mount){
+        var pasek = document.createElement('div');
+        pasek.className = 'eg-demo-pasek';
+        pasek.innerHTML = 'Podgląd z przykładowymi uczniami. Możesz wszystko klikać, ale nic nie jest zapisywane i nikt nie dostaje maili.' +
+          '<a href="/logowanie?rejestracja&rola=lektor" target="_top">Załóż konto - 14 dni za darmo</a>';
+        mount.insertBefore(pasek, mount.firstChild);
+        // logo i linki nie wyprowadzają z podglądu
+        mount.querySelectorAll('a[href="/"]').forEach(function(a){ a.addEventListener('click', function(ev){ ev.preventDefault(); }); });
+      }
+      if(!window.EG_DEMO_START){
+        window.EG_DEMO_START = true;
+        var dm = document.createElement('script');
+        dm.src = '/demo-panelu-dane.js?v=1';
+        dm.onload = runPanel;
+        document.head.appendChild(dm);
+      }
+    }
+    else if(window.supabase){ runPanel(); }
     else {
       var sc = document.createElement('script');
       sc.src = 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2';
@@ -50,6 +81,8 @@ export default function PanelLektora() {
     return function(){
       var s1 = document.getElementById('panel-lektora-css');
       if(s1) s1.remove();
+      var s2 = document.getElementById('panel-lektora-demo-css');
+      if(s2) s2.remove();
     };
   }, []);
 
