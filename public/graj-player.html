@@ -144,6 +144,7 @@
   }
   .ls-head{ text-align:center; margin-bottom:6px; }
   .ls-title{ font-family:'Quicksand',sans-serif; font-weight:700; font-size:clamp(20px,2.6vw,26px); color:var(--ink); margin:0 0 4px; }
+  .eg-src{ font-size:12px; line-height:1.5; color:var(--muted); margin:10px 0 0; text-align:left; }
   .ls-hint{ font-size:11.5px; color:var(--muted); margin:0 0 18px; text-align:center; }
   .ls-audio{ width:100%; margin:0 0 6px; border-radius:12px; }
   /* natywny odtwarzacz jest jasny — w trybie ciemnym przyciemniamy go filtrem,
@@ -2075,6 +2076,7 @@
       <div class="gap-box hidden" id="agBox"></div>
       <div class="reading-img ag-img" id="agImg" style="display:none"><img id="agImgTag" alt=""></div>
       <div class="reading-text ag-text" id="agText"></div>
+      <div id="agSrc"></div>
       <div class="ag-expl hidden" id="agExpl"></div>
       <div class="nav" id="agNav">
         <button class="btn" id="agCheck" data-i18n="Sprawdź">Sprawdź</button>
@@ -3082,6 +3084,13 @@ function matOpenOk(q, val){
   return String(q.options[0] || '').split('|').some(function(a){ return matNorm(a) === v && v !== ''; });
 }
 
+// Źródła tekstu („Na podstawie: …”) – jak w arkuszu CKE: małym szarym drukiem, bez klikalnych linków
+function egSrcHtml(){
+  var src = String((GAME && GAME.sources) || '').trim();
+  if(!src) return '';
+  return '<p class="eg-src">' + (window.EG_LANG === 'en' ? 'Based on: ' : 'Na podstawie: ') + escapeHtml(src) + '</p>';
+}
+
 function startListening(){
   lsWybor = {};
   show(listeningSec);
@@ -3110,7 +3119,7 @@ function startListening(){
     if(matRead){
       lsText.innerHTML = LISTENING.map(function(l){
         return '<div class="mat-para">' + (l.speaker ? '<span class="mat-plabel">' + escapeHtml(l.speaker) + '</span>' : '') + '<div class="mat-ptext">' + escapeHtml(l.text) + '</div></div>';
-      }).join('');
+      }).join('') + egSrcHtml();
       lsText.classList.remove('hidden');
     } else { lsText.innerHTML = ''; lsText.classList.add('hidden'); }
   }
@@ -3229,7 +3238,7 @@ function sprawdzListening(){
     document.getElementById('lsScript').innerHTML =
       '<p class="ls-script-h" data-i18n="Transkrypcja">Transkrypcja</p>' + (GAME.matura ? matTranskrypcja() : LISTENING.map(function(l){
         return '<div class="ls-line"><span class="ls-who">' + escapeHtml(l.speaker) + ':</span> ' + escapeHtml(l.text) + '</div>';
-      }).join(''));
+      }).join('')) + egSrcHtml();
   }
 
   // chowamy przycisk sprawdzania, pokazujemy porzadne zakonczenie z wyjsciem
@@ -3774,6 +3783,7 @@ function startArtgap(){
   // zbuduj tekst: łączymy wszystkie akapity (GAPS), zamieniając _ na pola input
   var textEl = document.getElementById('agText');
   textEl.innerHTML = '';
+  var agSrc = document.getElementById('agSrc'); if(agSrc) agSrc.innerHTML = egSrcHtml();
   var globalIdx = 0;
   var rawGaps = (GAME.gaps || []).slice().sort(function(a,b){ return a.position - b.position; });
   // obrazek w treści (z pierwszego akapitu, który go ma)
