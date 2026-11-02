@@ -299,6 +299,7 @@
         <div class="field"><label>Opis (krótki, pod tytułem)</label><textarea id="fDesc"></textarea></div>
         <div class="field"><label>Tytuł dla Google <span class="hint-i">po polsku, tak jak ludzie szukają, maks. ok. 58 znaków · widać go tylko w Google i na karcie przeglądarki</span></label><input type="text" id="fSeoTitle" placeholder="Czasowniki statyczne (stative verbs) – ćwiczenia B1"><div id="seoCount" style="font-size:12px; color:var(--muted); margin-top:4px;">0 znaków</div></div>
         <div class="field"><label>Czego się nauczysz (opis dla Google) <span class="hint-i">2–3 zdania, ok. 250–400 znaków · widać go pod ćwiczeniem i w wynikach Google</span></label><textarea id="fLearn" style="min-height:96px;" placeholder="Poznasz 15 zwrotów o…, np. … Czytasz definicję i wpisujesz pasujące słowo… Przyda się…"></textarea><div id="learnCount" style="font-size:12px; color:var(--muted); margin-top:4px;">0 znaków</div></div>
+        <div class="field"><label>Źródła tekstu <span class="hint-i">np. www.nps.gov, www.britannica.com · pokazują się pod tekstem (lub pod transkrypcją) jako „Na podstawie: …”, małym szarym drukiem · zostaw puste, jeśli tekst jest wymyślony</span></label><input type="text" id="fSources" placeholder="www.nps.gov, www.britannica.com"></div>
 
         <details class="kw-box">
           <summary>Słowa do wyszukiwarki (opcjonalnie)</summary>
@@ -1392,7 +1393,7 @@
     $('fTitle').value=''; $('fSlug').value=''; $('fTemplate').value='gap-fill'; $('fCat').value='gramatyka'; $('fLevel').value='';
     $('fSeries').value=''; $('fExNo').value='1'; $('fInstruction').value=''; $('fDesc').value='';
     $('fBg').value=''; $('fSlideLabel').value='';
-    $('fKeywords').value=''; $('fSort').value='0'; $('fLearn').value=''; updLearnCount(); $('fSeoTitle').value=''; updSeoCount();
+    $('fKeywords').value=''; $('fSort').value='0'; $('fLearn').value=''; updLearnCount(); $('fSources').value=''; $('fSeoTitle').value=''; updSeoCount();
     $('fPremium').checked=false; $('fKids').checked=false; $('fPub').checked=false;
     setMatura(false,'basic','use','');
     wFill({}); oFill({});
@@ -1426,6 +1427,7 @@
       $('fInstruction').value=a.instruction||''; $('fDesc').value=a.description||'';
       $('fKeywords').value=a.keywords||''; $('fSort').value=a.sort_order||0;
       $('fLearn').value=a.learn_text||''; updLearnCount();
+      $('fSources').value=a.sources||'';
       $('fSeoTitle').value=a.seo_title||''; updSeoCount();
       $('fPremium').checked=!!a.is_premium; $('fKids').checked=!!a.for_kids; $('fPub').checked=!!a.published;
       setMatura(!!a.matura, a.matura_level, a.matura_section, a.matura_task);
@@ -1703,6 +1705,7 @@
       instruction:$('fInstruction').value.trim()||null,
       keywords:$('fKeywords').value.trim(),
       learn_text:typo($('fLearn').value)||null,
+      sources:$('fSources').value.trim()||null,
       seo_title:typo($('fSeoTitle').value).replace(/\.$/,'')||null,
       sort_order:parseInt($('fSort').value,10)||0,
       is_premium:$('fPremium').checked, for_kids:$('fKids').checked,
