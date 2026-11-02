@@ -1652,6 +1652,15 @@
   html.mat .ls-title{ font-size:clamp(24px,3vw,32px) !important; }
   html.mat .ls-q-prompt{ font-family:'Outfit',sans-serif !important; font-weight:600; font-size:17px; }
   html.mat .ls-opt{ font-family:'Outfit',sans-serif; font-size:15.5px; border-radius:12px; }
+  /* MATURA: krótkie odpowiedzi w jednym rzędzie (mniej przewijania) */
+  .mat-hopts{ display:flex; flex-wrap:wrap; gap:8px; }
+  .mat-hopts .ls-opt{ align-items:center; gap:7px; padding:7px 13px; border:1.5px solid var(--line); background:var(--card, #fff); }
+  .mat-hopts .ls-opt input{ margin-top:0; }
+  .mat-hlet{ font-weight:700; color:var(--magenta); margin-right:6px; }
+  .mat-hopts .ls-opt:has(input:checked){ border-color:var(--magenta); background:rgba(202,68,144,.08); }
+  .ls-q.mat-short{ padding:12px 0 6px; }
+  .ls-q.mat-short .ls-q-prompt{ margin:0 0 8px; }
+  html.eg-dark .mat-hopts .ls-opt{ background:transparent; }
   html.mat .ls-opt.ok{ background:#eef7f1; border-color:#2f7a52; }
   html.mat .ls-opt.bad{ background:#fbefed; border-color:#e3b3ad; }
   html.mat .ls-explain{ font-family:'Outfit',sans-serif; border-left-color:#ca4490; }
@@ -3144,13 +3153,21 @@ function startListening(){
       if(lsTx[1] !== lsGrupa){ lsNag = '<div class="mat-tgroup">' + escapeHtml(lsTx[1]) + '</div>'; lsGrupa = lsTx[1]; }
       q = Object.assign({}, q, { prompt: String(q.prompt).slice(lsTx[0].length) });
     }
-    const opts = (Array.isArray(q.options) ? q.options : []).map(function(o, j){
+    // MATURA: krótkie odpowiedzi (np. luki „up / across / over / through”) obok siebie, z literami A–D jak w arkuszu
+    var lsOpcje = Array.isArray(q.options) ? q.options : [];
+    var lsKrotkie = GAME.matura && lsOpcje.length > 1 && lsOpcje.every(function(o){ return String(o).length <= 24; });
+    const opts = lsOpcje.map(function(o, j){
       return '<label class="ls-opt" data-q="' + i + '" data-o="' + j + '">'
            + '<input type="radio" name="lsq' + i + '" value="' + j + '">'
-           + '<span>' + escapeHtml(o) + '</span></label>';
+           + '<span>' + (lsKrotkie ? '<b class="mat-hlet">' + String.fromCharCode(65 + j) + '</b>' : '') + escapeHtml(o) + '</span></label>';
     }).join('');
     var lsPr = String(q.prompt || '').replace(/^\s*\d+[.)]\s+/, '');
-    return lsNag + '<div class="ls-q"><p class="ls-q-prompt">' + ((GAME.matura && /^(Luka|Gap)\s*\d+/i.test(lsPr)) ? '' : (i+1) + '. ') + escapeHtml(lsPr) + '</p>'
+    var lsNr = (GAME.matura && /^(Luka|Gap)\s*\d+/i.test(lsPr)) ? '' : (i+1) + '. ';
+    if(lsKrotkie){
+      return lsNag + '<div class="ls-q mat-short"><p class="ls-q-prompt">' + lsNr + escapeHtml(lsPr) + '</p>'
+           + '<div class="mat-hopts">' + opts + '</div><p class="ls-explain hidden" id="lsExp' + i + '"></p></div>';
+    }
+    return lsNag + '<div class="ls-q"><p class="ls-q-prompt">' + lsNr + escapeHtml(lsPr) + '</p>'
          + opts + '<p class="ls-explain hidden" id="lsExp' + i + '"></p></div>';
   }).join('');
   }
