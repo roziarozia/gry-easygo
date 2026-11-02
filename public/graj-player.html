@@ -3165,9 +3165,9 @@ function startListening(){
       if(lsTx[1] !== lsGrupa){ lsNag = '<div class="mat-tgroup">' + escapeHtml(lsTx[1]) + '</div>'; lsGrupa = lsTx[1]; }
       q = Object.assign({}, q, { prompt: String(q.prompt).slice(lsTx[0].length) });
     }
-    // MATURA: krótkie odpowiedzi (np. luki „up / across / over / through”) obok siebie, z literami A–D jak w arkuszu
+    // MATURA: krótkie odpowiedzi (do ok. 45 znaków, np. „would never have happened”) obok siebie, z literami A–D jak w arkuszu
     var lsOpcje = Array.isArray(q.options) ? q.options : [];
-    var lsKrotkie = GAME.matura && lsOpcje.length > 1 && lsOpcje.every(function(o){ return String(o).length <= 24; });
+    var lsKrotkie = GAME.matura && lsOpcje.length > 1 && lsOpcje.every(function(o){ return String(o).length <= 45; });
     // MATURA: dłuższe odpowiedzi w tym samym stylu (ramka + litera), tylko jedna pod drugą
     var lsMatOpt = GAME.matura && lsOpcje.length > 1;
     const opts = lsOpcje.map(function(o, j){
