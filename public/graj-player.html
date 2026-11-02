@@ -3732,10 +3732,22 @@ function showSpeakEnd(){
 let rIdx = 0;
 /* ===== ARTICLE-GAP: tekst z lukami (przedimki) ===== */
 var agInputs = [];   // pola input w kolejności
+// luka rośnie razem z wpisanym słowem: mierzymy prawdziwą szerokość tekstu w foncie pola
+// (stałe „10 px na literę” było za mało przy większym foncie, np. w maturze)
+var agMeasureCv = null;
 function agFitInput(inp){
-  var len = (inp.value || '').length;
-  var w = Math.max(76, 20 + len * 10);
-  inp.style.width = Math.min(w, 220) + 'px';
+  var txt = inp.value || '';
+  var cs = window.getComputedStyle(inp);
+  var w = 0;
+  try{
+    agMeasureCv = agMeasureCv || document.createElement('canvas');
+    var ctx = agMeasureCv.getContext('2d');
+    ctx.font = cs.fontWeight + ' ' + cs.fontSize + ' ' + cs.fontFamily;
+    w = ctx.measureText(txt).width;
+  }catch(e){ w = txt.length * parseFloat(cs.fontSize || 16) * 0.62; }
+  var pad = (parseFloat(cs.paddingLeft) || 0) + (parseFloat(cs.paddingRight) || 0) + (parseFloat(cs.borderLeftWidth) || 0) + (parseFloat(cs.borderRightWidth) || 0) + 14;
+  var maxW = (inp.parentElement && inp.parentElement.clientWidth) ? inp.parentElement.clientWidth - 8 : 600;
+  inp.style.width = Math.min(Math.max(76, Math.ceil(w + pad)), maxW) + 'px';
 }
 var agAnswers = [];  // poprawne odpowiedzi w kolejności
 var agChecked = false;
