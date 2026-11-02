@@ -23,7 +23,9 @@ export const TASKS = {
   basic: {
     listening: [['l_match', 'Dobieranie wypowiedzi do zdań'], ['l_mc', 'Wybór wielokrotny'], ['l_notes', 'Uzupełnianie luk w notatce']],
     reading: [['r_headings', 'Dobieranie nagłówków'], ['r_texts', 'Dobieranie tekstów do zdań'], ['r_mc', 'Wybór wielokrotny'], ['r_gaps', 'Wstawianie zdań w luki']],
-    use: [['u_dialogues', 'Minidialogi'], ['u_paraphrase', 'Znaczenie fragmentu zdania'], ['u_twosent', 'Jedno słowo do dwóch zdań'], ['u_box', 'Wyrazy z ramki'], ['u_onegap', 'Luki: jeden wyraz'], ['u_transform', 'Przekształcenia zdań']],
+    // kolejność jak w arkuszu CKE (maj 2026): minidialogi, znaczenie fragmentu, wyrazy z ramki, przekształcenia;
+    // dwa typy spoza arkusza 2026 na końcu
+    use: [['u_dialogues', 'Minidialogi'], ['u_paraphrase', 'Znaczenie fragmentu zdania'], ['u_box', 'Wyrazy z ramki'], ['u_transform', 'Przekształcenia zdań'], ['u_twosent', 'Jedno słowo do dwóch zdań'], ['u_onegap', 'Luki: jeden wyraz']],
     writing: [['w_email', 'E-mail'], ['w_blog', 'Wpis na blogu']],
     speaking: ORAL,
   },
