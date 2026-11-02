@@ -1657,6 +1657,9 @@
   .mat-hopts{ display:flex; flex-wrap:wrap; gap:8px; }
   .mat-hopts .ls-opt{ align-items:center; gap:7px; padding:7px 13px; border:1.5px solid var(--line); background:var(--card, #fff); }
   .mat-hopts .ls-opt input{ margin-top:0; }
+  .mat-hopts.mat-vopts{ flex-direction:column; align-items:flex-start; }
+  .mat-hopts.mat-vopts .ls-opt{ align-items:flex-start; }
+  .mat-hopts.mat-vopts .ls-opt input{ margin-top:4px; }
   .mat-hlet{ font-weight:700; color:var(--magenta); margin-right:6px; }
   .mat-hopts .ls-opt:has(input:checked){ border-color:var(--magenta); background:rgba(202,68,144,.08); }
   .ls-q.mat-short{ padding:12px 0 6px; }
@@ -3165,16 +3168,18 @@ function startListening(){
     // MATURA: krótkie odpowiedzi (np. luki „up / across / over / through”) obok siebie, z literami A–D jak w arkuszu
     var lsOpcje = Array.isArray(q.options) ? q.options : [];
     var lsKrotkie = GAME.matura && lsOpcje.length > 1 && lsOpcje.every(function(o){ return String(o).length <= 24; });
+    // MATURA: dłuższe odpowiedzi w tym samym stylu (ramka + litera), tylko jedna pod drugą
+    var lsMatOpt = GAME.matura && lsOpcje.length > 1;
     const opts = lsOpcje.map(function(o, j){
       return '<label class="ls-opt" data-q="' + i + '" data-o="' + j + '">'
            + '<input type="radio" name="lsq' + i + '" value="' + j + '">'
-           + '<span>' + (lsKrotkie ? '<b class="mat-hlet">' + String.fromCharCode(65 + j) + '</b>' : '') + escapeHtml(o) + '</span></label>';
+           + '<span>' + (lsMatOpt ? '<b class="mat-hlet">' + String.fromCharCode(65 + j) + '</b>' : '') + escapeHtml(o) + '</span></label>';
     }).join('');
     var lsPr = String(q.prompt || '').replace(/^\s*\d+[.)]\s+/, '');
     var lsNr = (GAME.matura && /^(Luka|Gap)\s*\d+/i.test(lsPr)) ? '' : (i+1) + '. ';
-    if(lsKrotkie){
+    if(lsMatOpt){
       return lsNag + '<div class="ls-q mat-short"><p class="ls-q-prompt">' + lsNr + escapeHtml(lsPr) + '</p>'
-           + '<div class="mat-hopts">' + opts + '</div><p class="ls-explain hidden" id="lsExp' + i + '"></p></div>';
+           + '<div class="mat-hopts' + (lsKrotkie ? '' : ' mat-vopts') + '">' + opts + '</div><p class="ls-explain hidden" id="lsExp' + i + '"></p></div>';
     }
     return lsNag + '<div class="ls-q"><p class="ls-q-prompt">' + lsNr + escapeHtml(lsPr) + '</p>'
          + opts + '<p class="ls-explain hidden" id="lsExp' + i + '"></p></div>';
