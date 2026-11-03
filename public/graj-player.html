@@ -1604,6 +1604,8 @@
   html.mat .frame, html.mat .frame[class*="bg-"]{ background:#ffffff !important; border:1px solid #ebe6dc !important; border-radius:22px !important; box-shadow:0 10px 30px rgba(29,26,34,.06) !important; }
   html.mat .cover-title, html.mat .end-title, html.mat .ls-title{ font-family:'Playfair Display',Georgia,serif !important; font-weight:800 !important; color:#1d1a22 !important; letter-spacing:-.8px; }
   html.mat .cover-title .underline, html.mat .end-title .underline{ background:none !important; padding:0 !important; }
+  html.mat .cover-title .mat-ct-main{ display:block; }
+  html.mat .cover-title .mat-ct-sub{ display:block; font-size:.55em; font-weight:700; letter-spacing:-.2px; margin-top:.35em; opacity:.85; }
   html.mat .cover-title .underline::after, html.mat .end-title .underline::after{ display:none !important; }
   html.mat .cover-sub, html.mat .end-sub{ font-family:'Outfit',sans-serif; color:#5b5566 !important; }
   html.mat .level, html.mat .cover-cat{ background:#fdf1f7 !important; color:#ca4490 !important; border:none !important; border-radius:999px !important; font-family:'Outfit',sans-serif !important; font-weight:700 !important; letter-spacing:1.4px; text-transform:uppercase; font-size:12px !important; box-shadow:none !important; padding:6px 12px !important; }
@@ -2397,6 +2399,17 @@ async function markCompleted(score, scoreMax, answers){
        : t('Słownictwo'));
     document.getElementById('cTitle').textContent = GAME.title;
     if(GAME.matura){
+      // MATURA: „Velcro – One Word Gaps (part 2)” → temat w pierwszej linii, typ zadania w drugiej;
+      // „(part 2)” sklejone z poprzednim słowem, żeby sama cyfra nie spadała do nowej linii
+      (function(){
+        var tt = String(GAME.title || ''), m = tt.match(/^(.+?)\s+[–—-]\s+(.+)$/);
+        var el = document.getElementById('cTitle');
+        if(m){
+          el.innerHTML = '<span class="mat-ct-main">' + escapeHtml(m[1]) + '</span><span class="mat-ct-sub">' + escapeHtml(m[2]).replace(/ \(/g, '\u00a0(').replace(/\((part|część|cz\.)\s+/gi, function(x){ return x.replace(/\s+$/, '\u00a0'); }) + '</span>';
+        } else {
+          el.innerHTML = escapeHtml(tt).replace(/ \(/g, '\u00a0(').replace(/\((part|część|cz\.)\s+/gi, function(x){ return x.replace(/\s+$/, '\u00a0'); });
+        }
+      })();
       document.getElementById('cLevel').textContent = (GAME.matura_level === 'ext') ? t('Matura rozszerzona') : t('Matura podstawowa');
       document.getElementById('cCat').textContent = ({listening:'Listening', reading:'Reading', use:'Use of English'})[GAME.matura_section] || 'Matura';
     }
