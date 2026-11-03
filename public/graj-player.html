@@ -1605,6 +1605,8 @@
   html.mat .cover-title, html.mat .end-title, html.mat .ls-title{ font-family:'Playfair Display',Georgia,serif !important; font-weight:800 !important; color:#1d1a22 !important; letter-spacing:-.8px; }
   html.mat .cover-title .underline, html.mat .end-title .underline{ background:none !important; padding:0 !important; }
   html.mat .cover-title .mat-ct-main{ display:block; }
+  html.mat .mat-topic{ font-family:'Playfair Display',Georgia,serif; font-weight:800; font-size:clamp(22px,2.8vw,28px); color:#1d1a22; letter-spacing:-.6px; text-align:center; max-width:720px; margin:0 auto 12px; line-height:1.2; }
+  html.mat.eg-dark .mat-topic{ color:#e8e6ef; }
   html.mat .cover-title .mat-ct-sub{ display:block; font-size:.55em; font-weight:700; letter-spacing:-.2px; margin-top:.35em; opacity:.85; }
   html.mat .cover-title .underline::after, html.mat .end-title .underline::after{ display:none !important; }
   html.mat .cover-sub, html.mat .end-sub{ font-family:'Outfit',sans-serif; color:#5b5566 !important; }
@@ -2409,6 +2411,16 @@ async function markCompleted(score, scoreMax, answers){
         } else {
           el.innerHTML = escapeHtml(tt).replace(/ \(/g, '\u00a0(').replace(/\((part|część|cz\.)\s+/gi, function(x){ return x.replace(/\s+$/, '\u00a0'); });
         }
+        // MATURA: temat (np. „The First Ferris Wheel”) nad poleceniem w samym zadaniu
+        var temat = m ? m[1] : tt;
+        ['qTask', 'gapTask', 'agInstr'].forEach(function(id){
+          var ins = document.getElementById(id);
+          if(!ins || !temat || (ins.previousElementSibling && ins.previousElementSibling.classList.contains('mat-topic'))) return;
+          var h = document.createElement('h2');
+          h.className = 'mat-topic';
+          h.textContent = temat;
+          ins.parentNode.insertBefore(h, ins);
+        });
       })();
       document.getElementById('cLevel').textContent = (GAME.matura_level === 'ext') ? t('Matura rozszerzona') : t('Matura podstawowa');
       document.getElementById('cCat').textContent = ({listening:'Listening', reading:'Reading', use:'Use of English'})[GAME.matura_section] || 'Matura';
