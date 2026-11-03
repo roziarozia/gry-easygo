@@ -146,6 +146,12 @@
   .ls-title{ font-family:'Quicksand',sans-serif; font-weight:700; font-size:clamp(20px,2.6vw,26px); color:var(--ink); margin:0 0 4px; }
   .eg-src{ font-size:12px; line-height:1.5; color:var(--muted); margin:10px 0 0; text-align:left; }
   .ls-hint{ font-size:11.5px; color:var(--muted); margin:0 0 18px; text-align:center; }
+  /* MATURA: rozpiska, kiedy w nagraniu zaczyna się każdy tekst / każda wypowiedź (klik = przewiń) */
+  .ls-marks{ margin:-10px auto 18px; max-width:720px; font-size:12px; line-height:1.7; color:var(--muted); text-align:center; }
+  .ls-marks-row b{ font-weight:600; margin-right:4px; }
+  .ls-mark{ background:none; border:none; padding:0 2px; font:inherit; color:inherit; cursor:pointer; white-space:nowrap; }
+  .ls-mark:hover{ color:var(--ink); text-decoration:underline; }
+  .ls-mark-sep{ opacity:.5; margin:0 3px; }
   .ls-audio{ width:100%; margin:0 0 6px; border-radius:12px; }
   /* natywny odtwarzacz jest jasny — w trybie ciemnym przyciemniamy go filtrem,
      zeby nie swiecil biala plama na granatowej karcie */
@@ -1840,6 +1846,10 @@
     'Nagranie nie jest jeszcze gotowe.': 'The audio isn\u2019t ready yet.',
     'sugerowana liczba odsłuchań: 2': 'Recommended: listen twice',
     'Każdy tekst usłyszysz dwa razy, jak na egzaminie. Przed nagraniem przeczytaj pytania.': 'You will hear each text twice, as in the exam. Read the questions before you listen.',
+    'Pierwsze odtworzenie': 'First play',
+    'Drugie odtworzenie': 'Second play',
+    'Tekst': 'Text',
+    'powtórka': 'repeat',
     'Twój wynik: ': 'Your score: ',
     'Kliknij, aby zobaczyć szczegóły': 'Click to see details',
     'Świetna robota!': 'Great job!',
@@ -2099,6 +2109,7 @@
       <div class="gap-task hidden" id="lsTask"></div>
       <audio class="ls-audio" id="lsAudio" controls preload="metadata"></audio>
       <p class="ls-hint" id="lsHint">sugerowana liczba odsłuchań: 2</p>
+      <div class="ls-marks hidden" id="lsMarks"></div>
       <div class="mat-rtext hidden" id="lsText"></div>
       <div id="lsQuestions"></div>
       <div class="ls-err" id="lsErr"></div>
@@ -3142,6 +3153,36 @@ function startListening(){
     lsHint.style.display = matRead ? 'none' : '';
     // MATURA: nagranie i tak leci dwa razy, wiec zamiast "sugerowanej liczby odsluchan" krotka wskazowka
     lsHint.textContent = GAME.matura ? t('Każdy tekst usłyszysz dwa razy, jak na egzaminie. Przed nagraniem przeczytaj pytania.') : t('sugerowana liczba odsłuchań: 2');
+  }
+  // MATURA: rozpiska czasu – kiedy zaczyna się tekst 2, wypowiedź 3 itd. (dane z games.audio_marks)
+  var lsMarks = document.getElementById('lsMarks');
+  if(lsMarks){
+    var am = GAME.matura && !matRead ? GAME.audio_marks : null;
+    if(am && Array.isArray(am.plays) && am.plays.length){
+      var mmss = function(x){ x = Math.floor(x); return Math.floor(x / 60) + ':' + ('0' + (x % 60)).slice(-2); };
+      var etyk = am.kind === 'speaker' ? 'Speaker' : t('Tekst');
+      var mkBtn = function(sek, txt){ return '<button type="button" class="ls-mark" data-t="' + sek + '">' + txt + '</button>'; };
+      var sep = '<span class="ls-mark-sep">·</span>';
+      var p0 = am.plays[0] || [], p1 = am.plays[1] || [];
+      if(p0.length > 1 && p1.length && p1[0] < p0[p0.length - 1]){
+        // każdy tekst osobno dwa razy: wiersz na tekst – początek i powtórka
+        lsMarks.innerHTML = p0.map(function(sek, i){
+          return '<div class="ls-marks-row"><b>' + etyk + ' ' + (i + 1) + ':</b> ' + mkBtn(sek, mmss(sek)) + (p1[i] != null ? sep + mkBtn(p1[i], t('powtórka') + ' ' + mmss(p1[i])) : '') + '</div>';
+        }).join('');
+      } else {
+        // całe nagranie, potem całe jeszcze raz: wiersz na odtworzenie
+        lsMarks.innerHTML = am.plays.map(function(p, pi){
+          return '<div class="ls-marks-row"><b>' + t(pi === 0 ? 'Pierwsze odtworzenie' : 'Drugie odtworzenie') + ':</b> ' +
+            p.map(function(sek, i){ return mkBtn(sek, (p.length > 1 ? etyk + ' ' + (i + 1) + ' – ' : '') + mmss(sek)); }).join(sep) + '</div>';
+        }).join('');
+      }
+      lsMarks.onclick = function(e){
+        var b = e.target.closest('.ls-mark'); if(!b || !audio || !audio.src) return;
+        audio.currentTime = Math.max(0, parseFloat(b.getAttribute('data-t')) - 0.3);
+        var pr = audio.play(); if(pr && pr.catch) pr.catch(function(){});
+      };
+      lsMarks.classList.remove('hidden');
+    } else { lsMarks.innerHTML = ''; lsMarks.classList.add('hidden'); }
   }
   if(lsText){
     if(matRead){
