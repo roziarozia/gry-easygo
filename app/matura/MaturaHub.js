@@ -660,10 +660,15 @@ html.eg-dark .mt-box-speaking::before{ background:#e8e6ef; }
 .mt-link{ background:none; border:none; padding:0 4px; min-height:32px; cursor:pointer; font-family:'Outfit',sans-serif; font-size:13.5px; font-weight:500; color:#5b5566; text-decoration:underline; text-underline-offset:3px; }
 .mt-link:hover{ color:#ca4490; }
 .mt-row .mt-btn{ flex:0 0 auto; min-width:100px; }
-/* typ zadania ukończony w całości: biały przycisk ze złotą ramką, złoty pasek */
+/* typ zadania ukończony w całości: biały przycisk ze złotą ramką */
 .mt-btn-done{ background:#fff; color:#1d1a22 !important; border:2px solid #e0b43a; }
 .mt-btn-done:hover{ background:#fdfbe8; border-color:#c99c22; }
-.mt-row-done .mt-bar span{ background:#e0b43a; }
+/* pasek postępu w kolorze działu (jak pasek na górze ramki działu) */
+.mt-box-reading .mt-bar span{ background:#a78dd9; }
+.mt-box-use .mt-bar span{ background:#e0a91c; }
+.mt-box-writing .mt-bar span{ background:#1e7e50; }
+.mt-box-speaking .mt-bar span{ background:#1d1a22; }
+html.eg-dark .mt-box-speaking .mt-bar span{ background:#e8e6ef; }
 .mt-lock{ flex:none; }
 .mt-tip{ margin-top:28px; background:#fff; border:1px solid #ebe6dc; border-radius:20px; padding:20px 24px; display:flex; flex-wrap:wrap; align-items:baseline; gap:8px 18px; font-size:16px; color:#4f4959; }
 .mt-tip-k{ font-family:'Playfair Display',Georgia,serif; font-style:italic; font-size:18px; color:#1d1a22; }
