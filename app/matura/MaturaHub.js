@@ -440,7 +440,7 @@ export default function MaturaHub() {
                         <div className="mt-row-name">{label}</div>
                         <div className="mt-row-meta">
                           <span className="mt-bar"><span style={{ width: Math.round((100 * dd) / list.length) + '%' }} /></span>
-                          <span className={allDone ? 'mt-done-count' : ''}>{dd} z {list.length}</span>
+                          <span>{dd} z {list.length}</span>
                           {list.some((g) => hwMap[g.slug]) && <span className="mt-hw-pill">praca domowa: {list.filter((g) => hwMap[g.slug]).length}</span>}
                           {viewing && list.some((g) => vWr[g.slug] && vWr[g.slug].status === 'submitted') && <span className="mt-due-pill">do sprawdzenia: {list.filter((g) => vWr[g.slug] && vWr[g.slug].status === 'submitted').length}</span>}
                           <button type="button" className="mt-link" onClick={() => { setDrawer({ section: s.id, task }); setFilter('all'); }}>lista</button>
@@ -660,11 +660,10 @@ html.eg-dark .mt-box-speaking::before{ background:#e8e6ef; }
 .mt-link{ background:none; border:none; padding:0 4px; min-height:32px; cursor:pointer; font-family:'Outfit',sans-serif; font-size:13.5px; font-weight:500; color:#5b5566; text-decoration:underline; text-underline-offset:3px; }
 .mt-link:hover{ color:#ca4490; }
 .mt-row .mt-btn{ flex:0 0 auto; min-width:100px; }
-/* typ zadania ukończony w całości: biały przycisk ze złotą ramką, złoty pasek, pogrubione „4 z 4” */
+/* typ zadania ukończony w całości: biały przycisk ze złotą ramką, złoty pasek */
 .mt-btn-done{ background:#fff; color:#1d1a22 !important; border:2px solid #e0b43a; }
 .mt-btn-done:hover{ background:#fdfbe8; border-color:#c99c22; }
 .mt-row-done .mt-bar span{ background:#e0b43a; }
-.mt-done-count{ font-weight:700; color:#8a6a00; }
 .mt-lock{ flex:none; }
 .mt-tip{ margin-top:28px; background:#fff; border:1px solid #ebe6dc; border-radius:20px; padding:20px 24px; display:flex; flex-wrap:wrap; align-items:baseline; gap:8px 18px; font-size:16px; color:#4f4959; }
 .mt-tip-k{ font-family:'Playfair Display',Georgia,serif; font-style:italic; font-size:18px; color:#1d1a22; }
@@ -792,7 +791,6 @@ html.eg-dark .mt-next-stats strong, html.eg-dark .mt-box-count strong, html.eg-d
 html.eg-dark .mt-btn-ghost{ background:transparent; color:#e8e6ef !important; border-color:#4a4c66; }
 html.eg-dark .mt-btn-done{ background:transparent; color:#e8e6ef !important; border-color:#e0b43a; }
 html.eg-dark .mt-btn-done:hover{ background:#2c2e44; border-color:#f4c94c; }
-html.eg-dark .mt-done-count{ color:#f4c94c; }
 html.eg-dark .mt-btn-ghost:hover{ background:#2c2e44; border-color:#e8e6ef; }
 html.eg-dark .mt-access{ background:#3b3820; }
 html.eg-dark .mt-access p{ color:#ece6c0; }
