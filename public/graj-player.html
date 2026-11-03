@@ -3167,7 +3167,8 @@ function startListening(){
     }
     // MATURA: krótkie odpowiedzi (do ok. 45 znaków, np. „would never have happened”) obok siebie, z literami A–D jak w arkuszu
     var lsOpcje = Array.isArray(q.options) ? q.options : [];
-    var lsKrotkie = GAME.matura && lsOpcje.length > 1 && lsOpcje.every(function(o){ return String(o).length <= 45; });
+    // obok siebie tylko w Use of English (krótkie wyrazy do luk); w słuchaniu i czytaniu zawsze jedna pod drugą, jak w arkuszu
+    var lsKrotkie = GAME.matura && GAME.matura_section === 'use' && lsOpcje.length > 1 && lsOpcje.every(function(o){ return String(o).length <= 45; });
     // MATURA: dłuższe odpowiedzi w tym samym stylu (ramka + litera), tylko jedna pod drugą
     var lsMatOpt = GAME.matura && lsOpcje.length > 1;
     const opts = lsOpcje.map(function(o, j){
