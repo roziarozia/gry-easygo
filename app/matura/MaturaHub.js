@@ -13,6 +13,7 @@ export default function MaturaHub() {
   const [user, setUser] = useState(null);
   const [access, setAccess] = useState('guest'); // guest | free | full
   const [isAdmin, setIsAdmin] = useState(false);
+  const [isTeacher, setIsTeacher] = useState(false);
   const [myDone, setDone] = useState({}); // slug -> {score, max, at} — wyniki zalogowanej osoby
   const [myHw, setMyHw] = useState({}); // slug -> data ukończenia albo true — praca domowa zalogowanego ucznia
   // TECZKA LEKTORA — podgląd strony oczami ucznia (jak w katalogu na stronie głównej)
@@ -78,7 +79,7 @@ export default function MaturaHub() {
         (hw.data || []).forEach((r) => { h[r.game_slug] = r.completed_at || true; ha[r.game_slug] = r.created_at || ''; });
         setMyHw(h);
         setHwAt(ha);
-        if (pr.data && pr.data.role === 'teacher') loadTeczka(session.user.id);
+        if (pr.data && pr.data.role === 'teacher') { setIsTeacher(true); loadTeczka(session.user.id); }
         const admin = !!ad.data;
         setIsAdmin(admin);
         setAccess(fa.data || admin ? 'full' : 'free');
@@ -239,6 +240,7 @@ export default function MaturaHub() {
             <a href="/oferta?powrot=matura#jak-to-dziala-matura">Jak to działa</a>
             {ready && access !== 'full' && <a href="/oferta?powrot=matura">Oferta</a>}
             <a href="/nauka">Blog</a>
+            {user && isTeacher && <a href="/panel-lektora">Panel lektora</a>}
             {user ? <a href="/konto?powrot=matura">Moje konto</a> : <a href="/logowanie?powrot=matura">Zaloguj się</a>}
             {!teacherId && (() => {
               // TECZKA UCZNIA: zadania maturalne, które lektor zadał jako pracę domową
