@@ -4712,7 +4712,15 @@
           html += '</div>';
           return;
         }
-        var q = questions[a.q] || {};
+        var q = null;
+        // przy „Pomieszaj kolejność pytań” a.q to pozycja W POMIESZANEJ kolejności — pytanie szukamy po zapisanej pozycji (pos)
+        if(a.pos != null){ for(var _k = 0; _k < questions.length; _k++){ if(questions[_k].position === a.pos){ q = questions[_k]; break; } } }
+        if(!q){ q = questions[a.q] || null; if(a.pos == null && q && a.correct != null && q.correct !== a.correct) q = null; }
+        if(!q){
+          // starszy zapis z pomieszaną kolejnością — nie da się pewnie ustalić, które to pytanie
+          html += '<div class="eg-ansd-q ' + (a.ok ? 'ok' : 'bad') + '"><div class="eg-ansd-qtxt">' + (a.ok ? '\u2713 ' : '\u2717 ') + (window.EG_LANG === 'en' ? 'Question ' : 'Pytanie ') + (a.q + 1) + '</div><div class="eg-ansd-row"><span class="lbl">' + (window.EG_LANG === 'en' ? 'Questions were shuffled in this attempt, so the details are not available.' : 'W tym podejściu kolejność pytań była pomieszana, więc szczegóły nie są dostępne.') + '</span></div></div>';
+          return;
+        }
         var opts2 = q.options || [];
         var pickedTxt = (a.picked == null) ? '(brak odpowiedzi)' : (opts2[a.picked] != null ? opts2[a.picked] : '?');
         var correctTxt = (opts2[a.correct] != null) ? opts2[a.correct] : '?';
