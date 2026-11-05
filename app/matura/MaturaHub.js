@@ -515,11 +515,22 @@ export default function MaturaHub() {
               </div>
             ) : (
             <div className="mt-tiles">
-              {drawerShown.map((g) => (
-                <button key={g.slug} type="button" title={g.title + (hwMap[g.slug] ? ' (praca domowa)' : '')} className={'mt-tile' + (done[g.slug] ? ' done' : '') + (!g.published ? ' draft' : '') + (hwMap[g.slug] ? ' hw' : '')} onClick={() => open(g)}>
-                  {locked(g) ? <Lock /> : null}{g.exercise_no}
-                </button>
-              ))}
+              {drawerShown.map((g) => {
+                const r = done[g.slug];
+                return (
+                  <div key={g.slug} className="mt-tw">
+                    <button type="button" title={g.title + (hwMap[g.slug] ? ' (praca domowa)' : '')} className={'mt-tile' + (r ? ' done' : '') + (!g.published ? ' draft' : '') + (hwMap[g.slug] ? ' hw' : '')} onClick={() => open(g)}>
+                      {locked(g) ? <Lock /> : null}{g.exercise_no}
+                    </button>
+                    {/* wynik pod kafelkiem — kliknięcie otwiera ćwiczenie od razu ze szczegółami wyniku */}
+                    {r && r.max ? (
+                      <button type="button" className="mt-tscore" title="Zobacz szczegóły wyniku" onClick={() => { window.location.href = '/matura/' + g.slug + '?wynik=1'; }}>
+                        {r.score}/{r.max}
+                      </button>
+                    ) : null}
+                  </div>
+                );
+              })}
               {drawerShown.length === 0 && <p className="mt-soon">Brak ćwiczeń w tym widoku.</p>}
             </div>
             )}
@@ -691,6 +702,9 @@ html.eg-dark .mt-box-speaking .mt-bar span{ background:#e8e6ef; }
 .mt-tile.done{ background:#ca4490; border-color:#ca4490; color:#fff; }
 .mt-tile.draft{ border-style:dashed; border-color:#ca4490; }
 .mt-tile:hover{ border-color:#ca4490; }
+.mt-tw{ display:flex; flex-direction:column; align-items:stretch; gap:3px; min-width:0; }
+.mt-tscore{ background:none; border:none; padding:2px 0; cursor:pointer; font-family:'Outfit',sans-serif; font-size:12px; font-weight:600; color:#7a7385; text-decoration:underline dotted; text-underline-offset:3px; }
+.mt-tscore:hover{ color:#ca4490; }
 .mt-legend{ display:flex; flex-wrap:wrap; gap:16px; font-size:13.5px; color:#5b5566; }
 .mt-legend span{ display:inline-flex; align-items:center; gap:6px; }
 .mt-legend i{ display:inline-block; width:14px; height:14px; border:1px solid #ddd6ca; border-radius:4px; background:#fff; }
@@ -812,6 +826,7 @@ html.eg-dark .mt-drawer{ background:#1a1b26; }
 html.eg-dark .mt-drawer-head{ border-color:#363850; }
 html.eg-dark .mt-x, html.eg-dark .mt-tile{ background:#24263a; color:#e8e6ef; border-color:#4a4c66; }
 html.eg-dark .mt-tile.done{ background:#ca4490; border-color:#ca4490; color:#fff; }
+html.eg-dark .mt-tscore{ color:#a29caf; }
 html.eg-dark .mt-legend i{ background:#24263a; border-color:#4a4c66; }
 html.eg-dark .mt-legend .lg-done{ background:#ca4490; border-color:#ca4490; }
 @media (max-width:600px){
