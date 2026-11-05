@@ -2580,6 +2580,19 @@ async function markCompleted(score, scoreMax, answers){
     }else{
       revealCover();
     }
+    // ?wynik=1 (w adresie odtwarzacza albo strony, która go osadza, np. /matura/…?wynik=1):
+    // od razu otwórz szczegóły ostatniego wyniku — kliknięcie wyniku na liście ćwiczeń maturalnych
+    try{
+      var chceWynik = new URLSearchParams(location.search).get('wynik') === '1';
+      if(!chceWynik && window.parent && window.parent !== window){
+        try{ chceWynik = new URLSearchParams(window.parent.location.search).get('wynik') === '1'; }catch(e2){}
+      }
+      if(chceWynik && currentSlug){
+        const rs = await _db.auth.getSession();
+        const ss = rs && rs.data ? rs.data.session : null;
+        if(ss) egShowAnswerDetails(currentSlug, ss.user.id);
+      }
+    }catch(e){}
   }catch(err){
     document.getElementById('loading').classList.add('hidden');
     cover.classList.remove('hidden');
