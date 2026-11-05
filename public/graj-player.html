@@ -1457,7 +1457,9 @@
     .frame.quiz-mode{height:auto;max-height:none;aspect-ratio:auto;overflow:visible;padding:18px 18px 32px;}
     /* stała minimalna wysokość karty na telefonie: przyciski stoją w tym samym miejscu
        dla większości pytań; tylko wyjątkowo długie pytanie wydłuża kartę */
-    .frame.quiz-mode{min-height:calc(100svh - 170px);}
+    /* --eg-vh = wysokość ekranu STRONY (ustawiana w skrypcie raportującym wysokość). W ramce (iframe) 100svh
+       to wysokość samej ramki, a ramka rośnie do treści — karta rosła w nieskończoność i odpowiedzi uciekały w dół */
+    .frame.quiz-mode{min-height:calc(var(--eg-vh, 100svh) - 170px);}
     /* gdy ramka quizu jest wyższa niż ekran, stage musi wyrównać ją do GÓRY
        (nie centrować, bo centrowanie wypycha treść poza ekran) i pozwolić
        całej stronie się przewinąć. */
@@ -4607,6 +4609,17 @@ async function egShowAnswerDetails(gameSlug, userId, opts){
 <script>
 /* Raportuje wysokość do strony-rodzica, żeby ramka rosła do treści (bez podwójnego scrolla) */
 (function(){
+  // W ramce (iframe) jednostki vh/svh liczą się od wysokości RAMKI, a ramka dostaje wysokość od treści —
+  // pętla: karta quizu (min-height ze svh) rosła przy każdym pomiarze. Dlatego podajemy wysokość ekranu strony-rodzica.
+  function ustawWysokoscEkranu(){
+    try{
+      if(window.parent && window.parent !== window && window.parent.innerHeight){
+        document.documentElement.style.setProperty('--eg-vh', window.parent.innerHeight + 'px');
+      }
+    }catch(e){}
+  }
+  ustawWysokoscEkranu();
+  try{ if(window.parent && window.parent !== window) window.parent.addEventListener('resize', ustawWysokoscEkranu); }catch(e){}
   function report(){
     try{
       // PUŁAPKA: html,body mają height:100%, więc scrollHeight nigdy nie jest mniejszy
