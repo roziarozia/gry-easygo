@@ -131,6 +131,10 @@
   .art-back{ margin:24px 0 6px; }
   .art-back a{ display:inline-flex; align-items:center; gap:7px; font-family:'Outfit',sans-serif; font-weight:600; font-size:14px; color:var(--magenta); text-decoration:none; cursor:pointer; }
   .art-back a:hover{ text-decoration:underline; }
+  /* Powrót do listy także na dole artykułu – żeby nie przewijać do góry */
+  .art-back-bottom{ text-align:center; margin:30px 0 10px; }
+  .art-back-bottom a{ display:inline-flex; align-items:center; gap:8px; font-family:'Outfit',sans-serif; font-weight:700; font-size:15px; color:var(--magenta); text-decoration:none; padding:11px 24px; border:2px solid var(--magenta); border-radius:999px; transition:background .18s, color .18s; }
+  .art-back-bottom a:hover{ background:var(--magenta); color:#fff; }
   .art-cover{ width:100%; aspect-ratio:16/9; object-fit:cover; border-radius:14px; margin:16px 0 26px; background:var(--soft); }
   .art-cover-ph{ width:100%; aspect-ratio:16/9; border-radius:14px; margin:16px 0 26px; background:var(--soft); display:flex; align-items:center; justify-content:center; color:var(--lavender); font-family:'Outfit',sans-serif; font-weight:600; font-size:22px; font-style:italic; }
   .art-badges{ margin-bottom:12px; }
@@ -409,6 +413,8 @@ window.ewImgFallback = function(img){
     </div>
   </div>
 
+  <div class="art-back-bottom"><a href="/nauka" id="backToListBottom">&#8592; Wszystkie artykuły</a></div>
+
   <footer class="foot">
     <a href="https://easygo-english.pl/">EasyGo English</a>
     <div class="foot-links">
@@ -664,8 +670,19 @@ window.ewImgFallback = function(img){
         + '</a>';
     }
     if(exCache[exSlug]){ draw(exCache[exSlug]); return; }
-    sb.from('games').select('slug,title,cover_url,level,category,description,is_premium,bg').eq('slug',exSlug).eq('published',true).single().then(function(res){
-      var g = res.data || null; exCache[exSlug] = g || {slug:exSlug}; draw(g);
+    // Ćwiczenie jeszcze nieopublikowane (szkic) albo usunięte → zwykły przycisk do ćwiczeń zamiast pustego kafelka.
+    // Gdy tylko ćwiczenie zostanie opublikowane, kafelek pojawi się w artykule sam.
+    function drawFallback(){
+      box.innerHTML =
+        '<div class="pr-head"><strong>Twoja kolej!</strong>'
+        + '<span>Utrwal wiedzę interaktywnymi ćwiczeniami z wyjaśnieniami.</span></div>'
+        + '<a class="pr-btn" href="'+esc(a.cta_link||'/?widok=cwiczenia')+'">'+esc(a.cta_label||'Przejdź do ćwiczeń')+'</a>';
+    }
+    if(exCache[exSlug] === false){ drawFallback(); return; }
+    sb.from('games').select('slug,title,cover_url,level,category,description,is_premium,bg').eq('slug',exSlug).eq('published',true).maybeSingle().then(function(res){
+      var g = res.data || null;
+      if(!g){ exCache[exSlug] = false; drawFallback(); return; }
+      exCache[exSlug] = g; draw(g);
     });
   }
 
@@ -710,6 +727,8 @@ window.ewImgFallback = function(img){
   }
 
   document.getElementById('backToList').addEventListener('click', function(ev){ ev.preventDefault(); showList(true); });
+  (function(){ var bb = document.getElementById('backToListBottom');
+    if(bb) bb.addEventListener('click', function(ev){ ev.preventDefault(); showList(true); window.scrollTo(0,0); }); })();
   window.addEventListener('popstate', function(){
     var slug = currentSlug();
     if(slug) openArticle(slug, false); else showList(false);
