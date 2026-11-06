@@ -112,6 +112,15 @@ export default function WritingTask({ slug, level, isPremium }) {
     timer.current = setTimeout(() => { if (v !== lastSaved.current) save(false); }, 1500);
   }
 
+  // Wklejanie z zewnątrz jest wyłączone – tekst ma powstać tutaj, przy poleceniu i liczniku słów.
+  // Przenoszenie fragmentów WŁASNEGO tekstu (wytnij/wklej w obrębie pola) dalej działa.
+  function blokujWklejanie(e, dane) {
+    const txt = (dane || '').trim();
+    if (txt && body.indexOf(txt) !== -1) return;
+    e.preventDefault();
+    setMsg('Wklejanie tekstu jest wyłączone. Napisz swoją wypowiedź tutaj, pod poleceniem.');
+  }
+
   async function onFinal() {
     clearTimeout(timer.current);
     if (!countWords(body)) { setMsg('Najpierw napisz tekst.'); return; }
@@ -221,7 +230,9 @@ export default function WritingTask({ slug, level, isPremium }) {
               <>
                 {task.start && <div className="wt-start" lang="en" aria-label="Początek wypowiedzi">{task.start}</div>}
                 <textarea className={'wt-area' + (task.start ? ' wt-area-cont' : '')} lang="en" spellCheck={false} value={body} readOnly={!canEdit}
-                  onChange={(e) => onChange(e.target.value)} placeholder={task.start ? 'Pisz dalej…' : 'Zacznij pisać tutaj…'} aria-label="Twój tekst" />
+                  onChange={(e) => onChange(e.target.value)} placeholder={task.start ? 'Pisz dalej…' : 'Zacznij pisać tutaj…'} aria-label="Twój tekst"
+                  onPaste={(e) => blokujWklejanie(e, e.clipboardData && e.clipboardData.getData('text'))}
+                  onDrop={(e) => blokujWklejanie(e, e.dataTransfer && e.dataTransfer.getData('text'))} />
                 <div className="wt-status">
                   {!user ? <span>Tekst zapisuje się tylko w tej przeglądarce. <a href={'/logowanie?powrot=' + encodeURIComponent('matura/' + slug)}>Zaloguj się</a>, żeby zapisać go na swoim koncie.</span>
                     : graded ? <span>Lektor ocenił ten tekst {sub.graded_at ? fmtTime(sub.graded_at) : ''}. Nie można go już zmieniać.</span>
