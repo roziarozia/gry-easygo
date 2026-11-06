@@ -29,6 +29,8 @@ export default function WritingTask({ slug, level, isPremium }) {
   const [saveState, setSaveState] = useState(''); // '', 'saving', 'saved', 'error'
   const [savedAt, setSavedAt] = useState(null);
   const [msg, setMsg] = useState('');
+  const [pasteTip, setPasteTip] = useState(false); // dymek „wklejanie wyłączone”
+  const pasteTimer = useRef(null);
   const [busy, setBusy] = useState(false);
   const [scores, setScores] = useState({});
   const [feedback, setFeedback] = useState('');
@@ -82,7 +84,7 @@ export default function WritingTask({ slug, level, isPremium }) {
       }
       setReady(true);
     })();
-    return () => clearTimeout(timer.current);
+    return () => { clearTimeout(timer.current); clearTimeout(pasteTimer.current); };
   }, [slug]);
 
   const graded = sub && sub.status === 'graded';
@@ -118,7 +120,9 @@ export default function WritingTask({ slug, level, isPremium }) {
     const txt = (dane || '').trim();
     if (txt && body.indexOf(txt) !== -1) return;
     e.preventDefault();
-    setMsg('Wklejanie tekstu jest wyłączone. Napisz swoją wypowiedź tutaj, pod poleceniem.');
+    setPasteTip(true);
+    clearTimeout(pasteTimer.current);
+    pasteTimer.current = setTimeout(() => setPasteTip(false), 2600);
   }
 
   async function onFinal() {
@@ -171,6 +175,9 @@ export default function WritingTask({ slug, level, isPremium }) {
   return (
     <div className="wt">
       <style dangerouslySetInnerHTML={{ __html: CSS }} />
+      <div className={'wt-tip' + (pasteTip ? ' on' : '')} role="status" aria-live="polite">
+        Wklejanie jest wyłączone – napisz tekst samodzielnie, tutaj pod poleceniem.
+      </div>
 
       {viewing && (
         <div className="wt-view" role="status">
@@ -349,6 +356,8 @@ html.eg-dark .wt-start{ background:#1a1b26; border-color:#41435c; color:#a29caf;
 .wt-btns{ display:flex; flex-wrap:wrap; gap:10px; margin-top:14px; }
 .wt-pill{ font-size:13px; font-weight:700; color:#1e7e50; background:#eaf7f0; padding:5px 12px; border-radius:999px; }
 .wt-msg{ margin:10px 0 0; font-size:15px; font-weight:600; color:#1e7e50; }
+.wt-tip{ position:fixed; left:50%; bottom:24px; transform:translateX(-50%); z-index:9999; background:#2c2540; color:#fff; font-family:'Outfit',sans-serif; font-weight:600; font-size:14px; padding:10px 18px; border-radius:999px; box-shadow:0 6px 18px rgba(0,0,0,.18); opacity:0; transition:opacity .2s; pointer-events:none; max-width:90vw; text-align:center; }
+.wt-tip.on{ opacity:1; }
 .wt-muted{ font-size:14.5px; color:#7a7385; margin:8px 0 0; }
 .wt-lock h2{ font-family:'Playfair Display',Georgia,serif; font-size:28px; margin:0 0 8px; }
 .wt-total{ font-family:'Playfair Display',Georgia,serif; font-size:34px; font-weight:800; }
