@@ -1,4 +1,4 @@
-import { getGameBySlug, getPublishedGames } from '../../../lib/supabase';
+import { getGameBySlug, getPublishedGames, supabase } from '../../../lib/supabase';
 import { notFound, permanentRedirect } from 'next/navigation';
 import Link from 'next/link';
 import GameEmbed from './GameEmbed';
@@ -49,6 +49,24 @@ function przytnij(tekst, max) {
   const cut = t.slice(0, max - 1);
   const sp = cut.lastIndexOf(' ');
   return (sp > 80 ? cut.slice(0, sp) : cut).replace(/[,;:.\s]+$/, '') + '…';
+}
+
+// Artykuł z bloga polecany pod ćwiczeniem: najpierw games.article_slug,
+// a gdy go brak — artykuł, który sam linkuje to ćwiczenie (articles.exercise_slug).
+// Pokazujemy tylko opublikowane artykuły.
+async function getArticleForGame(game) {
+  const cols = 'slug,title,excerpt,cover_url';
+  try {
+    if (game.article_slug) {
+      const { data } = await supabase.from('articles').select(cols)
+        .eq('slug', game.article_slug).eq('published', true).maybeSingle();
+      if (data) return data;
+    }
+    const { data } = await supabase.from('articles').select(cols)
+      .eq('exercise_slug', game.slug).eq('published', true)
+      .order('sort_order', { ascending: false }).limit(1);
+    return (data && data[0]) || null;
+  } catch (e) { return null; }
 }
 
 const CAT_LABEL = { gramatyka: 'Gramatyka', slownictwo: 'Słownictwo', speaking: 'Speaking', reading: 'Reading', listening: 'Listening', kultura: 'Wiedza o krajach' };
@@ -112,6 +130,7 @@ export default async function CwiczeniePage({ params }) {
   // Ćwiczenia maturalne mają jeden adres: /matura/… (tam jest ich gazetowa oprawa).
   if (game.matura) permanentRedirect(`/matura/${game.slug}`);
   const catLabel = CAT_LABEL[game.category] || game.category || '';
+  const artykul = await getArticleForGame(game);
 
   // Tytuł na białej plakietce: część po dwukropku w magencie ("Open Cloze: New York").
   const dwukropek = (game.title || '').indexOf(':');
@@ -198,6 +217,41 @@ export default async function CwiczeniePage({ params }) {
           category={game.category}
         />
       </section>
+
+      {/* Artykuł z bloga do tematu ćwiczenia (blog linkuje ćwiczenie, a ćwiczenie — blog) */}
+      {artykul && (
+        <section style={{ maxWidth: 680, margin: '0 auto', padding: '0 20px 48px' }}>
+          <p style={{ textAlign: 'center', fontFamily: "'Quicksand',sans-serif", fontWeight: 700, fontSize: 17, color: 'var(--eg-ink)', margin: '0 0 12px' }}>
+            Zapoznaj się z tematem na blogu!
+          </p>
+          <a href={`/nauka/${artykul.slug}`} style={{
+            display: 'flex', flexWrap: 'wrap', textDecoration: 'none', color: 'inherit',
+            background: 'var(--eg-card, #fff)', border: '1.5px solid var(--eg-line, #eceaf2)',
+            borderRadius: 18, overflow: 'hidden', boxShadow: '0 6px 18px rgba(167,141,217,.22)',
+          }}>
+            <div style={{ flex: '1 1 220px', minHeight: 150, background: '#efe9f8', position: 'relative' }}>
+              {artykul.cover_url ? (
+                <img src={artykul.cover_url} alt={artykul.title} loading="lazy"
+                  style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
+              ) : (
+                <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: "'Quicksand',sans-serif", fontWeight: 700, fontSize: 20 }}>
+                  <span style={{ color: '#ca4490' }}>Easy</span><span style={{ color: '#f4c94c' }}>Wonders</span>
+                </div>
+              )}
+            </div>
+            <div style={{ flex: '1 1 260px', padding: '18px 20px', display: 'flex', flexDirection: 'column', gap: 8, textAlign: 'left' }}>
+              <span style={{ fontSize: 12, fontWeight: 800, letterSpacing: '.6px', textTransform: 'uppercase', color: 'var(--eg-magenta, #ca4490)' }}>Blog EasyWonders</span>
+              <span style={{ fontFamily: "'Quicksand',sans-serif", fontWeight: 700, fontSize: 18, lineHeight: 1.3, color: 'var(--eg-ink)' }}>{artykul.title}</span>
+              {artykul.excerpt && (
+                <span style={{ fontSize: 14, lineHeight: 1.55, color: 'var(--eg-muted)', display: '-webkit-box', WebkitLineClamp: 3, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>{artykul.excerpt}</span>
+              )}
+              <span style={{ alignSelf: 'flex-start', marginTop: 4, background: 'var(--eg-magenta, #ca4490)', color: '#fff', fontWeight: 700, fontSize: 14, padding: '9px 20px', borderRadius: 999 }}>
+                Czytaj artykuł &rarr;
+              </span>
+            </div>
+          </a>
+        </section>
+      )}
     </div>
   );
 }
