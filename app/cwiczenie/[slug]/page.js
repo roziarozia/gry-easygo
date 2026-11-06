@@ -56,6 +56,8 @@ function przytnij(tekst, max) {
 // Pokazujemy tylko opublikowane artykuły.
 async function getArticleForGame(game) {
   const cols = 'slug,title,excerpt,cover_url';
+  // "-" w article_slug = celowo bez artykułu (np. czytanki dla dzieci podlinkowane z artykułu dla rodziców)
+  if (game.article_slug === '-') return null;
   try {
     if (game.article_slug) {
       const { data } = await supabase.from('articles').select(cols)
