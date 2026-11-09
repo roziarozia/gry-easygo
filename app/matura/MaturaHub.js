@@ -37,6 +37,7 @@ export default function MaturaHub() {
   const [filter, setFilter] = useState('all');
   const [paywall, setPaywall] = useState(false);
   const [now, setNow] = useState(null);
+  const [jump, setJump] = useState(null); // dział z adresu (?czesc=writing) — przewiń do niego i podświetl
 
   // Nowa lista (inny typ zadania albo inny uczeń) — paczki wracają do ustawienia domyślnego
   useEffect(() => { setPacks(null); }, [drawer, viewing]);
@@ -61,6 +62,15 @@ export default function MaturaHub() {
 
   useEffect(() => {
     try { const l = localStorage.getItem('eg_matura_level'); if (l === 'basic' || l === 'ext') setLevel(l); } catch (e) {}
+    // adres z katalogu, np. /matura?poziom=ext&czesc=listening — ustaw poziom i zapamiętaj dział do przewinięcia
+    try {
+      const q = new URLSearchParams(window.location.search);
+      const pz = q.get('poziom');
+      if (pz === 'basic' || pz === 'podstawa') setLevel('basic');
+      if (pz === 'ext' || pz === 'rozszerzenie') setLevel('ext');
+      const cz = q.get('czesc');
+      if (cz && SECTIONS.some((x) => x.id === cz)) setJump(cz);
+    } catch (e) {}
     setNow(Date.now());
     (async () => {
       let session = null;
@@ -206,6 +216,17 @@ export default function MaturaHub() {
   // W podglądzie cała strona liczy wyniki oglądanego ucznia
   const done = viewing ? vDone : myDone;
   const hwMap = viewing ? vHw : myHw;
+
+  // po wczytaniu strony przewiń do działu z adresu i podświetl go na chwilę
+  useEffect(() => {
+    if (!ready || !jump) return;
+    const t1 = setTimeout(() => {
+      const el = document.getElementById('dzial-' + jump);
+      if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }, 150);
+    const t2 = setTimeout(() => setJump(null), 2600);
+    return () => { clearTimeout(t1); clearTimeout(t2); };
+  }, [ready, jump]);
 
   function chooseLevel(l) {
     setLevel(l); setDrawer(null);
@@ -503,7 +524,7 @@ export default function MaturaHub() {
             const all = types.flatMap(([t]) => grouped[s.id][t]);
             const d = all.filter((g) => done[g.slug]).length;
             return (
-              <section className={'mt-box mt-box-' + s.id} key={s.id} style={{ order: si }}>
+              <section id={'dzial-' + s.id} className={'mt-box mt-box-' + s.id + (jump === s.id ? ' mt-box-flash' : '')} key={s.id} style={{ order: si }}>
                 <div className="mt-box-head">
                   <div>
                     <div className="mt-num">0{si + 1}</div>
@@ -769,7 +790,8 @@ body{ margin:0; background:#fbfaf6; }
 .mt-tk-due{ margin-left:auto; font-size:11.5px; font-weight:700; color:#fff; background:#ca4490; padding:2px 8px; border-radius:999px; white-space:nowrap; }
 .mt-tk-dot{ display:inline-flex; align-items:center; justify-content:center; min-width:20px; height:20px; padding:0 6px; margin-left:4px; border-radius:999px; background:#ca4490; color:#fff; font-size:11.5px; font-weight:700; }
 html.eg-dark .mt-box-speaking::before{ background:#e8e6ef; }
-.mt-box{ position:relative; background:#fff; border:1px solid #ebe6dc; border-radius:20px; padding:24px 24px 10px; min-width:0; overflow:hidden; }
+.mt-box{ position:relative; background:#fff; border:1px solid #ebe6dc; border-radius:20px; padding:24px 24px 10px; min-width:0; overflow:hidden; scroll-margin-top:90px; transition:box-shadow .4s; }
+.mt-box-flash{ box-shadow:0 0 0 3px #ca4490; }
 .mt-box::before{ content:''; position:absolute; left:0; right:0; top:0; height:5px; background:#ca4490; }
 .mt-box-reading::before{ background:#a78dd9; }
 .mt-box-use::before{ background:#e0a91c; }
