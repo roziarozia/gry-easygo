@@ -33,9 +33,13 @@ export default function MaturaHub() {
   const [busy, setBusy] = useState('');
   const [level, setLevel] = useState('basic');
   const [drawer, setDrawer] = useState(null); // {section, task}
+  const [packs, setPacks] = useState(null); // które paczki „Ćwiczenia 1–10” są rozwinięte (null = domyślnie)
   const [filter, setFilter] = useState('all');
   const [paywall, setPaywall] = useState(false);
   const [now, setNow] = useState(null);
+
+  // Nowa lista (inny typ zadania albo inny uczeń) — paczki wracają do ustawienia domyślnego
+  useEffect(() => { setPacks(null); }, [drawer, viewing]);
 
   // Teczki (lektora i „Praca domowa” ucznia) zamykają się po kliknięciu gdziekolwiek poza nimi i klawiszem Esc.
   useEffect(() => {
@@ -263,6 +267,52 @@ export default function MaturaHub() {
 
   const drawerList = drawer ? (((grouped[drawer.section] || {})[drawer.task]) || []) : [];
   const drawerShown = drawerList.filter((g) => filter === 'all' || (filter === 'new' ? !done[g.slug] : !!done[g.slug]));
+
+  // PACZKI PO 10: długą listę dzielimy na „Ćwiczenia 1–10”, „11–20”…
+  // Rozwinięta jest paczka z następnym niezrobionym ćwiczeniem, reszta zwinięta do jednej linijki.
+  // Pasek w nagłówku paczki wypełnia się kolorem działu (7 z 10 zrobione = 70%).
+  // Do 10 ćwiczeń włącznie lista jest zwykła, bez paczek.
+  const PACK = 10;
+  const packOf = (g) => Math.floor(Math.max(0, (g.exercise_no || 1) - 1) / PACK);
+  const firstTodo = drawerList.find((g) => !done[g.slug]);
+  const defaultPack = firstTodo ? packOf(firstTodo) : (drawerList.length ? packOf(drawerList[drawerList.length - 1]) : 0);
+  const packOpen = (i) => (packs ? !!packs[i] : i === defaultPack);
+  function togglePack(i) {
+    setPacks((prev) => ({ ...(prev || { [defaultPack]: true }), [i]: !(prev ? !!prev[i] : i === defaultPack) }));
+  }
+  function inPacks(renderRow) {
+    if (drawerList.length <= PACK) return drawerShown.map(renderRow);
+    const shownSet = new Set(drawerShown.map((g) => g.slug));
+    const by = {};
+    drawerList.forEach((g) => { const i = packOf(g); (by[i] = by[i] || []).push(g); });
+    return Object.keys(by).map(Number).sort((a, b) => a - b).map((i) => {
+      const all = by[i];
+      const shown = all.filter((g) => shownSet.has(g.slug));
+      if (!shown.length) return null;
+      const d = all.filter((g) => done[g.slug]).length;
+      const pct = Math.round((100 * d) / all.length);
+      const nos = all.map((g) => g.exercise_no || 0);
+      const lo = Math.min(...nos), hi = Math.max(...nos);
+      const op = packOpen(i);
+      return (
+        <div key={'pack' + i} className={'mt-pack' + (op ? ' open' : '') + (d === all.length ? ' full' : '')}>
+          <button type="button" className="mt-pack-head" aria-expanded={op} onClick={() => togglePack(i)}>
+            {/* Dwie identyczne warstwy: spodnia biała z ciemnym napisem, wierzchnia czarna z białym,
+                przycięta do % zrobionych — napis jest zawsze czytelny, także na granicy kolorów. */}
+            {[0, 1].map((layer) => (
+              <span key={layer} className={'mt-pack-row' + (layer ? ' mt-pack-over' : '')} aria-hidden={layer ? 'true' : undefined}
+                style={layer ? { clipPath: 'inset(0 ' + (100 - pct) + '% 0 0)' } : undefined}>
+                <span className="mt-pack-t">Ćwiczenia {lo === hi ? lo : lo + '–' + hi}</span>
+                <span className="mt-pack-c">{d} z {all.length} zrobione</span>
+                <span className="mt-pack-caret" aria-hidden="true">▾</span>
+              </span>
+            ))}
+          </button>
+          {op && <div className="mt-pack-body">{shown.map(renderRow)}</div>}
+        </div>
+      );
+    });
+  }
 
   return (
     <div className="mt">
@@ -505,7 +555,7 @@ export default function MaturaHub() {
 
       {drawer && (
         <div className="mt-overlay" onClick={() => setDrawer(null)}>
-          <div className="mt-drawer" role="dialog" aria-label="Lista ćwiczeń" onClick={(e) => e.stopPropagation()}>
+          <div className={'mt-drawer mt-sec-' + drawer.section} role="dialog" aria-label="Lista ćwiczeń" onClick={(e) => e.stopPropagation()}>
             <div className="mt-drawer-head">
               <div>
                 <div className="mt-drawer-sec">{sectionName(drawer.section)}</div>
@@ -520,7 +570,7 @@ export default function MaturaHub() {
             </div>
             {viewing ? (
               <div className="mt-vlist">
-                {drawerShown.map((g) => {
+                {inPacks((g) => {
                   const r = done[g.slug];
                   const pct = r && r.max ? Math.round((100 * r.score) / r.max) : null;
                   const hwv = vHw[g.slug];
@@ -563,17 +613,16 @@ export default function MaturaHub() {
               </div>
             )}
             <div className="mt-list">
-              {drawerShown.map((g) => {
+              {inPacks((g) => {
                 const r = done[g.slug];
                 const hw = !!hwMap[g.slug];
                 return (
                   <div key={g.slug} className={'mt-li' + (r ? ' done' : '') + (!g.published ? ' draft' : '') + (hw ? ' hw' : '')}>
                     <button type="button" className="mt-li-main" title={g.title} onClick={() => open(g)}>
                       <span className="mt-li-no">{g.exercise_no}</span>
-                      <span className="mt-li-t">
-                        {topicOf(g, drawerList)}
-                        {(hw || !g.published) && <small>{[hw ? 'praca domowa' : '', !g.published ? 'szkic' : ''].filter(Boolean).join(' · ')}</small>}
-                      </span>
+                      <span className="mt-li-t">{topicOf(g, drawerList)}</span>
+                      {hw && <span className="mt-li-tag">praca domowa</span>}
+                      {!g.published && <span className="mt-li-tag mt-li-tag-draft">szkic</span>}
                       {locked(g) && <span className="mt-li-lock" title="Dla subskrybentów"><Lock /></span>}
                     </button>
                     {/* wynik — kliknięcie otwiera ćwiczenie od razu ze szczegółami wyniku */}
@@ -775,17 +824,32 @@ html.eg-dark .mt-box-speaking .mt-bar span{ background:#e8e6ef; }
 .mt-tw{ display:flex; flex-direction:column; align-items:stretch; gap:3px; min-width:0; }
 .mt-tscore{ background:none; border:none; padding:2px 0; cursor:pointer; font-family:'Outfit',sans-serif; font-size:12px; font-weight:600; color:#7a7385; text-decoration:underline dotted; text-underline-offset:3px; }
 .mt-tscore:hover{ color:#ca4490; }
-.mt-list{ display:flex; flex-direction:column; gap:8px; }
-.mt-li{ display:flex; align-items:center; gap:8px; background:#fff; border:1px solid #ebe6dc; border-radius:14px; padding:4px 10px 4px 4px; }
+.mt-li{ display:flex; align-items:center; gap:8px; background:#fff; border:1px solid #ebe6dc; border-radius:12px; }
 .mt-li:hover{ border-color:#ca4490; }
 .mt-li.draft{ border-style:dashed; border-color:#ca4490; }
 .mt-li.hw{ box-shadow:inset 5px 0 0 #f6f1ae; }
-.mt-li-main{ flex:1 1 auto; min-width:0; display:flex; align-items:center; gap:12px; min-height:52px; padding:4px 6px; border:none; background:transparent; cursor:pointer; text-align:left; font-family:'Outfit',sans-serif; color:#1d1a22; }
-.mt-li-no{ flex:none; width:40px; height:40px; border-radius:10px; border:1px solid #ddd6ca; background:#fbfaf6; display:inline-flex; align-items:center; justify-content:center; font-size:15px; font-weight:700; }
+.mt-li-main{ flex:1 1 auto; min-width:0; display:flex; align-items:center; gap:10px; min-height:44px; padding:2px 4px; border:none; background:transparent; cursor:pointer; text-align:left; font-family:'Outfit',sans-serif; color:#1d1a22; }
+.mt-li-no{ flex:none; width:32px; height:32px; border-radius:9px; border:1px solid #ddd6ca; background:#fbfaf6; display:inline-flex; align-items:center; justify-content:center; font-size:14px; font-weight:700; }
 .mt-li.done .mt-li-no{ background:#ca4490; border-color:#ca4490; color:#fff; }
-.mt-li-t{ flex:1 1 auto; min-width:0; display:flex; flex-direction:column; font-size:15.5px; font-weight:600; line-height:1.3; }
-.mt-li-t small{ font-size:12px; font-weight:600; color:#8a7a1a; margin-top:2px; }
-.mt-li.draft .mt-li-t small{ color:#ca4490; }
+.mt-li-t{ flex:1 1 auto; min-width:0; font-size:15px; font-weight:600; line-height:1.3; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.mt-li-tag{ flex:none; font-size:11px; font-weight:700; color:#6b5a0b; background:#f6f1ae; padding:2px 7px; border-radius:999px; white-space:nowrap; }
+.mt-li-tag-draft{ color:#ca4490; background:#fdf1f7; }
+.mt-list, .mt-pack-body{ display:flex; flex-direction:column; gap:6px; }
+.mt-li{ padding:2px 8px 2px 3px; }
+.mt-pack{ display:flex; flex-direction:column; gap:6px; }
+.mt-pack + .mt-pack{ margin-top:4px; }
+.mt-pack-head{ position:relative; display:block; width:100%; padding:0; border:1.5px solid #1d1a22; border-radius:12px; background:#fff; cursor:pointer; font-family:'Outfit',sans-serif; text-align:left; overflow:hidden; }
+.mt-pack-row{ display:flex; align-items:center; gap:10px; min-height:44px; padding:0 14px; color:#1d1a22; background:#fff; }
+.mt-pack-over{ position:absolute; inset:0; background:#1d1a22; color:#fff; transition:clip-path .3s; }
+.mt-pack-t{ flex:1 1 auto; font-size:15px; font-weight:700; }
+.mt-pack-c{ flex:none; font-size:13.5px; font-weight:700; }
+.mt-pack-caret{ flex:none; font-size:11px; transition:transform .15s; }
+.mt-pack.open .mt-pack-caret{ transform:rotate(180deg); }
+html.eg-dark .mt-pack-head{ border-color:#e8e6ef; }
+html.eg-dark .mt-pack-row{ background:#24263a; color:#e8e6ef; }
+html.eg-dark .mt-pack-over{ background:#e8e6ef; color:#1a1b26; }
+html.eg-dark .mt-li-tag{ background:#3b3820; color:#f6f1ae; }
+html.eg-dark .mt-li-tag-draft{ background:#3a2034; color:#f08cc4; }
 .mt-li-lock{ flex:none; color:#7a7385; display:inline-flex; }
 .mt-li-score{ flex:none; background:none; border:none; padding:4px 2px; cursor:pointer; font-family:'Outfit',sans-serif; font-size:13.5px; font-weight:700; color:#8f2c66; text-decoration:underline dotted; text-underline-offset:3px; }
 .mt-li-score:hover{ color:#ca4490; }
@@ -795,7 +859,6 @@ html.eg-dark .mt-li-main{ color:#e8e6ef; }
 html.eg-dark .mt-li-no{ background:#1a1b26; border-color:#4a4c66; color:#e8e6ef; }
 html.eg-dark .mt-li.done .mt-li-no{ background:#ca4490; border-color:#ca4490; color:#fff; }
 html.eg-dark .mt-li.hw{ box-shadow:inset 5px 0 0 #8a8240; }
-html.eg-dark .mt-li-t small{ color:#e6dc7a; }
 html.eg-dark .mt-li-lock{ color:#a29caf; }
 html.eg-dark .mt-li-score{ color:#f08cc4; }
 .mt-legend{ display:flex; flex-wrap:wrap; gap:16px; font-size:13.5px; color:#5b5566; }
