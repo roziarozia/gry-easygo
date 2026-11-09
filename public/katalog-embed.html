@@ -489,13 +489,14 @@
     color:var(--eg-muted);
     font-weight:600;
   }
-  .eg-series-link{
+  .eg-filters button[hidden]{ display:none !important; }
+  .eg-series-link, .eg-mat-link{
     color:var(--eg-magenta);
     font-weight:700;
     text-decoration:none;
     border-bottom:1px solid transparent;
   }
-  .eg-series-link:hover{ border-bottom-color:var(--eg-magenta); }
+  .eg-series-link:hover, .eg-mat-link:hover{ border-bottom-color:var(--eg-magenta); }
   .eg-series-banner{
     width:fit-content; min-width:min(560px,100%); max-width:100%; box-sizing:border-box;
     margin:0 auto 10px;
@@ -1192,12 +1193,14 @@
   .eg-type-slownictwo{ background:#e3f3ea; color:#1e7e50; }
   .eg-type-kultura{ background:#fdf0e3; color:#b5721c; }
   .eg-type-listening{ background:#fdeee2; color:#a35b1c; }
+  .eg-type-writing{ background:#fbe6f1; color:#ca4490; }
   html.eg-dark .eg-type-speaking{ background:#3a2d4f; color:#cbb8e6; }
   html.eg-dark .eg-type-reading{ background:#22384f; color:#a9cdec; }
   html.eg-dark .eg-type-gramatyka{ background:#25344a; color:#a9c6ec; }
   html.eg-dark .eg-type-slownictwo{ background:#1f3d30; color:#8fd9b3; }
   html.eg-dark .eg-type-kultura{ background:#3d3119; color:#edca93; }
   html.eg-dark .eg-type-listening{ background:#43301f; color:#e8b183; }
+  html.eg-dark .eg-type-writing{ background:#47233a; color:#f0a9cf; }
   .eg-premium-open{ display:inline-flex; align-items:center; margin-left:6px; color:#b8b2c0; }
   /* znacznik ukończenia na kafelku */
   /* Pełny dostęp: filtry darmowe/płatne są zbędne (wszystko odblokowane) — chowamy je */
@@ -1960,6 +1963,7 @@
         <button data-cat="reading" data-i18n="Czytanie">Czytanie</button>
         <button data-cat="listening" data-i18n="Słuchanie">Słuchanie</button>
         <button data-cat="kultura" data-i18n="Wiedza o krajach">Wiedza o krajach</button>
+        <button data-cat="pisanie" id="egPisanieBtn" data-i18n="Pisanie" title="Wypracowania maturalne" hidden>Pisanie</button>
       </div>
       <div class="eg-filter-row">
         <button data-cat="darmowe" class="eg-free-filter"><svg viewBox="0 0 24 24" width="13" height="13" style="vertical-align:-1px;margin-right:5px"><path d="M9 21h6v-1H9v1zm3-19C8.14 2 5 5.14 5 9c0 2.38 1.19 4.47 3 5.74V17c0 .55.45 1 1 1h6c.55 0 1-.45 1-1v-2.26c1.81-1.27 3-3.36 3-5.74 0-3.86-3.14-7-7-7z" fill="currentColor"/></svg><span data-i18n="Darmowe">Darmowe</span></button>
@@ -3146,11 +3150,13 @@
         gramatyka: '<svg viewBox="0 0 24 24" width="12" height="12" style="vertical-align:-2px;margin-right:4px"><path d="M5 4h14v2H5zM5 9h14v2H5zM5 14h9v2H5zM5 19h9v2H5z" fill="currentColor"/></svg>',
         slownictwo: '<svg viewBox="0 0 24 24" width="12" height="12" style="vertical-align:-2px;margin-right:4px"><path d="M4 6a2 2 0 0 1 2-2h5v16H6a2 2 0 0 0-2 2V6zm16 0a2 2 0 0 0-2-2h-5v16h5a2 2 0 0 1 2 2V6z" fill="currentColor"/></svg>',
         listening: '<svg viewBox="0 0 24 24" width="12" height="12" style="vertical-align:-2px;margin-right:4px"><path d="M12 3a7 7 0 0 0-7 7v5a3 3 0 0 0 3 3h1v-6H7v-2a5 5 0 0 1 10 0v2h-2v6h1a3 3 0 0 0 3-3v-5a7 7 0 0 0-7-7z" fill="currentColor"/></svg>',
+        writing: '<svg viewBox="0 0 24 24" width="12" height="12" style="vertical-align:-2px;margin-right:4px"><path d="M3 17.25V21h3.75L17.8 9.94l-3.75-3.75L3 17.25zM20.7 7.04a1 1 0 0 0 0-1.41l-2.33-2.33a1 1 0 0 0-1.41 0l-1.83 1.83 3.75 3.75 1.82-1.84z" fill="currentColor"/></svg>',
         kultura: '<svg viewBox="0 0 24 24" width="12" height="12" style="vertical-align:-2px;margin-right:4px"><path d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20zm0 2c1.5 0 3.5 2.6 3.5 8s-2 8-3.5 8-3.5-2.6-3.5-8 2-8 3.5-8zM4.2 9h3.1c-.1 1-.1 2-.1 3s0 2 .1 3H4.2a8 8 0 0 1 0-6zm12.5 0h3.1a8 8 0 0 1 0 6h-3.1c.1-1 .1-2 .1-3s0-2-.1-3z" fill="currentColor"/></svg>'
       };
-      var typeLabels = { speaking:t('Mówienie'), reading:t('Czytanie'), gramatyka:t('Gramatyka'), slownictwo:t('Słownictwo'), listening:t('Słuchanie'), kultura:t('Wiedza o krajach') };
+      var typeLabels = { speaking:t('Mówienie'), reading:t('Czytanie'), gramatyka:t('Gramatyka'), slownictwo:t('Słownictwo'), listening:t('Słuchanie'), writing:t('Pisanie'), kultura:t('Wiedza o krajach') };
       // klucz typu bez ogonków (catLabel bywa 'słownictwo' z ł) — spójny z CSS i mapami
-      var typeKey = (catLabel === 'słownictwo' || catLabel === 'slownictwo') ? 'slownictwo'
+      var typeKey = (g.category === 'writing' || g.template === 'writing' || g.matura_section === 'writing') ? 'writing'
+        : (catLabel === 'słownictwo' || catLabel === 'slownictwo') ? 'slownictwo'
         : (catLabel === 'speaking') ? 'speaking'
         : (catLabel === 'reading') ? 'reading'
         : (catLabel === 'listening') ? 'listening'
@@ -3177,6 +3183,12 @@
           var lvlPart = g.level ? esc(g.level) + ' · ' : '';
           seriesLine = '<div class="eg-series eg-series-num">' + lvlPart + t('ćwiczenie nr') + ' ' + esc(String(g.exercise_no)) + '</div>';
         }
+      } else if(g.matura){
+        // zadanie maturalne: zamiast „zobacz całą serię” (seria matura jest w katalogu ukryta)
+        // pokazujemy poziom matury i link do strony /matura
+        var mLvl = g.matura_level === 'basic' ? t('matura podstawowa') : g.matura_level === 'ext' ? t('matura rozszerzona') : t('matura');
+        seriesLine = '<div class="eg-series"><span class="eg-series-num">' + mLvl + '</span><span class="eg-series-sep"> · </span>' +
+          '<a href="/matura" target="_top" class="eg-mat-link">' + t('więcej zadań maturalnych') + '</a></div>';
       } else if(g.series){
         var numPart = g.exercise_no
           ? '<span class="eg-series-num">' + t('ćwiczenie nr') + ' ' + esc(String(g.exercise_no)) + '</span><span class="eg-series-sep"> · </span>'
@@ -3422,6 +3434,8 @@
     if(!btn) return;
     _egUserInteracted = true;
     var cat = btn.getAttribute('data-cat');
+    // „Pisanie” to wypracowania maturalne — mają swoją stronę, więc przycisk prowadzi na /matura
+    if(cat === 'pisanie'){ window.open('/matura', '_top'); return; }
     if(cat === 'wszystkie'){
       // reset obu osi
       curType = 'wszystkie'; curStatus = 'wszystkie';
@@ -3513,12 +3527,12 @@
 
       // KATEGORIA — tylko rodzaje (te same co przyciski na komputerze, razem z Wiedzą o krajach)
       var catDefs = [['wszystkie',t('Wszystkie')],['gramatyka',t('Gramatyka')],['slownictwo',t('Słownictwo')],
-                     ['speaking',t('Mówienie')],['reading',t('Czytanie')],['listening',t('Słuchanie')],['kultura',t('Wiedza o krajach')]];
+                     ['speaking',t('Mówienie')],['reading',t('Czytanie')],['listening',t('Słuchanie')],['kultura',t('Wiedza o krajach')],['pisanie',t('Pisanie')]];
       h = '';
       catDefs.forEach(function(d){
         // pokaż tylko te, które istnieją jako widoczny przycisk
         var orig = filters.querySelector('button[data-cat="' + d[0] + '"]');
-        if(orig) h += optHTML(d[1], 'cat', d[0]);
+        if(orig && !orig.hidden) h += optHTML(d[1], 'cat', d[0]);
       });
       panelCat.innerHTML = h;
 
@@ -3808,7 +3822,7 @@
     searchInput.focus();
   });
 
-  fetch(SUPA_URL + '/rest/v1/games?published=eq.true&select=matura,matura_section,slug,title,description,category,level,cover_url,slide_count_label,sort_order,exercise_no,keywords,series,is_premium,for_kids,created_at,published_at&order=sort_order.asc',
+  fetch(SUPA_URL + '/rest/v1/games?published=eq.true&select=matura,matura_level,matura_section,slug,title,description,category,level,cover_url,slide_count_label,sort_order,exercise_no,keywords,series,is_premium,for_kids,created_at,published_at&order=sort_order.asc',
     { headers: { apikey: SUPA_KEY, Authorization: 'Bearer ' + SUPA_KEY } })
   .then(function(r){ return r.json(); })
   .then(function(rows){
@@ -4229,6 +4243,10 @@
     'Mówienie': 'Speaking',
     'Czytanie': 'Reading',
     'Słuchanie': 'Listening',
+    'Pisanie': 'Writing',
+    'matura podstawowa': 'basic-level matura',
+    'matura rozszerzona': 'extended-level matura',
+    'więcej zadań maturalnych': 'more matura tasks',
     // etykiety / filtry
     'Kategoria': 'Category',
     'Poziom': 'Level',
@@ -4818,6 +4836,9 @@
     // zakładka „Matura” w górnej nawigacji: widać ją, gdy można wejść (po starcie albo administratorka)
     var nav = document.getElementById('egMaturaNav');
     if(nav) nav.hidden = (tryb === 'zapowiedz');
+    // przycisk „Pisanie” w filtrach też prowadzi na /matura — widać go od startu (albo administratorce)
+    var pis = document.getElementById('egPisanieBtn');
+    if(pis){ pis.hidden = (tryb === 'zapowiedz'); if(window._egBuildMob) window._egBuildMob(); }
     if(tryb === 'start'){
       if(goEl) goEl.innerHTML = goOrig;
       var pv = document.getElementById('egMaturaPv'); if(pv) pv.remove();
