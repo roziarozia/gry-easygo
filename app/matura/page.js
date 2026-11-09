@@ -9,7 +9,7 @@ import { SECTIONS, taskName } from './maturaData';
 // w ciągu kilku minut, a na stronie głównej pojawia się napis „Matura”.
 export const revalidate = 300;
 
-const OPIS = 'Ćwiczenia z angielskiego wzorowane na arkuszach maturalnych: Listening, Reading i Use of English. Polecenia jak na maturze, wynik i wyjaśnienie każdej odpowiedzi.';
+const OPIS = 'Ćwiczenia z angielskiego jak na maturze: Listening, Reading, Use of English, Writing i matura ustna. Poziom podstawowy i rozszerzony, polecenia jak w arkuszu.';
 
 export async function generateMetadata() {
   const live = (await getPublishedMatura()).length > 0;
