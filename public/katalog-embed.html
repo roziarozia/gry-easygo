@@ -1213,6 +1213,12 @@
   #egFilters button.eg-hw-filter{ position:relative; overflow:visible; }
   .eg-hw-count{ position:absolute; top:-7px; right:-7px; min-width:19px; height:19px; padding:0 5px; display:inline-flex; align-items:center; justify-content:center; background:#b8a4e8; color:#fff; font-family:'Quicksand',sans-serif; font-weight:800; font-size:11.5px; line-height:1; border-radius:999px; box-shadow:0 2px 6px rgba(184,164,232,.55); border:2px solid #fff; }
   html.eg-dark .eg-hw-count{ border-color:#1b2431; box-shadow:0 2px 6px rgba(184,164,232,.35); }
+  .eg-wr-pill{ display:inline-flex; align-self:flex-start; margin:2px 0 6px; padding:3px 9px; border-radius:8px; font-family:'Quicksand',sans-serif; font-weight:700; font-size:12px; background:#efe6f7; color:#6b3fa0; }
+  .eg-wr-pill.eg-wr-draft{ background:#f1eff4; color:#7a7385; }
+  .eg-wr-pill.eg-wr-due{ background:#ca4490; color:#fff; }
+  html.eg-dark .eg-wr-pill{ background:#3a2d4f; color:#cbb8e6; }
+  html.eg-dark .eg-wr-pill.eg-wr-draft{ background:#2c2934; color:#a29caf; }
+  html.eg-dark .eg-wr-pill.eg-wr-due{ background:#ca4490; color:#fff; }
   .eg-score-line{ display:inline-flex; align-items:center; max-width:100%; white-space:nowrap; margin:2px 0 6px; padding:3px 9px; background:#a78dd9; color:#fff; font-family:'Quicksand',sans-serif; font-weight:600; font-size:12px; border-radius:8px; }
   .eg-score-line strong{ font-weight:800; }
   .eg-score-line.clickable{ cursor:pointer; text-decoration:underline; text-decoration-style:dotted; }
@@ -2229,6 +2235,8 @@
   }
   var homeworkSet = {}; // sluggi gier przypisanych zalogowanemu uczniowi jako praca domowa
   var completedSet = {}; // sluggi ćwiczeń, które uczeń już ukończył (postępy)
+  var wrSet = {};       // slug -> status wypracowania maturalnego (draft/submitted/graded)
+  var hasTeacherMe = false; // czy zalogowany uczeń ma lektora (inne napisy przy wypracowaniach)
   var scoreSet = {};     // slug -> { score, max, at } dla ćwiczeń z zapisanym wynikiem
 
   var grid = document.getElementById('egGrid');
@@ -2641,7 +2649,7 @@
     if(!svBackup){
       svBackup = {
         completedSet: completedSet, scoreSet: scoreSet,
-        homeworkSet: homeworkSet, homeworkDone: homeworkDone
+        homeworkSet: homeworkSet, homeworkDone: homeworkDone, wrSet: wrSet
       };
     }
     svViewing = { kind:'student', id:id, name:target.name };
@@ -2653,8 +2661,13 @@
     Promise.all([
       _sb.from('student_progress').select('game_slug, done, note').eq('teacher_id', svTeacherId).eq('student_id', id),
       _sb.from('game_completions').select('game_slug, source, score, score_max, completed_at').eq('user_id', id),
-      _sb.from('homework').select('game_slug, completed_at').eq('student_id', id)
+      _sb.from('homework').select('game_slug, completed_at').eq('student_id', id),
+      _sb.from('writing_submissions').select('game_slug, status').eq('user_id', id)
     ]).then(function(res){
+      // wypracowania ucznia (lektor widzi, co czeka na sprawdzenie)
+      var ws = {};
+      (res[3] && res[3].data ? res[3].data : []).forEach(function(w){ ws[w.game_slug] = w.status; });
+      wrSet = ws;
       // notatki „w trakcie” (lawendowe obwódki + tekst notatki)
       svProgress = {};
       (res[0] && res[0].data ? res[0].data : []).forEach(function(row){
@@ -2705,6 +2718,7 @@
       scoreSet = svBackup.scoreSet;
       homeworkSet = svBackup.homeworkSet;
       homeworkDone = svBackup.homeworkDone;
+      wrSet = svBackup.wrSet || {};
       svBackup = null;
     }
     var sm = document.getElementById('egStudentMode');
@@ -3259,6 +3273,16 @@
         : '';
       // pasek z wynikiem ucznia — tylko gdy zadanie ma zapisany wynik (score)
       var scoreLine = '';
+      // wypracowanie: status zamiast wyniku, dopóki lektor nie oceni
+      var isWr = g.matura_section === 'writing';
+      var wrSt = isWr ? wrSet[g.slug] : null;
+      if(wrSt === 'submitted'){
+        scoreLine = svViewing
+          ? '<span class="eg-wr-pill eg-wr-due">' + t('Do sprawdzenia') + '</span>'
+          : '<span class="eg-wr-pill">' + (hasTeacherMe ? t('Oddane do sprawdzenia') : t('Zapisane jako gotowe')) + '</span>';
+      } else if(wrSt === 'draft'){
+        scoreLine = '<span class="eg-wr-pill eg-wr-draft">' + t('Wersja robocza') + '</span>';
+      }
       if(scoreSet[g.slug]){
         var _sc = scoreSet[g.slug];
         var _pct = Math.round(_sc.score / _sc.max * 100);
@@ -3269,7 +3293,8 @@
             _dstr = ' · ' + _d.toLocaleDateString(window.EG_LANG==='en'?'en-GB':'pl-PL', {day:'numeric', month:'short'});
           }catch(e){ _dstr = ''; }
         }
-        scoreLine = '<span class="eg-score-line clickable" data-ansd-slug="' + esc(g.slug) + '" title="' + t('Kliknij, aby zobaczyć szczegóły') + '"><svg viewBox="0 0 24 24" width="13" height="13" style="vertical-align:-2px;margin-right:4px"><path d="M12 2l2.4 7.4H22l-6 4.6 2.3 7.4-6.3-4.6L5.7 21.4 8 14 2 9.4h7.6z" fill="currentColor"/></svg>' + t('Wynik') + ': <strong>' + _sc.score + '/' + _sc.max + '</strong> · ' + _pct + '%' + _dstr + '</span>';
+        // wypracowanie nie ma odpowiedzi do rozpisania — sam wynik, bez klikania (ocenę z komentarzem widać w zadaniu)
+        scoreLine = (isWr ? '<span class="eg-score-line">' : '<span class="eg-score-line clickable" data-ansd-slug="' + esc(g.slug) + '" title="' + t('Kliknij, aby zobaczyć szczegóły') + '">') + '<svg viewBox="0 0 24 24" width="13" height="13" style="vertical-align:-2px;margin-right:4px"><path d="M12 2l2.4 7.4H22l-6 4.6 2.3 7.4-6.3-4.6L5.7 21.4 8 14 2 9.4h7.6z" fill="currentColor"/></svg>' + (isWr ? t('Ocena lektora') : t('Wynik')) + ': <strong>' + _sc.score + '/' + _sc.max + '</strong>' + (isWr ? '' : ' · ' + _pct + '%' + _dstr) + '</span>';
       }
       // Tryb ucznia (teczka): obwódka wokół zadania wg postępów ucznia.
       // Zielona = ukończone (oznaczone w panelu LUB faktycznie zrobione przez ucznia).
@@ -4087,6 +4112,7 @@
           var p = pr && pr.data ? pr.data : null;
           // czy użytkownik ma pełny dostęp (własna subskrypcja, przez lektora, lub komplementarny)?
           userHasAccess = !!(p && p.access === 'full');
+          hasTeacherMe = !!(p && p.teacher_id);
           // pełny dostęp → schowaj filtry darmowe/płatne (są zbędne)
           try{ if(userHasAccess){ document.body.classList.add('eg-has-access'); if(curStatus==='platne'||curStatus==='darmowe'){ curStatus='wszystkie'; } } else { document.body.classList.remove('eg-has-access'); } }catch(e){}
           // Wpis „access” w profilu bywa nieaktualny (np. uczeń lektora, który nie ma już subskrypcji).
@@ -4132,6 +4158,16 @@
           homeworkDone = hdTmp;
           updateHwBadge();
           if(Object.keys(homeworkSet).length) render();
+        });
+      // status wypracowań maturalnych (oddane / wersja robocza) — napis na kafelku
+      _sb.from('writing_submissions').select('game_slug, status').eq('user_id', session.user.id)
+        .then(function(r){
+          if(r.error || !r.data) return;
+          var wTmp = {};
+          r.data.forEach(function(w){ wTmp[w.game_slug] = w.status; });
+          if(typeof svViewing !== 'undefined' && svViewing){ if(svBackup) svBackup.wrSet = wTmp; return; }
+          wrSet = wTmp;
+          if(r.data.length) render();
         });
       // pobierz ukończone ćwiczenia (postępy — Wariant B); source='teacher' = zaliczone przez lektora
       _sb.from('game_completions').select('game_slug, source, score, score_max, completed_at').eq('user_id', session.user.id)
@@ -4244,6 +4280,11 @@
     'Czytanie': 'Reading',
     'Słuchanie': 'Listening',
     'Pisanie': 'Writing',
+    'Do sprawdzenia': 'To check',
+    'Oddane do sprawdzenia': 'Sent for checking',
+    'Zapisane jako gotowe': 'Saved as finished',
+    'Wersja robocza': 'Draft',
+    'Ocena lektora': 'Teacher\'s score',
     'matura podstawowa': 'basic-level matura',
     'matura rozszerzona': 'extended-level matura',
     'więcej zadań maturalnych': 'more matura tasks',
