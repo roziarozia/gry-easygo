@@ -3813,6 +3813,7 @@
   .then(function(r){ return r.json(); })
   .then(function(rows){
     allGames = Array.isArray(rows) ? rows : [];
+    updateHwBadge(); // praca domowa mogła się wczytać przed listą ćwiczeń
     buildLevelFilters();
     // Priorytet: filtry z adresu (?poziom=/?kategoria=) — gdy ktoś wchodzi z linku.
     // Gdy adres nie ma filtrów, przywróć ostatnie wybory z pamięci (przetrwają
@@ -3860,7 +3861,11 @@
     var hwBtn = document.querySelector('#egFilters button[data-cat="domowa"]');
     if(!hwBtn) return;
     var hwPending = 0;
-    Object.keys(homeworkSet).forEach(function(slug){ if(!homeworkDone[slug]) hwPending++; });
+    // liczymy tylko ćwiczenia, które uczeń naprawdę widzi (opublikowane) — zadany szkic
+    // nie może dawać „1” w chmurce przy pustej liście; pojawi się sam po publikacji
+    var visible = {};
+    (allGames || []).forEach(function(g){ visible[g.slug] = true; });
+    Object.keys(homeworkSet).forEach(function(slug){ if(!homeworkDone[slug] && visible[slug]) hwPending++; });
     var hwCloud = hwBtn.querySelector('.eg-hw-count');
     if(hwPending > 0 && egIsTeacherStudent){
       if(!hwCloud){
