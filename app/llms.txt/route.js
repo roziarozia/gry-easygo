@@ -50,7 +50,7 @@ export async function GET() {
   out.push(`- [Katalog ćwiczeń](${SITE}/): wszystkie ćwiczenia z filtrami poziomu (A1–C1) i rodzaju (gramatyka, słownictwo, czytanki, słuchanie, konwersacje)`);
   out.push(`- [Nauka – artykuły](${SITE}/nauka): wyjaśnienia gramatyki i słownictwa po polsku, z przykładami i tabelami`);
   out.push(`- [Oferta](${SITE}/oferta): plany dla uczniów i lektorów`);
-  if (matura.length) out.push(`- [Matura z angielskiego](${SITE}/matura): ćwiczenia wzorowane na arkuszach maturalnych (Listening, Reading, Use of English), z poleceniami jak na maturze`);
+  if (matura.length) out.push(`- [Matura z angielskiego](${SITE}/matura): ćwiczenia wzorowane na arkuszach maturalnych (Listening, Reading, Use of English, Writing, matura ustna) na poziomie podstawowym i rozszerzonym, z poleceniami jak na maturze`);
   out.push(`- [Opinie](${SITE}/opinie): opinie użytkowników`);
   out.push('');
 
@@ -65,7 +65,7 @@ export async function GET() {
   }
 
   if (matura.length) {
-    const SEC = { listening: 'Listening', reading: 'Reading', use: 'Use of English' };
+    const SEC = { listening: 'Listening', reading: 'Reading', use: 'Use of English', writing: 'Writing', speaking: 'matura ustna' };
     out.push('## Matura z angielskiego');
     out.push('');
     for (const x of matura) {
