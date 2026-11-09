@@ -562,20 +562,26 @@ export default function MaturaHub() {
                 <button type="button" className="mt-link" onClick={() => { setDrawer(null); window.scrollTo(0, 0); setTimeout(() => setTkOpen(true), 0); }}>Otwórz teczkę uczniów</button>
               </div>
             )}
-            <div className="mt-tiles">
+            <div className="mt-list">
               {drawerShown.map((g) => {
                 const r = done[g.slug];
+                const hw = !!hwMap[g.slug];
                 return (
-                  <div key={g.slug} className="mt-tw">
-                    <button type="button" title={g.title + (hwMap[g.slug] ? ' (praca domowa)' : '')} className={'mt-tile' + (r ? ' done' : '') + (!g.published ? ' draft' : '') + (hwMap[g.slug] ? ' hw' : '')} onClick={() => open(g)}>
-                      {locked(g) ? <Lock /> : null}{g.exercise_no}
+                  <div key={g.slug} className={'mt-li' + (r ? ' done' : '') + (!g.published ? ' draft' : '') + (hw ? ' hw' : '')}>
+                    <button type="button" className="mt-li-main" title={g.title} onClick={() => open(g)}>
+                      <span className="mt-li-no">{g.exercise_no}</span>
+                      <span className="mt-li-t">
+                        {topicOf(g, drawerList)}
+                        {(hw || !g.published) && <small>{[hw ? 'praca domowa' : '', !g.published ? 'szkic' : ''].filter(Boolean).join(' · ')}</small>}
+                      </span>
+                      {locked(g) && <span className="mt-li-lock" title="Dla subskrybentów"><Lock /></span>}
                     </button>
-                    {/* wynik pod kafelkiem — kliknięcie otwiera ćwiczenie od razu ze szczegółami wyniku */}
+                    {/* wynik — kliknięcie otwiera ćwiczenie od razu ze szczegółami wyniku */}
                     {r && r.max ? (
-                      <button type="button" className="mt-tscore" title="Zobacz szczegóły wyniku" onClick={() => { window.location.href = '/matura/' + g.slug + '?wynik=1'; }}>
+                      <button type="button" className="mt-li-score" title="Zobacz szczegóły wyniku" onClick={() => { window.location.href = '/matura/' + g.slug + '?wynik=1'; }}>
                         {r.score}/{r.max}
                       </button>
-                    ) : null}
+                    ) : r ? <span className="mt-li-score mt-li-ok">zrobione</span> : null}
                   </div>
                 );
               })}
@@ -618,6 +624,21 @@ export default function MaturaHub() {
       )}
     </div>
   );
+}
+
+// Na liście pokazujemy sam temat ćwiczenia: „Finding Longitude – Missing Sentences (part 1)” → „Finding Longitude”,
+// „Opinion Essay: Schools Without Homework” → „Schools Without Homework”. Typ zadania jest już w nagłówku listy.
+// Gdy tytuły w danym typie nie mają tematu (np. „Minidialogi (part 2)”), pokazujemy „Zestaw 2”.
+function bareTopic(title) {
+  let t = String(title || '').replace(/\s*\(part\s*\d+\)\s*$/i, '').trim();
+  if (t.indexOf(' – ') > -1) t = t.split(' – ')[0].trim();
+  else if (t.indexOf(': ') > -1) t = t.slice(t.indexOf(': ') + 2).trim();
+  return t;
+}
+function topicOf(g, list) {
+  const t = bareTopic(g.title);
+  const same = (list || []).filter((x) => x.slug !== g.slug && bareTopic(x.title) === t).length > 0;
+  return !t || same ? 'Zestaw ' + g.exercise_no : t;
 }
 
 function StudentItem({ s, active, onPick, pending }) {
@@ -754,6 +775,29 @@ html.eg-dark .mt-box-speaking .mt-bar span{ background:#e8e6ef; }
 .mt-tw{ display:flex; flex-direction:column; align-items:stretch; gap:3px; min-width:0; }
 .mt-tscore{ background:none; border:none; padding:2px 0; cursor:pointer; font-family:'Outfit',sans-serif; font-size:12px; font-weight:600; color:#7a7385; text-decoration:underline dotted; text-underline-offset:3px; }
 .mt-tscore:hover{ color:#ca4490; }
+.mt-list{ display:flex; flex-direction:column; gap:8px; }
+.mt-li{ display:flex; align-items:center; gap:8px; background:#fff; border:1px solid #ebe6dc; border-radius:14px; padding:4px 10px 4px 4px; }
+.mt-li:hover{ border-color:#ca4490; }
+.mt-li.draft{ border-style:dashed; border-color:#ca4490; }
+.mt-li.hw{ box-shadow:inset 5px 0 0 #f6f1ae; }
+.mt-li-main{ flex:1 1 auto; min-width:0; display:flex; align-items:center; gap:12px; min-height:52px; padding:4px 6px; border:none; background:transparent; cursor:pointer; text-align:left; font-family:'Outfit',sans-serif; color:#1d1a22; }
+.mt-li-no{ flex:none; width:40px; height:40px; border-radius:10px; border:1px solid #ddd6ca; background:#fbfaf6; display:inline-flex; align-items:center; justify-content:center; font-size:15px; font-weight:700; }
+.mt-li.done .mt-li-no{ background:#ca4490; border-color:#ca4490; color:#fff; }
+.mt-li-t{ flex:1 1 auto; min-width:0; display:flex; flex-direction:column; font-size:15.5px; font-weight:600; line-height:1.3; }
+.mt-li-t small{ font-size:12px; font-weight:600; color:#8a7a1a; margin-top:2px; }
+.mt-li.draft .mt-li-t small{ color:#ca4490; }
+.mt-li-lock{ flex:none; color:#7a7385; display:inline-flex; }
+.mt-li-score{ flex:none; background:none; border:none; padding:4px 2px; cursor:pointer; font-family:'Outfit',sans-serif; font-size:13.5px; font-weight:700; color:#8f2c66; text-decoration:underline dotted; text-underline-offset:3px; }
+.mt-li-score:hover{ color:#ca4490; }
+.mt-li-ok{ cursor:default; text-decoration:none; font-weight:600; }
+html.eg-dark .mt-li{ background:#24263a; border-color:#363850; }
+html.eg-dark .mt-li-main{ color:#e8e6ef; }
+html.eg-dark .mt-li-no{ background:#1a1b26; border-color:#4a4c66; color:#e8e6ef; }
+html.eg-dark .mt-li.done .mt-li-no{ background:#ca4490; border-color:#ca4490; color:#fff; }
+html.eg-dark .mt-li.hw{ box-shadow:inset 5px 0 0 #8a8240; }
+html.eg-dark .mt-li-t small{ color:#e6dc7a; }
+html.eg-dark .mt-li-lock{ color:#a29caf; }
+html.eg-dark .mt-li-score{ color:#f08cc4; }
 .mt-legend{ display:flex; flex-wrap:wrap; gap:16px; font-size:13.5px; color:#5b5566; }
 .mt-legend span{ display:inline-flex; align-items:center; gap:6px; }
 .mt-legend i{ display:inline-block; width:14px; height:14px; border:1px solid #ddd6ca; border-radius:4px; background:#fff; }
