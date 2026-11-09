@@ -124,13 +124,13 @@ export default function MaturaHub() {
   async function enterView(s) {
     setTkOpen(false);
     const [gc, hw, wr] = await Promise.all([
-      supabase.from('game_completions').select('game_slug,score,score_max,completed_at').eq('user_id', s.id),
+      supabase.from('game_completions').select('game_slug,source,score,score_max,completed_at').eq('user_id', s.id),
       supabase.from('homework').select('game_slug,completed_at').eq('student_id', s.id),
       supabase.from('writing_submissions').select('game_slug,status,score,score_max').eq('user_id', s.id),
     ]);
     if (gc.error || hw.error) { showToast('Nie udało się wczytać postępów ucznia. Spróbuj ponownie.'); return; }
     const d = {};
-    (gc.data || []).forEach((c) => { d[c.game_slug] = { score: c.score, max: c.score_max, at: c.completed_at }; });
+    (gc.data || []).forEach((c) => { d[c.game_slug] = { score: c.score, max: c.score_max, at: c.completed_at, src: c.source || 'self' }; });
     const h = {};
     (hw.data || []).forEach((r) => { h[r.game_slug] = r.completed_at || true; });
     const w = {};
@@ -163,6 +163,40 @@ export default function MaturaHub() {
     if (r.error && !(!on && String(r.error.message || '').indexOf('duplicate') !== -1)) { showToast('Nie udało się zapisać. Spróbuj ponownie.'); return; }
     setVHw((prev) => { const n = { ...prev }; if (on) delete n[g.slug]; else n[g.slug] = true; return n; });
     showToast((on ? 'Usunięto z pracy domowej: ' : 'Zadano jako pracę domową: ') + g.title);
+  }
+
+  // Zalicz / cofnij zaliczenie oglądanemu uczniowi (np. zadanie zrobione razem na lekcji).
+  // Ta sama funkcja co „zrobione” na kafelku na stronie głównej i w panelu lektora.
+  // Cofnąć można tylko zaliczenie lektora — wyniku, który uczeń zdobył sam, nie usuwamy.
+  async function toggleDone(g) {
+    if (!viewing || !teacherId) return;
+    const r = vDone[g.slug];
+    if (r && r.src !== 'teacher') { showToast('Uczeń zrobił to ćwiczenie sam – jego wyniku nie cofamy.'); return; }
+    const on = !!r;
+    const studentId = viewing.id;
+    setBusy(g.slug);
+    try {
+      const rr = await supabase.rpc('teacher_mark_completion', { p_student: studentId, p_slug: g.slug, p_done: !on });
+      if (rr.error) throw rr.error;
+      // postęp „na lekcji” w panelu lektora (student_progress) — tak samo jak na stronie głównej
+      const up = await supabase.from('student_progress').update({ done: !on })
+        .eq('teacher_id', teacherId).eq('student_id', studentId).eq('game_slug', g.slug).select('game_slug');
+      if (!on && !up.error && !(up.data || []).length) {
+        await supabase.from('student_progress').insert({ teacher_id: teacherId, student_id: studentId, game_slug: g.slug, done: true });
+      }
+    } catch (e) {
+      setBusy('');
+      showToast('Nie udało się zapisać. Spróbuj ponownie.');
+      return;
+    }
+    setBusy('');
+    if (!viewing || viewing.id !== studentId) return;
+    setVDone((prev) => {
+      const n = { ...prev };
+      if (on) delete n[g.slug]; else n[g.slug] = { score: null, max: null, at: new Date().toISOString(), src: 'teacher' };
+      return n;
+    });
+    showToast((on ? 'Cofnięto zaliczenie: ' : 'Zaliczono uczniowi: ') + g.title);
   }
 
   // W podglądzie cała strona liczy wyniki oglądanego ucznia
@@ -500,20 +534,34 @@ export default function MaturaHub() {
                             vWr[g.slug].status === 'graded' ? <span className="mt-vscore">oceniono: {vWr[g.slug].score}/{vWr[g.slug].max}</span>
                               : vWr[g.slug].status === 'submitted' ? <span className="mt-due-pill">do sprawdzenia</span>
                                 : <span>uczeń jeszcze pisze (szkic)</span>
-                          ) : r ? (r.max ? <span className="mt-vscore">{r.score}/{r.max} · {pct}%</span> : <span className="mt-vscore">zrobione</span>) : <span>jeszcze nie zrobione</span>}
+                          ) : r ? (r.max ? <span className="mt-vscore">{r.score}/{r.max} · {pct}%</span> : <span className="mt-vscore">{r.src === 'teacher' ? 'zaliczone przez lektora' : 'zrobione'}</span>) : <span>jeszcze nie zrobione</span>}
                           {hwv && hwv !== true && <span>· praca domowa zrobiona {new Date(hwv).toLocaleDateString('pl-PL')}</span>}
                           {!g.published && <span>· szkic</span>}
                         </div>
                       </div>
-                      <button type="button" disabled={busy === g.slug} className={'mt-vhw' + (hwv ? ' on' : '')} onClick={() => toggleHw(g)}>
-                        {hwv ? 'Zadane' : '+ Zadaj'}
-                      </button>
+                      <div className="mt-vacts">
+                        <button type="button" disabled={busy === g.slug} className={'mt-vhw' + (hwv ? ' on' : '')} title={hwv ? 'Kliknij, żeby usunąć z pracy domowej' : 'Zadaj jako pracę domową'} onClick={() => toggleHw(g)}>
+                          {hwv ? 'Zadane' : '+ Zadaj'}
+                        </button>
+                        {(!r || r.src === 'teacher') && (
+                          <button type="button" disabled={busy === g.slug} className={'mt-vok' + (r ? ' on' : '')} title={r ? 'Kliknij, żeby cofnąć zaliczenie' : 'Oznacz jako zrobione (np. na lekcji)'} onClick={() => toggleDone(g)}>
+                            {r ? 'Zaliczone' : 'Zalicz'}
+                          </button>
+                        )}
+                      </div>
                     </div>
                   );
                 })}
                 {drawerShown.length === 0 && <p className="mt-soon">Brak ćwiczeń w tym widoku.</p>}
               </div>
             ) : (
+            <>
+            {teacherId && (students.length > 0 || groups.length > 0) && (
+              <div className="mt-tk-hint">
+                Chcesz zadać pracę domową albo zaliczyć zadanie uczniowi? Wybierz go w teczce, a przy każdym ćwiczeniu pojawią się przyciski „Zadaj” i „Zalicz”.
+                <button type="button" className="mt-link" onClick={() => { setDrawer(null); window.scrollTo(0, 0); setTimeout(() => setTkOpen(true), 0); }}>Otwórz teczkę uczniów</button>
+              </div>
+            )}
             <div className="mt-tiles">
               {drawerShown.map((g) => {
                 const r = done[g.slug];
@@ -533,6 +581,7 @@ export default function MaturaHub() {
               })}
               {drawerShown.length === 0 && <p className="mt-soon">Brak ćwiczeń w tym widoku.</p>}
             </div>
+            </>
             )}
             <div className="mt-legend">
               <span><i className="lg-done" />zrobione</span>
@@ -767,6 +816,12 @@ a.mt-tk-item{ text-decoration:none; color:inherit; }
 .mt-vhw{ flex:none; min-height:40px; min-width:84px; padding:0 12px; border-radius:10px; border:1.5px solid #ca4490; background:#fff; color:#ca4490; font-family:'Outfit',sans-serif; font-size:14px; font-weight:700; cursor:pointer; }
 .mt-vhw.on{ background:#f6f1ae; border-color:#e6dc7a; color:#5b4d10; }
 .mt-vhw:disabled{ opacity:.5; cursor:wait; }
+.mt-vacts{ flex:none; display:flex; flex-direction:column; gap:6px; }
+.mt-vok{ min-height:40px; min-width:84px; padding:0 12px; border-radius:10px; border:1.5px solid #1e7e50; background:#fff; color:#1e7e50; font-family:'Outfit',sans-serif; font-size:14px; font-weight:700; cursor:pointer; }
+.mt-vok.on{ background:#e3f3ea; border-color:#a9d9bf; color:#1e7e50; }
+.mt-vok:disabled{ opacity:.5; cursor:wait; }
+.mt-tk-hint{ background:#fff; border:1px solid #ebe6dc; border-radius:14px; padding:12px 14px; font-size:14px; line-height:1.5; color:#4f4959; }
+.mt-tk-hint .mt-link{ display:block; padding:0; margin-top:4px; color:#ca4490; font-weight:600; }
 .mt-toast{ position:fixed; left:50%; bottom:24px; transform:translateX(-50%); z-index:80; max-width:calc(100vw - 32px); background:#1d1a22; color:#fff; padding:12px 18px; border-radius:12px; font-size:14.5px; box-shadow:0 10px 30px rgba(0,0,0,.2); }
 html.eg-dark .mt-tk-btn{ background:transparent; color:#e8e6ef; border-color:#e8e6ef; }
 html.eg-dark .mt-tk-btn:hover, html.eg-dark .mt-tk.open .mt-tk-btn{ background:#e8e6ef; color:#1a1b26; }
@@ -792,6 +847,10 @@ html.eg-dark .mt-vrow{ background:#24263a; border-color:#363850; }
 html.eg-dark .mt-vno{ background:#1a1b26; border-color:#4a4c66; color:#e8e6ef; }
 html.eg-dark .mt-vscore{ color:#f08cc4; }
 html.eg-dark .mt-vhw{ background:transparent; }
+html.eg-dark .mt-vok{ background:transparent; color:#8fd3ae; border-color:#3a6d50; }
+html.eg-dark .mt-vok.on{ background:#1f3a2c; color:#8fd3ae; border-color:#3a6d50; }
+html.eg-dark .mt-tk-hint{ background:#24263a; border-color:#363850; color:#c4bfcf; }
+html.eg-dark .mt-tk-hint .mt-link{ color:#f08cc4; }
 html.eg-dark .mt-vhw.on{ background:#3b3820; color:#f6f1ae; border-color:#5c5630; }
 @media (max-width:600px){
   .mt-tk-panel{ position:fixed; left:16px; right:16px; top:70px; width:auto; }
