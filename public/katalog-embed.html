@@ -3188,7 +3188,7 @@
         // pokazujemy poziom matury i link do strony /matura
         var mLvl = g.matura_level === 'basic' ? t('matura podstawowa') : g.matura_level === 'ext' ? t('matura rozszerzona') : t('matura');
         seriesLine = '<div class="eg-series"><span class="eg-series-num">' + mLvl + '</span><span class="eg-series-sep"> · </span>' +
-          '<a href="/matura" target="_top" class="eg-mat-link">' + t('więcej zadań maturalnych') + '</a></div>';
+          '<a href="/matura?' + (g.matura_level ? 'poziom=' + encodeURIComponent(g.matura_level) + '&' : '') + 'czesc=' + encodeURIComponent(g.matura_section || '') + '" target="_top" class="eg-mat-link">' + t('więcej zadań maturalnych') + '</a></div>';
       } else if(g.series){
         var numPart = g.exercise_no
           ? '<span class="eg-series-num">' + t('ćwiczenie nr') + ' ' + esc(String(g.exercise_no)) + '</span><span class="eg-series-sep"> · </span>'
@@ -3435,7 +3435,7 @@
     _egUserInteracted = true;
     var cat = btn.getAttribute('data-cat');
     // „Pisanie” to wypracowania maturalne — mają swoją stronę, więc przycisk prowadzi na /matura
-    if(cat === 'pisanie'){ window.open('/matura', '_top'); return; }
+    if(cat === 'pisanie'){ window.open('/matura?czesc=writing', '_top'); return; }
     if(cat === 'wszystkie'){
       // reset obu osi
       curType = 'wszystkie'; curStatus = 'wszystkie';
