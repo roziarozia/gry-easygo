@@ -2305,6 +2305,13 @@ let currentSlug = null; // slug bieżącego ćwiczenia — do zapisu ukończenia
 
 /* zapisuje ukończenie ćwiczenia (Wariant B) — tylko dla zalogowanego ucznia */
 async function markCompleted(score, scoreMax, answers){
+  // analityka: powiadom stronę-rodzica (GameEmbed), że ćwiczenie zostało ukończone — także u gościa
+  try{
+    if(window.parent && window.parent !== window){
+      var hs = (typeof score === 'number' && typeof scoreMax === 'number' && scoreMax > 0);
+      window.parent.postMessage({ egExerciseCompleted: { score: hs ? score : null, scoreMax: hs ? scoreMax : null } }, '*');
+    }
+  }catch(e){}
   if(!_db || !currentSlug) return;
   try{
     const r = await _db.auth.getSession();
@@ -4293,6 +4300,14 @@ document.getElementById('sPrev').addEventListener('click', prevSpeak);
 document.getElementById('startShowBtn').addEventListener('click', () => start('show'));
 document.getElementById('startTypeBtn').addEventListener('click', () => start('type'));
 document.getElementById('startQuizBtn').addEventListener('click', startQuiz);
+// analityka: powiadom stronę-rodzica (GameEmbed), że uczeń rozpoczął ćwiczenie i w jakim trybie
+['startShowBtn','startTypeBtn','startQuizBtn','startGapPlBtn','startGapBaseBtn','startSpeakBtn'].forEach(function(id){
+  var el = document.getElementById(id);
+  if(!el) return;
+  el.addEventListener('click', function(){
+    try{ if(window.parent && window.parent !== window){ window.parent.postMessage({ egExerciseStarted: { mode: id } }, '*'); } }catch(e){}
+  });
+});
 document.getElementById('againBtn').addEventListener('click', () => {
   if(GAME && GAME.template === 'listening') startListening();
   else if(GAME && GAME.template === 'quiz') startQuiz();
