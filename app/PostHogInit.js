@@ -24,8 +24,26 @@ export function syncPostHogConsent() {
   const status = posthog.get_explicit_consent_status();
   if (v === 'all' || v === 'accepted') {
     if (status !== 'granted') posthog.opt_in_capturing({ captureEventName: false });
+    identifyLoggedInUser();
   } else if (status === 'granted') {
     posthog.opt_out_capturing();
+  }
+}
+
+// Zalogowani (po zgodzie): na każdej stronie łączymy wizytę z kontem z Supabase, także
+// u osób, które zalogowały się dawno temu i dziś nie przechodzą przez /logowanie ani /konto.
+// Sesję czytamy z localStorage (ten sam klucz, którego używa Supabase), bez zapytań do bazy.
+const SB_AUTH_KEY = 'sb-svjrdyxwqznbzxqeytdn-auth-token';
+export function identifyLoggedInUser() {
+  if (!enabled || posthog.get_explicit_consent_status() !== 'granted') return;
+  let user = null;
+  try {
+    const raw = localStorage.getItem(SB_AUTH_KEY);
+    const parsed = raw ? JSON.parse(raw) : null;
+    user = parsed && (parsed.user || (parsed.currentSession && parsed.currentSession.user));
+  } catch (e) {}
+  if (user && user.id && posthog.get_distinct_id() !== user.id) {
+    posthog.identify(user.id, { email: user.email });
   }
 }
 
@@ -40,6 +58,8 @@ if (enabled) {
     opt_out_persistence_by_default: true,
   });
   syncPostHogConsent();
+  // logowanie lub wylogowanie w innej karcie
+  window.addEventListener('storage', (e) => { if (e.key === SB_AUTH_KEY) identifyLoggedInUser(); });
 }
 
 export default function PostHogInit() {
