@@ -989,7 +989,7 @@
     var div=document.createElement('div'); div.className='item';
     div.innerHTML=''
       +'<div class="item-head"><span class="item-no">Luka</span><button class="btn btn-danger btn-sm rm">Usuń</button></div>'
-      +'<div class="field"><label>Zdanie (z _ jako luką)</label><input type="text" class="g-sent" value="'+esc(data.sentence||'')+'" placeholder="_ a book on the table."></div>'
+      +'<div class="field"><label>Zdanie (z _ jako luką) <span class="hint-i">Enter = nowa linia (np. wypowiedź, a pod nią → zdanie z luką)</span></label><textarea class="g-sent" style="min-height:44px;" placeholder="_ a book on the table.">'+esc(data.sentence||'')+'</textarea></div>'
       +'<div class="field"><label>Poprawne odpowiedzi (oddziel |)</label><input type="text" class="g-ans" value="'+esc(data.answers||'')+'" placeholder="There is|There\'s"></div>'
       +'<div class="grid2">'
       +'<div class="field"><label>Podpowiedź PL – tłumaczenie (opcjonalnie)</label><input type="text" class="g-hint" value="'+esc(data.pl_hint||'')+'" placeholder="zapuścić"></div>'
