@@ -1710,6 +1710,35 @@
     .eg-account a + a{ padding-left:12px; margin-left:12px; }
     .eg-account #egLogout{ flex-basis:auto; }
   }
+  /* SERIA DNI + ŚREDNI WYNIK (zalogowani, pod paskiem górnym) — pasek z kropkami tygodnia */
+  .eg-streak{ display:flex; flex-direction:column; align-items:center; gap:6px; padding:14px 16px 0; }
+  .eg-streak[hidden]{ display:none; }
+  .eg-stk{ display:flex; align-items:center; gap:22px; background:var(--eg-card); border:1px solid var(--eg-line); border-radius:18px; padding:12px 22px; box-shadow:0 6px 18px rgba(46,42,51,.06); font-family:'Quicksand',sans-serif; }
+  .eg-stk-part{ display:flex; align-items:center; gap:10px; }
+  .eg-stk-n{ font-family:'Outfit','Quicksand',sans-serif; font-weight:800; font-size:30px; line-height:1; color:var(--eg-magenta); }
+  .eg-stk-pct{ color:var(--eg-ink); }
+  .eg-stk-l{ font-weight:700; font-size:14px; line-height:1.2; color:var(--eg-ink); }
+  .eg-stk-l small{ display:block; font-size:12px; font-weight:700; color:var(--eg-muted); }
+  .eg-stk-sep{ width:1px; align-self:stretch; background:var(--eg-line); }
+  .eg-stk-wk{ display:flex; gap:6px; }
+  .eg-stk-wk span{ display:flex; flex-direction:column; align-items:center; gap:4px; font-size:10.5px; font-weight:700; color:var(--eg-muted); }
+  .eg-stk-wk i{ display:block; width:14px; height:14px; border-radius:50%; background:#efe8fa; }
+  .eg-stk-wk i.on{ background:var(--eg-magenta); }
+  .eg-stk-wk span.today i{ box-shadow:0 0 0 2px var(--eg-card), 0 0 0 3.5px var(--eg-magenta); }
+  .eg-stk-nudge{ font-size:12.5px; font-weight:700; color:#a72e77; text-align:center; }
+  html.eg-dark .eg-stk{ box-shadow:none; }
+  html.eg-dark .eg-stk-n{ color:#f07bbd; }
+  html.eg-dark .eg-stk-pct{ color:var(--eg-ink); }
+  html.eg-dark .eg-stk-wk i{ background:#3b3152; }
+  html.eg-dark .eg-stk-wk i.on{ background:#f07bbd; }
+  html.eg-dark .eg-stk-wk span.today i{ box-shadow:0 0 0 2px var(--eg-card), 0 0 0 3.5px #f07bbd; }
+  html.eg-dark .eg-stk-nudge{ color:#f4a8d0; }
+  @media(max-width:620px){
+    .eg-stk{ flex-wrap:wrap; justify-content:center; gap:12px 18px; padding:12px 16px; }
+    .eg-stk-sep{ display:none; }
+    .eg-stk-wk{ order:3; flex-basis:100%; justify-content:center; }
+    .eg-stk-n{ font-size:26px; }
+  }
 </style>
 
 <div class="eg-games">
@@ -1762,6 +1791,7 @@
     </div>
   </div>
 
+  <div class="eg-streak" id="egStreak" hidden></div>
   <div class="eg-welcome" id="egWelcome" style="display:none" role="region" aria-label="Powitanie"></div>
 
   <section class="eg-hero">
@@ -2700,6 +2730,7 @@
       closeTeczka();
       curPage = 1;
       render();
+      egRenderStreak(id);   // seria i średni wynik tego ucznia
     }).catch(function(){
       // błąd sieci — wycofaj tryb podglądu, żeby nie zawisł w połowie
       svViewing = null;
@@ -2709,6 +2740,7 @@
 
   function exitStudentView(){
     svViewing = null;
+    var stk = document.getElementById('egStreak'); if(stk){ stk.hidden = true; stk.innerHTML = ''; }
     svProgress = {};
     // lektor sam wyłączył podgląd - usuń zapamiętany wybór
     try{ sessionStorage.removeItem('egSvViewing'); }catch(e){}
@@ -4099,6 +4131,50 @@
     };
   }
 
+  // ===== SERIA DNI Z RZĘDU + ŚREDNI WYNIK (z bazy: get_learning_stats) =====
+  // Liczy każdy dzień z ukończonym ćwiczeniem (także czytanki, speaking, pisanie).
+  // Średni wynik: tylko ćwiczenia z punktami, ostatnie 30 dni.
+  function egRenderStreak(userId){
+    var box = document.getElementById('egStreak');
+    if(!box || !_sb) return;
+    var args = userId ? { p_user: userId } : {};
+    _sb.rpc('get_learning_stats', args).then(function(r){
+      var d = r && r.data;
+      if(r.error || !d || (!d.best_streak && d.avg_pct_30d == null)){ box.hidden = true; box.innerHTML = ''; return; }
+      var en = window.EG_LANG === 'en';
+      var n = d.streak || 0;
+      var DAYS = en ? ['Mo','Tu','We','Th','Fr','Sa','Su'] : ['Pn','Wt','Śr','Cz','Pt','Sb','Nd'];
+      var html = '<div class="eg-stk">';
+      // seria
+      var best = d.best_streak > 1 ? '<small>' + (en ? 'best: ' : 'najdłuższa: ') + d.best_streak + '</small>' : '';
+      if(n > 0){
+        html += '<div class="eg-stk-part"><span class="eg-stk-n">' + n + '</span><span class="eg-stk-l">' +
+          (en ? (n === 1 ? 'day in a row' : 'days in a row') : (n === 1 ? 'dzień z rzędu' : 'dni z rzędu')) + best + '</span></div>';
+      } else {
+        // po przerwie bez wielkiego „0” — zachęta do nowej serii
+        html += '<div class="eg-stk-part"><span class="eg-stk-l">' + (en ? 'Start a new streak today' : 'Zacznij dziś nową serię') + best + '</span></div>';
+      }
+      // ostatnie 7 dni
+      if(d.week && d.week.length){
+        html += '<div class="eg-stk-wk" aria-label="' + (en ? 'Last 7 days' : 'Ostatnie 7 dni') + '">' +
+          d.week.map(function(w, i){
+            return '<span class="' + (i === d.week.length - 1 ? 'today' : '') + '"><i class="' + (w.on ? 'on' : '') + '"></i>' + (DAYS[(w.dow || 1) - 1]) + '</span>';
+          }).join('') + '</div>';
+      }
+      // średni wynik
+      if(d.avg_pct_30d != null){
+        html += '<span class="eg-stk-sep"></span><div class="eg-stk-part"><span class="eg-stk-n eg-stk-pct">' + d.avg_pct_30d + '%</span><span class="eg-stk-l">' +
+          (en ? 'average score' : 'średni wynik') + '<small>' + (en ? 'last 30 days' : 'ostatnie 30 dni') + '</small></span></div>';
+      }
+      html += '</div>';
+      var nudge = '';
+      if(n > 0 && !d.today_done) nudge = en ? 'Do one exercise today to keep your streak' : 'Zrób dziś jedno ćwiczenie, żeby nie stracić serii';
+      if(nudge) html += '<div class="eg-stk-nudge">' + nudge + '</div>';
+      box.innerHTML = html;
+      box.hidden = false;
+    }).catch(function(){});
+  }
+
   function loadHomework(){
     if(!_sb){ egTellParentLogin(false); egLoadPixelForGuest(); renderAccount(null, null); applyLoginUI(false, false); return; }
     _sb.auth.getSession().then(function(res){
@@ -4136,6 +4212,8 @@
           }
           render();
           renderAccount(session, p);
+          // lektor nie robi ćwiczeń sam — jemu serię pokazujemy dopiero w trybie ucznia (teczka)
+          if(!(p && p.role === 'teacher')) egRenderStreak();
           egShowWelcome(session, p);   // powitanie dla nowych kont (uczeń / lektor) + zmiana typu konta
           // Teczka lektora — podgląd katalogu oczami ucznia (tylko rola teacher)
           if(p && p.role === 'teacher'){ initTeczka(session.user.id); }
