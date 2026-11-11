@@ -783,6 +783,9 @@
   html:fullscreen .bottom-bar a,
   html:fullscreen .bottom-bar button{ font-size:17px; padding:12px 26px; }
   html:fullscreen .bottom-bar{ padding-bottom:30px; gap:16px; }
+  /* długa czytanka na pełnym ekranie jest powiększona — strona ma się przewijać */
+  html:fullscreen{ overflow-y:auto; }
+  html:fullscreen body{ height:auto; min-height:100%; }
   /* w trybie pełnoekranowym pokazujemy tylko slajd — bez notatnika */
   html:fullscreen .np-bar,
   html:fullscreen .np-panel{ display:none !important; }
@@ -4421,7 +4424,18 @@ document.getElementById('fullBtn').addEventListener('click', () => {
   var fsFrame = document.querySelector('.frame');
   if(!fsFrame) return;
   function egFsScale(){
-    if(!document.fullscreenElement){ fsFrame.style.transform = ''; return; }
+    if(!document.fullscreenElement){ fsFrame.style.transform = ''; fsFrame.style.zoom = ''; return; }
+    // Długie teksty (czytanka, open cloze): karta jest wyższa niż ekran, więc skala „żeby
+    // zmieściła się cała” wychodziła ≤ 1 i tekst zostawał mały. Tu powiększamy według
+    // SZEROKOŚCI ekranu (CSS zoom zmienia też układ, więc strona normalnie się przewija).
+    if(fsFrame.classList.contains('reading-mode') || fsFrame.classList.contains('artgap-mode')){
+      fsFrame.style.transform = '';
+      var z = Math.min(1.45, (window.innerWidth * 0.94) / 980);
+      z = z > 1.02 ? z.toFixed(3) : '';
+      if(fsFrame.style.zoom !== z) fsFrame.style.zoom = z;
+      return;
+    }
+    fsFrame.style.zoom = '';
     fsFrame.style.transform = '';
     var r = fsFrame.getBoundingClientRect();
     if(!r.width || !r.height) return;
@@ -4435,6 +4449,8 @@ document.getElementById('fullBtn').addEventListener('click', () => {
   window.addEventListener('resize', egFsScale);
   // karta zmienia wysokość np. przy wejściu w czytankę (reading-mode) — przelicz i wtedy
   if(window.ResizeObserver){ new ResizeObserver(egFsScale).observe(fsFrame); }
+  // przejście czytanka ↔ ekran końcowy zmienia klasę karty — przelicz od razu
+  if(window.MutationObserver){ new MutationObserver(egFsScale).observe(fsFrame, { attributes:true, attributeFilter:['class'] }); }
 })();
 
 /* ===== SZCZEGÓŁY ODPOWIEDZI UCZNIA =====
