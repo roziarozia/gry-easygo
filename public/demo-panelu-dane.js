@@ -161,6 +161,20 @@
     }
   }
   var RPC = {
+    // seria dni z rzędu + najdłuższa seria (podgląd: liczone z przykładowych ukończeń ucznia)
+    get_learning_stats: function(a){
+      var dni = {};
+      DB.game_completions.forEach(function(c){ if(c.user_id === a.p_user && c.completed_at) dni[String(c.completed_at).slice(0,10)] = 1; });
+      var lista = Object.keys(dni).sort(), best = 0, run = 0, prev = null;
+      lista.forEach(function(d){
+        var t = new Date(d + 'T12:00:00Z').getTime();
+        run = (prev !== null && t - prev === 86400000) ? run + 1 : 1;
+        if(run > best) best = run; prev = t;
+      });
+      var dzis = new Date(); dzis.setUTCHours(12,0,0,0);
+      var streak = (prev !== null && dzis.getTime() - prev <= 86400000) ? run : 0;
+      return { streak: streak, best_streak: best, today_done: !!dni[new Date().toISOString().slice(0,10)], avg_pct_30d: null, scored_30d: 0 };
+    },
     my_students: function(){ return kopia(moiUczniowie(ME.id)); },
     my_groups: function(){ return grupyLektora(ME.id); },
     my_subteachers: function(){
