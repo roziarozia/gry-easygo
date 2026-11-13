@@ -288,37 +288,40 @@
   /* Cały blog w czcionce Outfit - także fragmenty z czcionką wpisaną w treść artykułu */
   body, body *:not(svg):not(path){ font-family:'Outfit',sans-serif !important; }
 
-  /* ===================== BOCZNY BANER ĆWICZEŃ (tylko szerokie ekrany, tylko w artykule) ===================== */
+  /* ===================== BOCZNY PASEK ĆWICZEŃ (tylko szerokie ekrany, tylko w artykule) =====================
+     Wysoki pasek: na górze jedno wyróżnione ćwiczenie, pod nim lista kolejnych, na dole przycisk do wszystkich. */
   .art-rail{ display:none; }
   @media (min-width:1300px) and (min-height:620px){
-    body.art-open .art-rail.on{ display:block; position:fixed; top:96px; left:calc(50% + 392px); width:236px; z-index:5; }
+    body.art-open .art-rail.on{ display:flex; position:fixed; top:96px; bottom:24px; left:calc(50% + 392px); width:252px; z-index:5; }
   }
-  .art-rail.on{ background:#f6f1ae; border-radius:20px; padding:18px 16px 16px; text-align:center; box-sizing:border-box; }
+  .art-rail.on{ flex-direction:column; max-height:calc(100vh - 120px); background:#f6f1ae; border-radius:20px; padding:18px 14px 14px; text-align:center; box-sizing:border-box; }
   .rail-head{ font-family:'Outfit',sans-serif; font-weight:800; font-size:19px; line-height:1.2; color:var(--ink); margin:0 0 4px; }
   .rail-head span{ color:var(--magenta); display:block; }
-  .rail-sub{ font-size:12.5px; color:#5c5340; margin:0 0 14px; line-height:1.45; }
-  .rail-stage{ position:relative; text-align:left; }
-  .rail-card{ display:block; text-decoration:none; color:inherit; background:#fff; border-radius:14px; overflow:hidden; box-shadow:0 6px 16px rgba(160,130,40,.18); transition:opacity .9s ease, transform .2s; }
-  .rail-card:not(.act){ position:absolute; top:0; left:0; right:0; opacity:0; pointer-events:none; }
-  .rail-card.act{ position:relative; opacity:1; }
-  .rail-card:hover{ transform:translateY(-3px); }
-  .rail-card .exc-thumb{ aspect-ratio:3/2; }
-  .rail-body{ padding:11px 13px 13px; }
-  .rail-title{ font-family:'Outfit',sans-serif; font-weight:600; font-size:14.5px; line-height:1.3; color:#2a2730; margin:5px 0 0; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; min-height:38px; }
-  .rail-btn{ display:block; margin-top:14px; background:var(--magenta); color:#fff; font-family:'Outfit',sans-serif; font-weight:700; font-size:14.5px; padding:10px; border-radius:999px; text-decoration:none; transition:background .18s; }
+  .rail-sub{ font-size:12.5px; color:#5c5340; margin:0 0 12px; line-height:1.45; }
+  .rail-list{ flex:1 1 auto; min-height:0; overflow-y:auto; text-align:left; display:flex; flex-direction:column; gap:8px; padding:2px 2px 4px; scrollbar-width:thin; }
+  .rail-feat{ display:block; flex:0 0 auto; text-decoration:none; color:inherit; background:#fff; border-radius:14px; overflow:hidden; box-shadow:0 6px 16px rgba(160,130,40,.18); transition:transform .2s; }
+  .rail-feat:hover{ transform:translateY(-2px); }
+  .rail-feat .exc-thumb{ aspect-ratio:3/2; }
+  .rail-feat .rail-body{ padding:10px 12px 12px; }
+  .rail-feat .exc-badges{ margin-bottom:4px; }
+  .rail-title{ font-family:'Outfit',sans-serif; font-weight:600; font-size:14.5px; line-height:1.3; color:#2a2730; margin:0; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; }
+  .rail-more{ font-family:'Outfit',sans-serif; font-weight:700; font-size:11px; letter-spacing:.05em; text-transform:uppercase; color:#7a6d3a; margin:6px 2px 0; }
+  .rail-row{ display:flex; flex:0 0 auto; gap:10px; align-items:center; text-decoration:none; color:inherit; background:#fff; border-radius:12px; padding:7px; box-shadow:0 3px 10px rgba(160,130,40,.13); transition:transform .2s; }
+  .rail-row:hover{ transform:translateX(2px); }
+  .rail-row .exc-thumb{ flex:0 0 74px; width:74px; aspect-ratio:3/2; border-radius:8px; }
+  .rail-row .rail-txt{ min-width:0; }
+  .rail-row .exc-badges{ margin-bottom:2px; gap:6px; }
+  .rail-row .exc-badge{ font-size:9.5px; }
+  .rail-row .rail-title{ font-size:13px; line-height:1.25; }
+  .rail-btn{ display:block; flex:0 0 auto; margin-top:12px; background:var(--magenta); color:#fff; font-family:'Outfit',sans-serif; font-weight:700; font-size:14.5px; padding:10px; border-radius:999px; text-decoration:none; transition:background .18s; }
   .rail-btn:hover{ background:var(--magenta-dk); }
-  .rail-dots{ display:flex; justify-content:center; gap:7px; margin-top:12px; }
-  .rail-dots button{ width:8px; height:8px; padding:0; border:0; border-radius:50%; background:rgba(0,0,0,.12); cursor:pointer; transition:background .3s, transform .3s; }
-  .rail-dots button.act{ background:var(--magenta); transform:scale(1.25); }
   :root[data-theme="dark"] .art-rail.on{ background:#34301c; }
-  :root[data-theme="dark"] .rail-head{ color:#f6f1ae; } :root[data-theme="dark"] .rail-sub{ color:#e9e2c2; }
-  :root[data-theme="dark"] .rail-card{ background:var(--card); } :root[data-theme="dark"] .rail-title{ color:var(--ink); }
-  :root[data-theme="dark"] .rail-dots button{ background:rgba(255,255,255,.2); }
+  :root[data-theme="dark"] .rail-head{ color:#f6f1ae; } :root[data-theme="dark"] .rail-sub, :root[data-theme="dark"] .rail-more{ color:#e9e2c2; }
+  :root[data-theme="dark"] .rail-feat, :root[data-theme="dark"] .rail-row{ background:var(--card); } :root[data-theme="dark"] .rail-title{ color:var(--ink); }
   @media (prefers-color-scheme:dark){
     :root:not([data-theme="light"]) .art-rail.on{ background:#34301c; }
-    :root:not([data-theme="light"]) .rail-head{ color:#f6f1ae; } :root:not([data-theme="light"]) .rail-sub{ color:#e9e2c2; }
-    :root:not([data-theme="light"]) .rail-card{ background:var(--card); } :root:not([data-theme="light"]) .rail-title{ color:var(--ink); }
-    :root:not([data-theme="light"]) .rail-dots button{ background:rgba(255,255,255,.2); }
+    :root:not([data-theme="light"]) .rail-head{ color:#f6f1ae; } :root:not([data-theme="light"]) .rail-sub, :root:not([data-theme="light"]) .rail-more{ color:#e9e2c2; }
+    :root:not([data-theme="light"]) .rail-feat, :root:not([data-theme="light"]) .rail-row{ background:var(--card); } :root:not([data-theme="light"]) .rail-title{ color:var(--ink); }
   }
 </style>
 
@@ -722,8 +725,8 @@ window.ewImgFallback = function(img){
   }
 
 
-  /* ===== BOCZNY BANER: ćwiczenia dopasowane do artykułu, zmieniają się co 6 s (pauza po najechaniu) ===== */
-  var railGames = null, railTimer = null, railIdx = 0, railHover = false;
+  /* ===== BOCZNY PASEK: lista ćwiczeń dopasowanych do artykułu (pierwsze wyróżnione) ===== */
+  var railGames = null;
   var RAIL_CAT = {gramatyka:'Gramatyka',slownictwo:'Słownictwo',reading:'Czytanka',listening:'Słuchanka',speaking:'Speaking',kultura:'Wiedza o krajach'};
   function railShuffle(a){ for(var i=a.length-1;i>0;i--){ var j=Math.floor(Math.random()*(i+1)), x=a[i]; a[i]=a[j]; a[j]=x; } return a; }
   function railLoad(cb){
@@ -733,7 +736,7 @@ window.ewImgFallback = function(img){
   }
   function railPick(a, games){
     var picked = [], used = {};
-    function add(g){ if(g && !used[g.slug] && picked.length < 6){ used[g.slug]=1; picked.push(g); } }
+    function add(g){ if(g && !used[g.slug] && picked.length < 10){ used[g.slug]=1; picked.push(g); } }
     var ex = (a.exercise_slug||'').trim();
     // 1) ćwiczenie podpięte pod artykuł  2) ćwiczenia, które same linkują ten artykuł
     games.forEach(function(g){ if(ex && g.slug===ex) add(g); });
@@ -757,45 +760,34 @@ window.ewImgFallback = function(img){
     railShuffle(games.filter(function(g){ return !g.matura; })).forEach(add);
     return { list: picked, matched: matched || (a.category==='gramatyka'||a.category==='slownictwo' ? 1 : 0) };
   }
-  function railShow(i){
-    var rail = document.getElementById('artRail'); if(!rail) return;
-    var cards = rail.querySelectorAll('.rail-card'), dots = rail.querySelectorAll('.rail-dots button');
-    if(!cards.length) return;
-    railIdx = (i + cards.length) % cards.length;
-    for(var k=0;k<cards.length;k++){ cards[k].classList.toggle('act', k===railIdx); if(dots[k]) dots[k].classList.toggle('act', k===railIdx); }
-    var btn = document.getElementById('railBtn'); if(btn) btn.href = cards[railIdx].getAttribute('data-href');
-    for(var t=0;t<cards.length;t++){ if(t===railIdx) cards[t].removeAttribute('tabindex'); else cards[t].setAttribute('tabindex','-1'); }
-  }
   function renderRail(a){
     var rail = document.getElementById('artRail'); if(!rail) return;
-    clearInterval(railTimer); rail.classList.remove('on'); rail.innerHTML = '';
+    rail.classList.remove('on'); rail.innerHTML = '';
     railLoad(function(games){
       if(!games.length) return;
       var r = railPick(a, games); if(!r.list.length) return;
-      var cards = r.list.map(function(g, i){
-        var href = g.matura ? '/matura/'+encodeURIComponent(g.slug) : '/cwiczenie/'+encodeURIComponent(g.slug);
-        var thumb = '<div class="exc-thumb"><div class="exc-thumb-bg" style="background-image:url('+esc(ewThumb(g.cover_url,400))+')"></div>'
-          + '<div class="exc-thumb-img" style="background-image:url('+esc(ewThumb(g.cover_url,400))+')"></div></div>';
-        var lvl = g.level ? '<span class="exc-badge exc-badge-lvl">'+esc(g.level)+'</span>' : '';
-        var cat = '<span class="exc-badge exc-badge-cat">'+esc(g.matura ? 'Matura' : (RAIL_CAT[g.category]||'Ćwiczenie'))+'</span>';
-        return '<a class="rail-card'+(i===0?' act':'')+'" href="'+href+'" data-href="'+href+'"'+(i?' tabindex="-1"':'')+'>'+thumb
-          + '<div class="rail-body"><div class="exc-badges">'+lvl+cat+'</div>'
-          + '<p class="rail-title">'+esc(g.title)+'</p></div></a>';
-      }).join('');
-      var dots = r.list.length>1 ? '<div class="rail-dots">'+r.list.map(function(_,i){ return '<button type="button" aria-label="Ćwiczenie '+(i+1)+'"'+(i===0?' class="act"':'')+'></button>'; }).join('')+'</div>' : '';
-      var firstHref = r.list[0].matura ? '/matura/'+encodeURIComponent(r.list[0].slug) : '/cwiczenie/'+encodeURIComponent(r.list[0].slug);
+      function href(g){ return g.matura ? '/matura/'+encodeURIComponent(g.slug) : '/cwiczenie/'+encodeURIComponent(g.slug); }
+      function thumb(g, w){ var u = esc(ewThumb(g.cover_url, w));
+        return '<div class="exc-thumb"><div class="exc-thumb-bg" style="background-image:url('+u+')"></div>'
+          + '<div class="exc-thumb-img" style="background-image:url('+u+')"></div></div>'; }
+      function badges(g){
+        return '<div class="exc-badges">'+(g.level ? '<span class="exc-badge exc-badge-lvl">'+esc(g.level)+'</span>' : '')
+          + '<span class="exc-badge exc-badge-cat">'+esc(g.matura ? 'Matura' : (RAIL_CAT[g.category]||'Ćwiczenie'))+'</span></div>'; }
+      var f = r.list[0];
+      var html = '<a class="rail-feat" href="'+href(f)+'">'+thumb(f,400)
+        + '<div class="rail-body">'+badges(f)+'<p class="rail-title">'+esc(f.title)+'</p></div></a>';
+      if(r.list.length > 1){
+        html += '<p class="rail-more">Więcej ćwiczeń</p>';
+        html += r.list.slice(1).map(function(g){
+          return '<a class="rail-row" href="'+href(g)+'">'+thumb(g,200)
+            + '<div class="rail-txt">'+badges(g)+'<p class="rail-title">'+esc(g.title)+'</p></div></a>';
+        }).join('');
+      }
       rail.innerHTML = '<p class="rail-head">Teoria już jest.<span>Czas na praktykę!</span></p>'
         + '<p class="rail-sub">Ćwiczenia z wyjaśnieniem po każdej odpowiedzi</p>'
-        + '<div class="rail-stage">'+cards+'</div>'
-        + '<a class="rail-btn" id="railBtn" href="'+firstHref+'">Wypróbuj!</a>'+dots;
-      rail.classList.add('on'); railIdx = 0;
-      var stage = rail.querySelector('.rail-stage');
-      stage.addEventListener('mouseenter', function(){ railHover = true; });
-      stage.addEventListener('mouseleave', function(){ railHover = false; });
-      var btns = rail.querySelectorAll('.rail-dots button');
-      for(var b=0;b<btns.length;b++){ (function(n){ btns[n].addEventListener('click', function(){ railShow(n); }); })(b); }
-      var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-      if(r.list.length>1 && !reduce){ railTimer = setInterval(function(){ if(!railHover && !document.hidden) railShow(railIdx+1); }, 6000); }
+        + '<div class="rail-list">'+html+'</div>'
+        + '<a class="rail-btn" href="/">Wszystkie ćwiczenia</a>';
+      rail.classList.add('on');
     });
   }
   function showArticle(a, push){
@@ -830,7 +822,7 @@ window.ewImgFallback = function(img){
   }
 
   function showList(push){
-    document.body.classList.remove('art-open'); clearInterval(railTimer);
+    document.body.classList.remove('art-open');
     articleView.classList.add('hidden');
     listView.classList.remove('hidden');
     if(listFoot) listFoot.classList.remove('hidden');
