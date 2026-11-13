@@ -5003,14 +5003,31 @@
     var arr=pools[kind]&&pools[kind].length ? pools[kind] : pools.any;
     return arr[Math.floor(Math.random()*arr.length)];
   }
+  /* Okładkę najpierw ładujemy w tle i dekodujemy; podmieniamy ją dopiero, gdy jest gotowa
+     i stara zdążyła zgasnąć. Dzięki temu nie widać na ułamek sekundy niedoładowanego obrazka. */
+  var cache={}, req=0;
+  function preload(url){
+    if(!cache[url]){
+      var im=new Image(); im.decoding='async';
+      cache[url]=new Promise(function(ok){
+        im.onload=function(){ (im.decode ? im.decode() : Promise.resolve()).then(ok,ok); };
+        im.onerror=ok;
+      });
+      im.src=url;
+    }
+    return cache[url];
+  }
   function showCover(kind){
     var g=pick(kind); if(!g) return;
+    var my=++req;
     cover.classList.add('eg-fade');
-    setTimeout(function(){
+    var faded=new Promise(function(ok){ setTimeout(ok,350); });
+    Promise.all([preload(g.cover_url), faded]).then(function(){
+      if(my!==req) return;               // w międzyczasie kliknięto inną kropkę
       img.src=g.cover_url; cap.textContent=g.title;
       cover.href='/cwiczenie/'+encodeURIComponent(g.slug); cover.setAttribute('aria-label',g.title); cover.removeAttribute('tabindex');
-      cover.classList.remove('eg-fade');
-    },350);
+      requestAnimationFrame(function(){ if(my===req) cover.classList.remove('eg-fade'); });
+    });
   }
   function go(i){
     slides[cur].classList.remove('eg-on'); dots[cur].classList.remove('eg-on');
@@ -5036,6 +5053,8 @@
       grammar:rows.filter(function(g){ return g.category==='gramatyka'; }),
       'new':rows.slice(0,10) };
     showCover(slides[cur].getAttribute('data-cover'));
+    /* po chwili ładujemy w tle resztę okładek z puli, żeby kolejne zmiany były natychmiastowe */
+    setTimeout(function(){ rows.slice(0,40).forEach(function(g){ preload(g.cover_url); }); }, 2500);
   }).catch(function(){});
 })();
 </script>
