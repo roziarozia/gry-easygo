@@ -4515,6 +4515,14 @@ async function egShowAnswerDetails(gameSlug, userId, opts){
     };
     fit();
     if(window.requestAnimationFrame) requestAnimationFrame(fit);
+    // Treść dochodzi PÓŹNIEJ (z bazy) - przeliczamy wysokość przy każdej zmianie modala,
+    // inaczej długa lista wyników ucina się po kilku pozycjach.
+    overlay._egFit = fit;
+    if(window.ResizeObserver && box){
+      if(overlay._egRO) overlay._egRO.disconnect();
+      overlay._egRO = new ResizeObserver(function(){ if(overlay.style.display !== 'none') fit(); });
+      overlay._egRO.observe(box);
+    }
   }catch(e){ overlay.style.top = '0'; overlay.style.height = '100%'; }
   void overlay.offsetWidth;
   overlay.classList.add('show');
@@ -4609,7 +4617,7 @@ async function egShowAnswerDetails(gameSlug, userId, opts){
         }else{
           html += '<div class="eg-ansd-row"><span class="lbl">Uczeń wpisał: </span><span class="eg-ansd-bad">' + esc(a.typed == null || a.typed === '' ? '(brak odpowiedzi)' : a.typed) + '</span></div>';
           html += '<div class="eg-ansd-row"><span class="lbl">Poprawna: </span><span class="eg-ansd-ok">' + esc(a.correct_text || '') + '</span></div>';
-          if(a.explanation){ html += '<div class="eg-ansd-expl">' + esc(a.explanation) + '</div>'; }
+          if(a.explanation){ html += '<div class="eg-ansd-expl">' + esc(pickExplLang(a.explanation)) + '</div>'; }
         }
         html += '</div>';
         return;
@@ -4633,13 +4641,15 @@ async function egShowAnswerDetails(gameSlug, userId, opts){
       }else{
         html += '<div class="eg-ansd-row"><span class="lbl">Uczeń wybrał: </span><span class="eg-ansd-bad">' + esc(pickedTxt) + '</span></div>';
         html += '<div class="eg-ansd-row"><span class="lbl">Poprawna: </span><span class="eg-ansd-ok">' + esc(correctTxt) + '</span></div>';
-        if(q.explanation){ html += '<div class="eg-ansd-expl">' + esc(q.explanation) + '</div>'; }
+        if(q.explanation){ html += '<div class="eg-ansd-expl">' + esc(pickExplLang(q.explanation)) + '</div>'; }
       }
       html += '</div>';
     });
     content.innerHTML = html;
+    if(overlay._egFit){ overlay._egFit(); if(window.requestAnimationFrame) requestAnimationFrame(overlay._egFit); }
   }catch(e){
     content.innerHTML = '<h3>Szczegóły odpowiedzi</h3><p class="eg-ansd-sub">Nie udało się wczytać szczegółów.</p>';
+    if(overlay._egFit) overlay._egFit();
   }
 }
 (function(){
