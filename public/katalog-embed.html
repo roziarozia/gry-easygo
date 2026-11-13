@@ -4630,6 +4630,14 @@
         hh = Math.max(hh, Math.ceil(r2.bottom + (window.scrollY || window.pageYOffset || 0)));
       }
       if(!hh) hh = document.body.scrollHeight;
+      // Otwarte okno "Szczegóły wyniku" bywa dłuższe niż cała strona - wtedy strona musi urosnąć
+      // do jego dołu, inaczej lista wyników ucina się na dole ekranu.
+      var ansd = document.getElementById('egAnsdOverlay');
+      if(ansd && ansd.style.display !== 'none' && ansd.offsetHeight){
+        var box = ansd.querySelector('.eg-ansd');
+        var rb = box ? box.getBoundingClientRect() : ansd.getBoundingClientRect();
+        hh = Math.max(hh, Math.ceil(rb.bottom + (window.scrollY || window.pageYOffset || 0) + 40));
+      }
       if(window.parent&&window.parent!==window) window.parent.postMessage({egCatalogHeight:hh},'*');
     }catch(e){}
   }
