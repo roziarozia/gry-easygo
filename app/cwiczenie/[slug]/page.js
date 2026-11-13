@@ -227,21 +227,21 @@ export default async function CwiczeniePage({ params }) {
             Zapoznaj się z tematem na blogu!
           </p>
           <a href={`/nauka/${artykul.slug}`} style={{
-            display: 'flex', flexWrap: 'wrap', textDecoration: 'none', color: 'inherit',
+            display: 'flex', flexDirection: 'column', textDecoration: 'none', color: 'inherit',
             background: 'var(--eg-card, #fff)', border: '1.5px solid var(--eg-line, #eceaf2)',
             borderRadius: 18, overflow: 'hidden', boxShadow: '0 6px 18px rgba(167,141,217,.22)',
           }}>
-            <div style={{ flex: '1 1 220px', minHeight: 150, background: '#efe9f8', position: 'relative' }}>
-              {artykul.cover_url ? (
-                <img src={artykul.cover_url} alt={artykul.title} loading="lazy"
-                  style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
-              ) : (
-                <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: "'Quicksand',sans-serif", fontWeight: 700, fontSize: 20 }}>
-                  <span style={{ color: '#ca4490' }}>Easy</span><span style={{ color: '#f4c94c' }}>Wonders</span>
-                </div>
-              )}
-            </div>
-            <div style={{ flex: '1 1 260px', padding: '18px 20px', display: 'flex', flexDirection: 'column', gap: 8, textAlign: 'left' }}>
+            {/* Okładka artykułu jest szeroka (baner) - pokazujemy ją w CAŁOŚCI na górze karty,
+                z naturalną wysokością, zamiast przycinać do kwadratowego pola z boku. */}
+            {artykul.cover_url ? (
+              <img src={artykul.cover_url} alt={artykul.title} loading="lazy"
+                style={{ width: '100%', height: 'auto', display: 'block', background: '#efe9f8' }} />
+            ) : (
+              <div style={{ minHeight: 120, background: '#efe9f8', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: "'Quicksand',sans-serif", fontWeight: 700, fontSize: 20 }}>
+                <span style={{ color: '#ca4490' }}>Easy</span><span style={{ color: '#f4c94c' }}>Wonders</span>
+              </div>
+            )}
+            <div style={{ padding: '18px 22px 20px', display: 'flex', flexDirection: 'column', gap: 8, textAlign: 'left' }}>
               <span style={{ fontSize: 12, fontWeight: 800, letterSpacing: '.6px', textTransform: 'uppercase', color: 'var(--eg-magenta, #ca4490)' }}>Blog EasyWonders</span>
               <span style={{ fontFamily: "'Quicksand',sans-serif", fontWeight: 700, fontSize: 18, lineHeight: 1.3, color: 'var(--eg-ink)' }}>{artykul.title}</span>
               {artykul.excerpt && (
