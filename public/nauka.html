@@ -289,17 +289,17 @@
   body, body *:not(svg):not(path){ font-family:'Outfit',sans-serif !important; }
 
   /* ===================== BOCZNY PASEK ĆWICZEŃ (tylko szerokie ekrany, tylko w artykule) =====================
-     Wysoki pasek: na górze jedno wyróżnione ćwiczenie, pod nim lista kolejnych, na dole przycisk do wszystkich.
+     Wysoki pasek: lista ćwiczeń (mała okładka + tytuł), na dole przycisk do wszystkich.
      Bez przewijania w środku: pokazujemy tylko tyle pozycji, ile w całości mieści się na ekranie (fitRail). */
   .art-rail{ display:none; }
   @media (min-width:1300px) and (min-height:620px){
     body.art-open .art-rail.on{ display:flex; position:fixed; top:96px; left:calc(50% + 392px); width:252px; z-index:5; }
   }
   .art-rail.on{ flex-direction:column; max-height:calc(100vh - 120px); background:#f6f1ae; border-radius:20px; padding:18px 14px 14px; text-align:center; box-sizing:border-box; }
-  .rail-head{ font-family:'Outfit',sans-serif; font-weight:800; font-size:19px; line-height:1.2; color:var(--ink); margin:0 0 4px; }
+  .rail-head{ font-family:'Outfit',sans-serif; font-weight:800; font-size:18px; line-height:1.2; color:var(--ink); margin:0 0 4px; }
   .rail-head span{ color:var(--magenta); display:block; }
   .rail-sub{ font-size:12.5px; color:#5c5340; margin:0 0 12px; line-height:1.45; }
-  .rail-list{ flex:0 1 auto; min-height:0; overflow:hidden; text-align:left; display:flex; flex-direction:column; gap:8px; padding:2px 2px 4px; }
+  .rail-list{ flex:0 1 auto; min-height:0; overflow:hidden; text-align:left; display:flex; flex-direction:column; gap:7px; padding:2px 2px 4px; }
   .rail-list .rail-off{ display:none; }
   .rail-feat{ display:block; flex:0 0 auto; text-decoration:none; color:inherit; background:#fff; border-radius:14px; overflow:hidden; box-shadow:0 6px 16px rgba(160,130,40,.18); transition:transform .2s; }
   .rail-feat:hover{ transform:translateY(-2px); }
@@ -308,9 +308,9 @@
   .rail-feat .exc-badges{ margin-bottom:4px; }
   .rail-title{ font-family:'Outfit',sans-serif; font-weight:600; font-size:14.5px; line-height:1.3; color:#2a2730; margin:0; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; }
   .rail-more{ font-family:'Outfit',sans-serif; font-weight:700; font-size:11px; letter-spacing:.05em; text-transform:uppercase; color:#7a6d3a; margin:6px 2px 0; }
-  .rail-row{ display:flex; flex:0 0 auto; gap:10px; align-items:center; text-decoration:none; color:inherit; background:#fff; border-radius:12px; padding:7px; box-shadow:0 3px 10px rgba(160,130,40,.13); transition:transform .2s; }
+  .rail-row{ display:flex; flex:0 0 auto; gap:10px; align-items:center; text-decoration:none; color:inherit; background:#fff; border-radius:12px; padding:6px; box-shadow:0 3px 10px rgba(160,130,40,.13); transition:transform .2s; }
   .rail-row:hover{ transform:translateX(2px); }
-  .rail-row .exc-thumb{ flex:0 0 74px; width:74px; aspect-ratio:3/2; border-radius:8px; }
+  .rail-row .exc-thumb{ flex:0 0 66px; width:66px; aspect-ratio:3/2; border-radius:8px; }
   .rail-row .rail-txt{ min-width:0; }
   .rail-row .exc-badges{ margin-bottom:2px; gap:6px; }
   .rail-row .exc-badge{ font-size:9.5px; }
@@ -775,16 +775,10 @@ window.ewImgFallback = function(img){
       function badges(g){
         return '<div class="exc-badges">'+(g.level ? '<span class="exc-badge exc-badge-lvl">'+esc(g.level)+'</span>' : '')
           + '<span class="exc-badge exc-badge-cat">'+esc(g.matura ? 'Matura' : (RAIL_CAT[g.category]||'Ćwiczenie'))+'</span></div>'; }
-      var f = r.list[0];
-      var html = '<a class="rail-feat" href="'+href(f)+'">'+thumb(f,400)
-        + '<div class="rail-body">'+badges(f)+'<p class="rail-title">'+esc(f.title)+'</p></div></a>';
-      if(r.list.length > 1){
-        html += '<p class="rail-more">Więcej ćwiczeń</p>';
-        html += r.list.slice(1).map(function(g){
+      var html = r.list.map(function(g){
           return '<a class="rail-row" href="'+href(g)+'">'+thumb(g,200)
             + '<div class="rail-txt">'+badges(g)+'<p class="rail-title">'+esc(g.title)+'</p></div></a>';
         }).join('');
-      }
       rail.innerHTML = '<p class="rail-head">Teoria już jest.<span>Czas na praktykę!</span></p>'
         + '<p class="rail-sub">Ćwiczenia z wyjaśnieniem po każdej odpowiedzi</p>'
         + '<div class="rail-list">'+html+'</div>'
