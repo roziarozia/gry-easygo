@@ -4761,12 +4761,20 @@
       };
       fit();
       if(window.requestAnimationFrame) requestAnimationFrame(fit);
+      // Treść dochodzi PÓŹNIEJ (z bazy) - bez ponownego przeliczenia iframe zostawał niski
+      // i lista wyników ucinała się po kilku pozycjach. Przeliczamy przy każdej zmianie wysokości.
+      overlay._egFit = fit;
+      if(window.ResizeObserver && box){
+        if(overlay._egRO) overlay._egRO.disconnect();
+        overlay._egRO = new ResizeObserver(function(){ if(overlay.style.display !== 'none') fit(); });
+        overlay._egRO.observe(box);
+      }
     }catch(e){ overlay.style.top='0'; overlay.style.height='100%'; }
     void overlay.offsetWidth;
     overlay.classList.add('show');
     // PEWNE zamykanie - bezpośrednio do istniejącego X i overlay
     (function(){
-      var closeIt = function(){ overlay.classList.remove('show'); overlay.style.display='none'; document.body.style.minHeight=''; };
+      var closeIt = function(){ overlay.classList.remove('show'); overlay.style.display='none'; document.body.style.minHeight=''; if(overlay._egRO){ overlay._egRO.disconnect(); overlay._egRO=null; } };
       var xBtn = overlay.querySelector('#egAnsdClose, .eg-ansd-close');
       if(xBtn){ xBtn.onclick = function(ev){ ev.stopPropagation(); closeIt(); }; }
       overlay.onclick = function(ev){ if(ev.target === overlay) closeIt(); };
@@ -4802,6 +4810,9 @@
       var qsQ = await window._egSb.from('questions').select('position, prompt, options, correct, explanation').eq('game_id', gameId).order('position');
       var questions = qsQ && qsQ.data ? qsQ.data : [];
       var esc = function(s){ var d=document.createElement('div'); d.textContent=(s==null?'':s); return d.innerHTML; };
+      // wyjaśnienia zapisane jako "polski||English" - pokazujemy tylko wersję w języku strony
+      var oneLang = function(t){ t = String(t==null?'':t); var i = t.indexOf('||'); if(i<0) return t;
+        var pl = t.slice(0,i).trim(), en = t.slice(i+2).trim(); return (window.EG_LANG === 'en' ? (en||pl) : (pl||en)); };
       var html = '<h3 class="eg-ansd-head">' + (window.EG_LANG === 'en' ? 'Answer details' : 'Szczegóły wyniku') + '</h3>';
       html += '<p class="eg-ansd-sub">Wynik: ' + (comp.score != null ? comp.score : '–') + ' / ' + (comp.score_max != null ? comp.score_max : questions.length) + '</p>';
       comp.answers.forEach(function(a){
@@ -4828,7 +4839,7 @@
           if(a.explanation){
             var agFmt = null;
             try{
-              var _t = String(a.explanation);
+              var _t = oneLang(a.explanation);
               if(_t.indexOf('(') !== -1){
                 var _p = _t.split(/\),\s+/);
                 if(_p.length >= 3){
@@ -4844,7 +4855,7 @@
                 }
               }
             }catch(e){ agFmt = null; }
-            html += '<div class="eg-ansd-expl">' + (agFmt || esc(a.explanation)) + '</div>';
+            html += '<div class="eg-ansd-expl">' + (agFmt || esc(oneLang(a.explanation))) + '</div>';
           }
           return;
         }
@@ -4857,7 +4868,7 @@
           }else{
             html += '<div class="eg-ansd-row"><span class="lbl">Uczeń wpisał: </span><span class="eg-ansd-bad">' + esc(a.typed == null || a.typed === '' ? '(brak odpowiedzi)' : a.typed) + '</span></div>';
             html += '<div class="eg-ansd-row"><span class="lbl">Poprawna: </span><span class="eg-ansd-ok">' + esc(a.correct_text || '') + '</span></div>';
-            if(a.explanation){ html += '<div class="eg-ansd-expl">' + esc(a.explanation) + '</div>'; }
+            if(a.explanation){ html += '<div class="eg-ansd-expl">' + esc(oneLang(a.explanation)) + '</div>'; }
           }
           html += '</div>';
           return;
@@ -4881,13 +4892,15 @@
         }else{
           html += '<div class="eg-ansd-row"><span class="lbl">Uczeń wybrał: </span><span class="eg-ansd-bad">' + esc(pickedTxt) + '</span></div>';
           html += '<div class="eg-ansd-row"><span class="lbl">Poprawna: </span><span class="eg-ansd-ok">' + esc(correctTxt) + '</span></div>';
-          if(q.explanation){ html += '<div class="eg-ansd-expl">' + esc(q.explanation) + '</div>'; }
+          if(q.explanation){ html += '<div class="eg-ansd-expl">' + esc(oneLang(q.explanation)) + '</div>'; }
         }
         html += '</div>';
       });
       content.innerHTML = html;
+      if(overlay._egFit){ overlay._egFit(); if(window.requestAnimationFrame) requestAnimationFrame(overlay._egFit); }
     }catch(e){
       content.innerHTML = '<h3>Szczegóły odpowiedzi</h3><p class="eg-ansd-sub">Nie udało się wczytać szczegółów.</p>';
+      if(overlay._egFit) overlay._egFit();
     }
   };
 })();
