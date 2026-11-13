@@ -289,16 +289,18 @@
   body, body *:not(svg):not(path){ font-family:'Outfit',sans-serif !important; }
 
   /* ===================== BOCZNY PASEK ĆWICZEŃ (tylko szerokie ekrany, tylko w artykule) =====================
-     Wysoki pasek: na górze jedno wyróżnione ćwiczenie, pod nim lista kolejnych, na dole przycisk do wszystkich. */
+     Wysoki pasek: na górze jedno wyróżnione ćwiczenie, pod nim lista kolejnych, na dole przycisk do wszystkich.
+     Bez przewijania w środku: pokazujemy tylko tyle pozycji, ile w całości mieści się na ekranie (fitRail). */
   .art-rail{ display:none; }
   @media (min-width:1300px) and (min-height:620px){
-    body.art-open .art-rail.on{ display:flex; position:fixed; top:96px; bottom:24px; left:calc(50% + 392px); width:252px; z-index:5; }
+    body.art-open .art-rail.on{ display:flex; position:fixed; top:96px; left:calc(50% + 392px); width:252px; z-index:5; }
   }
   .art-rail.on{ flex-direction:column; max-height:calc(100vh - 120px); background:#f6f1ae; border-radius:20px; padding:18px 14px 14px; text-align:center; box-sizing:border-box; }
   .rail-head{ font-family:'Outfit',sans-serif; font-weight:800; font-size:19px; line-height:1.2; color:var(--ink); margin:0 0 4px; }
   .rail-head span{ color:var(--magenta); display:block; }
   .rail-sub{ font-size:12.5px; color:#5c5340; margin:0 0 12px; line-height:1.45; }
-  .rail-list{ flex:1 1 auto; min-height:0; overflow-y:auto; text-align:left; display:flex; flex-direction:column; gap:8px; padding:2px 2px 4px; scrollbar-width:thin; }
+  .rail-list{ flex:0 1 auto; min-height:0; overflow:hidden; text-align:left; display:flex; flex-direction:column; gap:8px; padding:2px 2px 4px; }
+  .rail-list .rail-off{ display:none; }
   .rail-feat{ display:block; flex:0 0 auto; text-decoration:none; color:inherit; background:#fff; border-radius:14px; overflow:hidden; box-shadow:0 6px 16px rgba(160,130,40,.18); transition:transform .2s; }
   .rail-feat:hover{ transform:translateY(-2px); }
   .rail-feat .exc-thumb{ aspect-ratio:3/2; }
@@ -788,8 +790,21 @@ window.ewImgFallback = function(img){
         + '<div class="rail-list">'+html+'</div>'
         + '<a class="rail-btn" href="/">Wszystkie ćwiczenia</a>';
       rail.classList.add('on');
+      fitRail();
     });
   }
+  // Chowa z dołu listy pozycje, które nie mieszczą się w całości - pasek nigdy się nie przewija.
+  function fitRail(){
+    var rail = document.getElementById('artRail'); if(!rail || !rail.classList.contains('on')) return;
+    var list = rail.querySelector('.rail-list'); if(!list) return;
+    var rows = list.querySelectorAll('.rail-row'), more = list.querySelector('.rail-more');
+    for(var i=0;i<rows.length;i++) rows[i].classList.remove('rail-off');
+    if(more) more.classList.remove('rail-off');
+    if(!list.clientHeight) return;            // pasek ukryty (wąski ekran) - nic nie liczymy
+    for(var k=rows.length-1; k>=0 && list.scrollHeight > list.clientHeight + 1; k--) rows[k].classList.add('rail-off');
+    if(more && !list.querySelector('.rail-row:not(.rail-off)')) more.classList.add('rail-off');
+  }
+  var fitT; window.addEventListener('resize', function(){ clearTimeout(fitT); fitT = setTimeout(fitRail, 120); });
   function showArticle(a, push){
     // Tytuł: jeśli ma myślnik " — ", druga część idzie od nowej linii (ta sama czcionka)
     (function(){
