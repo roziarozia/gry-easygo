@@ -5024,37 +5024,56 @@
     var arr=pools[kind]&&pools[kind].length ? pools[kind] : pools.any;
     return arr[Math.floor(Math.random()*arr.length)];
   }
-  /* Okładkę najpierw ładujemy w tle i dekodujemy; podmieniamy ją dopiero, gdy jest gotowa
-     i stara zdążyła zgasnąć. Dzięki temu nie widać na ułamek sekundy niedoładowanego obrazka. */
-  var cache={}, req=0;
-  function preload(url){
-    if(!cache[url]){
-      var im=new Image(); im.decoding='async';
-      cache[url]=new Promise(function(ok){
-        im.onload=function(){ (im.decode ? im.decode() : Promise.resolve()).then(ok,ok); };
-        im.onerror=ok;
-      });
-      im.src=url;
-    }
-    return cache[url];
+  /* OKŁADKI W BANERZE - bez białej karty:
+     1) bierzemy POMNIEJSZONĄ okładkę (ok. 700 px, WebP, kilkadziesiąt KB zamiast 1-2 MB oryginału);
+     2) okładkę dla NASTĘPNEGO hasła wybieramy i ładujemy z wyprzedzeniem (mamy na to 4,5 s);
+     3) starą okładkę gasimy dopiero wtedy, gdy nowa jest w całości gotowa - do tego czasu zostaje stara. */
+  function thumbUrl(u){
+    if(!u || u.indexOf('/storage/v1/object/public/') === -1) return u;
+    return u.replace('/storage/v1/object/public/', '/storage/v1/render/image/public/') + '?width=700&quality=75&resize=contain';
   }
-  function showCover(kind){
-    var g=pick(kind); if(!g) return;
+  var cache={}, req=0, planned={};
+  function loadOne(url){
+    return new Promise(function(ok){
+      var im=new Image(); im.decoding='async';
+      im.onload=function(){ (im.decode ? im.decode() : Promise.resolve()).then(function(){ ok(url); }, function(){ ok(url); }); };
+      im.onerror=function(){ ok(null); };
+      im.src=url;
+    });
+  }
+  /* zwraca adres gotowego obrazka (miniatura, a gdyby nie zadziałała - oryginał) albo null */
+  function preload(orig){
+    if(!cache[orig]){
+      var t=thumbUrl(orig);
+      cache[orig]=loadOne(t).then(function(u){ return u || (t!==orig ? loadOne(orig) : null); });
+    }
+    return cache[orig];
+  }
+  function plan(i){
+    var k=(i+slides.length)%slides.length, g=pick(slides[k].getAttribute('data-cover'));
+    if(g){ planned[k]=g; preload(g.cover_url); }
+  }
+  function showCover(idx){
+    var g=planned[idx] || pick(slides[idx].getAttribute('data-cover')); if(!g) return;
+    delete planned[idx];
     var my=++req;
-    cover.classList.add('eg-fade');
-    var faded=new Promise(function(ok){ setTimeout(ok,350); });
-    Promise.all([preload(g.cover_url), faded]).then(function(){
-      if(my!==req) return;               // w międzyczasie kliknięto inną kropkę
-      img.src=g.cover_url; cap.textContent=g.title;
-      cover.href='/cwiczenie/'+encodeURIComponent(g.slug); cover.setAttribute('aria-label',g.title); cover.removeAttribute('tabindex');
-      requestAnimationFrame(function(){ if(my===req) cover.classList.remove('eg-fade'); });
+    preload(g.cover_url).then(function(url){
+      if(my!==req || !url) return;        // w międzyczasie kliknięto inną kropkę / obrazek się nie wczytał
+      cover.classList.add('eg-fade');      // stara okładka gaśnie dopiero, gdy nowa jest gotowa
+      setTimeout(function(){
+        if(my!==req) return;
+        img.src=url; cap.textContent=g.title;
+        cover.href='/cwiczenie/'+encodeURIComponent(g.slug); cover.setAttribute('aria-label',g.title); cover.removeAttribute('tabindex');
+        requestAnimationFrame(function(){ if(my===req) cover.classList.remove('eg-fade'); });
+        plan(idx+1);                       // od razu szykujemy okładkę dla kolejnego hasła
+      },300);
     });
   }
   function go(i){
     slides[cur].classList.remove('eg-on'); dots[cur].classList.remove('eg-on');
     cur=(i+slides.length)%slides.length;
     slides[cur].classList.add('eg-on'); dots[cur].classList.add('eg-on');
-    showCover(slides[cur].getAttribute('data-cover'));
+    showCover(cur);
   }
   box.addEventListener('mouseenter',function(){ hover=true; });
   box.addEventListener('mouseleave',function(){ hover=false; });
@@ -5073,9 +5092,7 @@
       topics:rows.filter(function(g){ return /reading|listening|speaking/.test(g.category||''); }),
       grammar:rows.filter(function(g){ return g.category==='gramatyka'; }),
       'new':rows.slice(0,10) };
-    showCover(slides[cur].getAttribute('data-cover'));
-    /* po chwili ładujemy w tle resztę okładek z puli, żeby kolejne zmiany były natychmiastowe */
-    setTimeout(function(){ rows.slice(0,40).forEach(function(g){ preload(g.cover_url); }); }, 2500);
+    showCover(cur);
   }).catch(function(){});
 })();
 </script>
