@@ -1738,6 +1738,20 @@
   html.mat.eg-dark .ls-opt.mat-let.ok:has(input:checked){ background:#2f7a52; color:#fff; }
   html.mat.eg-dark .ls-opt.mat-let.bad, html.mat.eg-dark .ls-opt.mat-let.bad:has(input:checked){ background:#3d2226; border-color:#7a3b36; color:#f0a39a; }
   html.mat.eg-dark .mat-open{ border-color:#4a4c66; }
+  /* MATURA – dobieranie nagłówków: numer i kratka na literę nad każdym akapitem, jak w arkuszu */
+  .mat-para.mat-hpara{ flex-direction:column; gap:8px; }
+  .mat-hbar{ display:flex; align-items:center; gap:10px; }
+  .mat-hnum{ font-family:'Outfit',sans-serif; font-weight:700; font-size:17px; color:#ca4490; }
+  .mat-hbox{ box-sizing:border-box; width:46px !important; height:46px !important; min-height:0 !important; margin:0 !important; padding:0 !important; border:2px solid #c9c2d3; border-radius:10px; background:var(--card); color:var(--ink); font-family:'Outfit',sans-serif; font-weight:700; font-size:21px; text-align:center; text-transform:uppercase; }
+  .mat-hbox:focus{ outline:none; border-color:#ca4490; }
+  .mat-hbox.ok{ border-color:#2f7a52; color:#2f7a52; background:#eef7f1; }
+  .mat-hbox.bad{ border-color:#e3b3ad; color:#b03a2e; background:#fbefed; text-decoration:line-through; text-decoration-thickness:1px; }
+  .mat-hfix{ font-family:'Outfit',sans-serif; font-weight:700; font-size:16px; color:#2f7a52; }
+  .mat-hmode .mat-mq{ display:none; }
+  html.mat.eg-dark .mat-hbox{ border-color:#4a4c66; }
+  html.mat.eg-dark .mat-hbox.ok{ background:#1e3b2c; border-color:#3f9d6d; color:#8fd4ad; }
+  html.mat.eg-dark .mat-hbox.bad{ background:#3d2226; border-color:#7a3b36; color:#f0a39a; }
+  html.mat.eg-dark .mat-hfix{ color:#8fd4ad; }
   html.mat.eg-dark .mat-open.ok{ background:#1e3b2c; border-color:#3f9d6d; color:#8fd4ad; }
   html.mat.eg-dark .mat-open.bad{ background:#3d2226; border-color:#7a3b36; color:#f0a39a; }
   html.mat.eg-dark .mat-fix{ color:#8fd4ad; }
@@ -3110,6 +3124,32 @@ function matMatchInfo(){
   var onlyLabels = match && opts.every(function(o){ return /^\s*(?:Tekst|Text)\s+[A-H]\s*$/i.test(o); });
   return { match: match, opts: opts, onlyLabels: onlyLabels, open: open.length > 0 };
 }
+// MATURA: dobieranie nagłówków do akapitów – akapity numerowane (1, 2, 3…), pytania „Część 1”, „Część 2”…
+// Zwraca { numer akapitu: indeks pytania } albo null, jeśli to nie ten typ zadania.
+function matHeadMap(mm){
+  if(!mm || !mm.match || mm.onlyLabels || !matIsRead()) return null;
+  var map = {}, ok = true;
+  QUESTIONS.forEach(function(q, i){
+    var m = String(q.prompt || '').match(/^\s*(?:Część|Part|Fragment)\s*(\d+)\s*$/i);
+    if(!m){ ok = false; return; }
+    map[m[1]] = i;
+  });
+  if(!ok) return null;
+  var paras = LISTENING.filter(function(l){ return /^\s*\d+\s*$/.test(String(l.speaker || '')); });
+  if(!paras.length || !paras.every(function(l){ return map[String(l.speaker).trim()] != null; })) return null;
+  return map;
+}
+function matHeadPick(inp){
+  var i = parseInt(inp.getAttribute('data-q'), 10);
+  var v = inp.value.replace(/[^a-z]/gi, '').slice(-1).toUpperCase();
+  var q = QUESTIONS[i], j = -1;
+  if(v) (q.options || []).forEach(function(o, k){ if(matLetter(o) === v) j = k; });
+  inp.value = j > -1 ? v : '';
+  var r = document.querySelectorAll('input[name="lsq' + i + '"]');
+  r.forEach(function(x){ x.checked = parseInt(x.value, 10) === j; });
+  if(j > -1) lsWybor['lsq' + i] = j; else delete lsWybor['lsq' + i];
+  document.getElementById('lsErr').textContent = '';
+}
 function matPartTwoInstr(){
   var ins = (GAME.instruction || '').trim(); if(!ins) return '';
   var p = ins.split('||'); var txt = (window.EG_LANG === 'en' ? p[0] : (p[1] || p[0]));
@@ -3228,7 +3268,17 @@ function startListening(){
     } else { lsMarks.innerHTML = ''; lsMarks.classList.add('hidden'); }
   }
   if(lsText){
-    if(matRead){
+    var hMap = matRead ? matHeadMap(matMatchInfo()) : null;
+    if(hMap){
+      lsText.innerHTML = LISTENING.map(function(l){
+        var nr = String(l.speaker || '').trim(), qi = hMap[nr];
+        var bar = qi != null ? '<div class="mat-hbar"><span class="mat-hnum">' + escapeHtml(nr) + '.</span><input class="mat-hbox" type="text" maxlength="2" autocomplete="off" spellcheck="false" data-q="' + qi + '" aria-label="' + escapeHtml(nr) + '"><span class="mat-hfix hidden" id="lsHFix' + qi + '"></span></div>' : '';
+        return '<div class="mat-para mat-hpara">' + bar + '<div class="mat-ptext">' + escapeHtml(l.text) + '</div></div>';
+      }).join('') + egSrcHtml();
+      lsText.oninput = function(e){ if(e.target && e.target.classList.contains('mat-hbox')) matHeadPick(e.target); };
+      lsText.classList.remove('hidden');
+    } else if(matRead){
+      lsText.oninput = null;
       lsText.innerHTML = LISTENING.map(function(l){
         return '<div class="mat-para">' + (l.speaker ? '<span class="mat-plabel">' + escapeHtml(l.speaker) + '</span>' : '') + '<div class="mat-ptext">' + escapeHtml(l.text) + '</div></div>';
       }).join('') + egSrcHtml();
@@ -3262,8 +3312,12 @@ function startListening(){
 
   const box = document.getElementById('lsQuestions');
   const mm = matMatchInfo();
+  box.classList.toggle('mat-hmode', !!(mm && matIsRead() && matHeadMap(mm)));
   if(mm){
     box.innerHTML = matRenderQuestions(mm);
+    // nagłówki: lista A–F nad tekstem, jak w arkuszu
+    var hPool = box.classList.contains('mat-hmode') ? box.querySelector('.mat-pool') : null;
+    if(hPool && lsText){ hPool.style.margin = '0 0 14px'; lsText.insertBefore(hPool, lsText.firstChild); }
   } else {
   // MATURA: „Tekst 1.” / „Text 1.” na początku pytania = nagłówek grupy nad pytaniami do tego tekstu
   var lsGrupa = null;
@@ -3341,12 +3395,22 @@ function sprawdzListening(){
       if(j === dobra) el.classList.add('ok');
       else if(j === moja) el.classList.add('bad');
     });
+    var hb = document.querySelector('#lsText .mat-hbox[data-q="' + i + '"]');
+    if(hb){
+      hb.disabled = true;
+      hb.classList.add(moja === dobra ? 'ok' : 'bad');
+      var hf = document.getElementById('lsHFix' + i);
+      if(hf && moja !== dobra){ hf.textContent = matLetter(q.options[dobra]) || ''; hf.classList.remove('hidden'); }
+    }
     if(q.explanation){
       const exp = document.getElementById('lsExp' + i);
       exp.textContent = (GAME.matura && matIsOpen(q) ? '(' + (i + 1) + ') ' : '') + pickExplLang(q.explanation);
       exp.classList.remove('hidden');
     }
   });
+
+  // nagłówki: po sprawdzeniu pokazujemy wiersze „Część 1 …” z wyjaśnieniami
+  document.getElementById('lsQuestions').classList.remove('mat-hmode');
 
   // transkrypcje przygotowujemy, ale odslaniamy dopiero na zyczenie (przycisk)
   if(LISTENING.length){
