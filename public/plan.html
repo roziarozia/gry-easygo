@@ -616,7 +616,9 @@ window.ewImgFallback = function(img){
     // Wszystko, co dodasz do planu później, dostaje znaczek „Nowe”, dopóki uczeń tego nie zrobi.
     var base = firstSeen;
 
-    var doneLessons = 0, nextStep = null, nextLesson = null, newSteps = [];
+    // „Zacznij/Kontynuuj” prowadzi po lekcjach planu (1, 2, 3…); lekcje sezonowe to dodatek,
+    // więc wskazujemy je dopiero, gdy cały plan jest zrobiony.
+    var doneLessons = 0, nextStep = null, nextLesson = null, nextSeasonStep = null, nextSeasonLesson = null, newSteps = [];
     lessons.forEach(function(l){
       var d = 0, fresh = 0;
       l.steps.forEach(function(s){
@@ -624,7 +626,8 @@ window.ewImgFallback = function(img){
         s.isNew = !s.done && s.created_at > base;
         if(s.done) d++;
         if(s.isNew){ fresh++; newSteps.push({ s:s, l:l }); }
-        if(!s.done && !nextStep){ nextStep = s; nextLesson = l; }
+        if(!s.done && !l.seasonal && !nextStep){ nextStep = s; nextLesson = l; }
+        if(!s.done && l.seasonal && !nextSeasonStep){ nextSeasonStep = s; nextSeasonLesson = l; }
       });
       l.doneCount = d; l.newCount = fresh;
       l.complete = l.steps.length > 0 && d === l.steps.length;
@@ -634,8 +637,9 @@ window.ewImgFallback = function(img){
     // pasek postępu
     var total = lessons.filter(function(l){ return !l.seasonal; }).length;
     document.getElementById('plProgH').textContent = LEVEL + ': ' + doneLessons + ' z ' + total + ' ' + plural(total, 'lekcji', 'lekcji', 'lekcji');
+    if(!nextStep && nextSeasonStep){ nextStep = nextSeasonStep; nextLesson = nextSeasonLesson; }
     var allSteps = 0, allDone = 0;
-    lessons.forEach(function(l){ allSteps += l.steps.length; allDone += l.doneCount; });
+    lessons.forEach(function(l){ if(l.seasonal) return; allSteps += l.steps.length; allDone += l.doneCount; });
     document.getElementById('plBar').style.width = (allSteps ? Math.round(allDone / allSteps * 100) : 0) + '%';
     var go = document.getElementById('plGo'), sub = document.getElementById('plProgSub');
     if(!nextStep){
