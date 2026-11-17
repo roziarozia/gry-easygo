@@ -935,22 +935,65 @@ window.ewImgFallback = function(img){
   }).catch(function(){});
 })();
 </script>
+<!-- PLAN NAUKI: gdy ktoś przyszedł z /plan — pasek „Wróć do mojego planu” + „Oznacz jako przeczytane” -->
+<style>
+  .pbar{ position:fixed; left:50%; bottom:16px; transform:translateX(-50%); z-index:60; display:flex; align-items:center; gap:8px; background:#fff; border:1.5px solid var(--line); border-radius:999px; padding:6px; box-shadow:0 10px 30px rgba(42,39,48,.16); max-width:calc(100% - 24px); }
+  .pbar[hidden]{ display:none; }
+  .pbar a, .pbar button{ font-family:'Outfit',sans-serif; font-weight:700; font-size:14px; border-radius:999px; padding:9px 16px; text-decoration:none; white-space:nowrap; cursor:pointer; border:none; }
+  .pbar .pb-back{ background:var(--soft, #f7f5fa); color:var(--ink); }
+  .pbar .pb-back:hover{ background:#efe9fa; }
+  .pbar .pb-read{ background:var(--magenta); color:#fff; display:inline-flex; align-items:center; gap:6px; }
+  .pbar .pb-read:hover{ background:var(--magenta-dk); }
+  .pbar .pb-read.is-done{ background:#f6f1ae; color:#2a2730; }
+  .pbar .pb-read[hidden]{ display:none; }
+  :root[data-theme="dark"] .pbar{ background:#221d2b; border-color:#2f2938; }
+  :root[data-theme="dark"] .pbar .pb-back{ background:#2b2436; color:#ece9f2; }
+  @media (prefers-color-scheme:dark){ :root:not([data-theme="light"]) .pbar{ background:#221d2b; border-color:#2f2938; } :root:not([data-theme="light"]) .pbar .pb-back{ background:#2b2436; color:#ece9f2; } }
+  @media(max-width:420px){ .pbar a, .pbar button{ font-size:13px; padding:9px 12px; } }
+  body.has-pbar{ padding-bottom:84px; }
+</style>
+<div class="pbar" id="pbar" hidden>
+  <a class="pb-back" id="pbBack" href="/plan">&larr; Mój plan nauki</a>
+  <button type="button" class="pb-read" id="pbRead" hidden>Oznacz jako przeczytane</button>
+</div>
 <script>
-/* PLAN NAUKI: zapamiętujemy przeczytane artykuły, żeby /plan mógł je odhaczyć */
 (function(){
-  function mark(){
-    var m = location.pathname.match(/^\/nauka\/([^\/?#]+)/), slug = m ? decodeURIComponent(m[1]) : null;
-    if(!slug){ try{ slug = new URLSearchParams(location.search).get('a'); }catch(e){} }
+  var LV = ['a1','a2','b1','b2','c1'], plan = null;
+  try{ var q = new URLSearchParams(location.search).get('plan'); if(q && LV.indexOf(q.toLowerCase()) !== -1){ plan = q.toLowerCase(); sessionStorage.setItem('ew_from_plan', plan); } }catch(e){}
+  if(!plan){ try{ plan = sessionStorage.getItem('ew_from_plan'); }catch(e){} }
+  if(!plan) return;
+
+  var bar = document.getElementById('pbar'), back = document.getElementById('pbBack'), btn = document.getElementById('pbRead');
+  back.href = '/plan?poziom=' + plan + '#plan';
+  bar.hidden = false; document.body.classList.add('has-pbar');
+
+  function getRead(){ try{ return JSON.parse(localStorage.getItem('ew_read_articles') || '{}'); }catch(e){ return {}; } }
+  function slugNow(){ var m = location.pathname.match(/^\/nauka\/([^\/?#]+)/); return m ? decodeURIComponent(m[1]) : null; }
+  var CHECK = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>';
+  function paint(){
+    var slug = slugNow();
+    btn.hidden = !slug;
     if(!slug) return;
-    try{
-      var r = JSON.parse(localStorage.getItem('ew_read_articles') || '{}');
-      if(!r[slug]){ r[slug] = new Date().toISOString(); localStorage.setItem('ew_read_articles', JSON.stringify(r)); }
-    }catch(e){}
+    var done = !!getRead()[slug];
+    btn.classList.toggle('is-done', done);
+    btn.innerHTML = done ? CHECK + 'Przeczytane' : 'Oznacz jako przeczytane';
+    btn.setAttribute('aria-pressed', done ? 'true' : 'false');
   }
-  mark();
-  window.addEventListener('popstate', mark);
+  // zapis także na koncie (żeby plan pokazywał to samo na każdym urządzeniu)
+  var sbc = null;
+  try{ if(window.supabase) sbc = window.supabase.createClient('https://svjrdyxwqznbzxqeytdn.supabase.co', 'sb_publishable_TNCq1UAMAvLO0Z5Mt8QOig_OvsxhhyJ', { auth:{ storageKey:'sb-svjrdyxwqznbzxqeytdn-auth-token' } }); }catch(e){}
+  btn.addEventListener('click', function(){
+    var slug = slugNow(); if(!slug) return;
+    var r = getRead();
+    if(r[slug]) delete r[slug]; else r[slug] = new Date().toISOString();
+    try{ localStorage.setItem('ew_read_articles', JSON.stringify(r)); }catch(e){}
+    paint();
+    if(sbc){ sbc.auth.getSession().then(function(x){ if(x && x.data && x.data.session) return sbc.auth.updateUser({ data:{ read_articles: r } }); }).catch(function(){}); }
+  });
+  paint();
+  window.addEventListener('popstate', paint);
   var ps = history.pushState;
-  history.pushState = function(){ var x = ps.apply(this, arguments); setTimeout(mark, 0); return x; };
+  history.pushState = function(){ var x = ps.apply(this, arguments); setTimeout(paint, 0); return x; };
 })();
 </script>
 </body>
