@@ -66,7 +66,54 @@ export default function Konto() {
         if(myProfile && myProfile.access_source === 'own_sub'){ $('subCard').classList.remove('hidden'); }
         if(myProfile){ await renderSubStatus(myProfile); }
         renderRoleCard();
+        renderNewsCard();
       })();
+
+      // NEWSLETTER — dobrowolna zgoda; każda zmiana zapisuje się z datą i treścią zgody (dowód zgody).
+      var NEWS_TEXT = 'Chcę dostawać od EasyWonders e-maile o nowych materiałach, planach nauki i promocjach. Mogę zrezygnować w każdej chwili.';
+      var newsOn = false;
+      function paintNews(){
+        var st = $('newsState'), b = $('newsBtn');
+        if(!st || !b) return;
+        st.textContent = newsOn ? 'Jesteś zapisany/a na nasz newsletter.' : 'Nie dostajesz od nas newslettera.';
+        b.textContent = newsOn ? 'Wypisz mnie z newslettera' : 'Zapisz mnie na newsletter';
+        b.className = newsOn ? 'btn secondary' : 'btn';
+      }
+      async function renderNewsCard(){
+        var card = $('newsCard'); if(!card) return;
+        try{
+          var r = await sb.from('newsletter_consents').select('consent').eq('user_id', me.id).maybeSingle();
+          newsOn = !!(r && r.data && r.data.consent);
+        }catch(e){}
+        card.classList.remove('hidden');
+        paintNews();
+        // TYLKO ADMIN: liczba zapisanych i pobranie listy adresów (CSV, np. do MailerLite)
+        try{
+          var adm = await sb.rpc('is_admin');
+          if(adm && adm.data === true){
+            var lst = await sb.rpc('newsletter_list');
+            var rows = (lst && lst.data) || [];
+            var box = $('newsAdmin'); box.style.display = '';
+            $('newsCount').textContent = 'Zapisanych na newsletter: ' + rows.length + '. Widzisz to tylko Ty.';
+            $('newsCsv').onclick = function(){
+              var csv = 'email,data_zgody,zrodlo\n' + rows.map(function(r){ return [r.email, r.consent_at, '"' + String(r.source || '').replace(/"/g,'""') + '"'].join(','); }).join('\n');
+              var a = document.createElement('a');
+              a.href = URL.createObjectURL(new Blob([csv], { type:'text/csv;charset=utf-8' }));
+              a.download = 'newsletter-easywonders.csv'; document.body.appendChild(a); a.click(); a.remove();
+            };
+          }
+        }catch(e){}
+        $('newsBtn').onclick = async function(){
+          var want = !newsOn, b = this;
+          b.disabled = true;
+          var r = await sb.rpc('set_newsletter', { p_consent: want, p_source: 'moje konto', p_text: want ? NEWS_TEXT : 'Wypisanie z newslettera' });
+          b.disabled = false;
+          if(r && r.error){ msg($('newsMsg'), 'Nie udało się zapisać. Spróbuj jeszcze raz.', 'err'); return; }
+          newsOn = want; paintNews();
+          msg($('newsMsg'), want ? 'Zapisane. Dziękujemy!' : 'Wypisane. Nie będziemy wysyłać Ci newslettera.', 'ok');
+          try{ localStorage.setItem('ew_news_asked', '1'); }catch(e){}
+        };
+      }
 
       // TYP KONTA (uczeń / lektor) — zmiana możliwa tylko dla darmowego, niepowiązanego konta.
       // Ostateczną decyzję podejmuje baza (RPC switch_my_role), tu tylko pokazujemy przycisk.
@@ -345,6 +392,18 @@ export default function Konto() {
             </div>
             <button className="btn" id="savePass">Zapisz nowe hasło</button>
             <div className="msg" id="passMsg"></div>
+          </div>
+
+          <div className="card hidden" id="newsCard">
+            <h2>Newsletter</h2>
+            <p className="desc">Raz na jakiś czas wysyłamy e-mail o nowych materiałach, planach nauki i promocjach. Zapis jest dobrowolny i możesz zrezygnować w każdej chwili.</p>
+            <p className="desc" id="newsState" style={{ fontWeight: 700, color: 'inherit' }}></p>
+            <button className="btn" id="newsBtn"></button>
+            <div className="msg" id="newsMsg"></div>
+            <div id="newsAdmin" style={{ display: 'none', marginTop: 16, paddingTop: 14, borderTop: '1px dashed #a78dd9' }}>
+              <p className="desc" id="newsCount" style={{ marginBottom: 10 }}></p>
+              <button className="btn secondary" id="newsCsv">Pobierz listę adresów (CSV)</button>
+            </div>
           </div>
 
           <div className="card hidden" id="roleCard">
