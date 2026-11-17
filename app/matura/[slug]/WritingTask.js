@@ -191,7 +191,7 @@ export default function WritingTask({ slug, level, isPremium }) {
         <section className="wt-card wt-lock">
           <div className="wt-k">Od redakcji</div>
           <h2>Ten temat jest w pełnej wersji</h2>
-          <p>Pierwszy temat w każdym typie wypowiedzi jest darmowy, a resztę odblokujesz w pełnej wersji EasyWonders. {user ? 'Wybierz plan, żeby mieć dostęp do wszystkich.' : 'Załóż konto, a przez 14 dni masz pełną wersję za darmo, bez podpinania karty.'}</p>
+          <p>Pierwszy temat w każdym typie wypowiedzi jest darmowy, a resztę odblokujesz w pełnej wersji EasyWonders. {user ? 'Wybierz subskrypcję, żeby mieć dostęp do wszystkich.' : 'Załóż konto, a przez 14 dni masz pełną wersję za darmo, bez podpinania karty.'}</p>
           <div className="wt-btns">
             <a className="wt-btn" href={user ? '/oferta?powrot=matura' : '/logowanie?rejestracja&powrot=matura'}>{user ? 'Zobacz ofertę' : 'Załóż konto za darmo'}</a>
             {!user && <a className="wt-btn wt-ghost" href={'/logowanie?powrot=' + encodeURIComponent('matura/' + slug)}>Mam konto, zaloguj się</a>}
