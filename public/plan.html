@@ -171,8 +171,9 @@
 
   .pl-steps{ list-style:none; margin:0; padding:0 14px 14px; display:none; flex-direction:column; gap:8px; }
   .pl-lesson.is-open .pl-steps{ display:flex; }
-  .pl-step a{ display:flex; align-items:center; gap:12px; text-decoration:none; color:var(--ink); background:var(--soft); border-radius:14px; padding:8px 12px 8px 8px; transition:transform .16s, background .16s; }
-  .pl-step a:hover{ transform:translateX(3px); }
+  .pl-row{ display:flex; align-items:center; gap:10px; background:var(--soft); border-radius:14px; padding-right:12px; transition:transform .16s; }
+  .pl-row:hover{ transform:translateX(3px); }
+  .pl-step a{ flex:1 1 auto; min-width:0; display:flex; align-items:center; gap:12px; text-decoration:none; color:var(--ink); padding:8px 0 8px 8px; }
   .pl-th{ flex:0 0 auto; width:64px; aspect-ratio:3/2; border-radius:9px; overflow:hidden; background:#e8e0f6; display:flex; align-items:center; justify-content:center; }
   .pl-th img{ width:100%; height:100%; object-fit:cover; display:block; }
   .pl-th-art{ background:#efe9fa; color:var(--lavender); }
@@ -190,6 +191,10 @@
   .pl-lock{ flex:0 0 auto; color:var(--muted); display:inline-flex; }
   .pl-check{ flex:0 0 auto; width:26px; height:26px; border-radius:50%; border:2px solid var(--line); display:flex; align-items:center; justify-content:center; color:#fff; background:var(--card); }
   .pl-step.is-done .pl-check{ background:var(--magenta); border-color:var(--magenta); }
+  .pl-check-btn{ cursor:pointer; padding:0; font:inherit; }
+  .pl-check-btn:hover{ border-color:var(--magenta); }
+  .pl-check-btn{ position:relative; }
+  .pl-check-btn::after{ content:''; position:absolute; inset:-10px; }
   .pl-step.is-done .pl-stitle{ color:var(--muted); }
 
   .pl-lock-wrap{ position:relative; margin-top:12px; }
@@ -542,7 +547,7 @@ window.ewImgFallback = function(img){
 
   function readArticles(){ return lsGet('ew_read_articles', {}); }
 
-  function stepHref(s){ return s.kind === 'article' ? '/nauka/' + encodeURIComponent(s.slug) : '/cwiczenie/' + encodeURIComponent(s.slug); }
+  function stepHref(s){ return (s.kind === 'article' ? '/nauka/' : '/cwiczenie/') + encodeURIComponent(s.slug) + '?plan=' + PLAN; }
   function isDone(s, read){ return s.kind === 'article' ? !!read[s.slug] : !!DONE[s.slug]; }
 
   function lessonsQ(){ return rest('plan_lessons?plan=eq.' + PLAN + '&select=id,position,title,subtitle,months&order=position.asc'); }
@@ -678,15 +683,19 @@ window.ewImgFallback = function(img){
           : (s.kind === 'article'
               ? '<span class="pl-th pl-th-blog" aria-hidden="true"><b>BLOG</b><i><u>EASY</u>WONDERS</i></span>'
               : '<span class="pl-th" aria-hidden="true"></span>');
-        return '<li class="pl-step' + (s.done ? ' is-done' : '') + '">' +
+        return '<li class="pl-step' + (s.done ? ' is-done' : '') + '"><div class="pl-row">' +
           '<a href="' + stepHref(s) + '" data-slug="' + esc(s.slug) + '" data-kind="' + s.kind + '">' +
             thumb +
             '<span class="pl-sx"><span class="pl-kind pl-k-' + ({'Przeczytaj':'r','Przećwicz':'c','Słownictwo':'s','Użyj w praktyce':'u'}[s.step] || 'c') + '">' + esc(s.step) + '</span>' +
             '<span class="pl-stitle">' + esc(s.title) + '</span></span>' +
             (s.isNew && !isFirstVisit ? '<span class="pl-badge-new">Nowe</span>' : '') +
             (s.premium ? '<span class="pl-lock" title="Dla subskrybentów" aria-label="Dla subskrybentów"><svg width="13" height="13" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 1a5 5 0 00-5 5v3H6a2 2 0 00-2 2v9a2 2 0 002 2h12a2 2 0 002-2v-9a2 2 0 00-2-2h-1V6a5 5 0 00-5-5zm3 8H9V6a3 3 0 016 0v3z" fill="currentColor"/></svg></span>' : '') +
-            '<span class="pl-check" aria-label="' + (s.done ? 'zrobione' : 'do zrobienia') + '">' + (s.done ? '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>' : '') + '</span>' +
-          '</a>' + (EDIT ? stepEditHTML(s) : '') + '</li>';
+          '</a>' +
+          // kulka poza linkiem: artykuł odhaczasz sam, ćwiczenie odhacza się po zrobieniu
+          (s.kind === 'article'
+            ? '<button type="button" class="pl-check pl-check-btn" data-read="' + esc(s.slug) + '" aria-pressed="' + (s.done ? 'true' : 'false') + '" title="' + (s.done ? 'Przeczytane – kliknij, żeby odznaczyć' : 'Kliknij, gdy przeczytasz') + '" aria-label="' + (s.done ? 'Przeczytane, odznacz' : 'Oznacz jako przeczytane') + '">' + (s.done ? '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>' : '') + '</button>'
+            : '<span class="pl-check" title="' + (s.done ? 'Zrobione' : 'Odhaczy się samo, gdy zrobisz ćwiczenie') + '" aria-label="' + (s.done ? 'zrobione' : 'do zrobienia') + '">' + (s.done ? '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>' : '') + '</span>') +
+          '</div>' + (EDIT ? stepEditHTML(s) : '') + '</li>';
       }).join('');
       return '<li class="pl-lesson' + (l.seasonal ? ' is-seasonal' : '') + (l.complete ? ' is-complete' : '') + (openState[l.id] ? ' is-open' : '') + '" data-id="' + l.id + '">' +
         '<button type="button" class="pl-lhead" aria-expanded="' + (openState[l.id] ? 'true' : 'false') + '">' +
@@ -714,11 +723,21 @@ window.ewImgFallback = function(img){
     h.setAttribute('aria-expanded', openState[id] ? 'true' : 'false');
   });
 
-  // kliknięcie w artykuł z planu = przeczytany
-  document.addEventListener('click', function(e){
-    var a = e.target.closest('a[data-kind="article"]');
-    if(!a) return;
-    var r = readArticles(); r[a.getAttribute('data-slug')] = new Date().toISOString(); lsSet('ew_read_articles', r);
+  // Kulka przy artykule: sam odhaczasz / odznaczasz „przeczytane”.
+  // Zapis na urządzeniu, a u zalogowanych także na koncie (działa na telefonie i komputerze).
+  function syncReadToAccount(){
+    if(!SESSION || !sb) return;
+    try{ sb.auth.updateUser({ data:{ read_articles: readArticles() } }).catch(function(){}); }catch(e){}
+  }
+  document.getElementById('plLessons').addEventListener('click', function(e){
+    var b = e.target.closest('[data-read]');
+    if(!b) return;
+    e.preventDefault();
+    var slug = b.getAttribute('data-read'), r = readArticles();
+    if(r[slug]) delete r[slug]; else r[slug] = new Date().toISOString();
+    lsSet('ew_read_articles', r);
+    syncReadToAccount();
+    render();
   });
 
   // po powrocie z ćwiczenia (przycisk „wstecz”) odświeżamy odhaczenia
@@ -957,6 +976,14 @@ window.ewImgFallback = function(img){
       if(!PLAN){ location.replace('/plan?poziom=' + meta + '#plan'); return; }
       paintChoice();
     }
+    var mr = session && session.user && session.user.user_metadata ? session.user.user_metadata.read_articles : null;
+    if(mr && typeof mr === 'object'){
+      var loc = readArticles(), changed = false;
+      Object.keys(mr).forEach(function(k){ if(!loc[k]){ loc[k] = mr[k]; changed = true; } });
+      lsSet('ew_read_articles', loc);
+      if(Object.keys(loc).length !== Object.keys(mr).length) setTimeout(syncReadToAccount, 0);
+      if(changed && DATA) render();
+    } else if(session && Object.keys(readArticles()).length){ setTimeout(syncReadToAccount, 0); }
     var uid = session ? session.user.id : null;
     if(uid === lastUid) return;
     lastUid = uid;
