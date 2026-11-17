@@ -935,5 +935,23 @@ window.ewImgFallback = function(img){
   }).catch(function(){});
 })();
 </script>
+<script>
+/* PLAN NAUKI: zapamiętujemy przeczytane artykuły, żeby /plan mógł je odhaczyć */
+(function(){
+  function mark(){
+    var m = location.pathname.match(/^\/nauka\/([^\/?#]+)/), slug = m ? decodeURIComponent(m[1]) : null;
+    if(!slug){ try{ slug = new URLSearchParams(location.search).get('a'); }catch(e){} }
+    if(!slug) return;
+    try{
+      var r = JSON.parse(localStorage.getItem('ew_read_articles') || '{}');
+      if(!r[slug]){ r[slug] = new Date().toISOString(); localStorage.setItem('ew_read_articles', JSON.stringify(r)); }
+    }catch(e){}
+  }
+  mark();
+  window.addEventListener('popstate', mark);
+  var ps = history.pushState;
+  history.pushState = function(){ var x = ps.apply(this, arguments); setTimeout(mark, 0); return x; };
+})();
+</script>
 </body>
 </html>
