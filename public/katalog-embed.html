@@ -326,8 +326,11 @@
   .eg-wonderland .eg-underline{ position:relative; z-index:1; }
   /* logo EasyWonders zamiast napisu */
   .eg-hero-title .eg-logo{
-    display:block; width:min(520px,84vw); height:auto;
+    display:block; width:min(440px,80vw); height:auto;
     margin:0 auto; position:relative; z-index:1;
+    /* falująca linia po bokach łagodnie zanika (planeta i napis zostają w pełni widoczne) */
+    -webkit-mask-image:linear-gradient(to right, transparent 0%, rgba(0,0,0,.25) 8%, rgba(0,0,0,.7) 17%, #000 24%, #000 76%, rgba(0,0,0,.7) 83%, rgba(0,0,0,.25) 92%, transparent 100%);
+            mask-image:linear-gradient(to right, transparent 0%, rgba(0,0,0,.25) 8%, rgba(0,0,0,.7) 17%, #000 24%, #000 76%, rgba(0,0,0,.7) 83%, rgba(0,0,0,.25) 92%, transparent 100%);
   }
   .eg-hero-title .eg-logo-dark{ display:none; }
   /* Napis „Matura” pod logo — prowadzi na /matura; pokazuje się dopiero, gdy jest
@@ -359,7 +362,7 @@
   html.eg-dark .eg-matura-h{ color:#e8e6ef; }
   html.eg-dark .eg-hero-title .eg-logo-light{ display:none; }
   html.eg-dark .eg-hero-title .eg-logo-dark{ display:block; }
-  @media (max-width:560px){ .eg-hero-title .eg-logo{ width:min(330px,88vw); } }
+  @media (max-width:560px){ .eg-hero-title .eg-logo{ width:min(280px,76vw); } }
   .eg-hero h1 .eg-accent{ color:var(--eg-magenta) !important; }
   .eg-hero h1 .eg-underline{
     background-image:linear-gradient(rgba(244,201,76,.55),rgba(244,201,76,.55));
@@ -1387,7 +1390,7 @@
     .eg-nav-oferta, .eg-nav-op, .eg-nav-nauka{ font-size:15px; }
     .eg-account{ font-size:15px; }
     .eg-account .eg-hi{ font-size:13px; }
-    .eg-hero-title .eg-logo{ width:min(660px,84vw); }
+    .eg-hero-title .eg-logo{ width:min(480px,60vw); }
     .eg-hero-tagline{ font-size:19px; }
     .eg-search-wrap{ max-width:560px; }
     .eg-search{ font-size:17.5px; padding:15px 48px 15px 50px; }
