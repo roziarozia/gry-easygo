@@ -30,6 +30,7 @@ export default function Logowanie() {
   const [resendState, setResendState] = useState(''); // '' | 'busy' | 'ok' | 'err'
   const emailRef = useRef(null);
   const passRef = useRef(null);
+  const [news, setNews] = useState(false);          // dobrowolna zgoda na newsletter (domyślnie NIE zaznaczona)
   const sbRef = useRef(null);
 
   // wczytaj supabase-js z CDN i utwórz klienta
@@ -112,7 +113,7 @@ export default function Logowanie() {
       } else {
         const { data, error } = await sb.auth.signUp({
           email, password,
-          options: { data: { role: role }, emailRedirectTo: backTarget() },
+          options: { data: { role: role, newsletter: news, newsletter_text: NEWS_TEXT }, emailRedirectTo: backTarget() },
         });
         if (error) throw error;
         identifyUser(data && data.user, role);
@@ -282,6 +283,13 @@ export default function Logowanie() {
                 {mode === 'signup' && <div className="eg-hint">Co najmniej 6 znaków.</div>}
               </div>
 
+              {mode === 'signup' && (
+                <label className="eg-news">
+                  <input type="checkbox" checked={news} onChange={(e) => setNews(e.target.checked)} />
+                  <span>{NEWS_TEXT} <small>(dobrowolne)</small></span>
+                </label>
+              )}
+
               {msg.text && <div className={'eg-msg eg-msg-top ' + msg.type}>{msg.text}</div>}
               {needConfirm && (
                 <div className="eg-resend">
@@ -317,7 +325,13 @@ export default function Logowanie() {
   );
 }
 
+// Treść zgody — zapisuje się razem ze zgodą jako dowód, na co ktoś się zgodził.
+const NEWS_TEXT = 'Chcę dostawać od EasyWonders e-maile o nowych materiałach, planach nauki i promocjach. Mogę zrezygnować w każdej chwili.';
+
 const CSS = `
+  .eg-news{ display:flex; gap:10px; align-items:flex-start; margin:4px 0 14px; font-size:13.5px; line-height:1.45; color:var(--eg-ink); cursor:pointer; text-align:left; }
+  .eg-news input{ flex:0 0 auto; width:18px; height:18px; margin-top:1px; accent-color:#ca4490; cursor:pointer; }
+  .eg-news small{ color:var(--eg-muted); }
   @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&display=swap');
   .eg-wrap{ --eg-magenta:#ca4490; --eg-violet:#6885db; --eg-gold:#f4c94c; --eg-ink:#2e2a33; --eg-muted:#7d7788; --eg-line:#eceaf2;
     font-family:'Outfit',sans-serif; color:var(--eg-ink); background:#faf9fc; min-height:100vh; display:flex; align-items:center; justify-content:center; padding:32px 24px; }
