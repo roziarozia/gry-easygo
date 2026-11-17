@@ -2159,7 +2159,7 @@
             <span><strong data-i18n="Konta dla całej szkoły językowej">Konta dla całej szkoły językowej</strong><br><span data-i18n="Właściciel subskrypcji zaprasza lektorów, przydziela im miejsca i dodaje uczniów. Każdy lektor prowadzi potem swoich uczniów - w grupach lub indywidualnie - zadaje im pracę domową i śledzi postępy.">Właściciel subskrypcji zaprasza lektorów, przydziela im miejsca i dodaje uczniów. Każdy lektor prowadzi potem swoich uczniów - w grupach lub indywidualnie - zadaje im pracę domową i śledzi postępy.</span></span>
           </li>
         </ul>
-        <p class="eg-how-cta" data-i18n="Załóż konto i korzystaj z pełnej wersji EasyWonders za darmo przez 14 dni, bez podawania karty. Potem wybierz plan w zakładce Oferta albo zostań przy darmowych ćwiczeniach.">Załóż konto i korzystaj z pełnej wersji EasyWonders <strong>za darmo przez 14 dni</strong>, bez podawania karty. Potem wybierz plan w zakładce <strong>Oferta</strong> albo zostań przy darmowych ćwiczeniach.</p>
+        <p class="eg-how-cta" data-i18n="Załóż konto i korzystaj z pełnej wersji EasyWonders za darmo przez 14 dni, bez podawania karty. Potem wybierz subskrypcję w zakładce Oferta albo zostań przy darmowych ćwiczeniach.">Załóż konto i korzystaj z pełnej wersji EasyWonders <strong>za darmo przez 14 dni</strong>, bez podawania karty. Potem wybierz subskrypcję w zakładce <strong>Oferta</strong> albo zostań przy darmowych ćwiczeniach.</p>
       </div>
     </div>
     <!-- seria i aktywne filtry stoją razem, jeden pod drugim, tuż nad kafelkami -->
@@ -4079,10 +4079,10 @@
       switchTo = 'student';
     } else if(isTeacher && trialDo){
       lead = L('Cieszymy się, że do nas dołączasz.','We are so glad you have joined us.');
-      text = L('Do ' + trialDo + ' masz za darmo pełną wersję EasyWonders: wszystkie ćwiczenia i Panel lektora, w którym możesz dodać do 5 uczniów, zadawać im pracę domową i śledzić ich postępy. Nie musisz podawać karty. Jeśli zechcesz zostać, wybierz plan, a płatność zacznie się dopiero po okresie próbnym.',
-               'Until ' + trialDo + ' you have the full version of EasyWonders for free: all exercises and the Teacher panel, where you can add up to 5 students, assign homework and track their progress. No card required. If you want to stay, choose a plan and payment will only start after the trial.');
+      text = L('Do ' + trialDo + ' masz za darmo pełną wersję EasyWonders: wszystkie ćwiczenia i Panel lektora, w którym możesz dodać do 5 uczniów, zadawać im pracę domową i śledzić ich postępy. Nie musisz podawać karty. Jeśli zechcesz zostać, wybierz subskrypcję, a płatność zacznie się dopiero po okresie próbnym.',
+               'Until ' + trialDo + ' you have the full version of EasyWonders for free: all exercises and the Teacher panel, where you can add up to 5 students, assign homework and track their progress. No card required. If you want to stay, choose a subscription and payment will only start after the trial.');
       btns = '<a class="eg-welcome-btn primary" href="/panel-lektora" target="_top">' + L('Dodaj pierwszego ucznia','Add your first student') + '</a>' +
-             '<a class="eg-welcome-btn" href="/oferta" target="_top">' + L('Zobacz plany','See the plans') + '</a>';
+             '<a class="eg-welcome-btn" href="/oferta" target="_top">' + L('Zobacz ofertę','See the offer') + '</a>';
       switchTo = 'student';
     } else if(isTeacher){
       lead = L('Cieszymy się, że do nas dołączasz.','We are so glad you have joined us.');
@@ -4095,9 +4095,9 @@
                'Your teacher has given you access to the exercises. You will find their tasks under “Homework”, and you can play any other game, reading or exercise whenever you like. Good luck!');
     } else if(trialDo){
       lead = L('Cieszymy się, że tu jesteś.','We are so glad you are here.');
-      text = L('Do ' + trialDo + ' masz za darmo pełną wersję EasyWonders: wszystkie gry, czytanki, słuchanki i ćwiczenia na każdym poziomie. Nie musisz podawać karty. Po tym dniu darmowe ćwiczenia działają dalej, a jeśli zechcesz zachować pełny dostęp, wybierz plan, a płatność zacznie się dopiero po okresie próbnym.',
-               'Until ' + trialDo + ' you have the full version of EasyWonders for free: all games, readings, listenings and exercises at every level. No card required. After that the free exercises keep working, and if you want to keep full access, choose a plan and payment will only start after the trial.');
-      btns = '<a class="eg-welcome-btn primary" href="/oferta" target="_top">' + L('Zobacz plany','See the plans') + '</a>';
+      text = L('Do ' + trialDo + ' masz za darmo pełną wersję EasyWonders: wszystkie gry, czytanki, słuchanki i ćwiczenia na każdym poziomie. Nie musisz podawać karty. Po tym dniu darmowe ćwiczenia działają dalej, a jeśli zechcesz zachować pełny dostęp, wybierz subskrypcję, a płatność zacznie się dopiero po okresie próbnym.',
+               'Until ' + trialDo + ' you have the full version of EasyWonders for free: all games, readings, listenings and exercises at every level. No card required. After that the free exercises keep working, and if you want to keep full access, choose a subscription and payment will only start after the trial.');
+      btns = '<a class="eg-welcome-btn primary" href="/oferta" target="_top">' + L('Zobacz ofertę','See the offer') + '</a>';
       switchTo = 'teacher';
     } else if(full){
       lead = L('Cieszymy się, że tu jesteś.','We are so glad you are here.');
