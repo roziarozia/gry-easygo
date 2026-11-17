@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Plany nauki angielskiego A1 i A2 — lekcja po lekcji | EasyWonders</title>
+<title>Plany nauki angielskiego A1, A2 i B1 — lekcja po lekcji | EasyWonders</title>
 <meta name="description" content="Plan nauki angielskiego na poziomie A1: 14 lekcji od pierwszych zwrotów do Present Continuous. Teoria z bloga i ćwiczenia w jednym miejscu, z odhaczaniem postępów.">
 <meta property="og:title" content="Plan nauki A1 — EasyWonders">
 <meta property="og:description" content="14 lekcji angielskiego na poziomie A1: najpierw krótka teoria, potem ćwiczenia.">
@@ -180,6 +180,28 @@
     :root:not([data-theme="light"]) .pl-season{ background:#2b2436; }
     :root:not([data-theme="light"]) .pl-season-h, :root:not([data-theme="light"]) .pl-season-t{ color:#ddd6ec; }
   }
+  .pl-lesson.is-seasonal{ border-color:var(--gold); }
+  .pl-lesson.is-seasonal .pl-num{ background:var(--gold); border-color:var(--gold); color:#2a2730; font-size:14px; }
+  .pl-season-chip{ display:inline-block; font-size:11px; font-weight:800; letter-spacing:.04em; text-transform:uppercase; color:#2a2730; background:#f6f1ae; padding:2px 9px; border-radius:999px; line-height:1.5; }
+  .pl-admin{ border:2px dashed var(--lavender); border-radius:16px; padding:14px 18px; margin:6px 0 14px; }
+  .pl-admin[hidden]{ display:none; }
+  .pl-adm-h{ font-weight:800; font-size:15px; margin:0 0 4px; color:var(--lavender); }
+  .pl-adm-t{ font-size:13.5px; color:var(--muted); margin:0 0 8px; line-height:1.5; }
+  .pl-adm-list{ list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:6px; font-size:14px; }
+  .pl-adm-list a{ color:var(--ink); font-weight:600; }
+  .pl-adm-list small{ color:var(--muted); }
+  .pl-adm-lvl{ display:inline-block; min-width:30px; font-weight:800; color:var(--magenta); }
+  .pl-adm-list > li{ padding:8px 0; border-top:1px solid var(--line); }
+  .pl-adm-row{ display:flex; flex-wrap:wrap; align-items:baseline; gap:4px 8px; }
+  .pl-adm-act{ display:flex; flex-wrap:wrap; gap:6px; margin-top:6px; }
+  .pl-adm-act select{ font-family:'Outfit',sans-serif; font-size:13.5px; padding:6px 8px; border:1.5px solid var(--line); border-radius:10px; background:var(--card); color:var(--ink); max-width:100%; flex:1 1 220px; }
+  .pl-adm-btn{ font-family:'Outfit',sans-serif; font-weight:700; font-size:13px; padding:6px 14px; border-radius:999px; border:1.5px solid var(--magenta); background:var(--magenta); color:#fff; cursor:pointer; }
+  .pl-adm-btn.pl-adm-ghost{ background:transparent; color:var(--muted); border-color:var(--line); }
+  .pl-adm-btn:disabled{ opacity:.5; cursor:default; }
+  .pl-adm-skip{ margin-top:10px; font-size:13.5px; }
+  .pl-adm-skip summary{ cursor:pointer; color:var(--muted); font-weight:600; }
+  .pl-adm-msg{ font-size:13px; margin:8px 0 0; color:#2f8f6a; min-height:1em; }
+  .pl-adm-msg.is-bad{ color:var(--magenta); }
   .pl-foot-note{ text-align:center; font-size:14px; color:var(--muted); margin:26px auto 0; max-width:540px; line-height:1.6; }
 
   .foot{ text-align:center; margin:44px auto 0; padding:24px 24px 30px; border-top:1px solid var(--line); max-width:420px; }
@@ -276,10 +298,12 @@ window.ewImgFallback = function(img){
     <div class="pl-levels" id="plLevels" role="tablist" aria-label="Poziom">
       <button type="button" class="pl-lvl on" data-plan="a1" aria-selected="true">A1</button>
       <button type="button" class="pl-lvl" data-plan="a2" aria-selected="false">A2</button>
-      <button type="button" class="pl-lvl" disabled title="Wkrótce">B1 <small>wkrótce</small></button>
+      <button type="button" class="pl-lvl" data-plan="b1" aria-selected="false">B1</button>
       <button type="button" class="pl-lvl" disabled title="Wkrótce">B2 <small>wkrótce</small></button>
     </div>
   </header>
+
+  <section class="pl-admin" id="plAdmin" hidden></section>
 
   <p class="pl-loading" id="plWait">Ładuję plan…</p>
 
@@ -373,7 +397,8 @@ window.ewImgFallback = function(img){
   // Poziomy z gotowym planem. Nowy poziom = nowy wpis tutaj + przycisk w #plLevels.
   var PLANS = {
     a1: { lead:'Lekcja po lekcji, od pierwszych zwrotów do końca poziomu A1.', lock:'lekcji ułożonych od zera do końca poziomu A1' },
-    a2: { lead:'Lekcja po lekcji przez cały poziom A2: od powtórki A1 po przyszłość, porównania i rozmowy o sobie.', lock:'lekcji przez cały poziom A2, od powtórki A1 po swobodne rozmowy o sobie' }
+    a2: { lead:'Lekcja po lekcji przez cały poziom A2: od powtórki A1 po przyszłość, porównania i rozmowy o sobie.', lock:'lekcji przez cały poziom A2, od powtórki A1 po swobodne rozmowy o sobie' },
+    b1: { lead:'Lekcja po lekcji przez poziom B1: czasy, okresy warunkowe, strona bierna i mowa zależna, a pomiędzy nimi tematy z czytanką, słuchanką i rozmową.', lock:'lekcji przez cały poziom B1, gramatyka na przemian z tematami do rozmowy' }
   };
   var PLAN = 'a1';
   try{ var qp = new URLSearchParams(location.search).get('poziom'); if(qp && PLANS[qp.toLowerCase()]) PLAN = qp.toLowerCase(); else { var lp = JSON.parse(localStorage.getItem('ew_plan_level') || 'null'); if(lp && PLANS[lp]) PLAN = lp; } }catch(e){}
@@ -421,7 +446,7 @@ window.ewImgFallback = function(img){
   function stepHref(s){ return s.kind === 'article' ? '/nauka/' + encodeURIComponent(s.slug) : '/cwiczenie/' + encodeURIComponent(s.slug); }
   function isDone(s, read){ return s.kind === 'article' ? !!read[s.slug] : !!DONE[s.slug]; }
 
-  function lessonsQ(){ return rest('plan_lessons?plan=eq.' + PLAN + '&select=id,position,title,subtitle&order=position.asc'); }
+  function lessonsQ(){ return rest('plan_lessons?plan=eq.' + PLAN + '&select=id,position,title,subtitle,months&order=position.asc'); }
   function load(){
     // kroki planu widzą tylko osoby z pełnym dostępem (pilnuje tego baza), dlatego pytamy jako zalogowana osoba
     return Promise.all([
@@ -450,7 +475,12 @@ window.ewImgFallback = function(img){
             return true;
           });
         });
-        DATA = { lessons: lessons.filter(function(l){ return l.steps.length; }) };
+        // lekcje sezonowe: tylko w swoich miesiącach, na samej górze planu
+        var month = new Date().getMonth() + 1;
+        var live = lessons.filter(function(l){ return l.steps.length && (!l.months || l.months.indexOf(month) !== -1); });
+        live.forEach(function(l){ l.seasonal = !!l.months; });
+        live.sort(function(a, b){ return (b.seasonal - a.seasonal) || (a.position - b.position); });
+        DATA = { lessons: live };
       });
     });
   }
@@ -466,6 +496,8 @@ window.ewImgFallback = function(img){
       }).catch(function(){});
   }
 
+  var MONTHS_PL = ['styczeń','luty','marzec','kwiecień','maj','czerwiec','lipiec','sierpień','wrzesień','październik','listopad','grudzień'];
+  var ROMAN = ['I','II','III','IV','V','VI','VII','VIII','IX','X','XI','XII'];
   var openState = {}; // które lekcje rozwinięte (po id)
   var firstRender = true;
 
@@ -489,11 +521,11 @@ window.ewImgFallback = function(img){
       });
       l.doneCount = d; l.newCount = fresh;
       l.complete = d === l.steps.length;
-      if(l.complete) doneLessons++;
+      if(l.complete && !l.seasonal) doneLessons++;
     });
 
     // pasek postępu
-    var total = lessons.length;
+    var total = lessons.filter(function(l){ return !l.seasonal; }).length;
     document.getElementById('plProgH').textContent = LEVEL + ': ' + doneLessons + ' z ' + total + ' ' + plural(total, 'lekcji', 'lekcji', 'lekcji');
     var allSteps = 0, allDone = 0;
     lessons.forEach(function(l){ allSteps += l.steps.length; allDone += l.doneCount; });
@@ -511,7 +543,7 @@ window.ewImgFallback = function(img){
         sub.textContent = 'Zacznij od lekcji 1 albo wybierz temat, który Cię interesuje.';
       } else {
         go.firstChild.nodeValue = 'Kontynuuj ';
-        sub.textContent = 'Następny krok: lekcja ' + nextLesson.position + ', ' + nextStep.title;
+        sub.textContent = 'Następny krok: ' + (nextLesson.seasonal ? nextLesson.title : 'lekcja ' + nextLesson.position) + ', ' + nextStep.title;
       }
     }
 
@@ -533,6 +565,7 @@ window.ewImgFallback = function(img){
       if(l.complete) status = '<span class="pl-st pl-st-done"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>Zrobione</span>';
       else if(l.doneCount) status = '<span class="pl-st pl-st-mid">W trakcie · ' + l.doneCount + '/' + l.steps.length + '</span>';
       else status = '<span class="pl-st">' + l.steps.length + ' ' + plural(l.steps.length, 'krok', 'kroki', 'kroków') + '</span>';
+      if(l.seasonal) status = '<span class="pl-season-chip">Lekcja na ' + MONTHS_PL[new Date().getMonth()] + '</span>' + status;
       if(l.newCount && !isFirstVisit) status += '<span class="pl-badge-new">+' + l.newCount + ' ' + plural(l.newCount, 'nowe', 'nowe', 'nowych') + '</span>';
       var steps = l.steps.map(function(s){
         var thumb = s.kind === 'article'
@@ -548,9 +581,9 @@ window.ewImgFallback = function(img){
             '<span class="pl-check" aria-label="' + (s.done ? 'zrobione' : 'do zrobienia') + '">' + (s.done ? '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>' : '') + '</span>' +
           '</a></li>';
       }).join('');
-      return '<li class="pl-lesson' + (l.complete ? ' is-complete' : '') + (openState[l.id] ? ' is-open' : '') + '" data-id="' + l.id + '">' +
+      return '<li class="pl-lesson' + (l.seasonal ? ' is-seasonal' : '') + (l.complete ? ' is-complete' : '') + (openState[l.id] ? ' is-open' : '') + '" data-id="' + l.id + '">' +
         '<button type="button" class="pl-lhead" aria-expanded="' + (openState[l.id] ? 'true' : 'false') + '">' +
-          '<span class="pl-num">' + (l.complete ? '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>' : l.position) + '</span>' +
+          '<span class="pl-num">' + (l.seasonal && !l.complete ? ROMAN[new Date().getMonth()] : l.complete ? '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>' : l.position) + '</span>' +
           '<span class="pl-lx"><span class="pl-lt">' + esc(l.title) + '</span>' +
           (l.subtitle ? '<span class="pl-ls">' + esc(l.subtitle) + '</span>' : '') +
           '<span class="pl-meta">' + status + '</span></span>' +
@@ -597,7 +630,8 @@ window.ewImgFallback = function(img){
       sm.hidden = true;
     }
     lessonsQ().then(function(ls){
-      var n = (ls && ls.length) || 14, html = '';
+      ls = (ls || []).filter(function(l){ return !l.months; });
+      var n = ls.length || 14, html = '';
       document.getElementById('plLockL1').textContent = n + ' ' + PLANS[PLAN].lock;
       for(var i = 1; i <= Math.min(n, 7); i++) html += '<li><span>' + i + '</span>Lekcja ' + i + '</li>';
       document.getElementById('plGhost').innerHTML = html;
@@ -615,6 +649,72 @@ window.ewImgFallback = function(img){
     });
   }
 
+  // TYLKO ADMIN: ćwiczenia z poziomów z planem, które nie trafiły do żadnej lekcji.
+  // Przy każdym: wybór lekcji + „Dodaj”, albo „Nie dodawaj do planu”. Odrzucone można przywrócić.
+  var ADM_LESSONS = {};
+  function admLessons(plan){
+    if(ADM_LESSONS[plan]) return Promise.resolve(ADM_LESSONS[plan]);
+    return rest('plan_lessons?plan=eq.' + plan + '&select=id,position,title,months&order=position.asc').then(function(ls){
+      ADM_LESSONS[plan] = ls || []; return ADM_LESSONS[plan];
+    });
+  }
+  function lessonLabel(l){ return (l.months ? 'Sezonowa: ' : 'Lekcja ' + l.position + '. ') + l.title; }
+  function showAdmin(){
+    var box = document.getElementById('plAdmin'); if(!box) return;
+    Promise.all([sb.rpc('plan_unassigned'), sb.rpc('plan_skipped')]).then(function(rs){
+      var list = (rs[0] && rs[0].data) || [], skipped = (rs[1] && rs[1].data) || [];
+      var plans = {}; list.forEach(function(g){ plans[(g.level || '').toLowerCase()] = 1; });
+      return Promise.all(Object.keys(plans).map(admLessons)).then(function(){ return [list, skipped]; });
+    }).then(function(r){
+      var list = r[0], skipped = r[1];
+      var html = '<p class="pl-adm-h">Do przypisania do planów: ' + list.length + '</p>';
+      if(!list.length){
+        html += '<p class="pl-adm-t">Wszystkie opublikowane ćwiczenia są już w planach. Kolejne części serii dopisują się same. Widzisz to tylko Ty.</p>';
+      } else {
+        html += '<p class="pl-adm-t">To nowe tematy, których nie ma jeszcze w żadnej lekcji. Wybierz lekcję i kliknij „Dodaj” albo zdejmij ćwiczenie z listy. Widzisz to tylko Ty.</p><ul class="pl-adm-list">' +
+          list.map(function(g){
+            var plan = (g.level || '').toLowerCase(), ls = ADM_LESSONS[plan] || [];
+            return '<li data-slug="' + esc(g.slug) + '"><div class="pl-adm-row"><span class="pl-adm-lvl">' + esc(g.level) + '</span><a href="/cwiczenie/' + encodeURIComponent(g.slug) + '" target="_blank" rel="noopener">' + esc(g.title) + '</a>' + (g.series ? ' <small>' + esc(g.series) + '</small>' : '') + '</div>' +
+              '<div class="pl-adm-act"><select aria-label="Lekcja"><option value="">Wybierz lekcję…</option>' +
+              ls.map(function(l){ return '<option value="' + l.id + '">' + esc(lessonLabel(l)) + '</option>'; }).join('') +
+              '</select><button type="button" class="pl-adm-btn" data-act="add">Dodaj</button><button type="button" class="pl-adm-btn pl-adm-ghost" data-act="skip">Nie dodawaj do planu</button></div></li>';
+          }).join('') + '</ul>';
+      }
+      if(skipped.length){
+        html += '<details class="pl-adm-skip"><summary>Poza planem: ' + skipped.length + '</summary><ul class="pl-adm-list">' +
+          skipped.map(function(g){
+            return '<li data-slug="' + esc(g.slug) + '"><div class="pl-adm-row"><span class="pl-adm-lvl">' + esc(g.level || '') + '</span><span>' + esc(g.title || g.slug) + '</span>' + (g.reason ? ' <small>' + esc(g.reason) + '</small>' : '') +
+              ' <button type="button" class="pl-adm-btn pl-adm-ghost" data-act="restore">Przywróć na listę</button></div></li>';
+          }).join('') + '</ul></details>';
+      }
+      html += '<p class="pl-adm-msg" id="plAdmMsg" aria-live="polite"></p>';
+      box.innerHTML = html; box.hidden = false;
+    });
+  }
+  function admMsg(t, bad){ var m = document.getElementById('plAdmMsg'); if(m){ m.textContent = t; m.className = 'pl-adm-msg' + (bad ? ' is-bad' : ''); } }
+  document.getElementById('plAdmin').addEventListener('click', function(e){
+    var btn = e.target.closest('.pl-adm-btn'); if(!btn) return;
+    var li = btn.closest('li'), slug = li.getAttribute('data-slug'), act = btn.getAttribute('data-act'), job;
+    if(act === 'add'){
+      var lid = li.querySelector('select').value;
+      if(!lid){ admMsg('Najpierw wybierz lekcję z listy.', true); return; }
+      job = sb.rpc('plan_assign', { p_slug: slug, p_lesson: Number(lid) });
+    } else if(act === 'skip'){
+      job = sb.from('plan_skip').insert({ slug: slug, reason: 'odrzucone ręcznie' });
+    } else if(act === 'restore'){
+      job = sb.from('plan_skip').delete().eq('slug', slug);
+    }
+    btn.disabled = true;
+    job.then(function(r){
+      if(r && r.error){ admMsg('Nie udało się: ' + r.error.message, true); btn.disabled = false; return; }
+      ADM_LESSONS = {};
+      showAdmin();
+      admMsg(act === 'add' ? 'Dodane do planu.' : act === 'skip' ? 'Zdjęte z listy.' : 'Wróciło na listę.');
+      // odśwież plan, jeśli zmiana dotyczy oglądanego poziomu
+      if(act === 'add'){ sb.auth.getSession().then(function(s){ showPlan(s && s.data ? s.data.session : null); }); }
+    });
+  });
+
   var lastUid = undefined;
   function withSession(session){
     var uid = session ? session.user.id : null;
@@ -624,6 +724,7 @@ window.ewImgFallback = function(img){
     Promise.all([sb.rpc('has_full_access'), sb.rpc('is_admin')]).then(function(rs){
       var ok = rs.some(function(r){ return r && r.data === true; });
       if(ok) showPlan(session); else showTeaser('member');
+      if(rs[1] && rs[1].data === true) showAdmin();
     }, function(){ showTeaser('member'); });
   }
   if(sb){
