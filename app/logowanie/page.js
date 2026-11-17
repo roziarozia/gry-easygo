@@ -284,9 +284,15 @@ export default function Logowanie() {
               </div>
 
               {mode === 'signup' && (
-                <label className="eg-news">
-                  <input type="checkbox" checked={news} onChange={(e) => setNews(e.target.checked)} />
-                  <span>{NEWS_TEXT} <small>(dobrowolne)</small></span>
+                <label className={'eg-news' + (news ? ' on' : '')}>
+                  <span className="eg-news-top">
+                    <span className="eg-news-ico" aria-hidden="true">🎁</span>
+                    <span className="eg-news-title">Bądź na bieżąco ✨</span>
+                  </span>
+                  <span className="eg-news-row">
+                    <input type="checkbox" checked={news} onChange={(e) => setNews(e.target.checked)} />
+                    <span>{NEWS_TEXT} <small>(dobrowolne)</small></span>
+                  </span>
                 </label>
               )}
 
@@ -329,9 +335,15 @@ export default function Logowanie() {
 const NEWS_TEXT = 'Chcę dostawać od EasyWonders e-maile o nowych materiałach, planach nauki i promocjach. Mogę zrezygnować w każdej chwili.';
 
 const CSS = `
-  .eg-news{ display:flex; gap:10px; align-items:flex-start; margin:4px 0 14px; font-size:13.5px; line-height:1.45; color:var(--eg-ink); cursor:pointer; text-align:left; }
-  .eg-news input{ flex:0 0 auto; width:18px; height:18px; margin-top:1px; accent-color:#ca4490; cursor:pointer; }
+  .eg-news{ display:block; margin:6px 0 16px; padding:14px 16px; background:#fdf9df; border:1.5px dashed #f4c94c; border-radius:16px; cursor:pointer; text-align:left; transition:background .15s, border-color .15s; }
+  .eg-news.on{ background:#fbeaf3; border:1.5px solid #ca4490; }
+  .eg-news-top{ display:flex; align-items:center; gap:8px; margin-bottom:8px; }
+  .eg-news-ico{ font-size:20px; line-height:1; }
+  .eg-news-title{ font-family:'Quicksand',sans-serif; font-weight:700; font-size:15px; color:#ca4490; }
+  .eg-news-row{ display:flex; gap:10px; align-items:flex-start; font-size:13px; line-height:1.45; color:var(--eg-ink); }
+  .eg-news input{ flex:0 0 auto; width:19px; height:19px; margin-top:1px; accent-color:#ca4490; cursor:pointer; }
   .eg-news small{ color:var(--eg-muted); }
+  html.eg-dark .eg-news{ background:#2f2a1c; } html.eg-dark .eg-news.on{ background:#3a2232; }
   @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&display=swap');
   .eg-wrap{ --eg-magenta:#ca4490; --eg-violet:#6885db; --eg-gold:#f4c94c; --eg-ink:#2e2a33; --eg-muted:#7d7788; --eg-line:#eceaf2;
     font-family:'Outfit',sans-serif; color:var(--eg-ink); background:#faf9fc; min-height:100vh; display:flex; align-items:center; justify-content:center; padding:32px 24px; }
