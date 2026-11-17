@@ -202,6 +202,26 @@
   .pl-adm-skip summary{ cursor:pointer; color:var(--muted); font-weight:600; }
   .pl-adm-msg{ font-size:13px; margin:8px 0 0; color:#2f8f6a; min-height:1em; }
   .pl-adm-msg.is-bad{ color:var(--magenta); }
+  .pl-adm-edit{ display:flex; flex-wrap:wrap; align-items:center; gap:8px 12px; margin-top:12px; font-size:13px; color:var(--muted); }
+  .pl-ed-step{ display:flex; flex-wrap:wrap; gap:6px; padding:4px 8px 2px 84px; }
+  .pl-ed-step select, .pl-ed-add select, .pl-ed-lesson input, .pl-ed-new input, .pl-ed-new select{ font-family:'Outfit',sans-serif; font-size:13px; padding:5px 8px; border:1.5px solid var(--line); border-radius:9px; background:var(--card); color:var(--ink); }
+  .pl-ed-step button, .pl-ed-lesson button, .pl-ed-add button, .pl-ed-new button{ font-family:'Outfit',sans-serif; font-size:12.5px; font-weight:700; padding:5px 11px; border-radius:999px; border:1.5px solid var(--line); background:var(--card); color:var(--ink); cursor:pointer; }
+  .pl-ed-main{ background:var(--magenta) !important; border-color:var(--magenta) !important; color:#fff !important; }
+  .pl-ed-del{ color:var(--magenta) !important; }
+  .pl-ed-lesson{ margin:0 14px 10px; padding:12px; border:2px dashed var(--lavender); border-radius:14px; display:flex; flex-direction:column; gap:8px; }
+  .pl-ed-lesson label, .pl-ed-new label{ display:flex; flex-direction:column; gap:3px; font-size:12.5px; font-weight:600; color:var(--muted); }
+  .pl-ed-row{ display:flex; flex-wrap:wrap; gap:6px; }
+  .pl-ed-add{ display:flex; flex-wrap:wrap; gap:6px; padding:4px 0; }
+  .pl-ed-add select{ flex:1 1 240px; max-width:100%; }
+  .pl-ed-new{ margin-top:14px; padding:16px; border:2px dashed var(--lavender); border-radius:18px; display:flex; flex-direction:column; gap:8px; }
+  .pl-ed-new[hidden]{ display:none; }
+  .pl-ed-h{ font-weight:800; margin:0; color:var(--lavender); }
+  .pl-lesson:not(.is-open) .pl-ed-lesson{ display:none; }
+  .pl-toast{ position:fixed; left:50%; bottom:22px; transform:translate(-50%, 20px); max-width:min(520px, calc(100% - 32px)); background:#2f8f6a; color:#fff; font-weight:600; font-size:14px; padding:10px 18px; border-radius:14px; box-shadow:0 10px 28px rgba(0,0,0,.18); opacity:0; pointer-events:none; transition:opacity .2s, transform .2s; z-index:50; }
+  .pl-toast.is-bad{ background:var(--magenta); }
+  .pl-toast.show{ opacity:1; transform:translate(-50%, 0); }
+  .pl-ed-note{ font-size:12.5px; color:var(--muted); margin:0; }
+  @media(max-width:560px){ .pl-ed-step{ padding-left:8px; } }
   .pl-foot-note{ text-align:center; font-size:14px; color:var(--muted); margin:26px auto 0; max-width:540px; line-height:1.6; }
 
   .foot{ text-align:center; margin:44px auto 0; padding:24px 24px 30px; border-top:1px solid var(--line); max-width:420px; }
@@ -343,6 +363,7 @@ window.ewImgFallback = function(img){
   </section>
 
   <ol class="pl-lessons" id="plLessons"></ol>
+  <section class="pl-ed-new" id="plNewLesson" hidden></section>
 
   <section class="pl-season">
     <p class="pl-season-h">Plan, który żyje razem z kalendarzem</p>
@@ -477,7 +498,7 @@ window.ewImgFallback = function(img){
         });
         // lekcje sezonowe: tylko w swoich miesiącach, na samej górze planu
         var month = new Date().getMonth() + 1;
-        var live = lessons.filter(function(l){ return l.steps.length && (!l.months || l.months.indexOf(month) !== -1); });
+        var live = lessons.filter(function(l){ return EDIT || (l.steps.length && (!l.months || l.months.indexOf(month) !== -1)); });
         live.forEach(function(l){ l.seasonal = !!l.months; });
         live.sort(function(a, b){ return (b.seasonal - a.seasonal) || (a.position - b.position); });
         DATA = { lessons: live };
@@ -520,7 +541,7 @@ window.ewImgFallback = function(img){
         if(!s.done && !nextStep){ nextStep = s; nextLesson = l; }
       });
       l.doneCount = d; l.newCount = fresh;
-      l.complete = d === l.steps.length;
+      l.complete = l.steps.length > 0 && d === l.steps.length;
       if(l.complete && !l.seasonal) doneLessons++;
     });
 
@@ -565,7 +586,10 @@ window.ewImgFallback = function(img){
       if(l.complete) status = '<span class="pl-st pl-st-done"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>Zrobione</span>';
       else if(l.doneCount) status = '<span class="pl-st pl-st-mid">W trakcie · ' + l.doneCount + '/' + l.steps.length + '</span>';
       else status = '<span class="pl-st">' + l.steps.length + ' ' + plural(l.steps.length, 'krok', 'kroki', 'kroków') + '</span>';
-      if(l.seasonal) status = '<span class="pl-season-chip">Lekcja na ' + MONTHS_PL[new Date().getMonth()] + '</span>' + status;
+      if(l.seasonal){
+        var cm = new Date().getMonth() + 1, inSeason = l.months.indexOf(cm) !== -1;
+        status = '<span class="pl-season-chip">' + (inSeason ? 'Lekcja na ' + MONTHS_PL[cm - 1] : 'Sezonowa: ' + l.months.map(function(m){ return MONTHS_PL[m - 1]; }).join(', ') + ' (teraz ukryta)') + '</span>' + status;
+      }
       if(l.newCount && !isFirstVisit) status += '<span class="pl-badge-new">+' + l.newCount + ' ' + plural(l.newCount, 'nowe', 'nowe', 'nowych') + '</span>';
       var steps = l.steps.map(function(s){
         var thumb = s.kind === 'article'
@@ -579,19 +603,22 @@ window.ewImgFallback = function(img){
             (s.isNew && !isFirstVisit ? '<span class="pl-badge-new">Nowe</span>' : '') +
             (s.premium ? '<span class="pl-lock" title="Dla subskrybentów" aria-label="Dla subskrybentów"><svg width="13" height="13" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 1a5 5 0 00-5 5v3H6a2 2 0 00-2 2v9a2 2 0 002 2h12a2 2 0 002-2v-9a2 2 0 00-2-2h-1V6a5 5 0 00-5-5zm3 8H9V6a3 3 0 016 0v3z" fill="currentColor"/></svg></span>' : '') +
             '<span class="pl-check" aria-label="' + (s.done ? 'zrobione' : 'do zrobienia') + '">' + (s.done ? '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>' : '') + '</span>' +
-          '</a></li>';
+          '</a>' + (EDIT ? stepEditHTML(s) : '') + '</li>';
       }).join('');
       return '<li class="pl-lesson' + (l.seasonal ? ' is-seasonal' : '') + (l.complete ? ' is-complete' : '') + (openState[l.id] ? ' is-open' : '') + '" data-id="' + l.id + '">' +
         '<button type="button" class="pl-lhead" aria-expanded="' + (openState[l.id] ? 'true' : 'false') + '">' +
-          '<span class="pl-num">' + (l.seasonal && !l.complete ? ROMAN[new Date().getMonth()] : l.complete ? '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>' : l.position) + '</span>' +
+          '<span class="pl-num">' + (l.seasonal && !l.complete ? ROMAN[(l.months.indexOf(new Date().getMonth() + 1) !== -1 ? new Date().getMonth() + 1 : l.months[0]) - 1] : l.complete ? '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>' : l.position) + '</span>' +
           '<span class="pl-lx"><span class="pl-lt">' + esc(l.title) + '</span>' +
           (l.subtitle ? '<span class="pl-ls">' + esc(l.subtitle) + '</span>' : '') +
           '<span class="pl-meta">' + status + '</span></span>' +
           '<span class="pl-chev" aria-hidden="true"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg></span>' +
         '</button>' +
-        '<ol class="pl-steps">' + steps + '</ol></li>';
+        (EDIT ? lessonEditHTML(l) : '') +
+        '<ol class="pl-steps">' + steps + (EDIT ? addArticleHTML(l) : '') + '</ol></li>';
     }).join('');
     document.getElementById('plLessons').innerHTML = html || '<li class="pl-loading">Plan jest w przygotowaniu.</li>';
+    var nf = document.getElementById('plNewLesson');
+    if(nf){ nf.hidden = !EDIT; if(EDIT) nf.innerHTML = newLessonHTML(lessons); }
   }
 
   // rozwijanie lekcji
@@ -649,6 +676,113 @@ window.ewImgFallback = function(img){
     });
   }
 
+  // ===== TRYB EDYCJI PLANU (tylko admin; baza i tak sprawdza uprawnienia) =====
+  var EDIT = false, ARTICLES = null;
+  var STEP_KINDS = ['Przeczytaj','Przećwicz','Słownictwo','Użyj w praktyce'];
+  function loadArticles(){
+    if(ARTICLES) return Promise.resolve();
+    return rest('articles?published=eq.true&select=slug,title,level&order=title.asc').then(function(a){ ARTICLES = a || []; });
+  }
+  function monthsText(m){ return (m || []).join(', '); }
+  function stepEditHTML(s){
+    return '<div class="pl-ed-step" data-step="' + s.id + '">' +
+      '<select data-ed="kind" aria-label="Rodzaj kroku">' + STEP_KINDS.map(function(k){ return '<option' + (k === s.step ? ' selected' : '') + '>' + k + '</option>'; }).join('') + '</select>' +
+      '<button type="button" data-ed="step-up" title="W górę">↑</button><button type="button" data-ed="step-down" title="W dół">↓</button>' +
+      '<button type="button" data-ed="step-del" class="pl-ed-del">Usuń z lekcji</button></div>';
+  }
+  function lessonEditHTML(l){
+    return '<div class="pl-ed-lesson" data-lesson="' + l.id + '">' +
+      '<label>Tytuł <input type="text" data-f="title" value="' + esc(l.title) + '"></label>' +
+      '<label>Opis <input type="text" data-f="subtitle" value="' + esc(l.subtitle || '') + '"></label>' +
+      '<label>Miesiące (tylko lekcje sezonowe, np. 12 albo 9, 10, 11) <input type="text" data-f="months" value="' + esc(monthsText(l.months)) + '" placeholder="puste = zwykła lekcja"></label>' +
+      '<div class="pl-ed-row"><button type="button" data-ed="lesson-save" class="pl-ed-main">Zapisz</button>' +
+      (l.seasonal ? '' : '<button type="button" data-ed="lesson-up">↑ Wyżej</button><button type="button" data-ed="lesson-down">↓ Niżej</button>') +
+      '<button type="button" data-ed="lesson-del" class="pl-ed-del">Usuń lekcję</button></div></div>';
+  }
+  function addArticleHTML(l){
+    var have = {}; l.steps.forEach(function(s){ have[s.slug] = 1; });
+    return '<li class="pl-ed-add" data-lesson="' + l.id + '"><select data-ed="art" aria-label="Artykuł"><option value="">Dodaj artykuł z bloga…</option>' +
+      (ARTICLES || []).filter(function(a){ return !have[a.slug]; }).map(function(a){ return '<option value="' + esc(a.slug) + '">' + esc(a.title) + (a.level ? ' (' + esc(a.level) + ')' : '') + '</option>'; }).join('') +
+      '</select><button type="button" data-ed="art-add">Dodaj artykuł</button></li>';
+  }
+  function newLessonHTML(lessons){
+    var regular = lessons.filter(function(l){ return !l.seasonal; });
+    return '<p class="pl-ed-h">Nowa lekcja w planie ' + LEVEL + '</p>' +
+      '<label>Tytuł <input type="text" id="nlTitle"></label>' +
+      '<label>Opis <input type="text" id="nlSub"></label>' +
+      '<label>Gdzie <select id="nlAfter"><option value="0">Na początku planu</option>' +
+        regular.map(function(l){ return '<option value="' + l.position + '"' + (l === regular[regular.length - 1] ? ' selected' : '') + '>Po lekcji ' + l.position + '. ' + esc(l.title) + '</option>'; }).join('') + '</select></label>' +
+      '<label>Miesiące (tylko jeśli lekcja ma być sezonowa) <input type="text" id="nlMonths" placeholder="np. 12"></label>' +
+      '<div class="pl-ed-row"><button type="button" data-ed="lesson-new" class="pl-ed-main">Dodaj lekcję</button></div>' +
+      '<p class="pl-ed-note">Pusta lekcja nie pokazuje się uczniom, dopóki nie dodasz do niej artykułu albo ćwiczenia (ćwiczenia dodajesz z ramki „Do przypisania”).</p>';
+  }
+  function parseMonths(t){
+    var m = String(t || '').split(/[^0-9]+/).map(Number).filter(function(n){ return n >= 1 && n <= 12; });
+    return m.length ? m : null;
+  }
+  function edDone(r, okMsg){
+    if(r && r.error){ admMsg('Nie udało się: ' + r.error.message, true); return; }
+    admMsg(okMsg);
+    sb.auth.getSession().then(function(x){ showPlan(x && x.data ? x.data.session : null); showAdmin(); });
+  }
+  function edRun(b, el){
+    var a = b.getAttribute('data-ed'), job, msg = 'Zapisane.';
+    var stepBox = b.closest('[data-step]'), lesBox = b.closest('[data-lesson]');
+    var sid = stepBox ? Number(stepBox.getAttribute('data-step')) : null;
+    var lid = lesBox ? Number(lesBox.getAttribute('data-lesson')) : null;
+    if(a === 'step-up' || a === 'step-down') job = sb.rpc('plan_move_step', { p_step: sid, p_dir: a === 'step-up' ? -1 : 1 });
+    else if(a === 'step-del'){
+      if(!confirmSafe('Usunąć ten krok z lekcji? Ćwiczenie wróci na listę „Do przypisania”.')) return;
+      job = sb.rpc('plan_remove_step', { p_step: sid }); msg = 'Krok usunięty z lekcji.';
+    }
+    else if(a === 'lesson-up' || a === 'lesson-down') job = sb.rpc('plan_move_lesson', { p_lesson: lid, p_dir: a === 'lesson-up' ? -1 : 1 });
+    else if(a === 'lesson-save'){
+      var g = function(f){ return lesBox.querySelector('[data-f="' + f + '"]').value; };
+      if(!g('title').trim()){ admMsg('Lekcja musi mieć tytuł.', true); return; }
+      job = sb.from('plan_lessons').update({ title: g('title').trim(), subtitle: g('subtitle').trim() || null, months: parseMonths(g('months')) }).eq('id', lid);
+    }
+    else if(a === 'lesson-del'){
+      if(!confirmSafe('Usunąć całą lekcję razem z jej krokami? Ćwiczenia wrócą na listę „Do przypisania”.')) return;
+      job = sb.rpc('plan_remove_lesson', { p_lesson: lid }); msg = 'Lekcja usunięta.';
+    }
+    else if(a === 'art-add'){
+      var slug = lesBox.querySelector('[data-ed="art"]').value;
+      if(!slug){ admMsg('Najpierw wybierz artykuł.', true); return; }
+      job = sb.rpc('plan_add_article', { p_lesson: lid, p_slug: slug }); msg = 'Artykuł dodany.';
+    }
+    else if(a === 'lesson-new'){
+      var t = document.getElementById('nlTitle').value.trim();
+      if(!t){ admMsg('Wpisz tytuł nowej lekcji.', true); return; }
+      job = sb.rpc('plan_add_lesson', { p_plan: PLAN, p_after: Number(document.getElementById('nlAfter').value), p_title: t,
+        p_subtitle: document.getElementById('nlSub').value, p_months: parseMonths(document.getElementById('nlMonths').value) });
+      msg = 'Lekcja dodana. Teraz dodaj do niej artykuł albo ćwiczenia.';
+    }
+    if(!job) return;
+    b.disabled = true;
+    job.then(function(r){ b.disabled = false; edDone(r, msg); });
+  }
+  // potwierdzenie bez okienek przeglądarki: drugi klik w ciągu 4 s
+  var pendingConfirm = null;
+  function confirmSafe(text){
+    var now = Date.now();
+    if(pendingConfirm && pendingConfirm.text === text && now - pendingConfirm.t < 4000){ pendingConfirm = null; return true; }
+    pendingConfirm = { text: text, t: now };
+    admMsg(text + ' Kliknij jeszcze raz, żeby potwierdzić.', true);
+    return false;
+  }
+  document.addEventListener('click', function(e){
+    var b = e.target.closest('[data-ed]');
+    if(!b || b.tagName !== 'BUTTON' || !EDIT) return;
+    e.preventDefault(); e.stopPropagation();
+    edRun(b);
+  }, true);
+  document.addEventListener('change', function(e){
+    var sel = e.target.closest('select[data-ed="kind"]');
+    if(!sel || !EDIT) return;
+    var sid = Number(sel.closest('[data-step]').getAttribute('data-step'));
+    sb.from('plan_steps').update({ step: sel.value }).eq('id', sid).then(function(r){ edDone(r, 'Rodzaj kroku zmieniony.'); });
+  });
+
   // TYLKO ADMIN: ćwiczenia z poziomów z planem, które nie trafiły do żadnej lekcji.
   // Przy każdym: wybór lekcji + „Dodaj”, albo „Nie dodawaj do planu”. Odrzucone można przywrócić.
   var ADM_LESSONS = {};
@@ -687,13 +821,28 @@ window.ewImgFallback = function(img){
               ' <button type="button" class="pl-adm-btn pl-adm-ghost" data-act="restore">Przywróć na listę</button></div></li>';
           }).join('') + '</ul></details>';
       }
+      html += '<div class="pl-adm-edit"><button type="button" class="pl-adm-btn' + (EDIT ? '' : ' pl-adm-ghost') + '" data-act="edit">' + (EDIT ? 'Zakończ edycję planu' : 'Edytuj plan ' + LEVEL) + '</button>' +
+        '<span>Zmiana kolejności, nazw, usuwanie kroków i lekcji, artykuły, nowe lekcje.</span></div>';
       html += '<p class="pl-adm-msg" id="plAdmMsg" aria-live="polite"></p>';
       box.innerHTML = html; box.hidden = false;
     });
   }
-  function admMsg(t, bad){ var m = document.getElementById('plAdmMsg'); if(m){ m.textContent = t; m.className = 'pl-adm-msg' + (bad ? ' is-bad' : ''); } }
+  function admMsg(t, bad){
+    var m = document.getElementById('plAdmMsg'); if(m){ m.textContent = t; m.className = 'pl-adm-msg' + (bad ? ' is-bad' : ''); }
+    var toast = document.getElementById('plToast');
+    if(!toast){ toast = document.createElement('div'); toast.id = 'plToast'; toast.className = 'pl-toast'; toast.setAttribute('role','status'); document.body.appendChild(toast); }
+    toast.textContent = t; toast.classList.toggle('is-bad', !!bad); toast.classList.add('show');
+    clearTimeout(admMsg._t); admMsg._t = setTimeout(function(){ toast.classList.remove('show'); }, 4000);
+  }
   document.getElementById('plAdmin').addEventListener('click', function(e){
     var btn = e.target.closest('.pl-adm-btn'); if(!btn) return;
+    if(btn.getAttribute('data-act') === 'edit'){
+      EDIT = !EDIT;
+      (EDIT ? loadArticles() : Promise.resolve()).then(function(){
+        sb.auth.getSession().then(function(x){ showPlan(x && x.data ? x.data.session : null); showAdmin(); });
+      });
+      return;
+    }
     var li = btn.closest('li'), slug = li.getAttribute('data-slug'), act = btn.getAttribute('data-act'), job;
     if(act === 'add'){
       var lid = li.querySelector('select').value;
