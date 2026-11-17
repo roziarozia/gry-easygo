@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Plany nauki angielskiego A1, A2 i B1 — lekcja po lekcji | EasyWonders</title>
+<title>Mój plan nauki angielskiego — A1, A2 i B1 lekcja po lekcji | EasyWonders</title>
 <meta name="description" content="Plan nauki angielskiego na poziomie A1: 14 lekcji od pierwszych zwrotów do Present Continuous. Teoria z bloga i ćwiczenia w jednym miejscu, z odhaczaniem postępów.">
 <meta property="og:title" content="Plan nauki A1 — EasyWonders">
 <meta property="og:description" content="14 lekcji angielskiego na poziomie A1: najpierw krótka teoria, potem ćwiczenia.">
@@ -14,7 +14,7 @@
 <link rel="canonical" href="https://easywonders.pl/plan">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300&family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
   :root{
     --magenta:#ca4490; --magenta-dk:#b33a7e; --lavender:#a78dd9; --gold:#f4c94c;
@@ -37,6 +37,15 @@
   }
   .nav-brand{ font-family:'Outfit',sans-serif; font-weight:700; font-size:17px; text-decoration:none; }
   .nav-brand .e{ color:var(--magenta); } .nav-brand .w{ color:var(--gold); }
+  .nav-logo{ display:inline-flex; align-items:center; line-height:0; border-radius:16px; padding:4px 10px; margin:-18px 0 14px; transition:transform .18s, background .18s; }
+  .nav-logo:hover{ transform:translateY(-2px); background:rgba(202,68,144,.06); }
+  .nav-logo img{ height:118px; width:auto; display:block;
+    -webkit-mask-image:linear-gradient(to right, transparent 0%, #000 20%, #000 80%, transparent 100%);
+    mask-image:linear-gradient(to right, transparent 0%, #000 20%, #000 80%, transparent 100%); }
+  @media(max-width:560px){ .nav-logo img{ height:92px; } }
+  .nav-logo .nl-dark{ display:none; }
+  :root[data-theme="dark"] .nav-logo .nl-light{ display:none; } :root[data-theme="dark"] .nav-logo .nl-dark{ display:block; }
+  @media (prefers-color-scheme:dark){ :root:not([data-theme="light"]) .nav-logo .nl-light{ display:none; } :root:not([data-theme="light"]) .nav-logo .nl-dark{ display:block; } }
   .nav-links{ display:flex; align-items:center; gap:8px; }
   .nav-links a{ font-family:'Outfit',sans-serif; font-size:13px; font-weight:700; color:#fff !important; text-decoration:none; padding:6px 15px; border-radius:999px; white-space:nowrap; transition:background .16s, transform .16s; }
   .nav-links a.oferta{ background:var(--magenta); } .nav-links a.oferta:hover{ background:var(--magenta-dk); transform:translateY(-1px); }
@@ -85,6 +94,36 @@
   /* ===================== PLAN NAUKI ===================== */
   .pl-wrap{ max-width:760px; margin:0 auto; padding:0 16px; }
   .pl-hero{ text-align:center; padding:46px 0 18px; }
+  .pl-mark{ display:flex; flex-direction:column; align-items:center; margin:0 0 16px; font-weight:400; }
+  .pm-big{ font-family:'Cormorant Garamond',Georgia,serif; font-weight:300; font-size:clamp(50px,10vw,92px); letter-spacing:.12em; line-height:1; color:var(--ink); padding-left:.12em; }
+  .pm-strip{ display:inline-block; border-top:1.5px solid var(--ink); border-bottom:1.5px solid var(--ink); font-family:'Outfit',sans-serif; font-weight:600; font-size:clamp(13px,1.9vw,17px); letter-spacing:.42em; padding:5px 6px 4px 18px; margin-top:clamp(14px,2.4vw,24px); color:var(--magenta); }
+  .pl-tiles{ display:grid; grid-template-columns:repeat(5,1fr); gap:12px; margin:6px 0 4px; }
+  .pl-tile{ display:flex; flex-direction:column; align-items:center; border:1.5px solid var(--line); border-radius:20px; padding:18px 8px 16px; background:var(--card); color:var(--ink); text-decoration:none; transition:transform .16s, border-color .16s; }
+  a.pl-tile:hover{ transform:translateY(-2px); border-color:var(--magenta); }
+  .pl-tile b{ font-weight:800; font-size:32px; color:var(--magenta); line-height:1; }
+  .pl-tile span{ font-weight:700; font-size:14px; margin-top:8px; line-height:1.25; }
+  .pl-tile small{ font-size:12.5px; color:var(--muted); margin:4px 0 10px; }
+  .pl-tile em{ margin-top:auto; font-style:normal; font-size:11px; font-weight:800; letter-spacing:.05em; text-transform:uppercase; background:var(--magenta); color:#fff; padding:3px 10px; border-radius:999px; }
+  .pl-tile.is-on{ background:#f6f1ae; border-color:#f6f1ae; color:#2a2730; }
+  .pl-tile.is-on small{ color:#5c5340; }
+  .pl-tile.is-soon{ opacity:.55; }
+  .pl-tile.is-soon b{ color:var(--muted); }
+  .pl-tile.is-soon em{ background:var(--line); color:var(--muted); }
+  .pl-chosen{ text-align:center; padding:26px 0 6px; scroll-margin-top:20px; }
+  .pl-chosen[hidden]{ display:none; }
+  .pl-chosen .pl-title{ font-family:'Cormorant Garamond',Georgia,serif; font-weight:300; font-size:clamp(38px,6.5vw,58px); letter-spacing:.1em; text-transform:uppercase; font-variant-numeric:lining-nums; font-feature-settings:'lnum' 1; color:var(--ink); line-height:1.05; margin:0 0 10px; padding-left:.1em; }
+  .pl-choose{ font-family:'Outfit',sans-serif; font-weight:700; font-size:15px; color:#fff; background:var(--magenta); border:none; border-radius:999px; padding:11px 24px; cursor:pointer; margin:6px 0 4px; transition:background .18s, transform .18s; }
+  .pl-choose:hover{ background:var(--magenta-dk); transform:translateY(-1px); }
+  .pl-choose[hidden], .pl-chosen-note[hidden]{ display:none; }
+  .pl-chosen-note{ font-size:13.5px; color:var(--muted); margin:4px 0 0; }
+  .pl-tile.is-view{ border-color:var(--magenta); border-width:2px; }
+  .pl-tile.is-view em{ background:transparent; color:var(--magenta); border:1.5px solid var(--magenta); }
+  .pl-lead-sm{ font-size:15.5px; margin-bottom:6px; }
+  @media(max-width:720px){ .pl-tiles{ grid-template-columns:repeat(3,1fr); } }
+  @media(max-width:420px){ .pl-tiles{ grid-template-columns:repeat(2,1fr); } .pl-tile b{ font-size:28px; } }
+  :root[data-theme="dark"] .pl-tile.is-on{ background:#34301c; border-color:#34301c; color:var(--ink); }
+  :root[data-theme="dark"] .pl-tile.is-on small{ color:#e9e2c2; }
+  @media (prefers-color-scheme:dark){ :root:not([data-theme="light"]) .pl-tile.is-on{ background:#34301c; border-color:#34301c; color:var(--ink); } :root:not([data-theme="light"]) .pl-tile.is-on small{ color:#e9e2c2; } }
   .pl-kicker{ display:inline-block; font-weight:700; font-size:12.5px; letter-spacing:.12em; text-transform:uppercase; color:var(--lavender); margin-bottom:8px; }
   .pl-title{ font-weight:700; font-size:clamp(32px,6vw,46px); line-height:1.1; margin:0 0 12px; letter-spacing:-.01em; color:var(--magenta); }
   .pl-lead{ font-size:17px; color:var(--muted); margin:0 auto 22px; max-width:560px; text-wrap:pretty; }
@@ -137,6 +176,10 @@
   .pl-th{ flex:0 0 auto; width:64px; aspect-ratio:3/2; border-radius:9px; overflow:hidden; background:#e8e0f6; display:flex; align-items:center; justify-content:center; }
   .pl-th img{ width:100%; height:100%; object-fit:cover; display:block; }
   .pl-th-art{ background:#efe9fa; color:var(--lavender); }
+  .pl-th-blog{ flex-direction:column; gap:1px; background:#fff; border:1px solid var(--line); }
+  .pl-th-blog b{ font-family:'Cormorant Garamond',Georgia,serif; font-weight:300; font-size:17px; letter-spacing:.12em; line-height:1; color:#2a2730; padding-left:.12em; }
+  .pl-th-blog i{ font-style:normal; font-family:'Outfit',sans-serif; font-weight:600; font-size:5px; letter-spacing:.2em; border-top:.5px solid #2a2730; border-bottom:.5px solid #2a2730; padding:1px 1px 1px 2px; color:#f4c94c; }
+  .pl-th-blog i u{ text-decoration:none; color:#ca4490; }
   .pl-sx{ flex:1 1 auto; min-width:0; display:flex; flex-direction:column; }
   .pl-kind{ font-size:11px; font-weight:800; letter-spacing:.06em; text-transform:uppercase; color:var(--lavender); }
   .pl-k-r{ color:var(--magenta); }    /* Przeczytaj */
@@ -312,16 +355,27 @@ window.ewImgFallback = function(img){
 <!-- ===================== PLAN NAUKI ===================== -->
 <main class="pl-wrap">
   <header class="pl-hero">
-    <span class="pl-kicker">Plany nauki</span>
-    <h1 class="pl-title" id="plTitle">Plan nauki A1</h1>
-    <p class="pl-lead" id="plLead">Lekcja po lekcji, od pierwszych zwrotów do końca poziomu A1. Najpierw krótka teoria, potem ćwiczenia od łatwiejszych do trudniejszych <span class="pink">&#9829;</span></p>
-    <div class="pl-levels" id="plLevels" role="tablist" aria-label="Poziom">
-      <button type="button" class="pl-lvl on" data-plan="a1" aria-selected="true">A1</button>
-      <button type="button" class="pl-lvl" data-plan="a2" aria-selected="false">A2</button>
-      <button type="button" class="pl-lvl" data-plan="b1" aria-selected="false">B1</button>
-      <button type="button" class="pl-lvl" disabled title="Wkrótce">B2 <small>wkrótce</small></button>
+    <a class="nav-logo" href="/" title="Wróć na stronę główną EasyWonders">
+      <img class="nl-light" src="/easywonders.png" width="1200" height="669" alt="EasyWonders – strona główna">
+      <img class="nl-dark" src="/easywonders-dark.png" width="1200" height="669" alt="" aria-hidden="true">
+    </a>
+    <h1 class="pl-mark" aria-label="Mój plan nauki"><span class="pm-big" aria-hidden="true">MÓJ PLAN</span><span class="pm-strip" aria-hidden="true">NAUKI</span></h1>
+    <p class="pl-lead">Wybierz swój poziom i ucz się lekcja po lekcji. Postęp zapisuje się sam <span class="pink">&#9829;</span></p>
+    <div class="pl-tiles" id="plTiles" role="list">
+      <a class="pl-tile" role="listitem" data-plan="a1" href="/plan?poziom=a1#plan"><b>A1</b><span>Zaczynam od zera</span><small data-count="a1">&nbsp;</small><em>Otwórz</em></a>
+      <a class="pl-tile" role="listitem" data-plan="a2" href="/plan?poziom=a2#plan"><b>A2</b><span>Znam podstawy</span><small data-count="a2">&nbsp;</small><em>Otwórz</em></a>
+      <a class="pl-tile" role="listitem" data-plan="b1" href="/plan?poziom=b1#plan"><b>B1</b><span>Dogaduję się</span><small data-count="b1">&nbsp;</small><em>Otwórz</em></a>
+      <div class="pl-tile is-soon" role="listitem" aria-disabled="true"><b>B2</b><span>Mówię swobodnie</span><small>w przygotowaniu</small><em>Wkrótce</em></div>
+      <div class="pl-tile is-soon" role="listitem" aria-disabled="true"><b>C1</b><span>Szlifuję angielski</span><small>w przygotowaniu</small><em>Wkrótce</em></div>
     </div>
   </header>
+
+  <div class="pl-chosen" id="plan" hidden>
+    <h2 class="pl-title" id="plTitle"></h2>
+    <p class="pl-lead pl-lead-sm" id="plLead"></p>
+    <button type="button" class="pl-choose" id="plChoose" hidden>Wybieram ten plan</button>
+    <p class="pl-chosen-note" id="plChosenNote" hidden>To Twój plan. Chcesz inny? Otwórz inny poziom i kliknij „Wybieram ten plan”.</p>
+  </div>
 
   <section class="pl-admin" id="plAdmin" hidden></section>
 
@@ -421,21 +475,38 @@ window.ewImgFallback = function(img){
     a2: { lead:'Lekcja po lekcji przez cały poziom A2: od powtórki A1 po przyszłość, porównania i rozmowy o sobie.', lock:'lekcji przez cały poziom A2, od powtórki A1 po swobodne rozmowy o sobie' },
     b1: { lead:'Lekcja po lekcji przez poziom B1: czasy, okresy warunkowe, strona bierna i mowa zależna, a pomiędzy nimi tematy z czytanką, słuchanką i rozmową.', lock:'lekcji przez cały poziom B1, gramatyka na przemian z tematami do rozmowy' }
   };
-  var PLAN = 'a1';
-  try{ var qp = new URLSearchParams(location.search).get('poziom'); if(qp && PLANS[qp.toLowerCase()]) PLAN = qp.toLowerCase(); else { var lp = JSON.parse(localStorage.getItem('ew_plan_level') || 'null'); if(lp && PLANS[lp]) PLAN = lp; } }catch(e){}
-  var LEVEL = PLAN.toUpperCase();
-  try{ localStorage.setItem('ew_plan_level', JSON.stringify(PLAN)); }catch(e){}
+  // Kliknięcie kafelka tylko otwiera podgląd poziomu. „Swój” plan zapisuje się dopiero po „Wybieram ten plan”
+  // (na urządzeniu, a u zalogowanych także na koncie, więc działa na każdym urządzeniu).
+  var CHOSEN = null, PLAN = null;
+  try{ var lp = JSON.parse(localStorage.getItem('ew_plan_level') || 'null'); if(lp && PLANS[lp]) CHOSEN = lp; }catch(e){}
+  try{ var qp = new URLSearchParams(location.search).get('poziom'); if(qp && PLANS[qp.toLowerCase()]) PLAN = qp.toLowerCase(); }catch(e){}
+  if(!PLAN) PLAN = CHOSEN;
+  var LEVEL = PLAN ? PLAN.toUpperCase() : '';
+  var SESSION = null;
+  function paintChoice(){
+    [].forEach.call(document.querySelectorAll('#plTiles .pl-tile[data-plan]'), function(t){
+      var lv = t.getAttribute('data-plan'), mine = lv === CHOSEN, view = lv === PLAN && !mine;
+      t.classList.toggle('is-on', mine); t.classList.toggle('is-view', view);
+      t.querySelector('em').textContent = mine ? 'Twój plan' : view ? 'Oglądasz' : 'Otwórz';
+      if(lv === PLAN) t.setAttribute('aria-current', 'true'); else t.removeAttribute('aria-current');
+    });
+    if(PLAN){
+      document.getElementById('plChoose').hidden = PLAN === CHOSEN;
+      document.getElementById('plChosenNote').hidden = PLAN !== CHOSEN;
+    }
+  }
   (function(){
-    document.getElementById('plTitle').textContent = 'Plan nauki ' + LEVEL;
-    var lead = document.getElementById('plLead'); lead.firstChild.nodeValue = PLANS[PLAN].lead + ' Najpierw krótka teoria, potem ćwiczenia od łatwiejszych do trudniejszych ';
-    [].forEach.call(document.querySelectorAll('#plLevels .pl-lvl[data-plan]'), function(b){
-      var on = b.getAttribute('data-plan') === PLAN;
-      b.classList.toggle('on', on); b.setAttribute('aria-selected', on ? 'true' : 'false');
-      b.addEventListener('click', function(){
-        var lv = b.getAttribute('data-plan'); if(lv === PLAN) return;
-        try{ localStorage.setItem('ew_plan_level', JSON.stringify(lv)); }catch(e){}
-        location.href = '/plan?poziom=' + lv;
-      });
+    if(PLAN){
+      document.getElementById('plan').hidden = false;
+      document.getElementById('plTitle').textContent = 'Plan ' + LEVEL;
+      document.getElementById('plLead').textContent = PLANS[PLAN].lead + ' Najpierw krótka teoria, potem ćwiczenia od łatwiejszych do trudniejszych.';
+    }
+    paintChoice();
+    document.getElementById('plChoose').addEventListener('click', function(){
+      CHOSEN = PLAN;
+      try{ localStorage.setItem('ew_plan_level', JSON.stringify(PLAN)); }catch(e){}
+      if(SESSION && sb){ try{ sb.auth.updateUser({ data:{ plan_level: PLAN } }).catch(function(){}); }catch(e){} }
+      paintChoice();
     });
   })();
 
@@ -453,7 +524,14 @@ window.ewImgFallback = function(img){
   }
 
   // Od kiedy ta osoba zna plan — kroki dodane później dostają znaczek „Nowe”.
-  var SEEN_KEY = 'ew_plan_seen_' + PLAN;
+  rest('plan_lessons?select=plan,months').then(function(ls){
+    var c = {}; (ls || []).forEach(function(l){ if(!l.months) c[l.plan] = (c[l.plan] || 0) + 1; });
+    [].forEach.call(document.querySelectorAll('[data-count]'), function(el){
+      var n = c[el.getAttribute('data-count')]; if(n) el.textContent = n + ' ' + plural(n, 'lekcja', 'lekcje', 'lekcji');
+    });
+  });
+
+  var SEEN_KEY = 'ew_plan_seen_' + (PLAN || 'none');
   var firstSeen = lsGet(SEEN_KEY, null);
   var isFirstVisit = !firstSeen;
   if(isFirstVisit){ firstSeen = new Date().toISOString(); lsSet(SEEN_KEY, firstSeen); }
@@ -482,7 +560,7 @@ window.ewImgFallback = function(img){
       var arSlugs = steps.filter(function(s){ return s.kind === 'article' && byId[s.lesson_id]; }).map(function(s){ return s.slug; });
       return Promise.all([
         exSlugs.length ? rest('games?published=eq.true&slug=in.(' + exSlugs.map(encodeURIComponent).join(',') + ')&select=slug,title,cover_url,is_premium') : [],
-        arSlugs.length ? rest('articles?published=eq.true&slug=in.(' + arSlugs.map(encodeURIComponent).join(',') + ')&select=slug,title') : []
+        arSlugs.length ? rest('articles?published=eq.true&slug=in.(' + arSlugs.map(encodeURIComponent).join(',') + ')&select=slug,title,cover_url') : []
       ]).then(function(m){
         var g = {}, a = {};
         (m[0] || []).forEach(function(x){ g[x.slug] = x; });
@@ -594,9 +672,12 @@ window.ewImgFallback = function(img){
       }
       if(l.newCount && !isFirstVisit) status += '<span class="pl-badge-new">+' + l.newCount + ' ' + plural(l.newCount, 'nowe', 'nowe', 'nowych') + '</span>';
       var steps = l.steps.map(function(s){
-        var thumb = s.kind === 'article'
-          ? '<span class="pl-th pl-th-art" aria-hidden="true"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5.5A1.5 1.5 0 015.5 4H11v16H5.5A1.5 1.5 0 014 18.5z"/><path d="M20 5.5A1.5 1.5 0 0018.5 4H13v16h5.5a1.5 1.5 0 001.5-1.5z"/></svg></span>'
-          : (s.cover ? '<span class="pl-th"><img src="' + esc(ewThumb(s.cover, 160)) + '" data-o="' + esc(s.cover) + '" alt="" loading="lazy" decoding="async" onerror="ewImgFallback(this)"></span>' : '<span class="pl-th" aria-hidden="true"></span>');
+        // okładka artykułu albo ćwiczenia; artykuł bez okładki dostaje mini-znak bloga
+        var thumb = s.cover
+          ? '<span class="pl-th"><img src="' + esc(ewThumb(s.cover, 160)) + '" data-o="' + esc(s.cover) + '" alt="" loading="lazy" decoding="async" onerror="ewImgFallback(this)"></span>'
+          : (s.kind === 'article'
+              ? '<span class="pl-th pl-th-blog" aria-hidden="true"><b>BLOG</b><i><u>EASY</u>WONDERS</i></span>'
+              : '<span class="pl-th" aria-hidden="true"></span>');
         return '<li class="pl-step' + (s.done ? ' is-done' : '') + '">' +
           '<a href="' + stepHref(s) + '" data-slug="' + esc(s.slug) + '" data-kind="' + s.kind + '">' +
             thumb +
@@ -823,7 +904,7 @@ window.ewImgFallback = function(img){
               ' <button type="button" class="pl-adm-btn pl-adm-ghost" data-act="restore">Przywróć na listę</button></div></li>';
           }).join('') + '</ul></details>';
       }
-      html += '<div class="pl-adm-edit"><button type="button" class="pl-adm-btn' + (EDIT ? '' : ' pl-adm-ghost') + '" data-act="edit">' + (EDIT ? 'Zakończ edycję planu' : 'Edytuj plan ' + LEVEL) + '</button>' +
+      if(PLAN) html += '<div class="pl-adm-edit"><button type="button" class="pl-adm-btn' + (EDIT ? '' : ' pl-adm-ghost') + '" data-act="edit">' + (EDIT ? 'Zakończ edycję planu' : 'Edytuj plan ' + LEVEL) + '</button>' +
         '<span>Zmiana kolejności, nazw, usuwanie kroków i lekcji, artykuły, nowe lekcje.</span></div>';
       html += '<p class="pl-adm-msg" id="plAdmMsg" aria-live="polite"></p>';
       box.innerHTML = html; box.hidden = false;
@@ -868,9 +949,22 @@ window.ewImgFallback = function(img){
 
   var lastUid = undefined;
   function withSession(session){
+    SESSION = session || null;
+    var meta = session && session.user && session.user.user_metadata ? session.user.user_metadata.plan_level : null;
+    if(meta && PLANS[meta] && meta !== CHOSEN){
+      CHOSEN = meta;
+      try{ localStorage.setItem('ew_plan_level', JSON.stringify(meta)); }catch(e){}
+      if(!PLAN){ location.replace('/plan?poziom=' + meta + '#plan'); return; }
+      paintChoice();
+    }
     var uid = session ? session.user.id : null;
     if(uid === lastUid) return;
     lastUid = uid;
+    if(!PLAN){
+      document.getElementById('plWait').hidden = true;
+      if(session) sb.rpc('is_admin').then(function(r){ if(r && r.data === true) showAdmin(); });
+      return;
+    }
     if(!session){ showTeaser('guest'); return; }
     Promise.all([sb.rpc('has_full_access'), sb.rpc('is_admin')]).then(function(rs){
       var ok = rs.some(function(r){ return r && r.data === true; });
@@ -882,8 +976,10 @@ window.ewImgFallback = function(img){
     // Supabase odczytuje zapisaną sesję asynchronicznie — czekamy na INITIAL_SESSION
     sb.auth.onAuthStateChange(function(ev, session){ withSession(session); });
     setTimeout(function(){ if(lastUid === undefined) withSession(null); }, 2500);
-  } else {
+  } else if(PLAN) {
     showTeaser('guest');
+  } else {
+    document.getElementById('plWait').hidden = true;
   }
 })();
 </script>
