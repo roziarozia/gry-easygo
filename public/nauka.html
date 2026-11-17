@@ -205,6 +205,14 @@
   .art-author .aa-name{ font-family:'Outfit',sans-serif; font-weight:700; font-size:15px; color:var(--ink); }
   .art-author .aa-role{ font-size:13px; color:var(--muted); }
 
+  /* karta „Nie wiesz, od czego zacząć?” → plan nauki (widok listy) */
+  .plancard{ box-sizing:border-box; width:min(1100px, calc(100% - 32px)); margin:14px auto 4px; display:flex; align-items:center; justify-content:space-between; gap:18px; background:var(--card); border:1.5px solid var(--line); border-radius:22px; padding:18px 22px 18px 26px; }
+  .plancard .pc-k{ display:block; font-size:11px; font-weight:700; letter-spacing:.14em; text-transform:uppercase; color:var(--magenta); margin:0 0 3px; }
+  .plancard .pc-t{ margin:0; font-weight:700; font-size:18px; line-height:1.3; color:var(--ink); }
+  .plancard .pc-s{ margin:4px 0 0; font-size:14.5px; line-height:1.5; color:var(--muted); }
+  .plancard .pc-btn{ flex:0 0 auto; display:inline-flex; align-items:center; gap:8px; background:var(--magenta); color:#fff; font-weight:700; font-size:15px; text-decoration:none; border-radius:999px; padding:11px 20px; white-space:nowrap; }
+  .plancard .pc-btn:hover{ background:var(--magenta-dk); }
+  @media (max-width:640px){ .plancard{ flex-direction:column; align-items:flex-start; padding:18px 20px; } .plancard .pc-btn{ align-self:stretch; justify-content:center; } }
   .foot{ text-align:center; margin:48px auto 0; padding:24px 24px 0; border-top:1px solid var(--line); max-width:420px; }
   .foot a{ color:var(--magenta); font-family:'Outfit',sans-serif; font-weight:600; text-decoration:none; font-size:13.5px; }
   .foot .foot-links{ font-size:12px; color:var(--muted); margin-top:8px; }
@@ -412,6 +420,15 @@ window.ewImgFallback = function(img){
     </div>
   </div>
 
+  <aside class="plancard" aria-label="Plan nauki">
+    <div>
+      <span class="pc-k">Mój plan nauki</span>
+      <p class="pc-t">Nie wiesz, od czego zacząć?</p>
+      <p class="pc-s">Plan poprowadzi Cię lekcja po lekcji: najpierw krótka teoria z bloga, potem ćwiczenia. Poziomy od A1 do B2.</p>
+    </div>
+    <a class="pc-btn" href="/plan">Zobacz plan nauki<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
+  </aside>
+
   <div class="search">
     <div class="box">
       <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><circle cx="11" cy="11" r="7" stroke="currentColor" stroke-width="1.8"/><path d="m20 20-3.5-3.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
@@ -460,7 +477,7 @@ window.ewImgFallback = function(img){
   <div class="art-back-bottom"><a href="/nauka" id="backToListBottom">&#8592; Wszystkie artykuły</a></div>
 
   <footer class="foot">
-    <a href="https://easygo-english.pl/">EasyGo English</a>
+    <a href="/">EasyWonders</a>
     <div class="foot-links">
       <a href="/regulamin">Regulamin</a> ·
       <a href="/polityka-prywatnosci">Polityka prywatności</a>
@@ -469,7 +486,7 @@ window.ewImgFallback = function(img){
 </article>
 
 <footer class="foot" id="listFoot">
-  <a href="https://easygo-english.pl/">EasyGo English</a>
+  <a href="/">EasyWonders</a>
   <div class="foot-links">
     <a href="/regulamin">Regulamin</a> ·
     <a href="/polityka-prywatnosci">Polityka prywatności</a>
