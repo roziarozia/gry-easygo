@@ -500,7 +500,9 @@ window.ewImgFallback = function(img){
         var month = new Date().getMonth() + 1;
         var live = lessons.filter(function(l){ return EDIT || (l.steps.length && (!l.months || l.months.indexOf(month) !== -1)); });
         live.forEach(function(l){ l.seasonal = !!l.months; });
-        live.sort(function(a, b){ return (b.seasonal - a.seasonal) || (a.position - b.position); });
+        // sezonowe w kolejności roku szkolnego: wrzesień, październik … sierpień
+        var seasonKey = function(l){ return l.months ? Math.min.apply(null, l.months.map(function(m){ return (m + 3) % 12; })) : 99; };
+        live.sort(function(a, b){ return (b.seasonal - a.seasonal) || (seasonKey(a) - seasonKey(b)) || (a.position - b.position); });
         DATA = { lessons: live };
       });
     });
