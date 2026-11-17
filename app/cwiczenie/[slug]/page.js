@@ -3,6 +3,7 @@ import { notFound, permanentRedirect } from 'next/navigation';
 import Link from 'next/link';
 import GameEmbed from './GameEmbed';
 import ExerciseMeta from './ExerciseMeta';
+import PlanBar from './PlanBar';
 import { SITE, ORGANIZATION } from '../../../lib/site';
 
 // Odświeżaj stronę ćwiczenia co 5 min i pozwól dogenerować nowe ćwiczenia on-demand
@@ -153,6 +154,9 @@ export default async function CwiczeniePage({ params }) {
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
 
       {/* GÓRA: gra osadzona w formie i wielkości jak teraz (okładka + granie po kliknięciu) */}
+      {/* „← Mój plan nauki” — tylko gdy uczeń przyszedł z planu */}
+      <PlanBar />
+
       <GameEmbed slug={game.slug} />
 
       {/* DÓŁ: opis w stylu "opcja 2 na białym tle" — pełnokolorowe pigułki,
