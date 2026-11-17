@@ -224,8 +224,8 @@ export default function Konto() {
           var dniT = Math.max(1, Math.ceil((new Date(p.comp_expires_at) - new Date()) / 86400000));
           html += '<p class="status-title">Okres próbny</p>';
           html += '<p class="status-line">Do <strong>' + formatDatePL(p.comp_expires_at) + '</strong> masz pełny dostęp do platformy' + (p.role === 'teacher' ? ' i możesz dodać do 5 uczniów' : '') + ' (' + (dniT === 1 ? 'został 1 dzień' : 'zostało dni: ' + dniT) + '). Nie musisz podawać karty.</p>';
-          html += '<p class="status-line status-muted">Jeśli chcesz korzystać dalej, wybierz plan już teraz: pierwszą płatność pobierzemy dopiero po zakończeniu okresu próbnego. Jeśli nic nie wybierzesz, po tym dniu konto przejdzie na darmowe ćwiczenia, bez żadnych opłat.</p>';
-          html += '<a class="status-cta" href="/oferta">Wybierz plan</a>';
+          html += '<p class="status-line status-muted">Jeśli chcesz korzystać dalej, wybierz subskrypcję już teraz: pierwszą płatność pobierzemy dopiero po zakończeniu okresu próbnego. Jeśli nic nie wybierzesz, po tym dniu konto przejdzie na darmowe ćwiczenia, bez żadnych opłat.</p>';
+          html += '<a class="status-cta" href="/oferta">Wybierz subskrypcję</a>';
         } else {
           cls = 'status-none';
           html += '<p class="status-title">Brak aktywnego dostępu</p>';
@@ -368,7 +368,7 @@ export default function Konto() {
 
           <div className="card hidden" id="subCard">
             <h2>Moja subskrypcja</h2>
-            <p className="desc">Zarządzaj swoją subskrypcją — zmień plan, zaktualizuj kartę, pobierz faktury lub anuluj. Otworzy się bezpieczny panel płatności.</p>
+            <p className="desc">Zarządzaj swoją subskrypcją — zmień jej rodzaj, zaktualizuj kartę, pobierz faktury lub anuluj. Otworzy się bezpieczny panel płatności.</p>
             <a href="#" className="link-sub" id="manageSub">Zarządzaj subskrypcją</a>
             <div className="msg" id="subMsg"></div>
             <div className="sub-info">
