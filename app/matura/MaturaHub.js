@@ -489,7 +489,7 @@ export default function MaturaHub() {
             <div className="mt-access-k">Od redakcji: o dostępie</div>
             <p>
               Pierwsze ćwiczenie w każdym typie zadania jest darmowe. Wszystkie zadania maturalne odblokujesz w pełnej wersji EasyWonders.
-              {' '}<strong>{access === 'guest' ? 'Załóż konto, a przez 14 dni masz pełną wersję za darmo, bez podpinania karty.' : 'Wybierz plan, żeby mieć je wszystkie.'}</strong>
+              {' '}<strong>{access === 'guest' ? 'Załóż konto, a przez 14 dni masz pełną wersję za darmo, bez podpinania karty.' : 'Wybierz subskrypcję, żeby mieć je wszystkie.'}</strong>
             </p>
             <div className="mt-access-btns">
               {access === 'guest' ? (
@@ -677,7 +677,7 @@ export default function MaturaHub() {
           <div className="mt-modal" role="dialog" aria-label="Dostęp do ćwiczenia" onClick={(e) => e.stopPropagation()}>
             <div className="mt-kicker">Od redakcji</div>
             <h3>To ćwiczenie jest w pełnej wersji</h3>
-            <p>Pierwsze ćwiczenie w każdym typie zadania jest darmowe, a resztę odblokujesz w pełnej wersji EasyWonders. {access === 'guest' ? 'Załóż konto, a przez 14 dni masz pełną wersję za darmo, bez podpinania karty.' : 'Wybierz plan, żeby mieć dostęp do wszystkich zadań.'}</p>
+            <p>Pierwsze ćwiczenie w każdym typie zadania jest darmowe, a resztę odblokujesz w pełnej wersji EasyWonders. {access === 'guest' ? 'Załóż konto, a przez 14 dni masz pełną wersję za darmo, bez podpinania karty.' : 'Wybierz subskrypcję, żeby mieć dostęp do wszystkich zadań.'}</p>
             <div className="mt-access-btns">
               {access === 'guest' ? (
                 <>
