@@ -171,6 +171,15 @@
   }
   @media(max-width:560px){ .pl-lock-card{ top:14px; padding:22px 18px 18px; } .pl-lock-h{ font-size:20px; } }
 
+  .pl-season{ background:#efe9fa; border-left:4px solid var(--lavender); border-radius:16px; padding:18px 22px; margin:26px 0 0; }
+  .pl-season-h{ font-weight:800; font-size:17px; color:#3d3355; margin:0 0 6px; }
+  .pl-season-t{ font-size:15px; line-height:1.6; color:#4a4258; margin:0; }
+  :root[data-theme="dark"] .pl-season{ background:#2b2436; }
+  :root[data-theme="dark"] .pl-season-h, :root[data-theme="dark"] .pl-season-t{ color:#ddd6ec; }
+  @media (prefers-color-scheme:dark){
+    :root:not([data-theme="light"]) .pl-season{ background:#2b2436; }
+    :root:not([data-theme="light"]) .pl-season-h, :root:not([data-theme="light"]) .pl-season-t{ color:#ddd6ec; }
+  }
   .pl-foot-note{ text-align:center; font-size:14px; color:var(--muted); margin:26px auto 0; max-width:540px; line-height:1.6; }
 
   .foot{ text-align:center; margin:44px auto 0; padding:24px 24px 30px; border-top:1px solid var(--line); max-width:420px; }
@@ -285,6 +294,7 @@ window.ewImgFallback = function(img){
         <li id="plLockL1">14 lekcji ułożonych od zera do końca poziomu A1</li>
         <li>najpierw krótka teoria z bloga, potem ćwiczenia od łatwiejszych do trudniejszych</li>
         <li>postęp zapisuje się sam: widzisz, co już za Tobą i od czego zacząć</li>
+        <li>lekcje na daną porę roku: jesienią jesienne, w grudniu świąteczne</li>
       </ul>
       <a class="pl-go" id="plLockBtn" href="/logowanie?rejestracja">Załóż konto za darmo</a>
       <p class="pl-lock-sm" id="plLockSm">Masz już konto? <a href="/logowanie">Zaloguj się</a></p>
@@ -310,7 +320,12 @@ window.ewImgFallback = function(img){
 
   <ol class="pl-lessons" id="plLessons"></ol>
 
-  <p class="pl-foot-note">Lekcje są ułożone po kolei, ale możesz zacząć od dowolnej. Plan będzie się rozrastał: nowe ćwiczenia pojawią się w nim ze znaczkiem <span class="pl-badge-new">Nowe</span>.</p>
+  <section class="pl-season">
+    <p class="pl-season-h">Plan, który żyje razem z kalendarzem</p>
+    <p class="pl-season-t">Przez cały rok dokładamy do planu lekcje tematyczne, w sam raz na daną porę. Jesienią czekają na Ciebie słówka i teksty o jesieni, przed Halloween – o strachach i przebraniach, a w grudniu – świąteczne materiały, z którymi złożysz życzenia po angielsku. Każda nowość pojawi się tutaj ze znaczkiem <span class="pl-badge-new">Nowe</span>, więc nic Ci nie umknie.</p>
+  </section>
+
+  <p class="pl-foot-note">Lekcje są ułożone po kolei, ale możesz zacząć od dowolnej.</p>
   </div>
 </main>
 
