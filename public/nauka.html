@@ -531,7 +531,7 @@ window.ewImgFallback = function(img){
         sb.from('profiles').select('subscription_status,trial_started_at').eq('id', ses.user.id).single().then(function(pr){
           if(pr && pr.data && (pr.data.subscription_status || pr.data.trial_started_at)){
             t.querySelector('.tb-title').textContent = 'Wróć do pełnego dostępu';
-            t.querySelector('.tb-text').textContent = 'Wszystkie ćwiczenia, czytanki i słuchanki czekają na Ciebie. Wybierz plan i ucz się dalej bez ograniczeń.';
+            t.querySelector('.tb-text').textContent = 'Wszystkie ćwiczenia, czytanki i słuchanki czekają na Ciebie. Wybierz subskrypcję i ucz się dalej bez ograniczeń.';
             t.querySelector('.tb-btn').textContent = 'Zobacz ofertę';
             t.querySelector('.tb-btn').setAttribute('href', '/oferta');
           }
