@@ -154,10 +154,11 @@ export default async function CwiczeniePage({ params }) {
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
 
       {/* GÓRA: gra osadzona w formie i wielkości jak teraz (okładka + granie po kliknięciu) */}
-      {/* „← Mój plan nauki” — tylko gdy uczeń przyszedł z planu */}
-      <PlanBar />
-
       <GameEmbed slug={game.slug} />
+
+      {/* „← Mój plan nauki” — tylko gdy uczeń przyszedł z planu. Celowo POD grą: nad grą przesuwał
+          ramkę w dół i na telefonie (iOS) nie dało się przewinąć strony z powrotem do góry. */}
+      <PlanBar />
 
       {/* DÓŁ: opis w stylu "opcja 2 na białym tle" — pełnokolorowe pigułki,
           tytuł na plakietce z cieniem, mini-karty meta w ExerciseMeta */}
