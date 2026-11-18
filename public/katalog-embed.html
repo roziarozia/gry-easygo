@@ -2338,6 +2338,59 @@
       .trim();
   }
 
+  // ===== WYSZUKIWARKA =====
+  // Szukamy po słowach, nie po całej frazie: „irregular nouns” znajdzie ćwiczenie, w którym jest
+  // „irregular” i „rzeczowniki”, nawet jeśli słowa stoją osobno albo w innej kolejności.
+  // Każde słowo z frazy musi pasować, ale może pasować przez swój odpowiednik z drugiego języka
+  // (słowniczek niżej: po angielsku i po polsku, bez polskich znaków, rdzenie słów).
+  // Nowe pojęcie = nowa grupa w SEARCH_SYN.
+  var SEARCH_SYN = [
+    ['noun','rzeczownik'], ['plural','mnog'], ['singular','pojedyncz'], ['irregular','nieregularn','wyjat'],
+    ['regular','regularn'], ['verb','czasownik'], ['adjective','przymiotnik'], ['adverb','przyslow'],
+    ['pronoun','zaim'], ['possessive','dzierzawcz'], ['demonstrative','wskazując','wskazujac'],
+    ['preposition','przyimk','przyimek'], ['article','przedimk','przedimek'], ['tense','czasy','czasie'],
+    ['past','przeszl'], ['present','terazniejsz'], ['future','przyszl'], ['perfect','dokonan'],
+    ['continuous','ciagl'], ['conditional','warunkow','okres'], ['passive','biern'],
+    ['comparative','stopniowani','wyzszy'], ['superlative','najwyzszy','stopniowani'],
+    ['countable','policzaln'], ['uncountable','niepoliczaln'], ['modal','modaln'],
+    ['reported','zalezn'], ['question','pytan'], ['negative','przecz'], ['phrasal','frazow'],
+    ['number','liczb','liczebnik'], ['vocabulary','slownictw','slowk','slowek'],
+    ['grammar','gramatyk'], ['listening','sluchank','sluchani'], ['reading','czytank','czytani'],
+    ['speaking','mowieni'], ['writing','pisani'], ['translat','tlumacz'], ['exercise','cwiczeni'],
+    ['kids','dzieci'], ['animal','zwierz'], ['food','jedzeni'], ['family','rodzin'], ['weather','pogod'],
+    ['clothes','ubran','ubrani'], ['colour','color','kolor'], ['body','ciala','cialo'],
+    ['house','dom'], ['job','prac','zawod'], ['travel','podroz'], ['holiday','wakacj','swiet'],
+    ['christmas','boze narodzenie','swiateczn'], ['autumn','fall','jesien'], ['winter','zim'],
+    ['spring','wiosn'], ['summer','lato','letni'], ['school','szkol'], ['time','godzin','zegar'],
+    ['money','pieniadz'], ['shopping','zakup'], ['health','zdrowi'], ['sport','sport'],
+    ['idiom','idiom'], ['exam','egzamin','matur']
+  ];
+  var _synIdx = null;
+  function searchAlts(tok){
+    if(!_synIdx){
+      _synIdx = [];
+      SEARCH_SYN.forEach(function(g){ g.forEach(function(st){ _synIdx.push([norm(st), g]); }); });
+    }
+    // najdłuższy rdzeń, od którego zaczyna się słowo („czasowniki” → verb, nie „czas”)
+    var best = null, bestLen = 0;
+    for(var i = 0; i < _synIdx.length; i++){
+      var st = _synIdx[i][0];
+      if(st.length >= 3 && st.length > bestLen && tok.indexOf(st) === 0){ best = _synIdx[i][1]; bestLen = st.length; }
+    }
+    var alts = [tok];
+    if(tok.length > 3 && /s$/.test(tok)) alts.push(tok.slice(0, -1));   // nouns → noun
+    if(best) best.forEach(function(st){ alts.push(norm(st)); });
+    return alts;
+  }
+  function searchMatch(hay, q){
+    if(hay.indexOf(q) !== -1) return true;   // cała fraza — jak dotąd
+    var toks = q.split(/[\s,;\/\-–]+/).filter(function(t){ return t.length > 1; });
+    if(!toks.length) return false;
+    return toks.every(function(t){
+      return searchAlts(t).some(function(a){ return hay.indexOf(a) !== -1; });
+    });
+  }
+
   function esc(t){ var d = document.createElement('div'); d.textContent = t == null ? '' : t; return d.innerHTML; }
 
   // ===== ULUBIONE (zapisywane w przeglądarce) =====
@@ -3112,8 +3165,9 @@
       var okSeries = !curSeries || (norm(g.series) === norm(curSeries));
       var okSearch = true;
       if(q){
-        var haystack = norm(g.title) + ' ' + norm(g.description) + ' ' + norm(g.keywords) + ' ' + norm(g.series);
-        okSearch = haystack.indexOf(q) !== -1;
+        var haystack = norm(g.title) + ' ' + norm(g.description) + ' ' + norm(g.keywords) + ' ' + norm(g.series)
+          + ' ' + norm(g.category) + ' ' + norm(g.template) + ' ' + norm(g.level);
+        okSearch = searchMatch(haystack, q);
       }
       return okType && okStatus && okLvl && okSeries && okSearch;
     });
