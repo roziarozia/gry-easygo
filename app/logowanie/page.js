@@ -205,10 +205,10 @@ export default function Logowanie() {
         {/* LEWA KARTA — powitanie */}
         <aside className="eg-hello">
           <a className="eg-logo" href="/" title="Powrót na stronę główną"><span className="e">Easy</span><span className="w">Wonders</span></a>
-          <h1 className="eg-hello-h">Witaj w EasyWonders <span className="eg-heart">&#9829;</span></h1>
+          <h1 className="eg-hello-h">Witaj w <span style={{ whiteSpace: 'nowrap' }}>EasyWonders <span className="eg-heart">&#9829;</span></span></h1>
           <p className="eg-hello-lead">{mode === 'login'
             ? 'Miło nam, że wracasz. Zaloguj się i ćwicz dalej, a my zadbamy o Twoje postępy.'
-            : 'Załóż konto i przez 14 dni korzystaj z pełnej wersji za darmo, bez podawania karty. Potem sam/a decydujesz, czy wybierasz plan, czy zostajesz przy darmowych ćwiczeniach.'}</p>
+            : 'Załóż konto i przez 14 dni korzystaj z pełnej wersji za darmo, bez podawania karty. Potem sam/a decydujesz, czy wybierasz subskrypcję, czy zostajesz przy darmowych ćwiczeniach.'}</p>
           <ul className="eg-hello-list">
             <li><strong>Wszystko w jednym miejscu</strong><span>Gramatyka, słownictwo, czytanki, słuchanki i speaking na poziomach od A1 do C1.</span></li>
             <li><strong>Wynik od razu</strong><span>Każde ćwiczenie sprawdza się samo i wyjaśnia, skąd wziął się błąd.</span></li>
@@ -335,16 +335,16 @@ export default function Logowanie() {
 const NEWS_TEXT = 'Chcę dostawać od EasyWonders e-maile o nowych materiałach, planach nauki i promocjach. Mogę zrezygnować w każdej chwili.';
 
 const CSS = `
+  @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Outfit:wght@400;500;600;700;800&display=swap');
   .eg-news{ display:block; margin:6px 0 16px; padding:14px 16px; background:#fdf9df; border:1.5px dashed #f4c94c; border-radius:16px; cursor:pointer; text-align:left; transition:background .15s, border-color .15s; }
   .eg-news.on{ background:#fbeaf3; border:1.5px solid #ca4490; }
   .eg-news-top{ display:flex; align-items:center; gap:8px; margin-bottom:8px; }
   .eg-news-ico{ font-size:20px; line-height:1; }
-  .eg-news-title{ font-family:'Quicksand',sans-serif; font-weight:700; font-size:15px; color:#ca4490; }
+  .eg-news-title{ font-family:'Cormorant Garamond',Georgia,serif; font-weight:700; font-size:21px; line-height:1.1; letter-spacing:.01em; color:#ca4490; }
   .eg-news-row{ display:flex; gap:10px; align-items:flex-start; font-size:13px; line-height:1.45; color:var(--eg-ink); }
   .eg-news input{ flex:0 0 auto; width:19px; height:19px; margin-top:1px; accent-color:#ca4490; cursor:pointer; }
   .eg-news small{ color:var(--eg-muted); }
   html.eg-dark .eg-news{ background:#2f2a1c; } html.eg-dark .eg-news.on{ background:#3a2232; }
-  @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&display=swap');
   .eg-wrap{ --eg-magenta:#ca4490; --eg-violet:#6885db; --eg-gold:#f4c94c; --eg-ink:#2e2a33; --eg-muted:#7d7788; --eg-line:#eceaf2;
     font-family:'Outfit',sans-serif; color:var(--eg-ink); background:#faf9fc; min-height:100vh; display:flex; align-items:center; justify-content:center; padding:32px 24px; }
   .eg-wrap *{ box-sizing:border-box; }
@@ -357,7 +357,7 @@ const CSS = `
   .eg-logo{ font-family:'Outfit',sans-serif; font-weight:700; font-size:30px; letter-spacing:-1px; line-height:1; text-decoration:none; display:inline-block; align-self:flex-start; }
   .eg-logo .e{ color:#ca4490; } .eg-logo .w{ color:#e0a91c; }
   .eg-logo:hover{ opacity:.85; }
-  .eg-hello-h{ font-family:'Outfit',sans-serif; font-weight:600; font-size:30px; line-height:1.2; letter-spacing:-.5px; margin:34px 0 12px; color:var(--eg-ink); }
+  .eg-hello-h{ font-family:'Cormorant Garamond',Georgia,serif; font-weight:600; font-size:40px; line-height:1.1; letter-spacing:0; margin:34px 0 12px; color:var(--eg-ink); }
   .eg-heart{ color:#ff5fa2; }
   .eg-hello-lead{ font-size:16px; line-height:1.6; color:#4e475a; margin:0 0 26px; text-wrap:balance; }
   .eg-hello-list{ list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:16px; }
@@ -421,7 +421,7 @@ const CSS = `
     .eg-shell{ grid-template-columns:1fr; border-radius:22px; }
     .eg-hello{ padding:26px 24px 22px; border-right:none; border-bottom:1px solid #e9e0f6; text-align:center; }
     .eg-logo{ align-self:center; font-size:26px; }
-    .eg-hello-h{ font-size:22px; margin:14px 0 6px; }
+    .eg-hello-h{ font-size:30px; margin:14px 0 6px; }
     .eg-hello-lead{ font-size:14.5px; margin:0; }
     .eg-hello-list{ display:none; }
     .eg-card{ padding:26px 22px 24px; }
