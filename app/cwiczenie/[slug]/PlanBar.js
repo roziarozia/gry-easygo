@@ -1,7 +1,7 @@
 'use client';
 import { useEffect, useState } from 'react';
 
-// Pasek „← Mój plan nauki” nad ćwiczeniem. Pokazuje się tylko wtedy, gdy uczeń przyszedł z planu
+// Pasek „← Mój plan nauki” pod ćwiczeniem (nie nad nim — patrz komentarz w page.js). Pokazuje się tylko wtedy, gdy uczeń przyszedł z planu
 // (link z planu ma ?plan=a1/a2/b1/b2/c1) albo wcześniej w tej samej sesji wszedł z planu
 // (sessionStorage „ew_from_plan” — ten sam klucz co pasek na blogu w nauka.html).
 // Zrobione ćwiczenie plan odhacza sam (game_completions), więc tu wystarczy droga powrotu.
@@ -31,7 +31,7 @@ export default function PlanBar() {
   if (!plan) return null;
 
   return (
-    <div style={{ display: 'flex', justifyContent: 'center', padding: '14px 16px 4px' }}>
+    <div style={{ display: 'flex', justifyContent: 'center', padding: '18px 16px 6px' }}>
       <a
         href={`/plan?poziom=${plan}#plan`}
         style={{
