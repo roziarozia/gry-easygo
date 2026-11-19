@@ -4,6 +4,8 @@ import Link from 'next/link';
 import GameEmbed from './GameEmbed';
 import ExerciseMeta from './ExerciseMeta';
 import PlanBar from './PlanBar';
+import ExerciseNav from './ExerciseNav';
+import { NAV_CSS } from './exerciseNavCss';
 import { SITE, ORGANIZATION } from '../../../lib/site';
 
 // Odświeżaj stronę ćwiczenia co 5 min i pozwól dogenerować nowe ćwiczenia on-demand
@@ -72,6 +74,81 @@ async function getArticleForGame(game) {
   } catch (e) { return null; }
 }
 
+// Inne ćwiczenia do panelu obok: najpierw pozostałe części tej samej serii,
+// potem ćwiczenia z tej samej kategorii i poziomu. Bez matury i bez ćwiczeń dla dzieci.
+async function getRelatedGames(game, limit = 4) {
+  const cols = 'slug,title,level,category,cover_url,is_premium,matura,for_kids';
+  const out = [];
+  const seen = new Set([game.slug]);
+  function add(rows) {
+    (rows || []).forEach((g) => {
+      if (g.matura || g.for_kids) return;
+      if (out.length < limit && !seen.has(g.slug)) { seen.add(g.slug); out.push(g); }
+    });
+  }
+  try {
+    if (game.series) {
+      const { data } = await supabase.from('games').select(cols)
+        .eq('published', true).eq('series', game.series).neq('slug', game.slug)
+        .order('exercise_no', { ascending: true }).limit(limit);
+      add(data);
+    }
+    if (out.length < limit && game.category) {
+      let q = supabase.from('games').select(cols).eq('published', true).eq('category', game.category)
+        .neq('slug', game.slug);
+      if (game.level) q = q.eq('level', game.level);
+      const { data } = await q.order('created_at', { ascending: false }).limit(12);
+      add(data);
+    }
+  } catch (e) {}
+  return out;
+}
+
+// Mniejsza miniaturka z magazynu Supabase (jak na blogu); gdy adres jest inny, zostaje oryginał.
+function thumb(url, w) {
+  if (!url || url.indexOf('/storage/v1/object/public/') === -1) return url;
+  return url.replace('/storage/v1/object/public/', '/storage/v1/render/image/public/') + '?width=' + w + '&quality=72&resize=contain';
+}
+
+const RAIL_CSS = `
+.ex-layout{ max-width:1120px; margin:0 auto; }
+.ex-rail, .ex-theory{ display:none; }
+.ex-theory{ max-width:1088px; margin:14px auto 0; padding:0 16px; }
+.ex-theory a{ display:flex; align-items:center; gap:10px; text-decoration:none; background:#f6f1ae; color:#2e2a33; border-radius:14px; padding:10px 14px; font-family:'Outfit','Nunito',sans-serif; font-size:14px; line-height:1.35; }
+.ex-theory b{ color:var(--eg-magenta,#ca4490); white-space:nowrap; }
+.ex-theory span.t{ font-weight:600; overflow:hidden; text-overflow:ellipsis; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; }
+.ex-theory .arr{ margin-left:auto; color:var(--eg-magenta,#ca4490); font-weight:700; }
+@media (max-width:1199px){ .ex-theory{ display:block; } }
+@media (min-width:1200px){
+  .ex-layout{ max-width:1240px; display:grid; grid-template-columns:minmax(0,1fr) 270px; gap:8px; padding-right:20px; align-items:start; }
+  .ex-rail{ display:flex; flex-direction:column; position:sticky; top:20px; margin-top:20px; background:#f6f1ae; border-radius:20px; padding:18px 14px 14px; font-family:'Outfit','Nunito',sans-serif; text-align:center; }
+}
+.ex-rail-head{ font-weight:800; font-size:18px; line-height:1.2; color:#2e2a33; }
+.ex-rail-head span{ color:var(--eg-magenta,#ca4490); display:block; }
+.ex-rail-sub{ font-size:12.5px; color:#5c5340; margin-top:4px; line-height:1.45; }
+.ex-rail-feat{ display:block; margin-top:12px; text-decoration:none; color:inherit; background:#fff; border-radius:14px; overflow:hidden; box-shadow:0 6px 16px rgba(160,130,40,.18); text-align:left; transition:transform .2s; }
+.ex-rail-feat:hover{ transform:translateY(-2px); }
+.ex-rail-feat img{ width:100%; height:auto; display:block; background:#efe9f8; }
+.ex-rail-feat .b{ padding:10px 12px 12px; }
+.ex-rail-k{ font-size:10.5px; font-weight:800; letter-spacing:.06em; text-transform:uppercase; color:var(--eg-magenta,#ca4490); }
+.ex-rail-title{ font-weight:600; font-size:14.5px; line-height:1.3; color:#2a2730; margin-top:3px; display:-webkit-box; -webkit-line-clamp:3; -webkit-box-orient:vertical; overflow:hidden; }
+.ex-rail-go{ display:inline-block; margin-top:8px; font-size:13px; font-weight:700; color:var(--eg-magenta,#ca4490); }
+.ex-rail-more{ font-weight:700; font-size:11px; letter-spacing:.05em; text-transform:uppercase; color:#7a6d3a; margin:14px 2px 6px; text-align:left; }
+.ex-rail-list{ display:flex; flex-direction:column; gap:7px; text-align:left; }
+.ex-rail-row{ display:flex; gap:10px; align-items:center; text-decoration:none; color:inherit; background:#fff; border-radius:12px; padding:6px; box-shadow:0 3px 10px rgba(160,130,40,.13); transition:transform .2s; }
+.ex-rail-row:hover{ transform:translateX(2px); }
+.ex-rail-row img, .ex-rail-row .ph{ flex:0 0 66px; width:66px; height:44px; object-fit:cover; border-radius:8px; background:#efe9f8; }
+.ex-rail-row .lv{ font-size:9.5px; font-weight:800; color:var(--eg-magenta,#ca4490); }
+.ex-rail-row .ex-rail-title{ font-size:13px; line-height:1.25; margin-top:1px; -webkit-line-clamp:2; }
+.ex-rail-btn{ display:block; margin-top:12px; background:var(--eg-magenta,#ca4490); color:#fff !important; font-weight:700; font-size:14.5px; padding:10px; border-radius:999px; text-decoration:none; }
+.ex-rail-btn:hover{ background:#b33a7e; }
+html.eg-dark .ex-rail, html.eg-dark .ex-theory a{ background:#34301c; }
+html.eg-dark .ex-rail-head, html.eg-dark .ex-theory a{ color:#f6f1ae; }
+html.eg-dark .ex-rail-sub, html.eg-dark .ex-rail-more{ color:#e9e2c2; }
+html.eg-dark .ex-rail-feat, html.eg-dark .ex-rail-row{ background:#24263a; }
+html.eg-dark .ex-rail-title{ color:#e8e6ef; }
+`;
+
 const CAT_LABEL = { gramatyka: 'Gramatyka', slownictwo: 'Słownictwo', speaking: 'Speaking', reading: 'Reading', listening: 'Listening', kultura: 'Wiedza o krajach' };
 
 // Buduje ciepły, naturalny akapit z danych ćwiczenia (dla ucznia i dla Google).
@@ -133,7 +210,7 @@ export default async function CwiczeniePage({ params }) {
   // Ćwiczenia maturalne mają jeden adres: /matura/… (tam jest ich gazetowa oprawa).
   if (game.matura) permanentRedirect(`/matura/${game.slug}`);
   const catLabel = CAT_LABEL[game.category] || game.category || '';
-  const artykul = await getArticleForGame(game);
+  const [artykul, related] = await Promise.all([getArticleForGame(game), getRelatedGames(game)]);
 
   // Tytuł na białej plakietce: część po dwukropku w magencie ("Open Cloze: New York").
   const dwukropek = (game.title || '').indexOf(':');
@@ -153,8 +230,65 @@ export default async function CwiczeniePage({ params }) {
     <div className="eg-games">
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
 
-      {/* GÓRA: gra osadzona w formie i wielkości jak teraz (okładka + granie po kliknięciu) */}
-      <GameEmbed slug={game.slug} />
+      <style dangerouslySetInnerHTML={{ __html: NAV_CSS + RAIL_CSS }} />
+      <ExerciseNav />
+
+      {/* Na węższych ekranach (bez panelu bocznego) — krótka informacja, że jest artykuł z teorią */}
+      {artykul && (
+        <div className="ex-theory">
+          <a href={`/nauka/${artykul.slug}`}>
+            <b>Teoria na blogu:</b>
+            <span className="t">{artykul.title}</span>
+            <span className="arr" aria-hidden="true">&rarr;</span>
+          </a>
+        </div>
+      )}
+
+      {/* GÓRA: gra osadzona w formie i wielkości jak teraz (okładka + granie po kliknięciu),
+          a na szerokich ekranach obok niej panel: artykuł do ćwiczenia i inne ćwiczenia */}
+      <div className="ex-layout">
+        <GameEmbed slug={game.slug} />
+        {(artykul || related.length > 0) && (
+          <aside className="ex-rail" aria-label={artykul ? 'Teoria i inne ćwiczenia' : 'Inne ćwiczenia'}>
+            {artykul ? (
+              <>
+                <p className="ex-rail-head">Najpierw teoria?<span>Mamy artykuł!</span></p>
+                <p className="ex-rail-sub">Przeczytaj wyjaśnienie z przykładami i wróć do ćwiczenia</p>
+                <a className="ex-rail-feat" href={`/nauka/${artykul.slug}`}>
+                  {artykul.cover_url && <img src={thumb(artykul.cover_url, 520)} alt="" loading="lazy" />}
+                  <div className="b">
+                    <span className="ex-rail-k">Blog EasyWonders</span>
+                    <p className="ex-rail-title">{artykul.title}</p>
+                    <span className="ex-rail-go">Czytaj artykuł &rarr;</span>
+                  </div>
+                </a>
+              </>
+            ) : (
+              <>
+                <p className="ex-rail-head">Ćwicz dalej!<span>Mamy więcej.</span></p>
+                <p className="ex-rail-sub">Ćwiczenia z wyjaśnieniem po każdej odpowiedzi</p>
+              </>
+            )}
+            {related.length > 0 && (
+              <>
+                <p className="ex-rail-more">{artykul ? 'Więcej ćwiczeń' : 'Podobne ćwiczenia'}</p>
+                <div className="ex-rail-list">
+                  {related.map((g) => (
+                    <a key={g.slug} className="ex-rail-row" href={`/cwiczenie/${g.slug}`}>
+                      {g.cover_url ? <img src={thumb(g.cover_url, 200)} alt="" loading="lazy" /> : <span className="ph" />}
+                      <span style={{ minWidth: 0 }}>
+                        {g.level && <span className="lv">{g.level}</span>}
+                        <p className="ex-rail-title">{g.title}</p>
+                      </span>
+                    </a>
+                  ))}
+                </div>
+              </>
+            )}
+            <a className="ex-rail-btn" href="/">Wszystkie ćwiczenia</a>
+          </aside>
+        )}
+      </div>
 
       {/* „← Mój plan nauki” — tylko gdy uczeń przyszedł z planu. Celowo POD grą: nad grą przesuwał
           ramkę w dół i na telefonie (iOS) nie dało się przewinąć strony z powrotem do góry. */}
