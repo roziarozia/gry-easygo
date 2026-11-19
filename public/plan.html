@@ -265,6 +265,8 @@
   .pl-adm-lvl{ display:inline-block; min-width:30px; font-weight:800; color:var(--magenta); }
   .pl-adm-list > li{ padding:8px 0; border-top:1px solid var(--line); }
   .pl-adm-row{ display:flex; flex-wrap:wrap; align-items:baseline; gap:4px 8px; }
+  .pl-adm-sug{ margin:6px 0 0; font-size:13.5px; color:var(--ink); line-height:1.45; }
+  .pl-adm-sug small{ color:var(--muted); }
   .pl-adm-act{ display:flex; flex-wrap:wrap; gap:6px; margin-top:6px; }
   .pl-adm-act select{ font-family:'Outfit',sans-serif; font-size:13.5px; padding:6px 8px; border:1.5px solid var(--line); border-radius:10px; background:var(--card); color:var(--ink); max-width:100%; flex:1 1 220px; }
   .pl-adm-btn{ font-family:'Outfit',sans-serif; font-weight:700; font-size:13px; padding:6px 14px; border-radius:999px; border:1.5px solid var(--magenta); background:var(--magenta); color:#fff; cursor:pointer; }
@@ -1012,23 +1014,32 @@ window.ewImgFallback = function(img){
   function lessonLabel(l){ return (l.months ? 'Sezonowa: ' : 'Lekcja ' + l.position + '. ') + l.title; }
   function showAdmin(){
     var box = document.getElementById('plAdmin'); if(!box) return;
-    Promise.all([sb.rpc('plan_unassigned'), sb.rpc('plan_skipped')]).then(function(rs){
+    Promise.all([sb.rpc('plan_unassigned'), sb.rpc('plan_skipped'), sb.rpc('plan_suggest')]).then(function(rs){
       var list = (rs[0] && rs[0].data) || [], skipped = (rs[1] && rs[1].data) || [];
+      var sug = {}; ((rs[2] && rs[2].data) || []).forEach(function(x){ sug[x.slug] = x; });
       var plans = {}; list.forEach(function(g){ plans[(g.level || '').toLowerCase()] = 1; });
-      return Promise.all(Object.keys(plans).map(admLessons)).then(function(){ return [list, skipped]; });
+      return Promise.all(Object.keys(plans).map(admLessons)).then(function(){ return [list, skipped, sug]; });
     }).then(function(r){
-      var list = r[0], skipped = r[1];
+      var list = r[0], skipped = r[1], sug = r[2];
       var html = '<p class="pl-adm-h">Do przypisania do planów: ' + list.length + '</p>';
       if(!list.length){
         html += '<p class="pl-adm-t">Wszystkie opublikowane ćwiczenia są już w planach. Kolejne części serii dopisują się same. Widzisz to tylko Ty.</p>';
       } else {
-        html += '<p class="pl-adm-t">To nowe tematy, których nie ma jeszcze w żadnej lekcji. Wybierz lekcję i kliknij „Dodaj” albo zdejmij ćwiczenie z listy. Widzisz to tylko Ty.</p><ul class="pl-adm-list">' +
+        html += '<p class="pl-adm-t">To nowe tematy, których nie ma jeszcze w żadnej lekcji. Przy każdym podpowiadamy pasującą lekcję: kliknij „Dodaj” albo wybierz inną lekcję z listy. Widzisz to tylko Ty.</p><ul class="pl-adm-list">' +
           list.map(function(g){
             var plan = (g.level || '').toLowerCase(), ls = ADM_LESSONS[plan] || [];
+            var sg = sug[g.slug], sl = sg ? ls.filter(function(l){ return String(l.id) === String(sg.lesson_id); })[0] : null;
+            var newTitle = String(g.title || '').replace(/\s*\([^)]*\)\s*$/, '');
+            var hint = sl
+              ? '<p class="pl-adm-sug">Sugestia: <b>' + esc(lessonLabel(sl)) + '</b> <small>(' + esc(sg.reason) + ')</small></p>'
+              : '<p class="pl-adm-sug">Żadna lekcja planu ' + esc(g.level) + ' nie pasuje. Możesz utworzyć nową lekcję „' + esc(newTitle) + '” na końcu planu.</p>';
             return '<li data-slug="' + esc(g.slug) + '"><div class="pl-adm-row"><span class="pl-adm-lvl">' + esc(g.level) + '</span><a href="/cwiczenie/' + encodeURIComponent(g.slug) + '" target="_blank" rel="noopener">' + esc(g.title) + '</a>' + (g.series ? ' <small>' + esc(g.series) + '</small>' : '') + '</div>' +
+              hint +
               '<div class="pl-adm-act"><select aria-label="Lekcja"><option value="">Wybierz lekcję…</option>' +
-              ls.map(function(l){ return '<option value="' + l.id + '">' + esc(lessonLabel(l)) + '</option>'; }).join('') +
-              '</select><button type="button" class="pl-adm-btn" data-act="add">Dodaj</button><button type="button" class="pl-adm-btn pl-adm-ghost" data-act="skip">Nie dodawaj do planu</button></div></li>';
+              ls.map(function(l){ return '<option value="' + l.id + '"' + (sl && l.id === sl.id ? ' selected' : '') + '>' + esc(lessonLabel(l)) + '</option>'; }).join('') +
+              '</select><button type="button" class="pl-adm-btn" data-act="add">Dodaj</button>' +
+              (sl ? '' : '<button type="button" class="pl-adm-btn" data-act="newlesson" data-plan="' + esc(plan) + '" data-title="' + esc(newTitle) + '">Utwórz lekcję i dodaj</button>') +
+              '<button type="button" class="pl-adm-btn pl-adm-ghost" data-act="skip">Nie dodawaj do planu</button></div></li>';
           }).join('') + '</ul>';
       }
       if(skipped.length){
@@ -1065,6 +1076,10 @@ window.ewImgFallback = function(img){
       var lid = li.querySelector('select').value;
       if(!lid){ admMsg('Najpierw wybierz lekcję z listy.', true); return; }
       job = sb.rpc('plan_assign', { p_slug: slug, p_lesson: Number(lid) });
+    } else if(act === 'newlesson'){
+      job = sb.rpc('plan_add_lesson', { p_plan: btn.getAttribute('data-plan'), p_after: null, p_title: btn.getAttribute('data-title'), p_subtitle: '', p_months: null })
+        .then(function(r){ return (r && r.error) ? r : sb.rpc('plan_assign', { p_slug: slug, p_lesson: r.data }); });
+      act = 'add';
     } else if(act === 'skip'){
       job = sb.from('plan_skip').insert({ slug: slug, reason: 'odrzucone ręcznie' });
     } else if(act === 'restore'){
