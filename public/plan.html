@@ -148,8 +148,26 @@
 
   .pl-teacher{ display:flex; flex-wrap:wrap; align-items:center; justify-content:center; gap:10px 14px; border:2px solid var(--line); border-radius:16px; padding:12px 16px; margin:18px 0 0; background:var(--card); text-align:center; }
   .pl-teacher[hidden]{ display:none; }
-  .pl-teacher label{ font-weight:700; font-size:15px; color:var(--ink); }
-  .pl-teacher select{ font:inherit; font-size:15px; padding:8px 12px; border-radius:12px; border:2px solid var(--line); background:var(--card); color:var(--ink); max-width:100%; }
+  .pl-teacher-l{ font-weight:700; font-size:15px; color:var(--ink); }
+  .pl-tk{ position:relative; display:inline-flex; }
+  .pl-tk-btn{ display:inline-flex; align-items:center; gap:8px; font:inherit; font-weight:700; font-size:15px; color:#fff; background:var(--lavender); border:none; border-radius:999px; padding:8px 16px; cursor:pointer; max-width:260px; }
+  .pl-tk-btn span:first-child{ overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .pl-tk-caret{ transition:transform .18s; }
+  .pl-tk.pl-open .pl-tk-caret{ transform:rotate(180deg); }
+  .pl-tk-panel{ display:none; position:absolute; top:calc(100% + 8px); left:50%; transform:translateX(-50%); z-index:60; width:280px; max-height:min(60vh, 420px); overflow-y:auto; background:var(--card); border:2px solid var(--line); border-radius:16px; box-shadow:0 12px 34px rgba(46,42,51,.16); padding:8px; text-align:left;
+    scrollbar-width:thin; scrollbar-color:rgba(167,141,217,.55) transparent; }
+  .pl-tk-panel::-webkit-scrollbar{ width:6px; }
+  .pl-tk-panel::-webkit-scrollbar-track{ background:transparent; margin:12px 0; }
+  .pl-tk-panel::-webkit-scrollbar-thumb{ background:rgba(167,141,217,.55); border-radius:99px; }
+  .pl-tk.pl-open .pl-tk-panel{ display:block; }
+  .pl-tk-gt{ font-weight:700; font-size:11px; letter-spacing:.05em; text-transform:uppercase; color:var(--muted); padding:10px 10px 4px; }
+  .pl-tk-item{ display:flex; align-items:center; gap:10px; width:100%; font:inherit; font-size:14.5px; font-weight:600; color:var(--ink); background:none; border:none; border-radius:10px; padding:8px 10px; cursor:pointer; text-align:left; }
+  .pl-tk-item:hover{ background:var(--soft); }
+  .pl-tk-item.pl-act{ background:#efe9fa; color:#6f55b0; }
+  .pl-tk-av{ flex:0 0 auto; width:28px; height:28px; border-radius:50%; background:var(--lavender); color:#fff; display:inline-flex; align-items:center; justify-content:center; font-weight:700; font-size:11.5px; }
+  .pl-tk-me .pl-tk-av{ background:var(--magenta); }
+  :root[data-theme="dark"] .pl-tk-item.pl-act{ background:#2b2436; color:#d8ccf3; }
+  @media (prefers-color-scheme: dark){ :root:not([data-theme="light"]) .pl-tk-item.pl-act{ background:#2b2436; color:#d8ccf3; } }
   .pl-teacher-note{ flex-basis:100%; margin:0; font-size:14px; color:var(--muted); }
   .pl-teacher-note a{ color:var(--magenta); font-weight:700; }
   .pl-teacher.pl-on{ border-color:var(--magenta); }
@@ -380,8 +398,11 @@ window.ewImgFallback = function(img){
       <a class="pl-tile" role="listitem" data-plan="c1" href="/plan?poziom=c1#plan"><b>C1</b><span>Szlifuję angielski</span><small data-count="c1">&nbsp;</small><em>Otwórz</em></a>
     </div>
     <section class="pl-teacher" id="plTeacher" hidden>
-      <label for="plStudent">Postępy ucznia:</label>
-      <select id="plStudent"><option value="">Mój widok</option></select>
+      <span class="pl-teacher-l" id="plTkL">Postępy ucznia:</span>
+      <div class="pl-tk" id="plTk">
+        <button type="button" class="pl-tk-btn" id="plTkBtn" aria-haspopup="true" aria-expanded="false" aria-labelledby="plTkL plTkLabel"><span id="plTkLabel">Mój widok</span><span class="pl-tk-caret" aria-hidden="true">▾</span></button>
+        <div class="pl-tk-panel" id="plTkPanel"></div>
+      </div>
       <p class="pl-teacher-note" id="plTeacherNote" hidden></p>
     </section>
   </header>
@@ -812,25 +833,41 @@ window.ewImgFallback = function(img){
       var nm = function(x){ return x.student_name || x.email || 'Uczeń'; };
       st.sort(function(a, b){ return nm(a).localeCompare(nm(b), 'pl'); });
       gr.sort(function(a, b){ return a.name.localeCompare(b.name, 'pl'); });
-      var opt = function(x){ return '<option value="' + esc(x.id) + '">' + esc(nm(x)) + '</option>'; };
-      var html = '<option value="">Mój widok</option>';
+      var ini = function(n){ var p = String(n).trim().split(/\s+/); return ((p[0] || '?')[0] + (p[1] ? p[1][0] : (p[0][1] || ''))).toUpperCase(); };
+      var item = function(x){ return '<button type="button" class="pl-tk-item" data-id="' + esc(x.id) + '"><span class="pl-tk-av">' + esc(ini(nm(x))) + '</span>' + esc(nm(x)) + '</button>'; };
+      var html = '<button type="button" class="pl-tk-item pl-tk-me" data-id=""><span class="pl-tk-av">Ja</span>Mój widok</button>';
       gr.forEach(function(g){
         var m = st.filter(function(x){ return x.group_id === g.id; });
-        if(m.length) html += '<optgroup label="' + esc(g.name) + '">' + m.map(opt).join('') + '</optgroup>';
+        if(m.length) html += '<div class="pl-tk-gt">' + esc(g.name) + '</div>' + m.map(item).join('');
       });
       var noGroup = st.filter(function(x){ return !x.group_id || !gr.some(function(g){ return g.id === x.group_id; }); });
-      if(noGroup.length) html += (gr.length ? '<optgroup label="Bez grupy">' + noGroup.map(opt).join('') + '</optgroup>' : noGroup.map(opt).join(''));
-      var sel = document.getElementById('plStudent');
-      sel.innerHTML = html;
+      if(noGroup.length) html += '<div class="pl-tk-gt">' + (gr.length ? 'Bez grupy' : 'Uczniowie') + '</div>' + noGroup.map(item).join('');
+      var tk = document.getElementById('plTk'), btn = document.getElementById('plTkBtn'), panel = document.getElementById('plTkPanel');
+      panel.innerHTML = html;
       document.getElementById('plTeacher').hidden = false;
-      sel.addEventListener('change', function(){
-        var id = sel.value, who = st.filter(function(x){ return x.id === id; })[0];
+      var mark = function(id){
+        [].forEach.call(panel.querySelectorAll('.pl-tk-item'), function(el){ el.classList.toggle('pl-act', el.getAttribute('data-id') === (id || '')); });
+        var who = st.filter(function(x){ return x.id === id; })[0];
+        document.getElementById('plTkLabel').textContent = who ? nm(who) : 'Mój widok';
+      };
+      var close = function(){ tk.classList.remove('pl-open'); btn.setAttribute('aria-expanded', 'false'); };
+      btn.addEventListener('click', function(e){
+        e.stopPropagation();
+        var open = tk.classList.toggle('pl-open'); btn.setAttribute('aria-expanded', open ? 'true' : 'false');
+      });
+      document.addEventListener('click', function(e){ if(!tk.contains(e.target)) close(); });
+      document.addEventListener('keydown', function(e){ if(e.key === 'Escape') close(); });
+      panel.addEventListener('click', function(e){
+        var it = e.target.closest('.pl-tk-item'); if(!it) return;
+        var id = it.getAttribute('data-id'), who = st.filter(function(x){ return x.id === id; })[0];
+        mark(id); close();
         setView(session, who ? { id: who.id, name: nm(who) } : null);
       });
+      mark('');
       var saved = null;
       try{ saved = JSON.parse(sessionStorage.getItem('egSvViewing') || 'null'); }catch(e){}
       if(saved && saved.id && st.some(function(x){ return x.id === saved.id; })){
-        sel.value = saved.id;
+        mark(saved.id);
         setView(session, { id: saved.id, name: saved.name || '' });
       }
     }).catch(function(){});
