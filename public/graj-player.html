@@ -1848,6 +1848,7 @@
     'Strona główna': 'Home',
     'Inne ćwiczenia': 'Other exercises',
     'Wróć do matury': 'Back to Matura',
+    'Wróć do planu': 'Back to my plan',
     'Matura podstawowa': 'Matura, basic level',
     'Matura rozszerzona': 'Matura, extended level',
     'Pełny ekran': 'Fullscreen',
@@ -2416,6 +2417,20 @@ async function markCompleted(score, scoreMax, answers){
         if(a.getAttribute('data-i18n')){ a.setAttribute('data-i18n', 'Wróć do matury'); a.textContent = t('Wróć do matury'); }
       });
     }
+    // Ćwiczenie otwarte z planu nauki (adres strony ma ?plan=a1…c1): przyciski powrotu na końcu
+    // prowadzą z powrotem do tego planu, a nie na stronę główną. Logo zostaje linkiem do strony głównej.
+    try{
+      var fromPlan = new URLSearchParams(window.top.location.search).get('plan');
+      fromPlan = fromPlan ? fromPlan.toLowerCase() : '';
+      if(['a1','a2','b1','b2','c1'].indexOf(fromPlan) !== -1){
+        document.querySelectorAll('a[target="_top"]:not(#grajHome)').forEach(function(a){
+          var h = a.getAttribute('href');
+          if(h !== '/' && h !== '/matura') return;
+          a.setAttribute('href', '/plan?poziom=' + fromPlan + '#plan');
+          if(a.getAttribute('data-i18n')){ a.setAttribute('data-i18n', 'Wróć do planu'); a.textContent = t('Wróć do planu'); }
+        });
+      }
+    }catch(e){}
     SLIDES = (GAME.slides || []).map(s => ({
       word: s.word,
       syn: s.syn || '',
