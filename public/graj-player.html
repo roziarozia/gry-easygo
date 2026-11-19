@@ -308,6 +308,8 @@
     width:100%;
   }
   .locked-ic{ color:var(--magenta); }
+  .locked-link{ font-family:'Quicksand',sans-serif; font-weight:700; font-size:14px; color:var(--magenta); text-decoration:underline; text-underline-offset:3px; }
+  #cover.has-image .locked-link{ color:#fff; text-shadow:0 1px 4px rgba(0,0,0,.4); }
   .locked-text{
     font-family:'Quicksand',sans-serif;
     font-weight:600;
@@ -1849,6 +1851,9 @@
     'Inne ćwiczenia': 'Other exercises',
     'Wróć do matury': 'Back to Matura',
     'Wróć do planu': 'Back to my plan',
+    'Załóż darmowe konto': 'Create a free account',
+    'Zobacz, co daje subskrypcja': 'See what the subscription includes',
+    'To ćwiczenie jest częścią subskrypcji. Załóż darmowe konto, a przez 14 dni masz dostęp do wszystkich ćwiczeń, bez podawania karty.': 'This exercise is part of the subscription. Create a free account and get 14 days of access to all exercises, no card required.',
     'Matura podstawowa': 'Matura, basic level',
     'Matura rozszerzona': 'Matura, extended level',
     'Pełny ekran': 'Fullscreen',
@@ -2017,10 +2022,11 @@
         <div id="coverLocked" class="hidden">
           <div class="locked-box">
             <svg class="locked-ic" viewBox="0 0 24 24" width="30" height="30" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="11" width="16" height="9" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>
-            <span class="locked-text">To zadanie jest dla subskrybentów. Wykup dostęp, aby odblokować wszystkie ćwiczenia, albo zaloguj się, jeśli masz już subskrypcję.</span>
+            <span class="locked-text" id="lockedText">To zadanie jest dla subskrybentów. Wykup dostęp, aby odblokować wszystkie ćwiczenia, albo zaloguj się, jeśli masz już subskrypcję.</span>
             <div class="locked-btns">
               <a class="btn" id="lockedOfferBtn" href="/oferta" target="_top" data-i18n="Wykup dostęp">Wykup dostęp</a>
               <a class="btn btn-secondary" id="lockedLoginBtn" href="/logowanie" target="_top" data-i18n="Zaloguj się">Zaloguj się</a>
+              <a class="locked-link hidden" id="lockedMoreLink" href="/oferta" target="_top" data-i18n="Zobacz, co daje subskrypcja">Zobacz, co daje subskrypcja</a>
             </div>
           </div>
         </div>
@@ -2371,6 +2377,7 @@ async function markCompleted(score, scoreMax, answers){
     if(_db){
       try { const r = await _db.auth.getSession(); session = r.data.session; } catch(e){}
     }
+    window.EG_HAS_SESSION = !!session;
     if(session){
       // sprawdź rolę — podgląd dla lektora tylko dla roli 'teacher'
       try {
@@ -2520,6 +2527,20 @@ async function markCompleted(score, scoreMax, answers){
       document.getElementById('coverGap').classList.add('hidden');
       document.getElementById('coverSpeak').classList.add('hidden');
       document.getElementById('coverLocked').classList.remove('hidden');
+      // Gość bez konta: zamiast „Wykup dostęp” proponujemy darmowe konto (14 dni pełnego dostępu)
+      // i po rejestracji/logowaniu wracamy prosto do tego ćwiczenia. Zalogowany bez subskrypcji
+      // widzi dotychczasowy tekst i „Wykup dostęp”.
+      if(!window.EG_HAS_SESSION){
+        var wroc = encodeURIComponent('/cwiczenie/' + (GAME.slug || ''));
+        var lt = document.getElementById('lockedText');
+        if(lt) lt.textContent = t('To ćwiczenie jest częścią subskrypcji. Załóż darmowe konto, a przez 14 dni masz dostęp do wszystkich ćwiczeń, bez podawania karty.');
+        var ob = document.getElementById('lockedOfferBtn');
+        if(ob){ ob.href = '/logowanie?rejestracja&powrot=' + wroc; ob.setAttribute('data-i18n', 'Załóż darmowe konto'); ob.textContent = t('Załóż darmowe konto'); }
+        var lb = document.getElementById('lockedLoginBtn');
+        if(lb) lb.href = '/logowanie?powrot=' + wroc;
+        var ml = document.getElementById('lockedMoreLink');
+        if(ml) ml.classList.remove('hidden');
+      }
     }else{
     // Quiz ma inny wybór trybu na okładce
     if(GAME.template === 'quiz'){
