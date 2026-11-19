@@ -48,7 +48,7 @@ export default function Logowanie() {
               if (oauthFlow === 'signup') gaEvent('sign_up', { method: 'google' });
             }
           } catch (err) {}
-          window.location.href = REDIRECT_AFTER;
+          window.location.href = exercisePath(new URLSearchParams(window.location.search || '').get('powrot')) || REDIRECT_AFTER;
         }
         // jeśli już zalogowany — przekieruj od razu
         sbRef.current.auth.getSession().then(function (r) {
@@ -75,6 +75,9 @@ export default function Logowanie() {
     const rola = params.get('rola');
     if (rola === 'lektor') setRole('teacher');
     if (rola === 'uczen') setRole('student');
+    if (exercisePath(params.get('powrot')) && qs.indexOf('rejestracja') !== -1) {
+      setOffer({ title: 'Zakładasz darmowe konto.', text: 'Od razu dostaniesz 14 dni pełnego dostępu do wszystkich ćwiczeń, bez podawania karty.' });
+    }
     if (params.get('powrot') === 'oferta') {
       setMode('signup');
       setOffer(rola === 'lektor'
@@ -83,8 +86,16 @@ export default function Logowanie() {
     }
   }, []);
 
+  // Powrót do konkretnego ćwiczenia (z kłódki w ćwiczeniu). Tylko adresy /cwiczenie/nazwa,
+  // żeby link logowania nie mógł przekierować nigdzie indziej.
+  function exercisePath(p) {
+    return p && /^\/cwiczenie\/[a-z0-9-]+$/.test(p) ? p : '';
+  }
+
   function backTarget() {
     const params = new URLSearchParams(window.location.search || '');
+    const ex = exercisePath(params.get('powrot'));
+    if (ex) return ex;
     if (params.get('powrot') === 'matura') return '/matura';
     return params.get('powrot') === 'oferta' ? '/oferta' : REDIRECT_AFTER;
   }
