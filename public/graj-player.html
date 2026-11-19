@@ -359,6 +359,13 @@
     display:block;
   }
   #cover.has-image .btn{box-shadow:0 8px 22px rgba(0,0,0,.28);}
+  /* Kłódka na okładce z obrazkiem: przyciemniamy całą okładkę i dajemy tekstowi ciemne tło,
+     żeby był czytelny bez względu na to, co jest na grafice. */
+  #cover.has-image.is-locked #coverImgWrap::after{ content:''; position:absolute; inset:0; z-index:1; background:rgba(24,18,32,.55); }
+  #cover.has-image.is-locked .cover-actions{ background:none; }
+  #cover.has-image .locked-box{ background:rgba(24,18,32,.78); -webkit-backdrop-filter:blur(6px); backdrop-filter:blur(6px); border-radius:20px; padding:20px 22px 18px; max-width:400px; margin:0 auto; box-sizing:border-box; }
+  #cover.has-image .locked-text{ text-shadow:none; }
+  #coverLocked a.btn{ text-decoration:none; }
   /* mniejsze przyciski na okładce, żeby mniej zasłaniały grafikę */
   .cover-actions .btn{
     font-size:14px;
@@ -2527,6 +2534,7 @@ async function markCompleted(score, scoreMax, answers){
       document.getElementById('coverGap').classList.add('hidden');
       document.getElementById('coverSpeak').classList.add('hidden');
       document.getElementById('coverLocked').classList.remove('hidden');
+      document.getElementById('cover').classList.add('is-locked');
       // Gość bez konta: zamiast „Wykup dostęp” proponujemy darmowe konto (14 dni pełnego dostępu)
       // i po rejestracji/logowaniu wracamy prosto do tego ćwiczenia. Zalogowany bez subskrypcji
       // widzi dotychczasowy tekst i „Wykup dostęp”.
