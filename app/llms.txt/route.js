@@ -50,7 +50,7 @@ export async function GET() {
   out.push(`- [Katalog ćwiczeń](${SITE}/): wszystkie ćwiczenia z filtrami poziomu (A1–C1) i rodzaju (gramatyka, słownictwo, czytanki, słuchanie, konwersacje)`);
   out.push(`- [Nauka – artykuły](${SITE}/nauka): wyjaśnienia gramatyki i słownictwa po polsku, z przykładami i tabelami`);
   out.push(`- [Mój plan nauki](${SITE}/plan): gotowe plany nauki lekcja po lekcji na poziomach od A1 do C1 (teoria z bloga, potem ćwiczenia od łatwiejszych do trudniejszych, z odhaczaniem postępów); plany rosną razem z nowymi materiałami i mają lekcje sezonowe`);
-  out.push(`- [Oferta](${SITE}/oferta): plany dla uczniów i lektorów`);
+  out.push(`- [Oferta](${SITE}/oferta): subskrypcja dla uczniów i konta dla lektorów (prace domowe, postępy uczniów)`);
   if (matura.length) out.push(`- [Matura z angielskiego](${SITE}/matura): ćwiczenia wzorowane na arkuszach maturalnych (Listening, Reading, Use of English, Writing, matura ustna) na poziomie podstawowym i rozszerzonym, z poleceniami jak na maturze`);
   out.push(`- [Opinie](${SITE}/opinie): opinie użytkowników`);
   out.push('');
