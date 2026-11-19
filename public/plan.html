@@ -146,6 +146,12 @@
   .pl-login{ font-size:13.5px; color:#5c5340; margin:12px 0 0; }
   .pl-login a{ color:var(--magenta); font-weight:700; }
 
+  .pl-teacher{ display:flex; flex-wrap:wrap; align-items:center; gap:10px 14px; border:2px solid var(--line); border-radius:16px; padding:12px 16px; margin:12px 0 0; background:var(--card); }
+  .pl-teacher label{ font-weight:700; font-size:15px; color:var(--ink); }
+  .pl-teacher select{ font:inherit; font-size:15px; padding:8px 12px; border-radius:12px; border:2px solid var(--line); background:var(--card); color:var(--ink); max-width:100%; }
+  .pl-teacher-note{ flex-basis:100%; margin:0; font-size:14px; color:var(--muted); }
+  .pl-teacher-note a{ color:var(--magenta); font-weight:700; }
+  .pl-teacher.pl-on{ border-color:var(--magenta); }
   .pl-new{ display:flex; align-items:center; justify-content:space-between; gap:14px; background:#efe9fa; border-radius:16px; padding:14px 18px; margin:0 0 14px; }
   .pl-new[hidden]{ display:none; }
   .pl-new p{ margin:0; font-weight:600; font-size:15px; color:#3d3355; }
@@ -404,6 +410,11 @@ window.ewImgFallback = function(img){
   </section>
 
   <div id="plMain" hidden>
+  <section class="pl-teacher" id="plTeacher" hidden>
+    <label for="plStudent">Postępy ucznia:</label>
+    <select id="plStudent"><option value="">Mój widok</option></select>
+    <p class="pl-teacher-note" id="plTeacherNote" hidden></p>
+  </section>
   <section class="pl-progress" id="plProgress" aria-live="polite">
     <div class="pl-prog-top">
       <div>
@@ -545,6 +556,7 @@ window.ewImgFallback = function(img){
   var DATA = null;       // { lessons:[{...,steps:[...]}] }
   var DONE = {};         // slug ćwiczenia -> data ukończenia
   var LOGGED = false;
+  var VIEW = null;       // lektor podgląda postępy ucznia: { id, name, read, plan }
 
   function readArticles(){ return lsGet('ew_read_articles', {}); }
 
@@ -595,7 +607,7 @@ window.ewImgFallback = function(img){
   function loadDone(session){
     DONE = {}; LOGGED = !!session;
     if(!session || !sb) return Promise.resolve();
-    return sb.from('game_completions').select('game_slug, completed_at').eq('user_id', session.user.id)
+    return sb.from('game_completions').select('game_slug, completed_at').eq('user_id', VIEW ? VIEW.id : session.user.id)
       .then(function(r){
         (r && r.data || []).forEach(function(c){
           if(!DONE[c.game_slug] || c.completed_at < DONE[c.game_slug]) DONE[c.game_slug] = c.completed_at || '1970-01-01';
@@ -610,7 +622,7 @@ window.ewImgFallback = function(img){
 
   function render(){
     if(!DATA) return;
-    var read = readArticles();
+    var read = VIEW ? VIEW.read : readArticles();
     var lessons = DATA.lessons;
     // Punkt odniesienia dla „Nowe”: pierwsza wizyta w planie na tym urządzeniu.
     // Wszystko, co dodasz do planu później, dostaje znaczek „Nowe”, dopóki uczeń tego nie zrobi.
@@ -737,6 +749,7 @@ window.ewImgFallback = function(img){
     var b = e.target.closest('[data-read]');
     if(!b) return;
     e.preventDefault();
+    if(VIEW) return; // w podglądzie ucznia lektor nie odhacza za ucznia
     var slug = b.getAttribute('data-read'), r = readArticles();
     if(r[slug]) delete r[slug]; else r[slug] = new Date().toISOString();
     lsSet('ew_read_articles', r);
@@ -779,7 +792,67 @@ window.ewImgFallback = function(img){
       document.getElementById('plTeaser').hidden = true;
       document.getElementById('plMain').hidden = false;
       render();
+      initTeacher(session);
     });
+  }
+
+  // ===== LEKTOR: podgląd postępów ucznia w planie =====
+  // Wybór ucznia jest wspólny z teczką w katalogu (sessionStorage egSvViewing).
+  var TEACHER_INIT = false;
+  function initTeacher(session){
+    if(TEACHER_INIT || !session || !sb) return;
+    TEACHER_INIT = true;
+    Promise.all([
+      sb.from('profiles').select('id, student_name, email, group_id').eq('teacher_id', session.user.id),
+      sb.from('student_groups').select('id, name').eq('teacher_id', session.user.id)
+    ]).then(function(res){
+      var st = (res[0] && res[0].data) || [], gr = (res[1] && res[1].data) || [];
+      if(!st.length) return;
+      var nm = function(x){ return x.student_name || x.email || 'Uczeń'; };
+      st.sort(function(a, b){ return nm(a).localeCompare(nm(b), 'pl'); });
+      gr.sort(function(a, b){ return a.name.localeCompare(b.name, 'pl'); });
+      var opt = function(x){ return '<option value="' + esc(x.id) + '">' + esc(nm(x)) + '</option>'; };
+      var html = '<option value="">Mój widok</option>';
+      gr.forEach(function(g){
+        var m = st.filter(function(x){ return x.group_id === g.id; });
+        if(m.length) html += '<optgroup label="' + esc(g.name) + '">' + m.map(opt).join('') + '</optgroup>';
+      });
+      var noGroup = st.filter(function(x){ return !x.group_id || !gr.some(function(g){ return g.id === x.group_id; }); });
+      if(noGroup.length) html += (gr.length ? '<optgroup label="Bez grupy">' + noGroup.map(opt).join('') + '</optgroup>' : noGroup.map(opt).join(''));
+      var sel = document.getElementById('plStudent');
+      sel.innerHTML = html;
+      document.getElementById('plTeacher').hidden = false;
+      sel.addEventListener('change', function(){
+        var id = sel.value, who = st.filter(function(x){ return x.id === id; })[0];
+        setView(session, who ? { id: who.id, name: nm(who) } : null);
+      });
+      var saved = null;
+      try{ saved = JSON.parse(sessionStorage.getItem('egSvViewing') || 'null'); }catch(e){}
+      if(saved && saved.id && st.some(function(x){ return x.id === saved.id; })){
+        sel.value = saved.id;
+        setView(session, { id: saved.id, name: saved.name || '' });
+      }
+    }).catch(function(){});
+  }
+  function setView(session, who){
+    var box = document.getElementById('plTeacher'), note = document.getElementById('plTeacherNote');
+    if(!who){
+      VIEW = null;
+      try{ sessionStorage.removeItem('egSvViewing'); }catch(e){}
+      box.classList.remove('pl-on'); note.hidden = true;
+      loadDone(session).then(render);
+      return;
+    }
+    try{ sessionStorage.setItem('egSvViewing', JSON.stringify({ id: who.id, name: who.name })); }catch(e){}
+    sb.rpc('teacher_student_plan_info', { p_student: who.id }).then(function(r){
+      var info = (r && r.data) || {};
+      VIEW = { id: who.id, name: who.name, read: info.read || {}, plan: info.plan || null };
+      box.classList.add('pl-on');
+      var txt = 'Widzisz postępy: <b>' + esc(who.name) + '</b>. Ćwiczenia odhaczają się po zrobieniu, artykuły – gdy zostaną oznaczone jako przeczytane.';
+      if(VIEW.plan && PLANS[VIEW.plan] && VIEW.plan !== PLAN) txt += ' Ta osoba wybrała plan ' + VIEW.plan.toUpperCase() + ': <a href="/plan?poziom=' + VIEW.plan + '#plan">przejdź do planu ' + VIEW.plan.toUpperCase() + '</a>.';
+      note.innerHTML = txt; note.hidden = false;
+      return loadDone(session);
+    }).then(render, function(){ alert('Nie udało się wczytać postępów ucznia. Spróbuj ponownie.'); });
   }
 
   // ===== TRYB EDYCJI PLANU (tylko admin; baza i tak sprawdza uprawnienia) =====
