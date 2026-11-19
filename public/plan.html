@@ -146,7 +146,8 @@
   .pl-login{ font-size:13.5px; color:#5c5340; margin:12px 0 0; }
   .pl-login a{ color:var(--magenta); font-weight:700; }
 
-  .pl-teacher{ display:flex; flex-wrap:wrap; align-items:center; gap:10px 14px; border:2px solid var(--line); border-radius:16px; padding:12px 16px; margin:12px 0 0; background:var(--card); }
+  .pl-teacher{ display:flex; flex-wrap:wrap; align-items:center; justify-content:center; gap:10px 14px; border:2px solid var(--line); border-radius:16px; padding:12px 16px; margin:18px 0 0; background:var(--card); text-align:center; }
+  .pl-teacher[hidden]{ display:none; }
   .pl-teacher label{ font-weight:700; font-size:15px; color:var(--ink); }
   .pl-teacher select{ font:inherit; font-size:15px; padding:8px 12px; border-radius:12px; border:2px solid var(--line); background:var(--card); color:var(--ink); max-width:100%; }
   .pl-teacher-note{ flex-basis:100%; margin:0; font-size:14px; color:var(--muted); }
@@ -378,6 +379,11 @@ window.ewImgFallback = function(img){
       <a class="pl-tile" role="listitem" data-plan="b2" href="/plan?poziom=b2#plan"><b>B2</b><span>Mówię swobodnie</span><small data-count="b2">&nbsp;</small><em>Otwórz</em></a>
       <a class="pl-tile" role="listitem" data-plan="c1" href="/plan?poziom=c1#plan"><b>C1</b><span>Szlifuję angielski</span><small data-count="c1">&nbsp;</small><em>Otwórz</em></a>
     </div>
+    <section class="pl-teacher" id="plTeacher" hidden>
+      <label for="plStudent">Postępy ucznia:</label>
+      <select id="plStudent"><option value="">Mój widok</option></select>
+      <p class="pl-teacher-note" id="plTeacherNote" hidden></p>
+    </section>
   </header>
 
   <div class="pl-chosen" id="plan" hidden>
@@ -410,11 +416,6 @@ window.ewImgFallback = function(img){
   </section>
 
   <div id="plMain" hidden>
-  <section class="pl-teacher" id="plTeacher" hidden>
-    <label for="plStudent">Postępy ucznia:</label>
-    <select id="plStudent"><option value="">Mój widok</option></select>
-    <p class="pl-teacher-note" id="plTeacherNote" hidden></p>
-  </section>
   <section class="pl-progress" id="plProgress" aria-live="polite">
     <div class="pl-prog-top">
       <div>
@@ -1064,6 +1065,7 @@ window.ewImgFallback = function(img){
     var uid = session ? session.user.id : null;
     if(uid === lastUid) return;
     lastUid = uid;
+    if(session) initTeacher(session);
     if(!PLAN){
       document.getElementById('plWait').hidden = true;
       if(session) sb.rpc('is_admin').then(function(r){ if(r && r.data === true) showAdmin(); });
