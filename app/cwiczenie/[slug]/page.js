@@ -70,7 +70,27 @@ async function getArticleForGame(game) {
     const { data } = await supabase.from('articles').select(cols)
       .eq('exercise_slug', game.slug).eq('published', true)
       .order('sort_order', { ascending: false }).limit(1);
-    return (data && data[0]) || null;
+    if (data && data[0]) return data[0];
+    // Inne części tej samej serii: jeśli któraś ma artykuł, pasuje też do tej części.
+    if (game.series) {
+      const { data: sib } = await supabase.from('games').select('slug,article_slug')
+        .eq('series', game.series).eq('published', true).neq('slug', game.slug);
+      const list = sib || [];
+      const artSlug = (list.find((g) => g.article_slug && g.article_slug !== '-') || {}).article_slug;
+      if (artSlug) {
+        const { data: a } = await supabase.from('articles').select(cols)
+          .eq('slug', artSlug).eq('published', true).maybeSingle();
+        if (a) return a;
+      }
+      const slugs = list.map((g) => g.slug);
+      if (slugs.length) {
+        const { data: a2 } = await supabase.from('articles').select(cols)
+          .in('exercise_slug', slugs).eq('published', true)
+          .order('sort_order', { ascending: false }).limit(1);
+        if (a2 && a2[0]) return a2[0];
+      }
+    }
+    return null;
   } catch (e) { return null; }
 }
 
@@ -112,6 +132,8 @@ function thumb(url, w) {
 
 const RAIL_CSS = `
 .ex-layout{ max-width:1120px; margin:0 auto; }
+/* ramka z ćwiczeniem zawsze na całą szerokość swojej kolumny (bez tego w siatce kurczyła się do wąskiego paska) */
+.ex-layout > div:first-child{ width:100%; min-width:0; }
 .ex-rail, .ex-theory{ display:none; }
 .ex-theory{ max-width:1088px; margin:14px auto 0; padding:0 16px; }
 .ex-theory a{ display:flex; align-items:center; gap:10px; text-decoration:none; background:#f6f1ae; color:#2e2a33; border-radius:14px; padding:10px 14px; font-family:'Outfit','Nunito',sans-serif; font-size:14px; line-height:1.35; }
