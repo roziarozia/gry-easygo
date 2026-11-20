@@ -789,6 +789,10 @@
   html:fullscreen #grajHome svg{ width:19px; height:19px; }
   html:fullscreen #grajLang{ font-size:16px !important; padding:9px 16px !important; }
   html:fullscreen #grajTheme{ font-size:19px !important; padding:9px 14px !important; }
+  /* Pełny ekran: karta sięga pod przyciski PL / motyw w prawym górnym rogu,
+     więc licznik slajdów (np. „3 / 15”) przesuwamy niżej, żeby nie był zasłonięty */
+  html:fullscreen .q-progress,
+  html:fullscreen .progress{ top:66px; }
   html:fullscreen .bottom-bar a,
   html:fullscreen .bottom-bar button{ font-size:17px; padding:12px 26px; }
   html:fullscreen .bottom-bar{ padding-bottom:30px; gap:16px; }
