@@ -580,7 +580,27 @@ window.ewImgFallback = function(img){
   var DATA = null;       // { lessons:[{...,steps:[...]}] }
   var DONE = {};         // slug ćwiczenia -> data ukończenia
   var LOGGED = false;
-  var VIEW = null;       // lektor podgląda postępy ucznia: { id, name, read, plan }
+  var VIEW = null;
+  // Uczeń lektora, któremu lektor nie włączył Speakingu, nie widzi w planie ćwiczeń na mówienie
+  // (tak samo jak w katalogu). Lektor w podglądzie ucznia widzi plan dokładnie tak jak ten uczeń.
+  var NOSPEAK = false, ALL_LIVE = null;
+  function applySpeak(){
+    if(!ALL_LIVE) return;
+    var hide = VIEW ? !!VIEW.nospeak : NOSPEAK;
+    DATA = { lessons: ALL_LIVE.map(function(l){
+      var c = {}; for(var k in l) c[k] = l[k];
+      c.steps = hide ? l.steps.filter(function(s){ return !s.speaking; }) : l.steps;
+      return c;
+    }).filter(function(l){ return EDIT || l.steps.length; }) };
+  }
+  function speakCheck(session){
+    if(!session || !sb) return Promise.resolve();
+    return sb.from('profiles').select('role,access_source,speaking_enabled').eq('id', session.user.id).maybeSingle()
+      .then(function(r){
+        var p = r && r.data;
+        NOSPEAK = !!(p && p.role !== 'teacher' && p.access_source === 'teacher' && !p.speaking_enabled);
+      }, function(){});
+  }       // lektor podgląda postępy ucznia: { id, name, read, plan }
 
   function readArticles(){ return lsGet('ew_read_articles', {}); }
 
@@ -601,7 +621,7 @@ window.ewImgFallback = function(img){
       var exSlugs = steps.filter(function(s){ return s.kind === 'exercise' && byId[s.lesson_id]; }).map(function(s){ return s.slug; });
       var arSlugs = steps.filter(function(s){ return s.kind === 'article' && byId[s.lesson_id]; }).map(function(s){ return s.slug; });
       return Promise.all([
-        exSlugs.length ? rest('games?published=eq.true&slug=in.(' + exSlugs.map(encodeURIComponent).join(',') + ')&select=slug,title,cover_url,is_premium') : [],
+        exSlugs.length ? rest('games?published=eq.true&slug=in.(' + exSlugs.map(encodeURIComponent).join(',') + ')&select=slug,title,cover_url,is_premium,template') : [],
         arSlugs.length ? rest('articles?published=eq.true&slug=in.(' + arSlugs.map(encodeURIComponent).join(',') + ')&select=slug,title,cover_url') : []
       ]).then(function(m){
         var g = {}, a = {};
@@ -613,6 +633,7 @@ window.ewImgFallback = function(img){
             var src = s.kind === 'exercise' ? g[s.slug] : a[s.slug];
             if(!src) return false;
             s.title = s.label || src.title; s.premium = !!src.is_premium; s.cover = src.cover_url || null;
+            s.speaking = s.kind === 'exercise' && src.template === 'speaking';
             return true;
           });
         });
@@ -623,7 +644,8 @@ window.ewImgFallback = function(img){
         // sezonowe w kolejności roku szkolnego: wrzesień, październik … sierpień
         var seasonKey = function(l){ return l.months ? Math.min.apply(null, l.months.map(function(m){ return (m + 3) % 12; })) : 99; };
         live.sort(function(a, b){ return (b.seasonal - a.seasonal) || (seasonKey(a) - seasonKey(b)) || (a.position - b.position); });
-        DATA = { lessons: live };
+        ALL_LIVE = live;
+        applySpeak();
       });
     });
   }
@@ -810,7 +832,7 @@ window.ewImgFallback = function(img){
     document.getElementById('plTeaser').hidden = false;
   }
   function showPlan(session){
-    load().then(function(){ return loadDone(session); }).then(function(){
+    speakCheck(session).then(load).then(function(){ applySpeak(); return loadDone(session); }).then(function(){
       if(!DATA || !DATA.lessons.length){ showTeaser('member'); return; }
       document.getElementById('plWait').hidden = true;
       document.getElementById('plTeaser').hidden = true;
@@ -827,12 +849,13 @@ window.ewImgFallback = function(img){
     if(TEACHER_INIT || !session || !sb) return;
     TEACHER_INIT = true;
     Promise.all([
-      sb.from('profiles').select('id, student_name, email, group_id').eq('teacher_id', session.user.id),
+      sb.from('profiles').select('id, student_name, email, group_id, role, access_source, speaking_enabled').eq('teacher_id', session.user.id),
       sb.from('student_groups').select('id, name').eq('teacher_id', session.user.id)
     ]).then(function(res){
       var st = (res[0] && res[0].data) || [], gr = (res[1] && res[1].data) || [];
       if(!st.length) return;
       var nm = function(x){ return x.student_name || x.email || 'Uczeń'; };
+      var nsp = function(x){ return !!(x && x.role !== 'teacher' && x.access_source === 'teacher' && !x.speaking_enabled); };
       st.sort(function(a, b){ return nm(a).localeCompare(nm(b), 'pl'); });
       gr.sort(function(a, b){ return a.name.localeCompare(b.name, 'pl'); });
       var ini = function(n){ var p = String(n).trim().split(/\s+/); return ((p[0] || '?')[0] + (p[1] ? p[1][0] : (p[0][1] || ''))).toUpperCase(); };
@@ -863,14 +886,15 @@ window.ewImgFallback = function(img){
         var it = e.target.closest('.pl-tk-item'); if(!it) return;
         var id = it.getAttribute('data-id'), who = st.filter(function(x){ return x.id === id; })[0];
         mark(id); close();
-        setView(session, who ? { id: who.id, name: nm(who) } : null);
+        setView(session, who ? { id: who.id, name: nm(who), nospeak: nsp(who) } : null);
       });
       mark('');
       var saved = null;
       try{ saved = JSON.parse(sessionStorage.getItem('egSvViewing') || 'null'); }catch(e){}
       if(saved && saved.id && st.some(function(x){ return x.id === saved.id; })){
         mark(saved.id);
-        setView(session, { id: saved.id, name: saved.name || '' });
+        var sw = st.filter(function(x){ return x.id === saved.id; })[0];
+        setView(session, { id: saved.id, name: saved.name || '', nospeak: nsp(sw) });
       }
     }).catch(function(){});
   }
@@ -878,6 +902,7 @@ window.ewImgFallback = function(img){
     var box = document.getElementById('plTeacher'), note = document.getElementById('plTeacherNote');
     if(!who){
       VIEW = null;
+      applySpeak();
       try{ sessionStorage.removeItem('egSvViewing'); }catch(e){}
       box.classList.remove('pl-on'); note.hidden = true;
       loadDone(session).then(render);
@@ -886,7 +911,8 @@ window.ewImgFallback = function(img){
     try{ sessionStorage.setItem('egSvViewing', JSON.stringify({ id: who.id, name: who.name })); }catch(e){}
     sb.rpc('teacher_student_plan_info', { p_student: who.id }).then(function(r){
       var info = (r && r.data) || {};
-      VIEW = { id: who.id, name: who.name, read: info.read || {}, plan: info.plan || null };
+      VIEW = { id: who.id, name: who.name, read: info.read || {}, plan: info.plan || null, nospeak: !!who.nospeak };
+      applySpeak();
       box.classList.add('pl-on');
       var txt = 'Widzisz postępy: <b>' + esc(who.name) + '</b>. Ćwiczenia odhaczają się po zrobieniu, artykuły – gdy zostaną oznaczone jako przeczytane.';
       if(VIEW.plan && PLANS[VIEW.plan] && VIEW.plan !== PLAN) txt += ' Ta osoba wybrała plan ' + VIEW.plan.toUpperCase() + ': <a href="/plan?poziom=' + VIEW.plan + '#plan">przejdź do planu ' + VIEW.plan.toUpperCase() + '</a>.';
