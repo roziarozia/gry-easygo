@@ -155,6 +155,12 @@ export default function CatalogEmbed() {
       if (e.data && e.data.egScrollTop && ref.current) {
         ref.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
       }
+      // katalog prosi o przewinięcie do miejsca w środku (np. "Jak to działa", filtry):
+      // egScrollY = pozycja elementu liczona od góry katalogu
+      if (e.data && typeof e.data.egScrollY === 'number' && ref.current) {
+        const top = ref.current.getBoundingClientRect().top + window.scrollY + e.data.egScrollY - 80;
+        window.scrollTo({ top: Math.max(0, top), behavior: 'smooth' });
+      }
     }
     window.addEventListener('message', onMsg);
     return () => window.removeEventListener('message', onMsg);
