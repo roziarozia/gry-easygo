@@ -1798,6 +1798,22 @@
     .eg-fs-title{ font-size:24px; }
     .eg-fs-card{ flex-basis:62%; min-width:0; }
   }
+
+  /* === Plany nauki na głównej === */
+  .eg-pl{ max-width:1100px; margin:30px auto 10px; padding:0 4px; }
+  .eg-pl-tiles{ display:grid; grid-template-columns:repeat(5,1fr); gap:14px; }
+  .eg-pl-tile{ display:flex; flex-direction:column; align-items:center; text-align:center; border:1.5px solid #f0e6ee; border-radius:20px; padding:20px 10px 18px; background:#fff; color:#2e2a33 !important; text-decoration:none !important; box-shadow:0 6px 18px rgba(46,42,51,.06); transition:transform .16s, border-color .16s; }
+  .eg-pl-tile:hover{ transform:translateY(-3px); border-color:var(--eg-magenta); }
+  .eg-pl-tile b{ font-family:'Quicksand',sans-serif; font-weight:800; font-size:34px; color:var(--eg-magenta); line-height:1; }
+  .eg-pl-tile span{ font-family:'Quicksand',sans-serif; font-weight:700; font-size:14.5px; margin-top:8px; line-height:1.25; }
+  .eg-pl-tile small{ font-size:12.5px; color:#8a8392; margin:4px 0 12px; }
+  .eg-pl-tile em{ margin-top:auto; font-style:normal; font-family:'Quicksand',sans-serif; font-size:12px; font-weight:800; letter-spacing:.04em; text-transform:uppercase; background:var(--eg-magenta); color:#fff; padding:5px 14px; border-radius:999px; }
+  .eg-pl-tile.eg-pl-mine{ background:#f6f1ae; border-color:#f6f1ae; }
+  html.eg-dark .eg-pl-tile{ background:#24263a; border-color:#363850; color:#e8e6ef !important; }
+  html.eg-dark .eg-pl-tile small{ color:#a29caf; }
+  html.eg-dark .eg-pl-tile.eg-pl-mine{ background:#34301c; border-color:#34301c; }
+  @media (max-width:760px){ .eg-pl-tiles{ grid-template-columns:repeat(3,1fr); gap:10px; } }
+  @media (max-width:440px){ .eg-pl-tiles{ grid-template-columns:repeat(2,1fr); } .eg-pl-tile:last-child{ grid-column:span 2; } .eg-pl-tile b{ font-size:30px; } }
 </style>
 
 <div class="eg-games">
@@ -1998,6 +2014,21 @@
           </div>
         </div>
         <p class="eg-how-text" data-i18n="Uczysz się w swoim tempie, kiedy tylko masz ochotę - rano z kawą czy wieczorem po pracy. Wybierasz poziom i temat, rozwiązujesz ćwiczenie, a od razu widzisz wynik i wyjaśnienie każdego błędu - bo najwięcej uczymy się właśnie na własnych pomyłkach. Nie musisz niczego drukować ani na nikogo czekać: wystarczy telefon, tablet lub komputer. Możesz śledzić własne postępy i wracać do zagadnień, które sprawiają Ci trudność, aż wejdą w krew - bo trening czyni mistrza!">Uczysz się w swoim tempie, kiedy tylko masz ochotę - rano z kawą czy wieczorem po pracy. Wybierasz poziom i temat, rozwiązujesz ćwiczenie, a od razu widzisz wynik i wyjaśnienie każdego błędu - bo najwięcej uczymy się właśnie na własnych pomyłkach. Nie musisz niczego drukować ani na nikogo czekać: wystarczy telefon, tablet lub komputer. Możesz śledzić własne postępy i wracać do zagadnień, które sprawiają Ci trudność, aż wejdą w krew - bo trening czyni mistrza!</p>
+      </div>
+    </div>
+    <!-- PLANY NAUKI: kafelki poziomów na stronie głównej (dla wszystkich) -->
+    <div class="eg-pl" id="egPl">
+      <div class="eg-fs-head">
+        <span class="eg-fs-kick" data-i18n="Plany nauki">Plany nauki</span>
+        <h2 class="eg-fs-title" data-i18n="Nie wiesz, od czego zacząć?">Nie wiesz, od czego zacząć?</h2>
+        <p class="eg-fs-sub" data-i18n="Wybierz swój poziom, a plan poprowadzi Cię lekcja po lekcji: krótka teoria, potem ćwiczenia od łatwiejszych do trudniejszych.">Wybierz swój poziom, a plan poprowadzi Cię lekcja po lekcji: krótka teoria, potem ćwiczenia od łatwiejszych do trudniejszych.</p>
+      </div>
+      <div class="eg-pl-tiles">
+        <a class="eg-pl-tile" data-plan="a1" href="/plan?poziom=a1#plan"><b>A1</b><span data-i18n="Zaczynam od zera">Zaczynam od zera</span><small data-plcount="a1">&nbsp;</small><em data-i18n="Otwórz plan">Otwórz plan</em></a>
+        <a class="eg-pl-tile" data-plan="a2" href="/plan?poziom=a2#plan"><b>A2</b><span data-i18n="Znam podstawy">Znam podstawy</span><small data-plcount="a2">&nbsp;</small><em data-i18n="Otwórz plan">Otwórz plan</em></a>
+        <a class="eg-pl-tile" data-plan="b1" href="/plan?poziom=b1#plan"><b>B1</b><span data-i18n="Dogaduję się">Dogaduję się</span><small data-plcount="b1">&nbsp;</small><em data-i18n="Otwórz plan">Otwórz plan</em></a>
+        <a class="eg-pl-tile" data-plan="b2" href="/plan?poziom=b2#plan"><b>B2</b><span data-i18n="Mówię swobodnie">Mówię swobodnie</span><small data-plcount="b2">&nbsp;</small><em data-i18n="Otwórz plan">Otwórz plan</em></a>
+        <a class="eg-pl-tile" data-plan="c1" href="/plan?poziom=c1#plan"><b>C1</b><span data-i18n="Szlifuję angielski">Szlifuję angielski</span><small data-plcount="c1">&nbsp;</small><em data-i18n="Otwórz plan">Otwórz plan</em></a>
       </div>
     </div>
     <!-- DARMOWE NA START: tylko dla niezalogowanych, wypełniane z listy ćwiczeń -->
@@ -3595,12 +3626,15 @@
   function goToPage(p){
     curPage = p;
     render();
-    // przewiń na górę katalogu, żeby nie trzeba było scrollować w górę ręcznie
+    // przewiń na początek listy ćwiczeń (nie na górę całej strony),
+    // żeby kolejna strona wyników była od razu przed oczami
     try{
+      var gEl = document.getElementById('egGrid');
+      var y = gEl ? Math.round(gEl.getBoundingClientRect().top + (window.scrollY || window.pageYOffset || 0)) : 0;
       if(window.parent && window.parent !== window){
-        window.parent.postMessage({ egScrollTop: true }, '*');
+        window.parent.postMessage({ egScrollTo: 'egGrid', egScrollY: y }, '*');
       } else {
-        window.scrollTo({ top: 0, behavior: 'smooth' });
+        window.scrollTo({ top: Math.max(0, y - 20), behavior: 'smooth' });
       }
     }catch(e){}
   }
@@ -4652,6 +4686,14 @@
     'Nie udało się wczytać gier. Odśwież stronę.': 'Couldn\u2019t load the exercises. Please refresh the page.',
     'Wykup dostęp': 'Get access',
     'Wypróbuj za darmo': 'Try for free',
+    'Nie wiesz, od czego zacząć?': 'Not sure where to start?',
+    'Wybierz swój poziom, a plan poprowadzi Cię lekcja po lekcji: krótka teoria, potem ćwiczenia od łatwiejszych do trudniejszych.': 'Pick your level and the plan will guide you lesson by lesson: a short theory first, then exercises from easier to harder.',
+    'Otwórz plan': 'Open plan',
+    'Zaczynam od zera': 'Starting from zero',
+    'Znam podstawy': 'I know the basics',
+    'Dogaduję się': 'I can get by',
+    'Mówię swobodnie': 'I speak fluently',
+    'Szlifuję angielski': 'Polishing my English',
     'Bez logowania': 'No login needed',
     'Spróbuj od razu, za darmo': 'Try it now, for free',
     'Te ćwiczenia otworzysz bez zakładania konta. Zobacz, jak działa EasyWonders.': 'Open these exercises without an account and see how EasyWonders works.',
@@ -5361,5 +5403,29 @@
       });
     }).catch(function(){});
   })();
+})();
+</script>
+
+<script>
+/* Plany nauki na stronie głównej: liczba lekcji + "Twój plan" (wybrany poziom z /plan) */
+(function(){
+  var box = document.getElementById('egPl'); if(!box) return;
+  function plural(n, one, few, many){ if(n === 1) return one; var d = n % 10, dd = n % 100; return (d >= 2 && d <= 4 && (dd < 12 || dd > 14)) ? few : many; }
+  var en = window.EG_LANG === 'en';
+  try{
+    var mine = JSON.parse(localStorage.getItem('ew_plan_level') || 'null');
+    if(mine){ var t = box.querySelector('[data-plan="' + mine + '"]'); if(t){ t.classList.add('eg-pl-mine'); var em = t.querySelector('em'); if(em){ em.removeAttribute('data-i18n'); em.textContent = en ? 'Your plan' : 'Twój plan'; } } }
+  }catch(e){}
+  try{
+    fetch('https://svjrdyxwqznbzxqeytdn.supabase.co/rest/v1/plan_lessons?select=plan,months', { headers:{ apikey:'sb_publishable_TNCq1UAMAvLO0Z5Mt8QOig_OvsxhhyJ', Authorization:'Bearer sb_publishable_TNCq1UAMAvLO0Z5Mt8QOig_OvsxhhyJ' } })
+      .then(function(r){ return r.ok ? r.json() : []; })
+      .then(function(ls){
+        var c = {}; (ls || []).forEach(function(l){ if(!l.months) c[l.plan] = (c[l.plan] || 0) + 1; });
+        [].forEach.call(box.querySelectorAll('[data-plcount]'), function(el){
+          var n = c[el.getAttribute('data-plcount')];
+          if(n) el.textContent = n + ' ' + (en ? (n === 1 ? 'lesson' : 'lessons') : plural(n, 'lekcja', 'lekcje', 'lekcji'));
+        });
+      }).catch(function(){});
+  }catch(e){}
 })();
 </script>
