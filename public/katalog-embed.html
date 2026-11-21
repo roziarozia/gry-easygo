@@ -1769,6 +1769,7 @@
   /* === Strona dla gości (XI 2026): zwinięte "Jak to działa" + pasek darmowych === */
   .eg-how-block{ display:none; }
   .eg-how-block.eg-open{ display:block; animation:egFsIn .3s ease; }
+  .eg-how-top{ margin-top:6px; margin-bottom:0; }
   @keyframes egFsIn{ from{ opacity:0; transform:translateY(-6px); } to{ opacity:1; transform:none; } }
   .eg-path.eg-path-on{ box-shadow:0 0 0 3px #f6f1ae, 0 10px 26px rgba(46,42,51,.12); }
   .eg-fs{ max-width:1100px; margin:26px auto 8px; padding:0 4px; }
@@ -1927,28 +1928,7 @@
         </button>
       </div>
     </div>
-    <!-- DARMOWE NA START: tylko dla niezalogowanych, wypełniane z listy ćwiczeń -->
-    <div class="eg-fs" id="egFs" hidden>
-      <div class="eg-fs-head">
-        <span class="eg-fs-kick" data-i18n="Bez logowania">Bez logowania</span>
-        <h2 class="eg-fs-title" data-i18n="Spróbuj od razu, za darmo">Spróbuj od razu, za darmo</h2>
-        <p class="eg-fs-sub" data-i18n="Te ćwiczenia otworzysz bez zakładania konta. Zobacz, jak działa EasyWonders.">Te ćwiczenia otworzysz bez zakładania konta. Zobacz, jak działa EasyWonders.</p>
-      </div>
-      <div class="eg-fs-row" id="egFsRow"></div>
-      <div class="eg-fs-more"><button type="button" class="eg-fs-all" id="egFsAll"><span data-i18n="Zobacz wszystkie darmowe ćwiczenia">Zobacz wszystkie darmowe ćwiczenia</span>&nbsp;→</button></div>
-    </div>
-    <div class="eg-blogban" id="egBlogBan">
-      <div class="eg-bb-left">
-        <h2 class="eg-bb-title"><span data-i18n="Ucz się teorii z blogiem,">Ucz się teorii z blogiem,</span><span data-i18n="wróć tu po ćwiczenia!">wróć tu po ćwiczenia!</span></h2>
-        <p class="eg-bb-sub" data-i18n="Krótkie, jasne wyjaśnienia gramatyki i słownictwa z przykładami. Przeczytaj, zrozum, a potem sprawdź się w ćwiczeniach.">Krótkie, jasne wyjaśnienia gramatyki i słownictwa z przykładami. Przeczytaj, zrozum, a potem sprawdź się w ćwiczeniach.</p>
-        <a class="eg-bb-btn" href="/nauka"><span data-i18n="Czytaj bloga">Czytaj bloga</span><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"/><path d="M13 6l6 6-6 6"/></svg></a>
-      </div>
-      <div class="eg-bb-right eg-bb-empty" id="egBbRight">
-        <span class="eg-bb-lbl" data-i18n="Najnowsze na blogu">Najnowsze na blogu</span>
-        <div class="eg-bb-strip"><div class="eg-bb-track" id="egBbTrack"></div></div>
-      </div>
-    </div>
-    <div class="eg-how">
+    <div class="eg-how eg-how-top">
       <div class="eg-how-block" id="egHowTutor">
         <h3 class="eg-how-title"><span data-i18n="Jak to działa dla lektorów i ich uczniów">Jak to działa dla lektorów i ich uczniów</span></h3>
         <p class="eg-how-lead" data-i18n="W pięciu prostych krokach">W pięciu prostych krokach</p>
@@ -2019,6 +1999,29 @@
         </div>
         <p class="eg-how-text" data-i18n="Uczysz się w swoim tempie, kiedy tylko masz ochotę - rano z kawą czy wieczorem po pracy. Wybierasz poziom i temat, rozwiązujesz ćwiczenie, a od razu widzisz wynik i wyjaśnienie każdego błędu - bo najwięcej uczymy się właśnie na własnych pomyłkach. Nie musisz niczego drukować ani na nikogo czekać: wystarczy telefon, tablet lub komputer. Możesz śledzić własne postępy i wracać do zagadnień, które sprawiają Ci trudność, aż wejdą w krew - bo trening czyni mistrza!">Uczysz się w swoim tempie, kiedy tylko masz ochotę - rano z kawą czy wieczorem po pracy. Wybierasz poziom i temat, rozwiązujesz ćwiczenie, a od razu widzisz wynik i wyjaśnienie każdego błędu - bo najwięcej uczymy się właśnie na własnych pomyłkach. Nie musisz niczego drukować ani na nikogo czekać: wystarczy telefon, tablet lub komputer. Możesz śledzić własne postępy i wracać do zagadnień, które sprawiają Ci trudność, aż wejdą w krew - bo trening czyni mistrza!</p>
       </div>
+    </div>
+    <!-- DARMOWE NA START: tylko dla niezalogowanych, wypełniane z listy ćwiczeń -->
+    <div class="eg-fs" id="egFs" hidden>
+      <div class="eg-fs-head">
+        <span class="eg-fs-kick" data-i18n="Bez logowania">Bez logowania</span>
+        <h2 class="eg-fs-title" data-i18n="Spróbuj od razu, za darmo">Spróbuj od razu, za darmo</h2>
+        <p class="eg-fs-sub" data-i18n="Te ćwiczenia otworzysz bez zakładania konta. Zobacz, jak działa EasyWonders.">Te ćwiczenia otworzysz bez zakładania konta. Zobacz, jak działa EasyWonders.</p>
+      </div>
+      <div class="eg-fs-row" id="egFsRow"></div>
+      <div class="eg-fs-more"><button type="button" class="eg-fs-all" id="egFsAll"><span data-i18n="Zobacz wszystkie darmowe ćwiczenia">Zobacz wszystkie darmowe ćwiczenia</span>&nbsp;→</button></div>
+    </div>
+    <div class="eg-blogban" id="egBlogBan">
+      <div class="eg-bb-left">
+        <h2 class="eg-bb-title"><span data-i18n="Ucz się teorii z blogiem,">Ucz się teorii z blogiem,</span><span data-i18n="wróć tu po ćwiczenia!">wróć tu po ćwiczenia!</span></h2>
+        <p class="eg-bb-sub" data-i18n="Krótkie, jasne wyjaśnienia gramatyki i słownictwa z przykładami. Przeczytaj, zrozum, a potem sprawdź się w ćwiczeniach.">Krótkie, jasne wyjaśnienia gramatyki i słownictwa z przykładami. Przeczytaj, zrozum, a potem sprawdź się w ćwiczeniach.</p>
+        <a class="eg-bb-btn" href="/nauka"><span data-i18n="Czytaj bloga">Czytaj bloga</span><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"/><path d="M13 6l6 6-6 6"/></svg></a>
+      </div>
+      <div class="eg-bb-right eg-bb-empty" id="egBbRight">
+        <span class="eg-bb-lbl" data-i18n="Najnowsze na blogu">Najnowsze na blogu</span>
+        <div class="eg-bb-strip"><div class="eg-bb-track" id="egBbTrack"></div></div>
+      </div>
+    </div>
+    <div class="eg-how">
       <div class="eg-section-break" aria-hidden="true"><span class="eg-section-break-line"></span><span class="eg-section-break-dot"></span><span class="eg-section-break-line"></span></div>
       <div class="eg-browse eg-start">
         <span class="eg-start-glow" aria-hidden="true"></span>
@@ -3131,7 +3134,7 @@
     function egScrollToHow(id){
       var el = document.getElementById(id);
       if(!el) return;
-      try{ if(window.parent && window.parent !== window){ window.parent.postMessage({ egScrollTo: id }, '*'); } }catch(e){}
+      try{ if(window.parent && window.parent !== window){ window.parent.postMessage({ egScrollTo: id, egScrollY: Math.round(el.getBoundingClientRect().top + (window.scrollY || window.pageYOffset || 0)) }, '*'); } }catch(e){}
       el.scrollIntoView({ behavior:'smooth', block:'start' });
     }
     var pathT = document.getElementById('egPathTutor');
@@ -4352,7 +4355,7 @@
     if(all && !all._egOn){ all._egOn = true; all.addEventListener('click', function(){
       var f = document.querySelector('[data-cat="darmowe"]');
       if(f && !f.classList.contains('eg-active')) f.click();
-      setTimeout(function(){ var gEl = document.getElementById('egFilters') || document.getElementById('egGrid'); if(gEl) gEl.scrollIntoView({behavior:'smooth', block:'start'}); try{ if(window.parent && window.parent !== window) window.parent.postMessage({ egScrollTo: 'egFilters' }, '*'); }catch(e){} }, 120);
+      setTimeout(function(){ var gEl = null; ['egFilters','egGrid'].some(function(id){ var x = document.getElementById(id); if(x && x.offsetParent !== null && x.getBoundingClientRect().height > 0){ gEl = x; return true; } return false; }); if(gEl) gEl.scrollIntoView({behavior:'smooth', block:'start'}); try{ if(gEl && window.parent && window.parent !== window) window.parent.postMessage({ egScrollTo: 'egFilters', egScrollY: Math.round(gEl.getBoundingClientRect().top + (window.scrollY || window.pageYOffset || 0)) }, '*'); }catch(e){} }, 120);
     }); }
   }
 
