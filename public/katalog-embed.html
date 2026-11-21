@@ -1765,6 +1765,38 @@
     .eg-stk-wk{ order:3; flex-basis:100%; justify-content:center; }
     .eg-stk-n{ font-size:26px; }
   }
+
+  /* === Strona dla gości (XI 2026): zwinięte "Jak to działa" + pasek darmowych === */
+  .eg-how-block{ display:none; }
+  .eg-how-block.eg-open{ display:block; animation:egFsIn .3s ease; }
+  @keyframes egFsIn{ from{ opacity:0; transform:translateY(-6px); } to{ opacity:1; transform:none; } }
+  .eg-path.eg-path-on{ box-shadow:0 0 0 3px #f6f1ae, 0 10px 26px rgba(46,42,51,.12); }
+  .eg-fs{ max-width:1100px; margin:26px auto 8px; padding:0 4px; }
+  .eg-fs-head{ text-align:center; margin-bottom:18px; }
+  .eg-fs-kick{ display:inline-block; font-family:'Quicksand',sans-serif; font-weight:700; font-size:12px; letter-spacing:.24em; text-transform:uppercase; color:var(--eg-magenta); }
+  .eg-fs-title{ font-family:'Quicksand',sans-serif; font-weight:700; font-size:30px; line-height:1.15; margin:6px 0 6px; color:#2e2a33; }
+  .eg-fs-sub{ margin:0; font-size:15.5px; color:#6b6475; }
+  .eg-fs-row{ display:flex; gap:16px; overflow-x:auto; scroll-snap-type:x mandatory; padding:6px 4px 14px; scrollbar-width:thin; }
+  .eg-fs-card{ flex:0 0 calc((100% - 48px)/4); min-width:210px; scroll-snap-align:start; display:flex; flex-direction:column; background:#fff; border:1px solid #f0e6ee; border-radius:18px; overflow:hidden; text-decoration:none !important; color:#2e2a33; box-shadow:0 6px 18px rgba(46,42,51,.07); transition:transform .2s, box-shadow .2s; }
+  .eg-fs-card:hover{ transform:translateY(-3px); box-shadow:0 12px 26px rgba(46,42,51,.12); }
+  .eg-fs-img{ display:block; aspect-ratio:3/2; background:#f6f1f5; overflow:hidden; }
+  .eg-fs-img img{ display:block; width:100%; height:100%; object-fit:cover; }
+  .eg-fs-body{ display:flex; flex-direction:column; flex:1; padding:12px 14px 14px; }
+  .eg-fs-meta{ font-size:12px; font-weight:700; color:var(--eg-magenta); }
+  .eg-fs-name{ font-family:'Quicksand',sans-serif; font-weight:700; font-size:15.5px; line-height:1.3; margin:4px 0 12px; }
+  .eg-fs-go{ margin-top:auto; display:block; text-align:center; background:var(--eg-magenta); color:#fff; border-radius:999px; padding:9px 10px; font-family:'Quicksand',sans-serif; font-weight:700; font-size:13.5px; letter-spacing:.04em; }
+  .eg-fs-more{ text-align:center; margin-top:6px; }
+  .eg-fs-all{ background:#fff; color:var(--eg-magenta); border:2px solid var(--eg-magenta); border-radius:999px; padding:10px 22px; font-family:'Quicksand',sans-serif; font-weight:700; font-size:14.5px; cursor:pointer; }
+  .eg-fs-all:hover{ background:#fdf0f7; }
+  html.eg-dark .eg-fs-title{ color:#e8e6ef; }
+  html.eg-dark .eg-fs-sub{ color:#a29caf; }
+  html.eg-dark .eg-fs-card{ background:#24263a; border-color:#363850; color:#e8e6ef; }
+  html.eg-dark .eg-fs-img{ background:#2b2d42; }
+  html.eg-dark .eg-fs-all{ background:transparent; }
+  @media (max-width:700px){
+    .eg-fs-title{ font-size:24px; }
+    .eg-fs-card{ flex-basis:62%; min-width:0; }
+  }
 </style>
 
 <div class="eg-games">
@@ -1835,17 +1867,6 @@
       <span class="eg-matura-sub" data-i18n="z angielskiego · ćwiczenia jak na egzaminie">z angielskiego · ćwiczenia jak na egzaminie</span>
       <span class="eg-matura-go"><span data-i18n="Zapraszamy maturzystów">Zapraszamy maturzystów</span> <span aria-hidden="true">→</span></span>
     </a>
-    <div class="eg-blogban" id="egBlogBan">
-      <div class="eg-bb-left">
-        <h2 class="eg-bb-title"><span data-i18n="Ucz się teorii z blogiem,">Ucz się teorii z blogiem,</span><span data-i18n="wróć tu po ćwiczenia!">wróć tu po ćwiczenia!</span></h2>
-        <p class="eg-bb-sub" data-i18n="Krótkie, jasne wyjaśnienia gramatyki i słownictwa z przykładami. Przeczytaj, zrozum, a potem sprawdź się w ćwiczeniach.">Krótkie, jasne wyjaśnienia gramatyki i słownictwa z przykładami. Przeczytaj, zrozum, a potem sprawdź się w ćwiczeniach.</p>
-        <a class="eg-bb-btn" href="/nauka"><span data-i18n="Czytaj bloga">Czytaj bloga</span><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"/><path d="M13 6l6 6-6 6"/></svg></a>
-      </div>
-      <div class="eg-bb-right eg-bb-empty" id="egBbRight">
-        <span class="eg-bb-lbl" data-i18n="Najnowsze na blogu">Najnowsze na blogu</span>
-        <div class="eg-bb-strip"><div class="eg-bb-track" id="egBbTrack"></div></div>
-      </div>
-    </div>
     <div class="eg-intro">
       <div class="eg-hpro" id="egHpro" aria-roledescription="karuzela" aria-label="Co znajdziesz na EasyWonders">
         <div class="eg-hpro-left">
@@ -1900,10 +1921,31 @@
           <span class="eg-path-go" data-i18n="Zobacz, jak to działa →">Zobacz, jak to działa →</span>
         </button>
         <button type="button" class="eg-path eg-path-s" id="egPathStudent">
-          <span class="eg-path-h" data-i18n="Uczę się sam / sama">Uczę się sam / sama</span>
+          <span class="eg-path-h" data-i18n="Uczę się samodzielnie">Uczę się samodzielnie</span>
           <span class="eg-path-p" data-i18n="Ćwicz kiedy chcesz, w swoim tempie. Od razu widzisz wynik i wyjaśnienie każdego błędu.">Ćwicz kiedy chcesz, w swoim tempie. Od razu widzisz wynik i wyjaśnienie każdego błędu.</span>
           <span class="eg-path-go" data-i18n="Zobacz, jak to działa →">Zobacz, jak to działa →</span>
         </button>
+      </div>
+    </div>
+    <!-- DARMOWE NA START: tylko dla niezalogowanych, wypełniane z listy ćwiczeń -->
+    <div class="eg-fs" id="egFs" hidden>
+      <div class="eg-fs-head">
+        <span class="eg-fs-kick" data-i18n="Bez logowania">Bez logowania</span>
+        <h2 class="eg-fs-title" data-i18n="Spróbuj od razu, za darmo">Spróbuj od razu, za darmo</h2>
+        <p class="eg-fs-sub" data-i18n="Te ćwiczenia otworzysz bez zakładania konta. Zobacz, jak działa EasyWonders.">Te ćwiczenia otworzysz bez zakładania konta. Zobacz, jak działa EasyWonders.</p>
+      </div>
+      <div class="eg-fs-row" id="egFsRow"></div>
+      <div class="eg-fs-more"><button type="button" class="eg-fs-all" id="egFsAll"><span data-i18n="Zobacz wszystkie darmowe ćwiczenia">Zobacz wszystkie darmowe ćwiczenia</span>&nbsp;→</button></div>
+    </div>
+    <div class="eg-blogban" id="egBlogBan">
+      <div class="eg-bb-left">
+        <h2 class="eg-bb-title"><span data-i18n="Ucz się teorii z blogiem,">Ucz się teorii z blogiem,</span><span data-i18n="wróć tu po ćwiczenia!">wróć tu po ćwiczenia!</span></h2>
+        <p class="eg-bb-sub" data-i18n="Krótkie, jasne wyjaśnienia gramatyki i słownictwa z przykładami. Przeczytaj, zrozum, a potem sprawdź się w ćwiczeniach.">Krótkie, jasne wyjaśnienia gramatyki i słownictwa z przykładami. Przeczytaj, zrozum, a potem sprawdź się w ćwiczeniach.</p>
+        <a class="eg-bb-btn" href="/nauka"><span data-i18n="Czytaj bloga">Czytaj bloga</span><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"/><path d="M13 6l6 6-6 6"/></svg></a>
+      </div>
+      <div class="eg-bb-right eg-bb-empty" id="egBbRight">
+        <span class="eg-bb-lbl" data-i18n="Najnowsze na blogu">Najnowsze na blogu</span>
+        <div class="eg-bb-strip"><div class="eg-bb-track" id="egBbTrack"></div></div>
       </div>
     </div>
     <div class="eg-how">
@@ -2242,6 +2284,8 @@
   var SUPA_KEY = 'sb_publishable_TNCq1UAMAvLO0Z5Mt8QOig_OvsxhhyJ';
   var PLAY_URL = '/graj/';
   var ACCESS_URL = '/oferta'; // "Wykup dostęp" → strona oferty
+  var egGuest = false;        // true, gdy na pewno nikt nie jest zalogowany
+  var GUEST_TRY_URL = '/logowanie?rejestracja'; // gość: "Wypróbuj za darmo" → założenie konta (14 dni gratis)
   var LOGIN_LINK = '/logowanie'; // ścieżka względna — działa na każdej domenie, sesja zostaje na tej samej
   var MIN_TILES = 3; // ile minimum kafelków (dopełnia "wkrótce")
   var _sb = window.supabase ? window.supabase.createClient(SUPA_URL, SUPA_KEY) : null;
@@ -3091,9 +3135,19 @@
       el.scrollIntoView({ behavior:'smooth', block:'start' });
     }
     var pathT = document.getElementById('egPathTutor');
-    if(pathT) pathT.addEventListener('click', function(){ egScrollToHow('egHowTutor'); });
+    function egToggleHow(id){
+      ['egHowTutor','egHowStudent'].forEach(function(k){
+        var b = document.getElementById(k); if(!b) return;
+        if(k === id) b.classList.toggle('eg-open'); else b.classList.remove('eg-open');
+      });
+      var el = document.getElementById(id);
+      if(el && el.classList.contains('eg-open')) setTimeout(function(){ egScrollToHow(id); }, 60);
+      if(pathT) pathT.classList.toggle('eg-path-on', id==='egHowTutor' && el && el.classList.contains('eg-open'));
+      if(pathS) pathS.classList.toggle('eg-path-on', id==='egHowStudent' && el && el.classList.contains('eg-open'));
+    }
+    if(pathT) pathT.addEventListener('click', function(){ egToggleHow('egHowTutor'); });
     var pathS = document.getElementById('egPathStudent');
-    if(pathS) pathS.addEventListener('click', function(){ egScrollToHow('egHowStudent'); });
+    if(pathS) pathS.addEventListener('click', function(){ egToggleHow('egHowStudent'); });
 
     // Przewiń do sekcji ćwiczeń, gdy ktoś przyszedł z "Zobacz ćwiczenia" (?widok=cwiczenia albo #cwiczenia)
     (function(){
@@ -3352,8 +3406,8 @@
         : (g.category === 'listening' || g.template === 'listening') ? t('SŁUCHAJ')
         : t('ĆWICZ');
       var playBtn = locked
-        ? '<a class="eg-play eg-play-locked" href="' + ACCESS_URL + '">' +
-            '<svg viewBox="0 0 24 24" width="15" height="15" style="vertical-align:-2px;margin-right:6px"><path d="M12 2a5 5 0 0 0-5 5v3H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8a2 2 0 0 0-2-2h-1V7a5 5 0 0 0-5-5zm-3 5a3 3 0 0 1 6 0v3H9V7z" fill="currentColor"/></svg>' + t('Wykup dostęp') + '</a>'
+        ? '<a class="eg-play eg-play-locked" href="' + (egGuest ? GUEST_TRY_URL : ACCESS_URL) + '">' +
+            '<svg viewBox="0 0 24 24" width="15" height="15" style="vertical-align:-2px;margin-right:6px"><path d="M12 2a5 5 0 0 0-5 5v3H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8a2 2 0 0 0-2-2h-1V7a5 5 0 0 0-5-5zm-3 5a3 3 0 0 1 6 0v3H9V7z" fill="currentColor"/></svg>' + (egGuest ? t('Wypróbuj za darmo') : t('Wykup dostęp')) + '</a>'
         : '<a class="eg-play" href="/cwiczenie/' + encodeURIComponent(g.slug) + '">' + playLabel + '</a>';
       // ikona domku dla pracy domowej (gdy lektor przypisał to ćwiczenie zalogowanemu uczniowi)
       var homework = homeworkSet[g.slug]
@@ -3979,6 +4033,7 @@
   .then(function(r){ return r.json(); })
   .then(function(rows){
     allGames = Array.isArray(rows) ? rows : [];
+    if(egGuest) egBuildFreeStrip();
     updateHwBadge(); // praca domowa mogła się wczytać przed listą ćwiczeń
     buildLevelFilters();
     // Priorytet: filtry z adresu (?poziom=/?kategoria=) — gdy ktoś wchodzi z linku.
@@ -4270,11 +4325,42 @@
     }).catch(function(){});
   }
 
+
+  // Pasek "Spróbuj od razu, za darmo" — tylko dla gości; darmowe ćwiczenia z okładką, mieszanka kategorii
+  function egBuildFreeStrip(){
+    var box = document.getElementById('egFs'), row = document.getElementById('egFsRow');
+    if(!box || !row || !egGuest || !allGames.length || box._egDone) return;
+    var free = allGames.filter(function(g){ return !g.is_premium && !g.matura && g.cover_url; });
+    if(free.length < 3) return;
+    var by = {}; free.forEach(function(g){ (by[g.category] = by[g.category] || []).push(g); });
+    var cats = Object.keys(by), pick = [], k = 0;
+    cats.forEach(function(c){ by[c].sort(function(){ return Math.random() - .5; }); });
+    while(pick.length < 8 && cats.some(function(c){ return by[c].length; })){
+      var c = cats[k++ % cats.length]; if(by[c].length) pick.push(by[c].shift());
+    }
+    var CL = { gramatyka:t('Gramatyka'), slownictwo:t('Słownictwo'), reading:t('Czytanie'), listening:t('Słuchanie'), speaking:t('Mówienie'), kultura:t('Wiedza o krajach') };
+    row.innerHTML = pick.map(function(g){
+      var lbl = (g.category==='speaking') ? "LET'S TALK" : (g.category==='reading') ? t('CZYTAJ') : (g.category==='listening') ? t('SŁUCHAJ') : t('ĆWICZ');
+      return '<a class="eg-fs-card" href="/cwiczenie/' + encodeURIComponent(g.slug) + '">' +
+        '<span class="eg-fs-img"><img loading="lazy" src="' + esc(g.cover_url) + '" alt=""></span>' +
+        '<span class="eg-fs-body"><span class="eg-fs-meta">' + esc(CL[g.category] || '') + (g.level ? ' · ' + esc(g.level) : '') + '</span>' +
+        '<span class="eg-fs-name">' + esc(g.title) + '</span>' +
+        '<span class="eg-fs-go">' + lbl + '</span></span></a>';
+    }).join('');
+    box.hidden = false; box._egDone = true;
+    var all = document.getElementById('egFsAll');
+    if(all && !all._egOn){ all._egOn = true; all.addEventListener('click', function(){
+      var f = document.querySelector('[data-cat="darmowe"]');
+      if(f && !f.classList.contains('eg-active')) f.click();
+      setTimeout(function(){ var gEl = document.getElementById('egFilters') || document.getElementById('egGrid'); if(gEl) gEl.scrollIntoView({behavior:'smooth', block:'start'}); try{ if(window.parent && window.parent !== window) window.parent.postMessage({ egScrollTo: 'egFilters' }, '*'); }catch(e){} }, 120);
+    }); }
+  }
+
   function loadHomework(){
-    if(!_sb){ egTellParentLogin(false); egLoadPixelForGuest(); renderAccount(null, null); applyLoginUI(false, false); return; }
+    if(!_sb){ egTellParentLogin(false); egLoadPixelForGuest(); renderAccount(null, null); applyLoginUI(false, false); egGuest = true; try{ if(allGames.length) render(); }catch(e){} egBuildFreeStrip(); return; }
     _sb.auth.getSession().then(function(res){
       var session = res && res.data ? res.data.session : null;
-      if(!session){ egTellParentLogin(false); egLoadPixelForGuest(); renderAccount(null, null); applyLoginUI(false, false); return; }
+      if(!session){ egTellParentLogin(false); egLoadPixelForGuest(); renderAccount(null, null); applyLoginUI(false, false); egGuest = true; try{ if(allGames.length) render(); }catch(e){} egBuildFreeStrip(); return; }
       currentStudentId = session.user.id;
       egTellParentLogin(true);
       // pobierz profil (rola, dostęp, źródło, Speaking) do paska konta i filtrowania
@@ -4562,6 +4648,11 @@
     'Brak gier dla wybranych filtrów.': 'No exercises match the selected filters.',
     'Nie udało się wczytać gier. Odśwież stronę.': 'Couldn\u2019t load the exercises. Please refresh the page.',
     'Wykup dostęp': 'Get access',
+    'Wypróbuj za darmo': 'Try for free',
+    'Bez logowania': 'No login needed',
+    'Spróbuj od razu, za darmo': 'Try it now, for free',
+    'Te ćwiczenia otworzysz bez zakładania konta. Zobacz, jak działa EasyWonders.': 'Open these exercises without an account and see how EasyWonders works.',
+    'Zobacz wszystkie darmowe ćwiczenia': 'See all free exercises',
     'zobacz całą serię': 'see full series',
     'wszystkich Twoich ćwiczeń': 'of all your exercises',
     // postępy
@@ -4586,7 +4677,7 @@
     'Wybierz swoją ścieżkę:': 'Choose your path:',
     'Uczę angielskiego': 'I teach English',
     'Gotowe ćwiczenia na lekcję i pracę domową, która sprawdza się sama. Panel lektora i postępy uczniów.': 'Ready-made exercises for lessons and self-checking homework. Teacher panel and student progress.',
-    'Uczę się sam / sama': 'I learn on my own',
+    'Uczę się samodzielnie': 'I learn on my own',
     'Ćwicz kiedy chcesz, w swoim tempie. Od razu widzisz wynik i wyjaśnienie każdego błędu.': 'Practise whenever you like, at your own pace. See your score and an explanation of every mistake right away.',
     'Zobacz, jak to działa →': 'See how it works →',
     'Poznaj naszą bazę ćwiczeń!': 'Explore our exercise library!',
