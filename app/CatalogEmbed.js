@@ -21,6 +21,28 @@ export default function CatalogEmbed() {
   // przyklejony pasek. Iframe ma wysokość całego katalogu, więc pasek w jego środku nie mógłby
   // zostać na ekranie przy przewijaniu. null = brak podglądu, tekst = imię oglądanego ucznia.
   const [svName, setSvName] = useState(null);
+  // Pływająca plakietka filtrów: katalog (iframe) przysyła listę włączonych filtrów i pozycje
+  // (dół paska „Aktywne filtry” i dół listy ćwiczeń, liczone od góry katalogu). Plakietkę pokazujemy,
+  // gdy pasek zniknął już nad ekranem, a użytkownik nadal przegląda listę ćwiczeń.
+  const [pill, setPill] = useState(null);
+  const [pillOn, setPillOn] = useState(false);
+  useEffect(() => {
+    if (!pill) { setPillOn(false); return; }
+    function check() {
+      if (!ref.current) return;
+      const top = ref.current.getBoundingClientRect().top;
+      const barGone = top + pill.barBottom < 0;
+      const stillInList = top + pill.endBottom > window.innerHeight * 0.35;
+      setPillOn(barGone && stillInList);
+    }
+    check();
+    window.addEventListener('scroll', check, { passive: true });
+    window.addEventListener('resize', check);
+    return () => { window.removeEventListener('scroll', check); window.removeEventListener('resize', check); };
+  }, [pill]);
+  function pillClear() {
+    try { ref.current && ref.current.contentWindow.postMessage({ egClearFilters: true }, window.location.origin); } catch (e) {}
+  }
   function svExit() {
     try { ref.current && ref.current.contentWindow.postMessage({ egExitStudentView: true }, window.location.origin); } catch (e) {}
   }
@@ -113,6 +135,10 @@ export default function CatalogEmbed() {
         // potwierdź katalogowi, że pasek jest u rodzica (wtedy chowa swój baner)
         try { e.source && e.source.postMessage({ egSvBarShown: !!(sv && sv.name) }, window.location.origin); } catch (err) {}
       }
+      // katalog zgłasza włączone filtry (albo null = brak filtrów) → pływająca plakietka
+      if (e.origin === window.location.origin && e.data && 'egFilterPill' in e.data) {
+        setPill(e.data.egFilterPill || null);
+      }
       if (e.data && typeof e.data.egCatalogHeight === 'number' && ref.current) {
         ref.current.style.height = Math.max(600, e.data.egCatalogHeight) + 'px';
       }
@@ -201,7 +227,27 @@ export default function CatalogEmbed() {
 .egsv-x{ min-height:40px; padding:0 14px; border:1.5px solid #fff; border-radius:999px; background:transparent; color:#fff; font-family:inherit; font-size:14.5px; font-weight:600; cursor:pointer; }
 .egsv-x:hover{ background:#fff; color:#ca4490; }
 @media (max-width:640px){ .egsv-stick{ padding:0; } .egsv-bar{ border-radius:0 0 14px 14px; } .egsv-legend{ display:none; } }
+.egfp{ position:fixed; left:50%; bottom:18px; transform:translate(-50%, 20px); opacity:0; pointer-events:none; z-index:60;
+  display:flex; align-items:center; gap:10px; max-width:calc(100vw - 24px); box-sizing:border-box;
+  padding:8px 8px 8px 16px; background:#ca4490; color:#fff; border-radius:999px; box-shadow:0 10px 26px rgba(202,68,144,.35);
+  font-family:'Outfit','Segoe UI',Arial,sans-serif; font-size:14px; transition:opacity .2s, transform .2s; }
+.egfp.egfp-on{ opacity:1; transform:translate(-50%, 0); pointer-events:auto; }
+.egfp-t{ font-weight:700; white-space:nowrap; }
+.egfp-l{ overflow:hidden; text-overflow:ellipsis; white-space:nowrap; min-width:0; }
+.egfp-c{ white-space:nowrap; opacity:.9; }
+.egfp-x{ flex:none; min-height:32px; padding:0 14px; border:none; border-radius:999px; background:#fff; color:#ca4490;
+  font-family:inherit; font-size:13.5px; font-weight:700; cursor:pointer; }
+.egfp-x:hover{ background:#f6f1ae; }
+@media (max-width:640px){ .egfp{ font-size:13px; gap:8px; bottom:12px; } .egfp-t{ display:none; } }
 `}</style>
+    {pill && (
+      <div className={'egfp' + (pillOn ? ' egfp-on' : '')} role="status" aria-hidden={!pillOn}>
+        <span className="egfp-t">{pill.title}</span>
+        <span className="egfp-l">{(pill.labels || []).join(' · ')}</span>
+        <span className="egfp-c">· {pill.count}</span>
+        <button type="button" className="egfp-x" onClick={pillClear} tabIndex={pillOn ? 0 : -1}>{pill.clear} ✕</button>
+      </div>
+    )}
     <iframe
       ref={ref}
       src={src}
