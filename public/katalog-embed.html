@@ -358,6 +358,17 @@
   .eg-matura-go{ font-family:'Outfit',sans-serif; font-size:16px; font-weight:700; color:var(--eg-magenta); margin-top:6px; }
   .eg-matura:hover .eg-matura-go{ text-decoration:underline; text-underline-offset:3px; }
   .eg-matura-pv{ display:block; max-width:420px; margin-top:10px; padding:6px 12px; border-radius:10px; background:#f6f1ae; color:#5b4d10; font-family:'Outfit',sans-serif; font-size:12.5px; font-weight:600; line-height:1.4; text-align:center; }
+  /* TYLKO ZALOGOWANI (html.eg-in), szeroki ekran od 1280 px: „Matura” stoi z prawej strony logo, a nie pod nim.
+     Goście widzą Maturę po staremu, pod logo. */
+  @media (min-width:1280px){
+    html.eg-in .eg-hero{ position:relative; }
+    html.eg-in .eg-hero .eg-matura{ position:absolute; top:90px; right:24px; margin:0; padding:12px 22px 14px; max-width:290px; }
+    html.eg-in .eg-hero .eg-matura-h{ font-size:52px; }
+    html.eg-in .eg-hero .eg-matura-sub{ font-size:12px; letter-spacing:1.1px; text-align:center; }
+    html.eg-in .eg-hero .eg-matura-go{ font-size:15px; text-align:center; }
+    html.eg-in .eg-hero .eg-mt-clock{ font-size:21px; }
+    html.eg-in .eg-hero .eg-matura-pv{ max-width:260px; font-size:11.5px; }
+  }
   html.eg-dark .eg-matura{ border-color:#e8e6ef; }
   html.eg-dark .eg-matura-h{ color:#e8e6ef; }
   html.eg-dark .eg-hero-title .eg-logo-light{ display:none; }
@@ -2349,6 +2360,7 @@
   var egHasSession = false; // czy ktoś jest zalogowany (do przeplatania darmowych/płatnych na wejściu)
   function egUpdateHeroVisibility(loggedIn){
     egHasSession = !!loggedIn;
+    document.documentElement.classList.toggle('eg-in', !!loggedIn); // znacznik „zalogowany” dla CSS (np. Matura obok logo)
     var intro = document.querySelector('.eg-intro');
     if(intro) intro.style.display = loggedIn ? 'none' : '';
     // WSZYSTKIE sekcje .eg-how (bloki „Jak to działa” ORAZ baner „Tu zaczyna się Twoja przygoda!”) — tylko dla gości
