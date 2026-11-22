@@ -2728,17 +2728,62 @@
     if(curSearch && curSearch.trim()){
       chips.push({ kind:'search', val:'', label:'„' + curSearch.trim() + '"' });
     }
-    if(chips.length === 0){ bar.style.display = 'none'; chipsWrap.innerHTML = ''; return; }
+    if(chips.length === 0){ bar.style.display = 'none'; chipsWrap.innerHTML = ''; egSendFilterPill(null); return; }
     var html = '';
+    var pillLabels = [];
     chips.forEach(function(c){
       var lab = (typeof t === 'function') ? t(c.label) : c.label;
+      pillLabels.push(lab);
       html += '<span class="eg-af-chip">' + esc(lab) +
         '<button type="button" data-kind="' + c.kind + '" data-val="' + esc(c.val) +
         '" aria-label="Usuń filtr">✕</button></span>';
     });
     chipsWrap.innerHTML = html;
     bar.style.display = 'flex';
+    egSendFilterPill(pillLabels);
   }
+
+  // ===== PŁYWAJĄCA PLAKIETKA FILTRÓW =====
+  // Strona-rodzic (CatalogEmbed.js) pokazuje przyklejoną do ekranu plakietkę „Filtry: … · 24 z 540 ćwiczeń · Wyczyść”,
+  // gdy filtry są włączone, a pasek „Aktywne filtry” zniknął już z widoku (użytkownik przewinął w dół).
+  // Iframe nie umie sam niczego przykleić do ekranu, bo ma wysokość całego katalogu — dlatego robi to rodzic.
+  window.egShownCount = window.egShownCount || 0;
+  var egPillLabels = null;
+  function egSendFilterPill(labels){
+    egPillLabels = labels;
+    requestAnimationFrame(function(){
+      try{
+        if(!window.parent || window.parent === window) return;
+        if(!labels || !labels.length){ window.parent.postMessage({ egFilterPill: null }, window.location.origin); return; }
+        var bar = document.getElementById('egActiveFilters');
+        var grid = document.getElementById('egGrid');
+        var pag = document.getElementById('egPager');
+        var endEl = (pag && pag.offsetHeight) ? pag : grid;
+        var en = window.EG_LANG === 'en';
+        var total = allGames.length;
+        window.parent.postMessage({ egFilterPill: {
+          labels: labels,
+          title: en ? 'Filters:' : 'Filtry:',
+          count: en ? (window.egShownCount + ' of ' + total + ' exercises') : (window.egShownCount + ' z ' + total + ' ćwiczeń'),
+          clear: en ? 'Clear' : 'Wyczyść',
+          barBottom: bar ? Math.round(bar.getBoundingClientRect().bottom + window.scrollY) : 0,
+          endBottom: endEl ? Math.round(endEl.getBoundingClientRect().bottom + window.scrollY) : 0
+        } }, window.location.origin);
+      }catch(e){}
+    });
+  }
+  // po zmianie szerokości pozycje paska i listy się przesuwają — wyślij je jeszcze raz
+  window.addEventListener('resize', function(){ if(egPillLabels) egSendFilterPill(egPillLabels); });
+  // rodzic: kliknięto „Wyczyść” na plakietce → wyczyść filtry i wróć do góry listy
+  window.addEventListener('message', function(e){
+    if(e.origin !== window.location.origin || !e.data || !e.data.egClearFilters) return;
+    var cb = document.getElementById('egActiveFiltersClear');
+    if(cb) cb.click();
+    try{
+      var f = document.getElementById('egFilters') || document.getElementById('egGrid');
+      if(f) window.parent.postMessage({ egScrollY: Math.round(f.getBoundingClientRect().top + window.scrollY) }, window.location.origin);
+    }catch(err){}
+  });
 
   // usuwa pojedynczy filtr po kliknięciu ✕ na chipie
   function removeOneFilter(kind, val){
@@ -3370,6 +3415,7 @@
     if(curPage < 1) curPage = 1;
     var pageStart = (curPage - 1) * perPage;
     var fullCount = list.length;                       // ile realnych zadań w tym filtrze
+    window.egShownCount = fullCount;                          // dla pływającej plakietki filtrów (u rodzica)
     var pageList = list.slice(pageStart, pageStart + perPage);
     var isLastPage = (curPage >= totalPages);
 
