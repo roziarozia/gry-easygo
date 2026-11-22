@@ -2351,8 +2351,8 @@
     egHasSession = !!loggedIn;
     var intro = document.querySelector('.eg-intro');
     if(intro) intro.style.display = loggedIn ? 'none' : '';
-    var how = document.querySelector('.eg-how');
-    if(how) how.style.display = loggedIn ? 'none' : '';
+    // WSZYSTKIE sekcje .eg-how (bloki „Jak to działa” ORAZ baner „Tu zaczyna się Twoja przygoda!”) — tylko dla gości
+    [].forEach.call(document.querySelectorAll('.eg-how'), function(how){ how.style.display = loggedIn ? 'none' : ''; });
     var about = document.querySelector('.eg-about');
     if(about) about.style.display = loggedIn ? 'none' : '';
     var opNav = document.getElementById('egOpinieNav');
