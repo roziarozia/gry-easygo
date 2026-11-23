@@ -212,7 +212,7 @@
       left:16px; right:16px; transform:none;
       min-width:0; width:auto; max-width:none;
     }
-    .eg-tk-item{ word-break:break-word; }
+    .eg-tk-item{ font-size:13px; }
 
     /* ===== TELEFON: 3 pastylki zamiast ściany filtrów ===== */
     /* chowamy oryginalne rzędy filtrów i poziomów, pokazujemy pastylki */
@@ -866,30 +866,39 @@
   .eg-teczka-btn .eg-teczka-caret{ transition:transform .18s; }
   .eg-teczka.eg-open .eg-teczka-caret{ transform:rotate(180deg); }
   .eg-teczka-panel{
-    display:none; position:absolute; top:calc(100% + 8px); left:0; z-index:60;
-    min-width:260px; max-width:320px; max-height:60vh; overflow-y:auto;
+    display:none; position:absolute; top:calc(100% + 8px); right:0; left:auto; z-index:60;
+    /* stała wysokość w px: strona siedzi w iframe dopasowanym do treści, więc 60vh nic nie ograniczało */
+    width:420px; max-width:calc(100vw - 32px); max-height:340px; overflow-y:auto; overscroll-behavior:contain;
     background:var(--eg-card); border:1.5px solid var(--eg-line); border-radius:14px;
     box-shadow:0 10px 34px rgba(46,42,51,.16); padding:8px;
   }
-  .eg-teczka.eg-open .eg-teczka-panel{ display:block; }
+  /* uczniowie w DWÓCH kolumnach, kompaktowo - przy wielu uczniach szybciej się wybiera */
+  .eg-teczka.eg-open .eg-teczka-panel{ display:grid; grid-template-columns:1fr 1fr; gap:1px 4px; align-content:start; }
+  .eg-teczka-panel .eg-tk-group-title, .eg-teczka-panel .eg-tk-exit, .eg-teczka-panel .eg-tk-empty{ grid-column:1 / -1; }
   .eg-teczka-panel .eg-tk-group-title{
-    font-family:'Quicksand',sans-serif; font-weight:700; font-size:11px; letter-spacing:.04em;
-    text-transform:uppercase; color:var(--eg-muted); padding:8px 10px 4px;
+    font-family:'Quicksand',sans-serif; font-weight:700; font-size:10.5px; letter-spacing:.04em;
+    text-transform:uppercase; color:var(--eg-muted); padding:7px 8px 3px;
   }
   .eg-tk-item{
-    display:flex; align-items:center; gap:9px; width:100%; text-align:left;
-    font-family:'Nunito',sans-serif; font-size:14px; font-weight:600; color:var(--eg-ink);
-    background:none; border:none; border-radius:9px; padding:9px 10px; cursor:pointer;
+    display:flex; align-items:center; gap:7px; width:100%; min-width:0; text-align:left;
+    font-family:'Nunito',sans-serif; font-size:13px; font-weight:600; color:var(--eg-ink);
+    background:none; border:none; border-radius:8px; padding:5px 8px; cursor:pointer;
+    white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
   }
   .eg-tk-item:hover{ background:var(--eg-card-soft); }
+  .eg-tk-nm{ min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  /* telefon: panel na całą szerokość belki (ta reguła musi stać PO ogólnej, żeby ją nadpisać) */
+  @media (max-width:620px){
+    .eg-teczka-panel{ left:16px; right:16px; width:auto; max-width:none; }
+  }
   .eg-tk-item.eg-tk-active{ background:#efeafc; color:var(--eg-violet); }
-  .eg-tk-item.eg-tk-indent{ padding-left:22px; }
+  .eg-tk-item.eg-tk-indent{ padding-left:8px; }
   .eg-tk-empty{ font-family:'Nunito',sans-serif; font-size:12.5px; color:var(--eg-muted); padding:4px 10px 8px 22px; font-style:italic; }
   html.eg-dark .eg-tk-item.eg-tk-active{ background:#33294e; }
   .eg-tk-avatar{
     display:inline-flex; align-items:center; justify-content:center; flex:0 0 auto;
-    width:28px; height:28px; border-radius:999px; background:var(--eg-violet); color:#fff;
-    font-family:'Quicksand',sans-serif; font-weight:700; font-size:12px;
+    width:22px; height:22px; border-radius:999px; background:var(--eg-violet); color:#fff;
+    font-family:'Quicksand',sans-serif; font-weight:700; font-size:10px;
   }
   .eg-tk-avatar.eg-tk-grp{ background:var(--eg-gold); color:#5a4a1e; }
   .eg-tk-exit{ color:var(--eg-magenta); }
@@ -2905,7 +2914,7 @@
     var active = (svViewing && svViewing.kind==='student' && svViewing.id===s.id);
     return '<button type="button" class="eg-tk-item' + (indented?' eg-tk-indent':'') + (active?' eg-tk-active':'') +
       '" data-kind="student" data-id="' + esc(s.id) + '">' +
-      '<span class="eg-tk-avatar">' + esc(initials(s.name)) + '</span>' + esc(s.name) + '</button>';
+      '<span class="eg-tk-avatar">' + esc(initials(s.name)) + '</span><span class="eg-tk-nm" title="' + esc(s.name) + '">' + esc(s.name) + '</span></button>';
   }
 
   function initials(name){
