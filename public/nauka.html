@@ -900,26 +900,8 @@ window.ewImgFallback = function(img){
     });
 })();
 </script>
-<!-- Google Analytics — tylko gdy jest zgoda na cookies (RODO), ten sam klucz co strona główna -->
-<script>
-(function(){
-  try{
-    var v = localStorage.getItem('easygo_zgoda_cookies');
-    if(v !== 'all' && v !== 'accepted') return;
-  }catch(e){ return; }
-  var GA_ID = 'G-KWQVZY8YED';
-  var s = document.createElement('script');
-  s.async = true;
-  s.src = 'https://www.googletagmanager.com/gtag/js?id=' + GA_ID;
-  document.head.appendChild(s);
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){ window.dataLayer.push(arguments); }
-  window.gtag = gtag;
-  gtag('js', new Date());
-  gtag('config', GA_ID);
-})();
-</script>
-
+<!-- Analityka (baner cookies, GA4, PostHog) – ten sam skrypt i ta sama zgoda co reszta strony -->
+<script src="/eg-analytics.js" defer></script>
 <script>
 /* BANER: pasek ćwiczeń przewija się sam (po 2 z każdego rodzaju, losowo), pauza po najechaniu myszką */
 (function(){
