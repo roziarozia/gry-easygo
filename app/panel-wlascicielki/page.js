@@ -26,6 +26,36 @@ function fmtDate(iso) {
   return d.toLocaleDateString('pl-PL', { day: 'numeric', month: 'short' });
 }
 
+// Skąd przyszło konto (tabela signup_sources) — czytelna nazwa źródła + strona wejścia
+const SRC_NAMES = [
+  [/google\./, 'Google'], [/bing\./, 'Bing'], [/duckduckgo/, 'DuckDuckGo'], [/yahoo\./, 'Yahoo'],
+  [/chatgpt\.com|openai\.com/, 'ChatGPT'], [/perplexity/, 'Perplexity'], [/claude\.ai/, 'Claude'], [/gemini\.google/, 'Gemini'], [/copilot/, 'Copilot'],
+  [/instagram/, 'Instagram'], [/facebook|fb\.com|fb\.me/, 'Facebook'], [/tiktok/, 'TikTok'], [/linkedin|lnkd\.in/, 'LinkedIn'],
+  [/youtube|youtu\.be/, 'YouTube'], [/pinterest/, 'Pinterest'], [/easygo-english\.pl/, 'easygo-english.pl'],
+  [/mail\.|poczta|gmail/, 'poczta / mail'],
+];
+function srcLabel(src) {
+  if (!src || !src.ref) return null;
+  if (src.utmSource) return src.utmSource + (src.utmCampaign ? ' · ' + src.utmCampaign : '') + (src.utmMedium ? ' (' + src.utmMedium + ')' : '');
+  if (src.ref === 'direct') return 'wpisany adres / link z aplikacji';
+  for (const [re, name] of SRC_NAMES) if (re.test(src.ref)) return name;
+  return src.ref.replace(/^www\./, '');
+}
+function SourceCell({ src }) {
+  const label = srcLabel(src);
+  if (!label) return <span style={{ color: C.muted }}>brak danych</span>;
+  return (
+    <span title={(src.refUrl || '') + (src.landing ? '  →  ' + src.landing : '')}>
+      <b style={{ fontWeight: 700 }}>{label}</b>
+      {src.landing && src.landing !== '/' && (
+        <span style={{ display: 'block', fontSize: 11, color: C.muted, maxWidth: 220, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+          wszedł na: {src.landing}
+        </span>
+      )}
+    </span>
+  );
+}
+
 export default function PanelWlascicielki() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -155,7 +185,7 @@ export default function PanelWlascicielki() {
             <div style={{ overflowX: 'auto' }}>
               <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13 }}>
                 <thead><tr style={{ textAlign: 'left', color: C.muted }}>
-                  <th style={th}>Mail</th><th style={th}>Rola</th><th style={th}>Dostęp</th><th style={th}>Lektor</th><th style={th}>Ćwiczeń</th><th style={th}>Dołączył</th><th style={th}>Ostatnio</th>
+                  <th style={th}>Mail</th><th style={th}>Rola</th><th style={th}>Dostęp</th><th style={th}>Lektor</th><th style={th}>Ćwiczeń</th><th style={th}>Dołączył</th><th style={th}>Skąd</th><th style={th}>Ostatnio</th>
                 </tr></thead>
                 <tbody>
                   {found.map((d, i) => (
@@ -166,6 +196,7 @@ export default function PanelWlascicielki() {
                       <td style={{ ...td, color: C.muted }}>{d.teacherEmail || '—'}</td>
                       <td style={td}>{d.exercises}</td>
                       <td style={{ ...td, color: C.muted }}>{fmtDate(d.createdAt)}</td>
+                      <td style={td}><SourceCell src={d.source} /></td>
                       <td style={{ ...td, color: C.muted }}>{fmtDate(d.lastActive)}</td>
                     </tr>
                   ))}
@@ -233,10 +264,10 @@ export default function PanelWlascicielki() {
 
         {/* ŚWIEŻE KONTA */}
         <SectionTitle>Świeże konta z zewnątrz (14 dni)</SectionTitle>
-        <p style={{ fontSize: 13, color: C.muted, margin: '0 0 12px' }}>Konta bez lektora — lektorki z reklamy albo samodzielni uczniowie.</p>
+        <p style={{ fontSize: 13, color: C.muted, margin: '0 0 12px' }}>Konta bez lektora — lektorki z reklamy albo samodzielni uczniowie. „Skąd przyszedł” zapisujemy od 25 listopada 2026; najedź na źródło, żeby zobaczyć pełny adres.</p>
         <TableCard empty={data.outsiders.length === 0} emptyText="Brak nowych kont z zewnątrz.">
           <thead><tr style={{ textAlign: 'left', color: C.muted, background: C.lawSoft }}>
-            <th style={th}>Mail</th><th style={th}>Rola</th><th style={th}>Dostęp</th><th style={th}>Ćwiczeń</th><th style={th}>Kiedy</th>
+            <th style={th}>Mail</th><th style={th}>Rola</th><th style={th}>Dostęp</th><th style={th}>Ćwiczeń</th><th style={th}>Kiedy</th><th style={th}>Skąd przyszedł</th>
           </tr></thead>
           <tbody>
             {data.outsiders.map((o, i) => (
@@ -246,6 +277,7 @@ export default function PanelWlascicielki() {
                 <td style={td}>{o.access === 'full' ? 'pełny' : 'free'}</td>
                 <td style={td}>{o.exercises}</td>
                 <td style={{ ...td, color: C.muted }}>{fmtDate(o.createdAt)}</td>
+                <td style={td}><SourceCell src={o.source} /></td>
               </tr>
             ))}
           </tbody>
