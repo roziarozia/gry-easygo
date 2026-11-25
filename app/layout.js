@@ -1,6 +1,7 @@
 import './globals.css';
 import ConsentPixel from './ConsentPixel';
 import PostHogInit from './PostHogInit';
+import SignupSource from './SignupSource';
 import { SITE, DEFAULT_OG } from '../lib/site';
 
 export const metadata = {
@@ -38,6 +39,8 @@ export default function RootLayout({ children }) {
       </head>
       <body>
         <PostHogInit />
+        {/* Skąd przychodzą nowe konta (domena odsyłająca + pierwsza strona) — do Panelu właścicielki */}
+        <SignupSource />
         {children}
         {/* Zgoda na cookies (RODO) — Google Analytics, Meta Pixel i PostHog działają DOPIERO po zgodzie użytkownika z banera w ConsentPixel */}
         <ConsentPixel />
