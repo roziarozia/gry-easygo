@@ -3,6 +3,7 @@ import { useEffect, useRef, useState } from 'react';
 import posthog from 'posthog-js';
 import { analyticsEnabled } from '../PostHogInit';
 import { gaEvent } from '../ConsentPixel';
+import { readSource } from '../../lib/zrodlo';
 
 function identifyUser(user, fallbackRole) {
   if (!analyticsEnabled || !user || !user.id) return;
@@ -124,7 +125,7 @@ export default function Logowanie() {
       } else {
         const { data, error } = await sb.auth.signUp({
           email, password,
-          options: { data: { role: role, newsletter: news, newsletter_text: NEWS_TEXT }, emailRedirectTo: backTarget() },
+          options: { data: { role: role, newsletter: news, newsletter_text: NEWS_TEXT, signup_source: readSource() }, emailRedirectTo: backTarget() },
         });
         if (error) throw error;
         identifyUser(data && data.user, role);
