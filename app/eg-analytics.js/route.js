@@ -23,6 +23,33 @@ const script = `// Baner cookies + GA4 + PostHog dla plików HTML z public/ otwi
 
   try { if (window.self !== window.top) return; } catch (e) { return; }
 
+  // Skąd ktoś przyszedł (pierwsze wejście z zewnątrz) — ta sama logika co lib/zrodlo.js, zmieniać razem.
+  // Tylko domena odsyłająca, strona wejścia i utm, bez danych osobowych; do bazy trafia przy rejestracji.
+  (function () {
+    try {
+      var K = 'eg_zrodlo', cur = null;
+      try { cur = JSON.parse(localStorage.getItem(K) || 'null'); } catch (e) { cur = null; }
+      if (cur && cur.at && Date.now() - new Date(cur.at).getTime() > 30 * 86400000) cur = null;
+      var r = document.referrer || '', host = '';
+      try { host = r ? new URL(r).hostname : ''; } catch (e) { host = ''; }
+      var own = host === location.hostname || /(^|\\.)easywonders\\.pl$/.test(host);
+      var q = new URLSearchParams(location.search);
+      var us = (q.get('utm_source') || '').slice(0, 120);
+      var external = (host && !own) || us;
+      if (own && !us) return;
+      if (cur && !(cur.ref === 'direct' && external)) return;
+      localStorage.setItem(K, JSON.stringify({
+        ref: host && !own ? host : (us ? 'utm' : 'direct'),
+        ref_url: host && !own ? r.split('?')[0].split('#')[0].slice(0, 300) : '',
+        landing: (location.pathname || '/').slice(0, 300),
+        utm_source: us,
+        utm_medium: (q.get('utm_medium') || '').slice(0, 120),
+        utm_campaign: (q.get('utm_campaign') || '').slice(0, 160),
+        at: new Date().toISOString()
+      }));
+    } catch (e) {}
+  })();
+
   function get(k) { try { return localStorage.getItem(k); } catch (e) { return null; } }
 
   function readDecision() {
