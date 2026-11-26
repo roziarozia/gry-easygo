@@ -596,7 +596,7 @@ export default function MaturaHub() {
                   const pct = r && r.max ? Math.round((100 * r.score) / r.max) : null;
                   const hwv = vHw[g.slug];
                   return (
-                    <div key={g.slug} className={'mt-vrow' + (r ? ' done' : '')}>
+                    <div key={g.slug} className={'mt-vrow' + (hwv ? ' hw' : '') + (r ? ' done' : '')}>
                       <button type="button" className="mt-vno" title="Otwórz ćwiczenie" onClick={() => open(g)}>{g.exercise_no}</button>
                       <div className="mt-vmain">
                         <div className="mt-vtitle">{g.title}</div>
@@ -612,11 +612,11 @@ export default function MaturaHub() {
                       </div>
                       <div className="mt-vacts">
                         <button type="button" disabled={busy === g.slug} className={'mt-vhw' + (hwv ? ' on' : '')} title={hwv ? 'Kliknij, żeby usunąć z pracy domowej' : 'Zadaj jako pracę domową'} onClick={() => toggleHw(g)}>
-                          {hwv ? 'Zadane' : '+ Zadaj'}
+                          {hwv ? '✓ Zadane' : '+ Zadaj'}
                         </button>
                         {(!r || r.src === 'teacher') && (
                           <button type="button" disabled={busy === g.slug} className={'mt-vok' + (r ? ' on' : '')} title={r ? 'Kliknij, żeby cofnąć zaliczenie' : 'Oznacz jako zrobione (np. na lekcji)'} onClick={() => toggleDone(g)}>
-                            {r ? 'Zaliczone' : 'Zalicz'}
+                            {r ? '✓ Zaliczone' : 'Zalicz'}
                           </button>
                         )}
                       </div>
@@ -935,6 +935,7 @@ a.mt-tk-item{ text-decoration:none; color:inherit; }
 .mt-legend .lg-hw{ background:#f6f1ae; border-color:#e6dc7a; }
 .mt-vlist{ display:flex; flex-direction:column; gap:8px; }
 .mt-vrow{ display:flex; align-items:center; gap:12px; background:#fff; border:1px solid #ebe6dc; border-radius:14px; padding:10px 10px 10px 12px; }
+.mt-vrow.hw{ border-left:4px solid #e0b93a; }
 .mt-vrow.done{ border-left:4px solid #ca4490; }
 .mt-vno{ flex:none; width:40px; height:40px; border-radius:10px; border:1px solid #ddd6ca; background:#fbfaf6; cursor:pointer; font-family:'Outfit',sans-serif; font-weight:700; font-size:15px; color:#1d1a22; }
 .mt-vrow.done .mt-vno{ background:#ca4490; border-color:#ca4490; color:#fff; }
@@ -975,12 +976,14 @@ html.eg-dark .mt-hw-pill{ background:#3b3820; color:#f6f1ae; }
 html.eg-dark .mt-vrow{ background:#24263a; border-color:#363850; }
 html.eg-dark .mt-vno{ background:#1a1b26; border-color:#4a4c66; color:#e8e6ef; }
 html.eg-dark .mt-vscore{ color:#f08cc4; }
-html.eg-dark .mt-vhw{ background:transparent; }
-html.eg-dark .mt-vok{ background:transparent; color:#8fd3ae; border-color:#3a6d50; }
-html.eg-dark .mt-vok.on{ background:#1f3a2c; color:#8fd3ae; border-color:#3a6d50; }
+html.eg-dark .mt-vhw{ background:transparent; color:#f08cc4; border-color:#f08cc4; }
+html.eg-dark .mt-vok{ background:transparent; color:#8fd3ae; border-color:#8fd3ae; }
+html.eg-dark .mt-vok.on{ background:#4cc38a; color:#0f2419; border-color:#4cc38a; }
 html.eg-dark .mt-tk-hint{ background:#24263a; border-color:#363850; color:#c4bfcf; }
 html.eg-dark .mt-tk-hint .mt-link{ color:#f08cc4; }
-html.eg-dark .mt-vhw.on{ background:#3b3820; color:#f6f1ae; border-color:#5c5630; }
+html.eg-dark .mt-vhw.on{ background:#f4c94c; color:#1a1b26; border-color:#f4c94c; }
+html.eg-dark .mt-vrow.hw{ border-left:4px solid #f4c94c; }
+html.eg-dark .mt-vrow.done{ border-left:4px solid #f08cc4; }
 @media (max-width:600px){
   .mt-tk-panel{ position:fixed; left:16px; right:16px; top:70px; width:auto; }
   .mt-view{ border-radius:0 0 14px 14px; margin:0 -16px 14px; }
